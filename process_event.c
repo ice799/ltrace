@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <signal.h>
 #include <assert.h>
+#include <sys/time.h>
 
 #include "ltrace.h"
 #include "output.h"
@@ -156,17 +157,43 @@ process_syscall(struct event * event) {
 	if (opt_S) {
 		output_left(LT_TOF_SYSCALL, event->proc, sysname(event->e_un.sysnum));
 	}
-	callstack_push_syscall(event->proc, event->e_un.sysnum);
 	if (fork_p(event->e_un.sysnum)) {
 		disable_all_breakpoints(event->proc);
 	} else if (!event->proc->breakpoints_enabled) {
 		enable_all_breakpoints(event->proc);
 	}
+	callstack_push_syscall(event->proc, event->e_un.sysnum);
 	continue_process(event->proc->pid);
+}
+
+struct timeval current_time_spent;
+
+static void
+calc_time_spent(struct process * proc) {
+	struct timeval tv;
+	struct timezone tz;
+	struct timeval diff;
+	struct callstack_element * elem;
+
+	elem = & proc->callstack[proc->callstack_depth-1];
+
+	gettimeofday(&tv, &tz);
+
+	diff.tv_sec = tv.tv_sec - elem->time_spent.tv_sec;
+	if (tv.tv_usec >= elem->time_spent.tv_usec) {
+		diff.tv_usec = tv.tv_usec - elem->time_spent.tv_usec;
+	} else {
+		diff.tv_sec++;
+		diff.tv_usec = 1000000 + tv.tv_usec - elem->time_spent.tv_usec;
+	}
+	current_time_spent = diff;
 }
 
 static void
 process_sysret(struct event * event) {
+	if (opt_T || opt_c) {
+		calc_time_spent(event->proc);
+	}
 	if (fork_p(event->e_un.sysnum)) {
 		if (opt_f) {
 			pid_t child = gimme_arg(LT_TOF_SYSCALL,event->proc,-1);
@@ -222,9 +249,13 @@ process_breakpoint(struct event * event) {
                                insert_breakpoint(event->proc, addr);
                        }
 #endif
-			for(j=event->proc->callstack_depth-1; j>=i; j--) {
+			for(j=event->proc->callstack_depth-1; j>i; j--) {
 				callstack_pop(event->proc);
 			}
+			if (opt_T || opt_c) {
+				calc_time_spent(event->proc);
+			}
+			callstack_pop(event->proc);
 			event->proc->return_addr = event->e_un.brk_addr;
 			output_right(LT_TOF_FUNCTION, event->proc,
 					event->proc->callstack[i].c_un.libfunc->name);
@@ -267,6 +298,10 @@ callstack_push_syscall(struct process * proc, int sysnum) {
 	elem->return_addr = NULL;
 
 	proc->callstack_depth++;
+	if (opt_T || opt_c) {
+		struct timezone tz;
+		gettimeofday(&elem->time_spent, &tz);
+	}
 }
 
 static void
@@ -287,6 +322,10 @@ callstack_push_symfunc(struct process * proc, struct library_symbol * sym) {
 	insert_breakpoint(proc, elem->return_addr);
 
 	proc->callstack_depth++;
+	if (opt_T || opt_c) {
+		struct timezone tz;
+		gettimeofday(&elem->time_spent, &tz);
+	}
 }
 
 static void

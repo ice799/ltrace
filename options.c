@@ -3,7 +3,7 @@
 #endif
 
 #ifndef VERSION
-# define VERSION "0.3.29"
+# define VERSION "0.3.30"
 #endif
 
 #include <string.h>
@@ -27,6 +27,7 @@ int library_num = 0;
 static char *progname;		/* Program name (`ltrace') */
 FILE * output;
 int opt_a = DEFAULT_ACOLUMN;	/* default alignment column for results */
+int opt_c = 0;			/* Count time, calls, and report a summary on program exit */
 int opt_d = 0;			/* debug */
 int opt_i = 0;			/* instruction pointer */
 int opt_s = DEFAULT_STRLEN;	/* default maximum # of bytes printed in strings */
@@ -40,6 +41,7 @@ int opt_t = 0;			/* print absolute timestamp */
 int opt_C = 0;			/* Demangle low-level symbol names into user-level names */
 #endif
 int opt_n = 0;			/* indent trace output according to program flow */
+int opt_T = 0;			/* show the time spent inside each call */
 
 /* List of pids given to option -p: */
 struct opt_p_t * opt_p = NULL;	/* attach to process with a given pid */
@@ -58,21 +60,11 @@ usage(void) {
 "Trace library calls of a given program.\n\n"
 
 # if HAVE_GETOPT_LONG
-"  -d, --debug         print debugging info.\n"
+"  -a, --align=COLUMN  align return values in a secific column.\n"
 # else
-"  -d                  print debugging info.\n"
+"  -a COLUMN           align return values in a secific column.\n"
 # endif
-"  -f                  follow forks.\n"
-"  -i                  print instruction pointer at time of library call.\n"
-"  -L                  do NOT display library calls.\n"
-"  -S                  display system calls.\n"
-"  -r                  print relative timestamps.\n"
-"  -t, -tt, -ttt       print absolute timestamps.\n"
-#  if HAVE_GETOPT_LONG
-"  -l, --library=FILE  print library calls from this library only.\n"
-#  else
-"  -l FILE             print library calls from this library only.\n"
-#  endif
+"  -c                  count time and calls, and report a summary on exit.\n"
 # if HAVE_LIBIBERTY
 #  if HAVE_GETOPT_LONG
 "  -C, --demangle      decode low-level symbol names into user-level names.\n"
@@ -81,29 +73,41 @@ usage(void) {
 #  endif
 # endif
 # if HAVE_GETOPT_LONG
-"  -a, --align=COLUMN  align return values in a secific column.\n"
+"  -d, --debug         print debugging info.\n"
 # else
-"  -a COLUMN           align return values in a secific column.\n"
+"  -d                  print debugging info.\n"
 # endif
-"  -s STRLEN           specify the maximum string size to print.\n"
-# if HAVE_GETOPT_LONG
-"  -o, --output=FILE   write the trace output to that file.\n"
-# else
-"  -o FILE             write the trace output to that file.\n"
-# endif
-"  -u USERNAME         run command with the userid, groupid of username.\n"
-"  -p PID              attach to the process with the process ID pid.\n"
 "  -e expr             modify which events to trace.\n"
+"  -f                  follow forks.\n"
+# if HAVE_GETOPT_LONG
+"  -h, --help          display this help and exit.\n"
+# else
+"  -h                  display this help and exit.\n"
+# endif
+"  -i                  print instruction pointer at time of library call.\n"
+#  if HAVE_GETOPT_LONG
+"  -l, --library=FILE  print library calls from this library only.\n"
+#  else
+"  -l FILE             print library calls from this library only.\n"
+#  endif
+"  -L                  do NOT display library calls.\n"
 # if HAVE_GETOPT_LONG
 "  -n, --indent=NR     indent output by NR spaces for each call level nesting.\n"
 # else
 "  -n NR               indent output by NR spaces for each call level nesting.\n"
 # endif
 # if HAVE_GETOPT_LONG
-"  -h, --help          display this help and exit.\n"
+"  -o, --output=FILE   write the trace output to that file.\n"
 # else
-"  -h                  display this help and exit.\n"
+"  -o FILE             write the trace output to that file.\n"
 # endif
+"  -p PID              attach to the process with the process ID pid.\n"
+"  -r                  print relative timestamps.\n"
+"  -s STRLEN           specify the maximum string size to print.\n"
+"  -S                  display system calls.\n"
+"  -t, -tt, -ttt       print absolute timestamps.\n"
+"  -T                  show the time spent inside each call.\n"
+"  -u USERNAME         run command with the userid, groupid of username.\n"
 # if HAVE_GETOPT_LONG
 "  -V, --version       output version information and exit.\n"
 # else
@@ -163,82 +167,38 @@ process_options(int argc, char **argv) {
 			{ "demangle", 0, 0, 'C'},
 #endif
 			{ "indent", 0, 0, 'n'},
-			{ "library", 0, 0, 'l'},
 			{ "help", 0, 0, 'h'},
+			{ "library", 0, 0, 'l'},
 			{ "output", 1, 0, 'o'},
 			{ "version", 0, 0, 'V'},
 			{ 0, 0, 0, 0}
 		};
-		c = getopt_long(argc, argv, "+dfiLSrthV"
+		c = getopt_long(argc, argv, "+cdfhiLrStTV"
 # if HAVE_LIBIBERTY
 			"C"
 # endif
-			"a:s:o:u:p:e:n:l:", long_options, &option_index);
+			"a:e:l:n:o:p:s:u:", long_options, &option_index);
 #else
-		c = getopt(argc, argv, "+dfiLSrthV"
+		c = getopt(argc, argv, "+cdfhiLrStTV"
 # if HAVE_LIBIBERTY
 			"C"
 # endif
-			"a:s:o:u:p:e:n:l:");
+			"a:e:l:n:o:p:s:u:");
 #endif
 		if (c==-1) {
 			break;
 		}
 		switch(c) {
-			case 'l':	if (library_num == MAX_LIBRARY) {
-						fprintf(stderr, "Too many libraries.  Maximum is %i.\n", MAX_LIBRARY);
-						exit(1);
-					}
-					library[library_num++] = optarg;
-					break;
-			case 'd':	opt_d++;
-					break;
-			case 'f':	opt_f = 1;
-					break;
-			case 'i':	opt_i++;
-					break;
-			case 'L':	opt_L = 0;
-					break;
-			case 'S':	opt_S = 1;
-					break;
-			case 'r':	opt_r++;
-					break;
-			case 't':	opt_t++;
-					break;
+			case 'a':	opt_a = atoi(optarg);
+						break;
+			case 'c':	opt_c++;
+						break;
 #if HAVE_LIBIBERTY
 			case 'C':	opt_C++;
-					break;
+						break;
 #endif
-			case 'a':	opt_a = atoi(optarg);
-					break;
-			case 's':	opt_s = atoi(optarg);
-					break;
-			case 'n':	opt_n = atoi(optarg);
-					break;
-			case 'h':	usage();
-					exit(0);
-			case 'o':	output = fopen(optarg, "w");
-					if (!output) {
-						fprintf(stderr, "Can't open %s for output: %s\n", optarg, strerror(errno));
-						exit(1);
-					}
-					setvbuf(output, (char *)NULL, _IOLBF, 0);
-					fcntl(fileno(output), F_SETFD, FD_CLOEXEC);
-					break;
-			case 'u':	opt_u = optarg;
-					break;
-			case 'p':	
-				{
-					struct opt_p_t * tmp = malloc(sizeof(struct opt_p_t));
-					if (!tmp) {
-						perror("ltrace: malloc");
-						exit(1);
-					}
-					tmp->pid = atoi(optarg);
-					tmp->next = opt_p;
-					opt_p = tmp;
-					break;
-				}
+			case 'd':	opt_d++;
+						break;
 			case 'e':
 				{
 					char * str_e = strdup(optarg);
@@ -272,19 +232,67 @@ process_options(int argc, char **argv) {
 					}
 					break;
 				}
+			case 'f':	opt_f = 1;
+						break;
+			case 'h':	usage();
+						exit(0);
+			case 'i':	opt_i++;
+						break;
+			case 'l':	if (library_num == MAX_LIBRARY) {
+							fprintf(stderr, "Too many libraries.  Maximum is %i.\n", MAX_LIBRARY);
+							exit(1);
+						}
+						library[library_num++] = optarg;
+						break;
+			case 'L':	opt_L = 0;
+						break;
+			case 'n':	opt_n = atoi(optarg);
+						break;
+			case 'o':	output = fopen(optarg, "w");
+						if (!output) {
+							fprintf(stderr, "Can't open %s for output: %s\n", optarg, strerror(errno));
+							exit(1);
+						}
+						setvbuf(output, (char *)NULL, _IOLBF, 0);
+						fcntl(fileno(output), F_SETFD, FD_CLOEXEC);
+						break;
+			case 'p':	
+				{
+					struct opt_p_t * tmp = malloc(sizeof(struct opt_p_t));
+					if (!tmp) {
+						perror("ltrace: malloc");
+						exit(1);
+					}
+					tmp->pid = atoi(optarg);
+					tmp->next = opt_p;
+					opt_p = tmp;
+					break;
+				}
+			case 'r':	opt_r++;
+						break;
+			case 's':	opt_s = atoi(optarg);
+						break;
+			case 'S':	opt_S = 1;
+						break;
+			case 't':	opt_t++;
+						break;
+			case 'T':	opt_T++;
+						break;
+			case 'u':	opt_u = optarg;
+						break;
 			case 'V':	printf("ltrace version " VERSION ".\n"
 "Copyright (C) 1997-2002 Juan Cespedes <cespedes@debian.org>.\n"
 "This is free software; see the GNU General Public Licence\n"
 "version 2 or later for copying conditions.  There is NO warranty.\n");
-					exit(0);
+						exit(0);
 
 			default:
 #if HAVE_GETOPT_LONG
-				fprintf(stderr, "Try `%s --help' for more information\n", progname);
+						fprintf(stderr, "Try `%s --help' for more information\n", progname);
 #else
-				fprintf(stderr, "Try `%s -h' for more information\n", progname);
+						fprintf(stderr, "Try `%s -h' for more information\n", progname);
 #endif
-					exit(1);
+						exit(1);
 		}
 	}
 	argc -= optind; argv += optind;

@@ -1,3 +1,11 @@
+ltrace (0.3.30) unstable; urgency=low
+
+  * Implemented -T option (show time spent inside each call)
+  * Alphabetically sort options in help and manual page
+  * Added -c option (summary of calls on program exit)
+
+ -- Juan Cespedes <cespedes@debian.org>  Mon, 03 Feb 2003 00:22:28 +0100
+
 ltrace (0.3.29) unstable; urgency=low
 
   * Align return values depending on screen width

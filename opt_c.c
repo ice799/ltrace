@@ -68,11 +68,54 @@ signal_exit(int sig) {
 	alarm(1);
 }
 
+struct opt_c_struct2 {
+	int num;
+	struct {
+		char *name;
+		int count;
+		struct timeval tv;
+	} st[0];
+};
+
+static void
+opt_c_show_func(void * key, void * value, void * data) {
+	struct opt_c_struct * st = (struct opt_c_struct *)value;
+//	unsigned long int c;
+	struct opt_c_struct2 * st2 = (struct opt_c_struct2 *)data;
+	int num = st2->num;
+
+	st2 = realloc(st2, sizeof(struct opt_c_struct2)+ (num+1)*sizeof(st2->st[0]));
+	if (!st2) {
+		perror("realloc()");
+		exit(1);
+	}
+	st2->num++;
+	st2->st[num].name = (char *)key;
+	st2->st[num].count = st->count;
+	st2->st[num].tv = st->tv;
+//	c = 1000000 * (int)st->tv.tv_sec + (int)st->tv.tv_usec;
+//	c /= st->count;
+//	printf("%3d.%02d %4d.%06d %11lu %9d %s\n", 99, 99,
+//			(int)st->tv.tv_sec, (int)st->tv.tv_usec,
+//			c, st->count, (char *)key);
+}
+
 static void
 normal_exit(void) {
 	output_line(0,0);
 	if (opt_c) {
-		summary();
+		struct opt_c_struct2 * st2 = malloc(sizeof(struct opt_c_struct2));
+
+		if (!st2) {
+			perror("malloc()");
+			exit(1);
+		}
+		st2->num = 0;
+		printf("%% time     seconds  usecs/call     calls      function\n");
+		printf( "------ ----------- ----------- --------- --------------------\n");
+		dict_apply_to_all(dict_opt_c, opt_c_show_func, st2);
+		printf( "------ ----------- ----------- --------- --------------------\n");
+		printf( "100.00    0.000360                    27 total\n");
 	}
 }
 

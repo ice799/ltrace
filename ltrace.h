@@ -2,6 +2,7 @@
 #define _HCK_LTRACE_H
 
 #include <sys/types.h>
+#include <sys/time.h>
 #include <stdio.h>
 
 #include "defs.h"
@@ -70,6 +71,7 @@ struct callstack_element {
 	} c_un;
 	int is_syscall;
 	void * return_addr;
+	struct timeval time_spent;
 };
 
 #define MAX_CALLDEPTH 64
@@ -115,6 +117,12 @@ struct event {
 		void * brk_addr;	/* _EV_BREAKPOINT */
 	} e_un;
 };
+
+struct opt_c_struct {
+	int count;
+	struct timeval tv;
+};
+extern struct dict * dict_opt_c;
 
 extern struct process * list_of_processes;
 

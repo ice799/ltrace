@@ -22,7 +22,7 @@ LIBS	=	@LIBS@
 OBJ	=	ltrace.o options.o elf.o output.o read_config_file.o	\
 		execute_program.o wait_for_something.o process_event.o	\
 		display_args.o breakpoints.o proc.o demangle.o dict.o \
-		debug.o
+		debug.o summary.o
 
 all:		ltrace
 

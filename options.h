@@ -7,6 +7,7 @@
 
 extern FILE * output;
 extern int opt_a;	/* default alignment column for results */
+extern int opt_c;	/* count time, calls, and report a summary on program exit */
 extern int opt_d;	/* debug */
 extern int opt_i;	/* instruction pointer */
 extern int opt_s;	/* default maximum # of bytes printed in strings */
@@ -20,6 +21,7 @@ extern int opt_t;	/* print absolute timestamp */
 extern int opt_C;	/* Demanglelow-level symbol names into user-level names */
 #endif
 extern int opt_n;	/* indent trace output according to program flow */
+extern int opt_T;	/* show the time spent inside each call */
 
 struct opt_p_t {
 	pid_t pid;

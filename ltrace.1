@@ -6,7 +6,7 @@ ltrace \- A library call tracer
 
 .SH SYNOPSIS
 .B ltrace
-.I "[-dfiLSrtttChV] [-a column] [-s strsize] [-o filename] [-n nr] [-l filename] [-u username] [-p pid] ... [-e expr] [--debug] [--demangle] [--align=column] [--output=filename] [--indent=nr] [--library=filename] [--help] [--version] [command [arg ...]]"
+.I "[-CdfhiLrStttV] [-a column] [-e expr] [-l filename] [-n nr] [-o filename] [-p pid] ... [-s strsize] [-u username] [--align=column] [--debug] [--demangle] [--help] [--indent=nr] [--library=filename] [--output=filename] [--version] [command [arg ...]]"
 
 .SH DESCRIPTION
 .B ltrace
@@ -22,83 +22,22 @@ Its use is very similar to
 
 .SH OPTIONS
 .TP
-.I \-d, \-\-debug
-Increase the debugging level.
-Use more (ie.
-.I \=dd
-) for greater debugging information.
+.I \-a, \-\-align column
+Align return values in a secific column (default column is 5/8 of screen width).
 .TP
-.I \-f
-Trace child processes as they are created by
-currently  traced processes as a result of the fork(2)
-or clone(2) system calls.
-The new process is attached as soon as its pid is known.
-.TP
-.I \-i
-Print the instruction pointer at the time of the library call.
-.TP
-.I \-L
-DON'T display library calls (use it with the
-.I \-S
-option).
-.TP
-.I \-S
-Display system calls as well as library calls
-.TP
-.I \-r
-Print a relative timestamp with each line of the trace.
-This records the time difference between the beginning of
-successive lines.
-.TP
-.I \-t
-Prefix each line of the trace with the time of day.
-.TP
-.I \-tt
-If given twice, the time printed will include the microseconds.
-.TP
-.I \-ttt
-If given thrice, the time printed will include the microseconds and
-the leading portion will be printed as the number of seconds since the
-epoch.
+.I \-c
+Count time and calls for each library call and report a summary on program exit.
 .TP
 .I \-C, \-\-demangle
 Decode (demangle) low-level symbol names into user-level names.
 Besides removing any initial underscore prepended by the system,
 this makes C++ function names readable.
 .TP
-.I \-a, \-\-align column
-Align return values in a secific column (default column is 5/8 of screen width).
-.TP
-.I \-s
-Specify the maximum string size to print (the default is 32).
-.TP
-.I \-o, \-\-output filename
-Write the trace output to the file
-.I filename
-rather than to stderr.
-.TP
-.I \-n, \-\-indent nr
-Indent trace output by
-.I nr
-number of spaces for each new nested call. Using this option makes
-the program flow visualization easy to follow.
-.TP
-.I \-l, \-\-library filename
-Display only the symbols included in the library
-.I filename.
-Up to 20 library names can be specified with several instances
-of this option.
-.TP
-.I \-u username
-Run command with the userid, groupid and supplementary groups of
-.IR username .
-This option is only useful when running as root and enables the
-correct execution of setuid and/or setgid binaries.
-.TP
-.I \-p pid
-Attach to the process with the process ID
-.I pid
-and begin tracing.
+.I \-d, \-\-debug
+Increase the debugging level.
+Use more (ie.
+.I \=dd
+) for greater debugging information.
 .TP
 .I \-e expr
 A qualifying expression which modifies which events to trace.
@@ -117,8 +56,76 @@ Note that some shells use the exclamation point for history
 expansion; even inside quoted arguments.  If so, you must escape
 the exclamation point with a backslash.
 .TP
+.I \-f
+Trace child processes as they are created by
+currently  traced processes as a result of the fork(2)
+or clone(2) system calls.
+The new process is attached as soon as its pid is known.
+.TP
 .I \-h, \-\-help
 Show a summary of the options to ltrace and exit.
+.TP
+.I \-i
+Print the instruction pointer at the time of the library call.
+.TP
+.I \-l, \-\-library filename
+Display only the symbols included in the library
+.I filename.
+Up to 20 library names can be specified with several instances
+of this option.
+.TP
+.I \-L
+DON'T display library calls (use it with the
+.I \-S
+option).
+.TP
+.I \-n, \-\-indent nr
+Indent trace output by
+.I nr
+number of spaces for each new nested call. Using this option makes
+the program flow visualization easy to follow.
+.TP
+.I \-o, \-\-output filename
+Write the trace output to the file
+.I filename
+rather than to stderr.
+.TP
+.I \-p pid
+Attach to the process with the process ID
+.I pid
+and begin tracing.
+.TP
+.I \-r
+Print a relative timestamp with each line of the trace.
+This records the time difference between the beginning of
+successive lines.
+.TP
+.I \-s strsize
+Specify the maximum string size to print (the default is 32).
+.TP
+.I \-S
+Display system calls as well as library calls
+.TP
+.I \-t
+Prefix each line of the trace with the time of day.
+.TP
+.I \-tt
+If given twice, the time printed will include the microseconds.
+.TP
+.I \-ttt
+If given thrice, the time printed will include the microseconds and
+the leading portion will be printed as the number of seconds since the
+epoch.
+.TP
+.I \-T
+Show  the  time  spent inside each call. This records the time difference
+between the beginning and the end of each call.
+.TP
+.I \-u username
+Run command with the userid, groupid and supplementary groups of
+.IR username .
+This option is only useful when running as root and enables the
+correct execution of setuid and/or setgid binaries.
 .TP
 .I \-V, \-\-version
 Show the version number of ltrace and exit.

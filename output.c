@@ -3,6 +3,7 @@
 #endif
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
 #include <time.h>
@@ -12,10 +13,16 @@
 #include "ltrace.h"
 #include "options.h"
 #include "output.h"
+#include "dict.h"
 
 #if HAVE_LIBIBERTY
 #include "demangle.h"
 #endif
+
+/* TODO FIXME XXX: include in ltrace.h: */
+extern struct timeval current_time_spent;
+
+struct dict * dict_opt_c = NULL;
 
 static pid_t current_pid = 0;
 static int current_depth = 0;
@@ -120,6 +127,9 @@ void
 output_line(struct process * proc, char *fmt, ...) {
 	va_list args;
 
+	if (opt_c) {
+		return;
+	}
 	if (current_pid) {
 		fprintf(output, " <unfinished ...>\n");
 	}
@@ -147,6 +157,9 @@ void
 output_left(enum tof type, struct process * proc, char * function_name) {
 	struct function * func;
 
+	if (opt_c) {
+		return;
+	}
 	if (current_pid) {
 		fprintf(output, " <unfinished ...>\n");
 		current_pid=0;
@@ -190,6 +203,37 @@ void
 output_right(enum tof type, struct process * proc, char * function_name) {
 	struct function * func = name2func(function_name);
 
+	if (opt_c) {
+		struct opt_c_struct * st;
+		if (!dict_opt_c) {
+			dict_opt_c = dict_init(dict_key2hash_string, dict_key_cmp_string);
+		}
+		st = dict_find_entry(dict_opt_c, function_name);
+		if (!st) {
+			char *na;
+			st = malloc(sizeof(struct opt_c_struct));
+			na = strdup(function_name);
+			if (!st || !na) {
+				perror("malloc()");
+				exit(1);
+			}
+			st->count = 0;
+			st->tv.tv_sec = st->tv.tv_usec = 0;
+			dict_enter(dict_opt_c, na, st);
+		}
+		if (st->tv.tv_usec + current_time_spent.tv_usec > 1000000) {
+			st->tv.tv_usec += current_time_spent.tv_usec - 1000000;
+			st->tv.tv_sec++;
+		} else {
+			st->tv.tv_usec += current_time_spent.tv_usec;
+		}
+		st->count++;
+		st->tv.tv_sec += current_time_spent.tv_sec;
+
+//		fprintf(output, "%s <%lu.%06d>\n", function_name,
+//				current_time_spent.tv_sec, (int)current_time_spent.tv_usec);
+		return;
+	}
 	if (current_pid && (current_pid!=proc->pid ||
 			current_depth != proc->callstack_depth)) {
 		fprintf(output, " <unfinished ...>\n");
@@ -209,7 +253,6 @@ output_right(enum tof type, struct process * proc, char * function_name) {
 		tabto(opt_a-1);
 		fprintf(output, "= ");
 		display_arg(type, proc, -1, ARGTYPE_UNKNOWN);
-		fprintf(output, "\n");
 	} else {
 		int i;
 		for(i=func->num_params-func->params_right; i<func->num_params-1; i++) {
@@ -227,8 +270,12 @@ output_right(enum tof type, struct process * proc, char * function_name) {
 		} else {
 			display_arg(type, proc, -1, func->return_type);
 		}
-		fprintf(output, "\n");
 	}
+	if (opt_T) {
+		fprintf(output, " <%lu.%06d>",
+				current_time_spent.tv_sec, (int)current_time_spent.tv_usec);
+	}
+	fprintf(output, "\n");
 	current_pid=0;
 	current_column=0;
 }
