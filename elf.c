@@ -5,17 +5,12 @@
 #include <stdio.h>
 #include <errno.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <sys/types.h>
-#include <sys/ptrace.h>
-#include <sys/resource.h>
-#include <sys/wait.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <linux/elf.h>
 #include <sys/mman.h>
 #include <string.h>
-#include <signal.h>
 
 #include "elf.h"
 #include "ltrace.h"
@@ -32,6 +27,10 @@ int read_elf(const char *filename)
 	int i;
 	char * strtab = NULL;
 	u_long symtab_len = 0;
+
+	if (opt_d>0) {
+		fprintf(output, "Reading symbol table from %s...\n", filename);
+	}
 
 	fd = open(filename, O_RDONLY);
 	if (fd==-1) {
@@ -70,15 +69,11 @@ int read_elf(const char *filename)
 		}
 		if (shdr->sh_type == SHT_STRTAB) {
 			if (!strtab) {
-#if 0
 				strtab = (char *)(addr + shdr->sh_offset);
-#else
-				strtab = (char *)(addr + shdr->sh_offset);
-#endif
 			}
 		}
 	}
-	if (debug>0) {
+	if (opt_d>1) {
 		fprintf(output, "symtab: 0x%08x\n", (unsigned)symtab);
 		fprintf(output, "symtab_len: %lu\n", symtab_len);
 		fprintf(output, "strtab: 0x%08x\n", (unsigned)strtab);
@@ -98,7 +93,7 @@ int read_elf(const char *filename)
 			library_symbols->addr = ((symtab+i)->st_value);
 			library_symbols->name = strtab+(symtab+i)->st_name;
 			library_symbols->next = tmp;
-			if (debug>0) {
+			if (opt_d>1) {
 				fprintf(output, "addr: 0x%08x, symbol: \"%s\"\n",
 					(unsigned)((symtab+i)->st_value),
 					(strtab+(symtab+i)->st_name));

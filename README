@@ -34,7 +34,7 @@ other i386 based POSIX system, such as Hurd or *BSD.
 -------
 Too many to list here :).  If you like to submit a bug report, or a
 feature request, either do that against the Debian `ltrace' package,
-or mail me (Juan Cespedes <cespedes@etsit.upm.es>)
+or mail ``Juan Cespedes <cespedes@etsit.upm.es>''.
 
 5. Licence
 ----------
@@ -52,5 +52,6 @@ or mail me (Juan Cespedes <cespedes@etsit.upm.es>)
 
     You should have received a copy of the GNU General Public License
     along with this program; if not, write to the Free Software
-    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+    Foundation, Inc., 59 Temple Place - Suite 330, Boston,
+    MA 02111-1307, USA.
 

@@ -1,18 +1,18 @@
 #include <stdio.h>
 #include <errno.h>
 #include <unistd.h>
-#include <sys/wait.h>
-#include <signal.h>
 
 #include "elf.h"
+#include "i386.h"
 #include "symbols.h"
 #include "functions.h"
 #include "process.h"
 
 extern void read_config_file(const char *);
 
-int debug = 0;
 FILE * output = stderr;
+int opt_d = 0;
+int opt_i = 0;
 
 unsigned long return_addr;
 unsigned char return_value;
@@ -20,7 +20,7 @@ struct library_symbol * current_symbol;
 
 static void usage(void)
 {
-	fprintf(stderr," Usage: ltrace [-d][-o output] <program> [<arguments>...]\n");
+	fprintf(stderr,"Usage: ltrace [-d] [-o filename] command [arg ...]\n\n");
 }
 
 int main(int argc, char **argv)
@@ -29,7 +29,7 @@ int main(int argc, char **argv)
 
 	while ((argc>2) && (argv[1][0] == '-') && (argv[1][2] == '\0')) {
 		switch(argv[1][1]) {
-			case 'd':	debug++;
+			case 'd':	opt_d++;
 					break;
 			case 'o':	output = fopen(argv[2], "w");
 					if (!output) {
@@ -37,6 +37,8 @@ int main(int argc, char **argv)
 						exit(1);
 					}
 					argc--; argv++;
+					break;
+			case 'i':	opt_i++;
 					break;
 			default:	fprintf(stderr, "Unknown option '%c'\n", argv[1][1]);
 					usage();
@@ -56,18 +58,16 @@ int main(int argc, char **argv)
 
 	init_sighandler();
 
-	pid = attach_process(argv[1], argv+1);
-	fprintf(output, "pid %u attached\n", pid);
-
-#if 1
-	/* Enable breakpoints: */
-	fprintf(output, "Enabling breakpoints...\n");
-	enable_all_breakpoints(pid);
-#endif
-	fprintf(output, "Reading config file(s)...\n");
+	if (opt_d>0) {
+		fprintf(output, "Reading config file(s)...\n");
+	}
 	read_config_file("/etc/ltrace.cfg");
 	read_config_file(".ltracerc");
-	continue_process(pid, 0);
+
+	pid = execute_process(argv[1], argv+1);
+	if (opt_d>0) {
+		fprintf(output, "pid %u launched\n", pid);
+	}
 
 	while(1) {
 		pause();

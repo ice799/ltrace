@@ -5,6 +5,7 @@
 #include <errno.h>
 #include <stdio.h>
 
+#include "i386.h"
 #include "ltrace.h"
 
 void insert_breakpoint(int pid, unsigned long addr, unsigned char * value)
@@ -110,3 +111,33 @@ void trace_me(void)
 	}
 }
 
+void untrace_pid(int pid)
+{
+	if (ptrace(PTRACE_DETACH, pid, 0, 0)<0) {
+		perror("PTRACE_DETACH");
+		exit(1);
+	}
+}
+
+/*
+ * Return values:
+ *  PROC_BREAKPOINT - Breakpoint
+ *  PROC_SYSCALL - Syscall entry
+ *  PROC_SYSRET - Syscall return
+ */
+int type_of_stop(struct process * proc, int *what)
+{
+	*what = get_orig_eax(proc->pid);
+
+	if (*what!=-1) {
+		if (proc->syscall_number != *what) {
+			proc->syscall_number = *what;
+			return PROC_SYSCALL;
+		} else {
+			proc->syscall_number = -1;
+			return PROC_SYSRET;
+		}
+	}
+
+	return PROC_BREAKPOINT;
+}

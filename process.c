@@ -7,19 +7,20 @@
 #include <sys/resource.h>
 #include <sys/wait.h>
 
+#include <asm/unistd.h>
+
+#include "i386.h"
 #include "ltrace.h"
 #include "process.h"
 #include "symbols.h"
 #include "functions.h"
-#include "i386.h"
+#include "syscall.h"
 
 struct process * list_of_processes = NULL;
 
-int attach_process(const char * file, char * const argv[])
+int execute_process(const char * file, char * const argv[])
 {
-	int status;
 	int pid = fork();
-	struct process * tmp;
 
 	if (pid<0) {
 		perror("fork");
@@ -30,21 +31,48 @@ int attach_process(const char * file, char * const argv[])
 		fprintf(stderr, "Can't execute \"%s\": %s\n", argv[1], sys_errlist[errno]);
 		exit(1);
 	}
-	/* Wait until execve... */
-	if (wait4(pid, &status, 0, NULL)==-1) {
-		perror("wait4");
-		exit(1);
-	}
-	if (!(WIFSTOPPED(status) && (WSTOPSIG(status)==SIGTRAP))) {
-		fprintf(stderr, "Unknown exit status for process %s\n", file);
-		exit(1);
-	}
-	tmp = (struct process *)malloc(sizeof(struct process));
-	tmp->pid = pid;
-	tmp->next = list_of_processes;
-	list_of_processes = tmp;
 	
 	return pid;
+}
+
+struct process * attach_process(int pid)
+{
+	struct process * tmp;
+
+	tmp = (struct process *)malloc(sizeof(struct process));
+	tmp->pid = pid;
+	tmp->syscall_number = -1;
+	tmp->next = list_of_processes;
+	list_of_processes = tmp;
+
+	return tmp;
+}
+
+/*
+ * TODO: All the breakpoints should be disabled.
+ */
+void detach_process(int pid)
+{
+	struct process *tmp, *tmp2;
+
+	if (list_of_processes && (pid == list_of_processes->pid)) {
+		tmp2 = list_of_processes->next;
+		free(list_of_processes);
+		list_of_processes = tmp2;
+	} else {
+		tmp = list_of_processes;
+		while(tmp && tmp->next) {
+			if (pid == tmp->next->pid) {
+				tmp2 = tmp->next->next;
+				free(tmp->next);
+				tmp->next = tmp2;
+			}
+			tmp = tmp->next;
+		}
+	}
+	if (!kill(pid,0)) {
+		untrace_pid(pid);
+	}
 }
 
 struct process * pid2proc(int pid)
@@ -75,7 +103,7 @@ static void chld_handler()
 	int function_seen;
 	int status;
 	struct library_symbol * tmp = NULL;
-	unsigned int orig_eax;
+	struct process * current_process;
 
 	signal(SIGCHLD, chld_handler);
 
@@ -88,45 +116,70 @@ static void chld_handler()
 		return;
 	}
 	if (pid==-1) {
-fprintf(stderr, "errno=%d\n", errno);
-		if (errno == ECHILD) {
-			fprintf(output, "No more children\n");
-			exit(0);
-		}
 		perror("wait4");
 		exit(1);
 	}
+	current_process = pid2proc(pid);
+	if (!current_process) {
+		/*
+ 		* I should assume here that this process is new, so I
+		* have to enable breakpoints
+ 		*/
+		if (opt_d>0) {
+			fprintf(output, "new process %d. Attaching it...\n", pid);
+		}
+		current_process = attach_process(pid);
+		if (opt_d>0) {
+			fprintf(output, "Enabling breakpoints for pid %d...\n", pid);
+		}
+		enable_all_breakpoints(pid);
+	}
 	if (WIFEXITED(status)) {
 		fprintf(output, "pid %u exited\n", pid);
+		detach_process(pid);
 		return;
 	}
 	if (WIFSIGNALED(status)) {
 		fprintf(output, "pid %u exited on signal %u\n", pid, WTERMSIG(status));
+		detach_process(pid);
 		return;
 	}
 	if (!WIFSTOPPED(status)) {
 		fprintf(output, "pid %u ???\n", pid);
-		return;
+		exit(1);
 	}
-	fprintf(output, "<pid:%u> ", pid);
 	eip = get_eip(pid);
-orig_eax = get_orig_eax(pid);
-if (orig_eax!=-1) {
-fprintf(output,"[0x%08lx] SYSCALL: %u\n", eip, orig_eax);
-continue_process(pid, 0);
-return;
-}
 	if (WSTOPSIG(status) != SIGTRAP) {
 		fprintf(output, "[0x%08lx] Signal: %u\n", eip, WSTOPSIG(status));
 		continue_process(pid, WSTOPSIG(status));
 		return;
 	}
-	/* pid is stopped... */
+	if (opt_d>0) {
+		fprintf(output, "<pid:%u> ", pid);
+	}
+	switch (type_of_stop(current_process, &status)) {
+		case PROC_SYSCALL:
+			if (status==__NR_fork) {
+				disable_all_breakpoints(pid);
+			}
+			fprintf(output, "[0x%08lx] SYSCALL: %s()\n", eip, syscall_list[status]);
+			continue_process(pid, 0);
+			return;
+		case PROC_SYSRET:
+			if (status==__NR_fork) {
+				enable_all_breakpoints(pid);
+			}
+			if (opt_d>0) {
+				fprintf(output, "[0x%08lx] SYSRET:  %u\n", eip, status);
+			}
+			continue_process(pid, 0);
+			return;
+		case PROC_BREAKPOINT:
+		default:
+	}
+	/* pid is breakpointed... */
+	/* TODO: I may be here after a PTRACE_SINGLESTEP ... */
 	esp = get_esp(pid);
-#if 0
-	fprintf(output,"EIP = 0x%08x\n", eip);
-	fprintf(output,"ESP = 0x%08x\n", esp);
-#endif
 	fprintf(output,"[0x%08lx] ", get_return(pid,esp));
 	tmp = library_symbols;
 	function_seen = 0;

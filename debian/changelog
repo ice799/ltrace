@@ -1,3 +1,17 @@
+ltrace (0.1.2) experimental; urgency=low
+
+  * Updated ``TODO''
+  * Added process.c:execute_process
+  * Added i386.c:type_of_stop
+  * Hopefully, system dependent stuff is now only in i386.[ch] and process.[ch]
+  * `-d' can now be used many times: many levels of debug
+  * removed breakpoint for children detecting fork()s.
+    Now, *every* program should work ok
+  * struct process now also has a field for the process filename
+  * Added "syscall.c" with a list of system call names in Linux/i386
+
+ -- Juan Cespedes <cespedes@etsit.upm.es>  Sat, 23 Aug 1997 15:00:23 +0200
+
 ltrace (0.1.1) experimental; urgency=low
 
   * Added ``TODO''
@@ -5,9 +19,11 @@ ltrace (0.1.1) experimental; urgency=low
   * Added ``process.[ch]'': init_sighandler, pid2proc
   * Removed ``trace.c''
   * Added rudimentary support for multiple processes
-  * Now tracing syscalls (fork() needs a special treatment)
+  * Now tracing syscalls (fork() needs a special treatment (TODO))
+  * Added process.c:detach_process
+  * Added i386.c:trace_me,untrace_pid
 
- -- Juan Cespedes <cespedes@etsit.upm.es>  Fri, 22 Aug 1997 21:01:59 +0200
+ -- Juan Cespedes <cespedes@etsit.upm.es>  Sat, 23 Aug 1997 02:09:14 +0200
 
 ltrace (0.1.0) experimental; urgency=low
 
