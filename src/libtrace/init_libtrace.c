@@ -24,7 +24,7 @@ void ** GOT;		/* Array indexed by 'symbol index' (value pushed) */
 			/* This is the address of the real GOT corresponding to this function */
 char ** names;		/* names of the functions called */
 
-static void new_func(void);
+static void new_func(unsigned long);
 static void * new_func_ptr = NULL;
 
 static int current_pid;
@@ -149,26 +149,32 @@ static void init_libtrace(void)
 			bcopy(trampoline, (char *)&table[j], sizeof(struct trampoline_t));
 			table[j].aqui = (void *)(&table[j]) + sizeof(void *);
 			table[j].function_no = j;
-			table[j].new_func = new_func_ptr;
+			table[j].new_func = &new_func_ptr;
 			printf("GOT[%d] = 0x%08x\n", j, GOT[j]);
 			printf("names[%d] = \"%s\"\n", j, names[j]);
 			printf("table[%d].aqui = 0x%08x\n", j, table[j].aqui);
 			printf("table[%d].function_no = 0x%08x\n", j, table[j].function_no);
 			printf("table[%d].new_func = 0x%08x\n", j, table[j].new_func);
 			table_tmp = &table[j];
-#if 0 /* HCK: aun no funciona */
-			bcopy(table_tmp, (void*)(((int)((symtab+i)->st_value))+2), sizeof(void*));
+#if 1 /* HCK: aun no funciona */
+			bcopy(&table_tmp, (void*)(((int)((symtab+i)->st_value))+2), sizeof(void*));
+			printf("NEW_GOT[%d] = 0x%08x\n", j, (long)*(long *)(((int)((symtab+i)->st_value))+2));
 #endif
 			j++;
 		}
 	}
+	printf("OUT OF init_libtrace\n");
 #if 1
 	return;
 }
-static void new_func(void)
+static void new_func(unsigned long a)
 {
+	unsigned long * params = &a;
+	printf("params[-1]=0x%08x\n", params[-1]);
+	printf("params[0]=0x%08x\n", params[0]);
+	printf("params[1]=0x%08x\n", params[1]);
 	_sys_sync();
-	printf("Se ha llamado a una funcion!\n");
+	printf("Se ha llamado a la funcion numero %d (%s)\n", params[-1], names[params[-1]]);
 	_sys__exit(2);
 }
 #else
