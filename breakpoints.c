@@ -17,8 +17,7 @@
   FIXME: should we merge with dictionary code in demangle.c? 19990704 mortene.
 */
 
-struct dict_entry
-{
+struct dict_entry {
 	struct process * proc;
 	struct breakpoint brk; /* addr field of struct is the hash key. */
 	struct dict_entry * next;
@@ -35,16 +34,16 @@ static struct breakpoint * dict_find_entry(struct process * proc, void * brkaddr
 static void dict_apply_to_all(void (* func)(struct process *, struct breakpoint *, void * data), void * data);
 
 
-static void dict_init(void)
-{
+static void
+dict_init(void) {
 	int i;
 	/* FIXME: is this necessary? Check with ANSI C spec. 19990702 mortene. */
 	for (i = 0; i < DICTTABLESIZE; i++) dict_buckets[i] = NULL;
 	dict_initialized = 1;
 }
 
-static void dict_clear(void)
-{
+static void
+dict_clear(void) {
 	int i;
 	struct dict_entry * entry, * nextentry;
 
@@ -57,8 +56,8 @@ static void dict_clear(void)
 	}
 }
 
-static struct breakpoint * dict_enter(struct process * proc, void * brkaddr)
-{
+static struct breakpoint *
+dict_enter(struct process * proc, void * brkaddr) {
 	struct dict_entry * entry, * newentry;
 	unsigned int bucketpos = ((unsigned long int)brkaddr) % DICTTABLESIZE;
 
@@ -85,8 +84,8 @@ static struct breakpoint * dict_enter(struct process * proc, void * brkaddr)
 	return &(newentry->brk);
 }
 
-static struct breakpoint * dict_find_entry(struct process * proc, void * brkaddr)
-{
+static struct breakpoint *
+dict_find_entry(struct process * proc, void * brkaddr) {
 	unsigned int bucketpos = ((unsigned long int)brkaddr) % DICTTABLESIZE;
 	struct dict_entry * entry = dict_buckets[bucketpos];
 	while (entry) {
@@ -96,8 +95,8 @@ static struct breakpoint * dict_find_entry(struct process * proc, void * brkaddr
 	return entry ? &(entry->brk) : NULL;
 }
 
-static void dict_apply_to_all(void (* func)(struct process *, struct breakpoint *, void * data), void * data)
-{
+static void
+dict_apply_to_all(void (* func)(struct process *, struct breakpoint *, void * data), void * data) {
 	int i;
 
 	for (i = 0; i < DICTTABLESIZE; i++) {
@@ -113,13 +112,13 @@ static void dict_apply_to_all(void (* func)(struct process *, struct breakpoint 
 
 /*****************************************************************************/
 
-struct breakpoint * address2bpstruct(struct process * proc, void * addr)
-{
+struct breakpoint *
+address2bpstruct(struct process * proc, void * addr) {
 	return dict_find_entry(proc, addr);
 }
 
-void insert_breakpoint(struct process * proc, void * addr)
-{
+void
+insert_breakpoint(struct process * proc, void * addr) {
 	struct breakpoint * sbp;
 
 	if (!dict_initialized) {
@@ -135,8 +134,8 @@ void insert_breakpoint(struct process * proc, void * addr)
 	if (sbp->enabled==1 && proc->pid) enable_breakpoint(proc->pid, sbp);
 }
 
-void delete_breakpoint(struct process * proc, void * addr)
-{
+void
+delete_breakpoint(struct process * proc, void * addr) {
 	struct breakpoint * sbp = dict_find_entry(proc, addr);
 	assert(sbp); /* FIXME: remove after debugging has been done. */
 	/* This should only happen on out-of-memory conditions. */
@@ -147,14 +146,14 @@ void delete_breakpoint(struct process * proc, void * addr)
 	assert(sbp->enabled >= 0);
 }
 
-static void enable_bp_cb(struct process * proc, struct breakpoint * sbp, void * data)
-{
+static void
+enable_bp_cb(struct process * proc, struct breakpoint * sbp, void * data) {
 	struct process * myproc = (struct process *)data;
 	if (myproc == proc && sbp->enabled) enable_breakpoint(proc->pid, sbp);
 }
 
-void enable_all_breakpoints(struct process * proc)
-{
+void
+enable_all_breakpoints(struct process * proc) {
 	if (proc->breakpoints_enabled <= 0) {
 		if (opt_d>0) {
 			output_line(0, "Enabling breakpoints for pid %u...", proc->pid);
@@ -164,14 +163,14 @@ void enable_all_breakpoints(struct process * proc)
 	proc->breakpoints_enabled = 1;
 }
 
-static void disable_bp_cb(struct process * proc, struct breakpoint * sbp, void * data)
-{
+static void
+disable_bp_cb(struct process * proc, struct breakpoint * sbp, void * data) {
 	struct process * myproc = (struct process *)data;
 	if (myproc == proc && sbp->enabled) disable_breakpoint(proc->pid, sbp);
 }
 
-void disable_all_breakpoints(struct process * proc)
-{
+void
+disable_all_breakpoints(struct process * proc) {
 	if (proc->breakpoints_enabled) {
 		if (opt_d>0) {
 			output_line(0, "Disabling breakpoints for pid %u...", proc->pid);

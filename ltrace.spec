@@ -1,6 +1,6 @@
-Summary: Shows runtime library call information for dynamically linked executables
+Summary: Tracks runtime library calls for dynamically linked executables
 Name: ltrace
-%define version 0.3.17
+%define version 0.3.18
 Version: %{version}
 Release: 1
 Source: ftp://ftp.debian.org/debian/dists/unstable/main/source/utils/ltrace_%{version}.tar.gz
@@ -9,13 +9,17 @@ Group: Development/Debuggers
 BuildRoot: /tmp/ltrace-root
 
 %description
-ltrace is a program that simply runs the specified command until it exits.
-It intercepts and records the dynamic library calls which are called by
-the executed process and the signals which are received by that process.
+ltrace is a debugging program which runs a specified command until it
+exits.  While the command is executing, ltrace intercepts and records
+the dynamic library calls which are called by
+the executed process and the signals received by that process.
 It can also intercept and print the system calls executed by the program.
 
 The program to be traced need not be recompiled for this, so you can
 use it on binaries for which you don't have the source handy.
+
+You should install ltrace if you need a sysadmin tool for tracking the
+execution of processes.
 
 %prep 
 %setup -q

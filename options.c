@@ -48,8 +48,8 @@ struct opt_p_t * opt_p = NULL;	/* attach to process with a given pid */
 struct opt_e_t * opt_e = NULL;
 int opt_e_enable=1;
 
-static void usage(void)
-{
+static void
+usage(void) {
 #if !(HAVE_GETOPT || HAVE_GETOPT_LONG)
 	fprintf(stdout, "Usage: %s [command [arg ...]]\n"
 "Trace library calls of a given program.\n\n", progname);
@@ -114,8 +114,8 @@ static void usage(void)
 #endif
 }
 
-static char * search_for_command(char * filename)
-{
+static char *
+search_for_command(char * filename) {
 	static char pathname[1024];
 	char *path;
 	int m, n;
@@ -142,8 +142,8 @@ static char * search_for_command(char * filename)
 	return filename;
 }
 
-char ** process_options(int argc, char **argv)
-{
+char **
+process_options(int argc, char **argv) {
 	progname = argv[0];
 	output = stderr;
 

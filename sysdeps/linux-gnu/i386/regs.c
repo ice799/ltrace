@@ -14,18 +14,17 @@
 # define PTRACE_POKEUSER PTRACE_POKEUSR
 #endif
 
-void * get_instruction_pointer(pid_t pid)
-{
+void *
+get_instruction_pointer(pid_t pid) {
 	return (void *)ptrace(PTRACE_PEEKUSER, pid, 4*EIP, 0);
 }
 
-void * get_stack_pointer(pid_t pid)
-{
+void *
+get_stack_pointer(pid_t pid) {
 	return (void *)ptrace(PTRACE_PEEKUSER, pid, 4*UESP, 0);
 }
 
-void * get_return_addr(pid_t pid, void * stack_pointer)
-{
+void *
+get_return_addr(pid_t pid, void * stack_pointer) {
 	return (void *)ptrace(PTRACE_PEEKTEXT, pid, stack_pointer, 0);
 }
-

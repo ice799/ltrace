@@ -74,7 +74,7 @@
 	"sigpending",                      /* 73 */
 	"sethostname",                     /* 74 */
 	"setrlimit",                       /* 75 */
-	"old_getrlimit",                   /* 76 */
+	"getrlimit",                       /* 76 */
 	"getrusage",                       /* 77 */
 	"gettimeofday",                    /* 78 */
 	"settimeofday",                    /* 79 */
@@ -189,7 +189,7 @@
 	"188",                             /* 188 */
 	"189",                             /* 189 */
 	"vfork",                           /* 190 */
-	"getrlimit",                       /* 191 */
+	"ugetrlimit",                      /* 191 */
 	"mmap2",                           /* 192 */
 	"truncate64",                      /* 193 */
 	"ftruncate64",                     /* 194 */

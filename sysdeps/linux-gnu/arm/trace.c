@@ -84,25 +84,3 @@ long gimme_arg(enum tof type, struct process * proc, int arg_num)
 
 	return 0;
 }
-
-int umovestr(struct process * proc, void * addr, int len, void * laddr)
-{
-	long a;
-	int i;
-	int offset=0;
-
-	while(offset<len) {
-		a = ptrace(PTRACE_PEEKTEXT, proc->pid, addr+offset, 0);
-		for(i=0; i<sizeof(long); i++) {
-			if (((char*)&a)[i] && offset+i < len) {
-				*(char *)(laddr+offset+i) = ((char*)&a)[i];
-			} else {
-				*(char *)(laddr+offset+i) = '\0';
-				return 0;
-			}
-		}
-		offset += sizeof(long);
-	}
-	*(char *)(laddr+offset) = '\0';
-	return 0;
-}

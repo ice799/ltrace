@@ -21,13 +21,13 @@ static pid_t current_pid = 0;
 static int current_depth = 0;
 static int current_column = 0;
 
-static void output_indent(struct process * proc)
-{
+static void
+output_indent(struct process * proc) {
 	current_column += fprintf(output, "%*s", opt_n * proc->callstack_depth, "");
 }
 
-static void begin_of_line(enum tof type, struct process * proc)
-{
+static void
+begin_of_line(enum tof type, struct process * proc) {
 	current_column = 0;
 	if (!proc) {
 		return;
@@ -88,13 +88,13 @@ static void begin_of_line(enum tof type, struct process * proc)
 				(unsigned)proc->instruction_pointer);
 		}
 	}
-	if (opt_n > 0) {
+	if (opt_n > 0 && type!=LT_TOF_NONE) {
 		output_indent(proc);
 	}
 }
 
-static struct function * name2func(char * name)
-{
+static struct function *
+name2func(char * name) {
 	struct function * tmp;
 	const char * str1, * str2;
 
@@ -116,8 +116,8 @@ static struct function * name2func(char * name)
 	return NULL;
 }
 
-void output_line(struct process * proc, char *fmt, ...)
-{
+void
+output_line(struct process * proc, char *fmt, ...) {
 	va_list args;
 
 	if (current_pid) {
@@ -136,15 +136,15 @@ void output_line(struct process * proc, char *fmt, ...)
 	current_column=0;
 }
 
-static void tabto(int col)
-{
+static void
+tabto(int col) {
 	if (current_column < col) {
 		fprintf(output, "%*s", col-current_column, "");
 	}
 }
 
-void output_left(enum tof type, struct process * proc, char * function_name)
-{
+void
+output_left(enum tof type, struct process * proc, char * function_name) {
 	struct function * func;
 
 	if (current_pid) {
@@ -186,8 +186,8 @@ void output_left(enum tof type, struct process * proc, char * function_name)
 	}
 }
 
-void output_right(enum tof type, struct process * proc, char * function_name)
-{
+void
+output_right(enum tof type, struct process * proc, char * function_name) {
 	struct function * func = name2func(function_name);
 
 	if ((current_pid && current_pid!=proc->pid) ||

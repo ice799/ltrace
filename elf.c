@@ -38,8 +38,8 @@ static void add_library_symbol(
 
 static struct ltelf library_lte[MAX_LIBRARY];
 
-static void do_init_elf(struct ltelf *lte, const char *filename)
-{
+static void
+do_init_elf(struct ltelf *lte, const char *filename) {
 	struct stat sbuf;
 
 	if (opt_d > 0) {
@@ -109,13 +109,13 @@ static void do_init_elf(struct ltelf *lte, const char *filename)
 	lte->symtab_len = 0;
 }
 
-static void do_close_elf(struct ltelf *lte)
-{
+static void
+do_close_elf(struct ltelf *lte) {
 	close(lte->fd);
 }
 
-static void do_load_elf_symtab(struct ltelf *lte)
-{
+static void
+do_load_elf_symtab(struct ltelf *lte) {
 	void *maddr = lte->maddr;
 	Elf32_Ehdr *ehdr = lte->ehdr;
 	Elf32_Shdr *shdr = (Elf32_Shdr *)(maddr + ehdr->e_shoff);
@@ -144,12 +144,11 @@ static void do_load_elf_symtab(struct ltelf *lte)
 	}
 }
 
-static void add_library_symbol(
-	struct ltelf *lte,
-	int i,
-	struct library_symbol **library_symbolspp
-)
-{
+static void
+add_library_symbol(
+		struct ltelf *lte,
+		int i,
+		struct library_symbol **library_symbolspp) {
 	struct library_symbol *tmp = *library_symbolspp;
 	struct library_symbol *library_symbols;
 
@@ -182,8 +181,8 @@ static void add_library_symbol(
 	so its not that bad - silvio
 */
 
-static void do_init_load_libraries(void)
-{
+static void
+do_init_load_libraries(void) {
 	int i;
 
 	for (i = 0; i < library_num; i++) {
@@ -192,8 +191,8 @@ static void do_init_load_libraries(void)
 	}
 }
 
-static void do_close_load_libraries(void)
-{
+static void
+do_close_load_libraries(void) {
 	int i;
 
 	for (i = 0; i < library_num; i++) {
@@ -201,8 +200,8 @@ static void do_close_load_libraries(void)
 	}
 }
 
-static int in_load_libraries(const char *func)
-{
+static int
+in_load_libraries(const char *func) {
 	int i, j;
 /*
 	if no libraries are specified, assume we want all
@@ -231,8 +230,8 @@ static int in_load_libraries(const char *func)
 	this is the main function
 */
 
-struct library_symbol * read_elf(const char *filename)
-{
+struct library_symbol *
+read_elf(const char *filename) {
 	struct library_symbol *library_symbols = NULL;
 	struct ltelf lte;
 	int i;

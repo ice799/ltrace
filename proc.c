@@ -12,8 +12,8 @@
 #include "options.h"
 #include "elf.h"
 
-struct process * open_program(char * filename)
-{
+struct process *
+open_program(char * filename) {
 	struct process * proc;
 	struct library_symbol * sym;
 	proc = malloc(sizeof(struct process));
@@ -62,19 +62,13 @@ struct process * open_program(char * filename)
 	return proc;
 }
 
-void open_pid(pid_t pid, int verbose)
-{
+void
+open_pid(pid_t pid, int verbose) {
 	struct process * proc;
 	char * filename;
 
 	if (trace_pid(pid)<0) {
-#if 0
-		if (verbose) {
-#endif
-			fprintf(stderr, "Cannot attach to pid %u: %s\n", pid, strerror(errno));
-#if 0
-		}
-#endif
+		fprintf(stderr, "Cannot attach to pid %u: %s\n", pid, strerror(errno));
 		return;
 	}
 

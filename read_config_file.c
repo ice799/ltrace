@@ -44,8 +44,8 @@ static struct list_of_pt_t {
 	{ NULL,     ARGTYPE_UNKNOWN }		/* Must finish with NULL */
 };
 
-static enum arg_type str2type(char ** str)
-{
+static enum arg_type
+str2type(char ** str) {
 	struct list_of_pt_t * tmp = &list_of_pt[0];
 
 	while(tmp->name) {
@@ -59,8 +59,8 @@ static enum arg_type str2type(char ** str)
 	return ARGTYPE_UNKNOWN;
 }
 
-static void eat_spaces(char ** str)
-{
+static void
+eat_spaces(char ** str) {
 	while(**str==' ') {
 		(*str)++;
 	}
@@ -70,8 +70,8 @@ static void eat_spaces(char ** str)
   Returns position in string at the left parenthesis which starts the
   function's argument signature. Returns NULL on error.
 */
-static char * start_of_arg_sig(char * str)
-{
+static char *
+start_of_arg_sig(char * str) {
 	char * pos;
 	int stacked = 0;
 
@@ -95,7 +95,8 @@ static char * start_of_arg_sig(char * str)
 static int line_no;
 static char * filename;
 
-struct function * process_line (char * buf) {
+struct function *
+process_line (char * buf) {
 	struct function fun;
 	struct function * fun_p;
 	char * str = buf;
@@ -163,8 +164,8 @@ struct function * process_line (char * buf) {
 	return fun_p;
 }
 
-void read_config_file(char * file)
-{
+void
+read_config_file(char * file) {
 	FILE * stream;
 	char buf[1024];
 

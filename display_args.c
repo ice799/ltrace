@@ -15,8 +15,8 @@ static int display_stringN(int arg2, enum tof type, struct process * proc, int a
 static int display_unknown(enum tof type, struct process * proc, int arg_num);
 static int display_format(enum tof type, struct process * proc, int arg_num);
 
-int display_arg(enum tof type, struct process * proc, int arg_num, enum arg_type at)
-{
+int
+display_arg(enum tof type, struct process * proc, int arg_num, enum arg_type at) {
 	int tmp;
 	long arg;
 
@@ -60,8 +60,8 @@ int display_arg(enum tof type, struct process * proc, int arg_num, enum arg_type
 	return fprintf(output, "?");
 }
 
-static int display_char(int what)
-{
+static int
+display_char(int what) {
 	switch(what) {
 		case -1:	return fprintf(output, "EOF");
 		case '\r':	return fprintf(output, "\\r");
@@ -82,8 +82,8 @@ static int string_maxlength=INT_MAX;
 
 #define MIN(a,b) (((a)<(b)) ? (a) : (b))
 
-static int display_string(enum tof type, struct process * proc, int arg_num)
-{
+static int
+display_string(enum tof type, struct process * proc, int arg_num) {
 	void * addr;
 	char * str1;
 	int i;
@@ -115,8 +115,8 @@ static int display_string(enum tof type, struct process * proc, int arg_num)
 	return len;
 }
 
-static int display_stringN(int arg2, enum tof type, struct process * proc, int arg_num)
-{
+static int
+display_stringN(int arg2, enum tof type, struct process * proc, int arg_num) {
 	int a;
 
 	string_maxlength=gimme_arg(type, proc, arg2-1);
@@ -125,8 +125,8 @@ static int display_stringN(int arg2, enum tof type, struct process * proc, int a
 	return a;
 }
 
-static int display_unknown(enum tof type, struct process * proc, int arg_num)
-{
+static int
+display_unknown(enum tof type, struct process * proc, int arg_num) {
 	long tmp;
 
 	tmp = gimme_arg(type, proc, arg_num);
@@ -138,8 +138,8 @@ static int display_unknown(enum tof type, struct process * proc, int arg_num)
 	}
 }
 
-static int display_format(enum tof type, struct process * proc, int arg_num)
-{
+static int
+display_format(enum tof type, struct process * proc, int arg_num) {
 	void * addr;
 	char * str1;
 	int i;

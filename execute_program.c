@@ -18,8 +18,8 @@
 
 static void change_uid(struct process * proc);
 
-void execute_program(struct process * sp, char **argv)
-{
+void
+execute_program(struct process * sp, char **argv) {
 	pid_t pid;
 
 	if (opt_d) {
@@ -47,8 +47,8 @@ void execute_program(struct process * sp, char **argv)
 	return;
 }
 
-static void change_uid(struct process * proc)
-{
+static void
+change_uid(struct process * proc) {
 	uid_t run_uid, run_euid;
 	gid_t run_gid, run_egid;
 

@@ -83,7 +83,7 @@ shortsignal(int signum) {
 	};
 	int nsignals0 = sizeof signalent0 / sizeof signalent0[0];
 
-	if (signum<0 || signum>nsignals0) {
+	if (signum<0 || signum>=nsignals0) {
 		return "UNKNOWN_SIGNAL";
 	} else {
 		return signalent0[signum];

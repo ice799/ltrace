@@ -40,16 +40,16 @@ static const char * dict_find_entry(const char * mangled);
 static unsigned int dict_hash_string(const char * s);
 
 
-static void dict_init(void)
-{
+static void
+dict_init(void) {
 	int i;
 	/* FIXME: is this necessary? Check with ANSI C spec. 19990702 mortene. */
 	for (i = 0; i < DICTTABLESIZE; i++) dict_buckets[i] = NULL;
 	dict_initialized = 1;
 }
 
-static void dict_clear(void)
-{
+static void
+dict_clear(void) {
 	int i;
 	struct dict_entry * entry, * nextentry;
 
@@ -65,8 +65,8 @@ static void dict_clear(void)
 	}
 }
 
-static void dict_enter(const char * mangled, const char * demangled)
-{
+static void
+dict_enter(const char * mangled, const char * demangled) {
 	struct dict_entry * entry, * newentry;
 	unsigned int key = dict_hash_string(mangled);
 
@@ -91,8 +91,8 @@ static void dict_enter(const char * mangled, const char * demangled)
 		output_line(0, "new dict entry: '%s' -> '%s'\n", mangled, demangled);
 }
 
-static const char * dict_find_entry(const char * mangled)
-{
+static const char *
+dict_find_entry(const char * mangled) {
 	unsigned int key = dict_hash_string(mangled);
 	struct dict_entry * entry = dict_buckets[key % DICTTABLESIZE];
 	while (entry) {
@@ -102,8 +102,8 @@ static const char * dict_find_entry(const char * mangled)
 	return entry ? entry->demangled : NULL;
 }
 
-static unsigned int dict_hash_string(const char * s)
-{
+static unsigned int
+dict_hash_string(const char * s) {
 	unsigned int total = 0, shift = 0;
 
 	while (*s) {
@@ -119,8 +119,8 @@ static unsigned int dict_hash_string(const char * s)
 
 /*****************************************************************************/
 
-const char * my_demangle(const char * function_name)
-{
+const char *
+my_demangle(const char * function_name) {
 	const char * tmp, * fn_copy;
 
 	if (!dict_initialized) {

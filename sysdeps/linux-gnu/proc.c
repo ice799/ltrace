@@ -18,8 +18,8 @@
 /*
  * Returns a file name corresponding to a running pid
  */
-char * pid2name(pid_t pid)
-{
+char *
+pid2name(pid_t pid) {
 	char proc_exe[1024];
 
 	if (!kill(pid, 0)) {
