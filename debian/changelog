@@ -1,3 +1,11 @@
+ltrace (0.2.5) unstable; urgency=low
+
+  * After a successful execve(), library calls are now logged
+  * Enhanced displaying of non-printable chars
+  * Added some functions to /etc/ltrace.conf
+
+ -- Juan Cespedes <cespedes@debian.org>  Fri, 13 Mar 1998 19:16:47 +0100
+
 ltrace (0.2.4) unstable; urgency=low
 
   * Option `-p' now works (but programs fail when ltrace is interrupted)

@@ -1,7 +1,5 @@
 * processes attached with option -p die when the attacher is interrupted
-* option -p and -f don't work yet
 * option -f doesn't work yet
-* if a program uses `execve()', later syscalls aren't logged correctly
 * Manual page is not accurate (config files...)
 * elf.c only supports elf32 binaries
 * netscape sometimes dies with SIGSEGV (is this still true?)

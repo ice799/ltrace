@@ -6,6 +6,7 @@
 #include "ltrace.h"
 #include "output.h"
 #include "options.h"
+#include "elf.h"
 
 static void process_signal(struct event * event);
 static void process_exit(struct event * event);
@@ -138,11 +139,13 @@ static void process_syscall(struct event * event)
 	if (opt_S) {
 		output_left(LT_TOF_SYSCALL, event->proc, sysname(event->e_un.sysnum));
 	}
-	if (child_p(event->e_un.sysnum)) {
+	if (fork_p(event->e_un.sysnum) || exec_p(event->e_un.sysnum)) {
 		disable_all_breakpoints(event->proc);
 		if (event->proc->current_symbol) {
 			delete_breakpoint(event->proc->pid, &event->proc->return_value);
 		}
+	} else if (!event->proc->breakpoints_enabled) {
+		enable_all_breakpoints(event->proc);
 	}
 	continue_process(event->proc->pid);
 }
@@ -152,7 +155,19 @@ static void process_sysret(struct event * event)
 	if (opt_S) {
 		output_right(LT_TOF_SYSCALL, event->proc, sysname(event->e_un.sysnum));
 	}
-	if (child_p(event->e_un.sysnum)) {
+	if (exec_p(event->e_un.sysnum)) {
+		if (gimme_arg(LT_TOF_SYSCALL,event->proc,-1)==0) {
+			event->proc->filename = pid2name(event->proc->pid);
+			event->proc->list_of_symbols = read_elf(event->proc->filename);
+			event->proc->breakpoints_enabled = -1;
+		} else {
+			enable_all_breakpoints(event->proc);
+			if (event->proc->current_symbol) {
+				insert_breakpoint(event->proc->pid, &event->proc->return_value);
+			}
+		}
+	}
+	if (fork_p(event->e_un.sysnum)) {
 		enable_all_breakpoints(event->proc);
 		if (event->proc->current_symbol) {
 			insert_breakpoint(event->proc->pid, &event->proc->return_value);

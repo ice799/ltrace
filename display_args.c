@@ -61,10 +61,11 @@ static int display_char(char what)
 		case '\r':	return fprintf(output, "\\r");
 		case '\n':	return fprintf(output, "\\n");
 		case '\t':	return fprintf(output, "\\t");
+		case '\b':	return fprintf(output, "\\b");
 		case '\\':	return fprintf(output, "\\");
 		default:
 			if ((what<32) || (what>126)) {
-				return fprintf(output, "\\%03o", what);
+				return fprintf(output, "\\%03o", (unsigned char)what);
 			} else {
 				return fprintf(output, "%c", what);
 			}

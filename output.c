@@ -71,7 +71,7 @@ void output_left(enum tof type, struct process * proc, char * function_name)
 	struct function * func;
 
 	if (current_pid) {
-#if 1						/* ugly hack :) */
+#if 0			/* FIXME: should I do this? */
 		if (current_pid == proc->pid
 			&& proc->type_being_displayed == LT_TOF_FUNCTION
 			&& proc->type_being_displayed == type) {

@@ -8,12 +8,20 @@
 #include "ltrace.h"
 #include "options.h"
 
-/* Returns 1 if a new child is about to be created
-   (ie, with fork() or clone())
-   Returns 0 otherwise. */
-int child_p(int sysnum)
+/* Returns 1 if the sysnum may make a new child to be created
+ * (ie, with fork() or clone())
+ * Returns 0 otherwise.
+ */
+int fork_p(int sysnum)
 {
 	return (sysnum == __NR_fork || sysnum == __NR_clone);
+}
+
+/* Returns 1 if the sysnum may make the process exec other program
+ */
+int exec_p(int sysnum)
+{
+	return (sysnum == __NR_execve);
 }
 
 void trace_me(void)
