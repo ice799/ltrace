@@ -70,12 +70,14 @@ char ** process_options(int argc, char **argv)
 			argc--; argv++;
 		}
 		switch (*nextchar++) {
-			case 'a':	opt_a = atoi(argv[1]);
+			case 'a':	if (!argv[1]) { usage(); exit(1); }
+					opt_a = atoi(argv[1]);
 					argc--; argv++;
 					break;
 			case 'd':	opt_d++;
 					break;
-			case 'o':	output = fopen(argv[1], "w");
+			case 'o':	if (!argv[1]) { usage(); exit(1); }
+					output = fopen(argv[1], "w");
 					if (!output) {
 						fprintf(stderr, "Can't open %s for output: %s\n", argv[1], strerror(errno));
 						exit(1);
@@ -84,7 +86,8 @@ char ** process_options(int argc, char **argv)
 					break;
 			case 'i':	opt_i++;
 					break;
-			case 's':	opt_s = atoi(argv[1]);
+			case 's':	if (!argv[1]) { usage(); exit(1); }
+					opt_s = atoi(argv[1]);
 					argc--; argv++;
 					break;
 			case 'L':	opt_L = 0;
@@ -93,10 +96,11 @@ char ** process_options(int argc, char **argv)
 					break;
 			case 'f':	opt_f = 1;
 					break;
-			case 'u':	opt_u = argv[1];
+			case 'u':	if (!argv[1]) { usage(); exit(1); }
+					opt_u = argv[1];
 					argc--; argv++;
 					break;
-			case 'p':
+			case 'p':	if (!argv[1]) { usage(); exit(1); }
 				{
 					struct opt_p_t * tmp = malloc(sizeof(struct opt_p_t));
 					if (!tmp) {
@@ -104,6 +108,8 @@ char ** process_options(int argc, char **argv)
 						exit(1);
 					}
 					tmp->pid = atoi(argv[1]);
+					tmp->next = opt_p;
+					opt_p = tmp;
 					argc--; argv++;
 					break;
 				}
@@ -113,10 +119,12 @@ char ** process_options(int argc, char **argv)
 		}
 	}
 
-	if (argc<2) {
+	if (!opt_p && argc<2) {
 		usage();
 		exit(1);
 	}
-	command = search_for_command(argv[1]);
+	if (argc>1) {
+		command = search_for_command(argv[1]);
+	}
 	return &argv[1];
 }

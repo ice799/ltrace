@@ -1,6 +1,7 @@
 #define _GNU_SOURCE
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 #include "ltrace.h"
 #include "output.h"
@@ -95,16 +96,40 @@ static void process_signal(struct event * event)
 	continue_after_signal(event->proc->pid, event->e_un.signum);
 }
 
+static void remove_proc(struct process * proc);
+
 static void process_exit(struct event * event)
 {
 	output_line(event->proc, "+++ exited (status %d) +++",
 		event->e_un.ret_val);
+	remove_proc(event->proc);
 }
 
 static void process_exit_signal(struct event * event)
 {
 	output_line(event->proc, "+++ killed by %s +++",
 		shortsignal(event->e_un.signum));
+	remove_proc(event->proc);
+}
+
+static void remove_proc(struct process * proc)
+{
+	struct process *tmp, *tmp2;
+
+	if (list_of_processes == proc) {
+		tmp = list_of_processes;
+		list_of_processes = list_of_processes->next;
+		free(tmp);
+		return;
+	}
+	tmp = list_of_processes;
+	while(tmp->next) {
+		if (tmp->next==proc) {
+			tmp2 = tmp->next;
+			tmp->next = tmp->next->next;
+			free(tmp2);
+		}
+	}
 }
 
 static void process_syscall(struct event * event)

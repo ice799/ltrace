@@ -18,7 +18,8 @@ ltrace:		sysdeps/sysdep.o $(OBJ)
 
 clean:
 		$(MAKE) -C sysdeps/$(OS) clean
-		rm -f ltrace $(OBJ)
+		$(RM) ltrace $(OBJ)
+		$(RM) *~ *.bak core KK
 
 dist:		clean
 		( cd .. ; tar zcvf ltrace-`date +%y%m%d`.tgz ltrace )

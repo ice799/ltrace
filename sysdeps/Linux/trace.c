@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <string.h>
+#include <errno.h>
 #include <sys/types.h>
 #include <sys/ptrace.h>
 #include <asm/unistd.h>
@@ -19,6 +21,13 @@ void trace_me(void)
 	if (ptrace(PTRACE_TRACEME, 0, 1, 0)<0) {
 		perror("PTRACE_TRACEME");
 		exit(1);
+	}
+}
+
+void trace_pid(pid_t pid)
+{
+	if (ptrace(PTRACE_ATTACH, pid, 1, 0) < 0) {
+		perror("PTRACE_ATTACH");
 	}
 }
 

@@ -113,7 +113,9 @@ void enable_all_breakpoints(struct process * proc);
 void disable_all_breakpoints(struct process * proc);
 
 /* Arch-dependent stuff: */
+extern char * pid2name(pid_t pid);
 extern void trace_me(void);
+extern void trace_pid(pid_t pid);
 extern void * get_instruction_pointer(int pid);
 extern void * get_stack_pointer(int pid);
 extern void * get_return_addr(int pid, void * stack_pointer);

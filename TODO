@@ -1,4 +1,4 @@
-* Option -p (trace running process)
+* Option -p: disable breakpoints on exit
 * Option -f (trace children)
 * Option -u (run command as username handling setuid and/or setgid)
 * SYSCALLS:
