@@ -13,7 +13,7 @@
 #include <string.h>
 #include <signal.h>
 
-void print_function(const char *, int);
+extern void print_function(const char *, int);
 
 int pid;
 
@@ -23,10 +23,14 @@ struct library_symbol {
 	char * name;
 	unsigned long addr;
 	unsigned char value;
-	unsigned long return_addr;
-	unsigned char return_value;
 	struct library_symbol * next;
 };
+
+FILE * output = stderr;
+
+unsigned long return_addr;
+unsigned char return_value;
+struct library_symbol * current_symbol;
 
 struct library_symbol * library_symbols = NULL;
 
@@ -88,9 +92,9 @@ static int read_elf(char *filename)
 		}
 	}
 	if (debug>0) {
-		fprintf(stderr, "symtab: 0x%08x\n", (unsigned)symtab);
-		fprintf(stderr, "symtab_len: %lu\n", symtab_len);
-		fprintf(stderr, "strtab: 0x%08x\n", (unsigned)strtab);
+		fprintf(output, "symtab: 0x%08x\n", (unsigned)symtab);
+		fprintf(output, "symtab_len: %lu\n", symtab_len);
+		fprintf(output, "strtab: 0x%08x\n", (unsigned)strtab);
 	}
 	if (!symtab) {
 		return 0;
@@ -108,7 +112,7 @@ static int read_elf(char *filename)
 			library_symbols->name = strtab+(symtab+i)->st_name;
 			library_symbols->next = tmp;
 			if (debug>0) {
-				fprintf(stderr, "addr: 0x%08x, symbol: \"%s\"\n",
+				fprintf(output, "addr: 0x%08x, symbol: \"%s\"\n",
 					(unsigned)((symtab+i)->st_value),
 					(strtab+(symtab+i)->st_name));
 			}
@@ -117,27 +121,48 @@ static int read_elf(char *filename)
 	return 1;
 }
 
+static void insert_breakpoint(int pid, unsigned long addr, unsigned char * value)
+{
+}
+
+static void delete_breakpoint(int pid, unsigned long addr, unsigned char * value)
+{
+}
+
+static void usage(void)
+{
+	fprintf(stderr," Usage: ltrace [-d][-o output] <program> [<arguments>...]\n");
+}
+
 int main(int argc, char **argv)
 {
 	int status;
 	struct library_symbol * tmp = NULL;
 
-	while ((argc>1) && (argv[1][0] == '-') && (argv[1][2] == '\0')) {
+	while ((argc>2) && (argv[1][0] == '-') && (argv[1][2] == '\0')) {
 		switch(argv[1][1]) {
 			case 'd':	debug++;
 					break;
+			case 'o':	output = fopen(argv[2], "w");
+					if (!output) {
+						fprintf(stderr, "Can't open %s for output: %s\n", argv[2], sys_errlist[errno]);
+						exit(1);
+					}
+					argc--; argv++;
+					break;
 			default:	fprintf(stderr, "Unknown option '%c'\n", argv[1][1]);
+					usage();
 					exit(1);
 		}
 		argc--; argv++;
 	}
 
 	if (argc<2) {
-		fprintf(stderr, "Usage: %s [<options>] <program> [<arguments>]\n", argv[0]);
+		usage();
 		exit(1);
 	}
 	if (!read_elf(argv[1])) {
-		fprintf(stderr, "%s: Not dynamically linked\n", argv[0]);
+		fprintf(stderr, "%s: Not dynamically linked\n", argv[1]);
 		exit(1);
 	}
 	pid = fork();
@@ -153,7 +178,7 @@ int main(int argc, char **argv)
 		fprintf(stderr, "Can't execute \"%s\": %s\n", argv[1], sys_errlist[errno]);
 		exit(1);
 	}
-	fprintf(stderr, "pid %u attached\n", pid);
+	fprintf(output, "pid %u attached\n", pid);
 
 	/* Enable breakpoints: */
 	pid = wait4(-1, &status, 0, NULL);
@@ -161,7 +186,7 @@ int main(int argc, char **argv)
 		perror("wait4");
 		exit(1);
 	}
-	fprintf(stderr, "Enabling breakpoints...\n");
+	fprintf(output, "Enabling breakpoints...\n");
 	tmp = library_symbols;
 	while(tmp) {
 		int a;
@@ -182,26 +207,26 @@ int main(int argc, char **argv)
 		pid = wait4(-1, &status, 0, NULL);
 		if (pid==-1) {
 			if (errno == ECHILD) {
-				fprintf(stderr, "No more children\n");
+				fprintf(output, "No more children\n");
 				exit(0);
 			}
 			perror("wait4");
 			exit(1);
 		}
 		if (WIFEXITED(status)) {
-			fprintf(stderr, "pid %u exited\n", pid);
+			fprintf(output, "pid %u exited\n", pid);
 			continue;
 		}
 		if (WIFSIGNALED(status)) {
-			fprintf(stderr, "pid %u exited on signal %u\n", pid, WTERMSIG(status));
+			fprintf(output, "pid %u exited on signal %u\n", pid, WTERMSIG(status));
 			continue;
 		}
 		if (!WIFSTOPPED(status)) {
-			fprintf(stderr, "pid %u ???\n", pid);
+			fprintf(output, "pid %u ???\n", pid);
 			continue;
 		}
 		if (WSTOPSIG(status) != SIGTRAP) {
-			fprintf(stderr, "Signal: %u\n", WSTOPSIG(status));
+			fprintf(output, "Signal: %u\n", WSTOPSIG(status));
 			ptrace(PTRACE_CONT, pid, 1, WSTOPSIG(status));
 			continue;
 		}
@@ -209,10 +234,10 @@ int main(int argc, char **argv)
 		eip = ptrace(PTRACE_PEEKUSR, pid, 4*EIP, 0);
 		esp = ptrace(PTRACE_PEEKUSR, pid, 4*UESP, 0);
 #if 0
-		fprintf(stderr,"EIP = 0x%08x\n", eip);
-		fprintf(stderr,"ESP = 0x%08x\n", esp);
+		fprintf(output,"EIP = 0x%08x\n", eip);
+		fprintf(output,"ESP = 0x%08x\n", esp);
 #endif
-		fprintf(stderr,"[0x%08x] ", ptrace(PTRACE_PEEKTEXT, pid, esp, 0));
+		fprintf(output,"[0x%08x] ", ptrace(PTRACE_PEEKTEXT, pid, esp, 0));
 		tmp = library_symbols;
 		function_seen = 0;
 		while(tmp) {
@@ -229,7 +254,7 @@ int main(int argc, char **argv)
 				pid = wait4(-1, &status, 0, NULL);
 				if (pid==-1) {
 					if (errno == ECHILD) {
-						fprintf(stderr, "No more children\n");
+						fprintf(output, "No more children\n");
 						exit(0);
 					}
 					perror("wait4");
@@ -245,7 +270,7 @@ int main(int argc, char **argv)
 			tmp = tmp->next;
 		}
 		if (!function_seen) {
-			fprintf(stderr, "pid %u stopped; continuing it...\n", pid);
+			fprintf(output, "pid %u stopped; continuing it...\n", pid);
 			ptrace(PTRACE_CONT, pid, 1, 0);
 		}
 	}

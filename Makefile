@@ -9,4 +9,4 @@ clean:
 	rm -f ltrace ltrace.o
 
 dist:	#clean
-	( cd .. ; tar zcvf ltrace2-`date +%y%m%d`.tgz ltrace2 )
+	( cd .. ; tar zcvf ltrace-`date +%y%m%d`.tgz ltrace )

@@ -3,29 +3,9 @@
 #include <sys/ptrace.h>
 
 extern int pid;
+extern FILE * output;
 
-struct functions {
-	const char * function_name;
-	int return_type;
-	int no_params;
-	int params_type[10];
-};
-
-/*
- *	Lista de types:
- */
-
-#define	_T_UNKNOWN	-1
-#define	_T_VOID		0
-#define	_T_INT		1
-#define	_T_UINT		2
-#define	_T_OCTAL	3
-#define	_T_CHAR		4
-#define	_T_STRING	5
-#define	_T_ADDR		6
-#define	_T_FILE		7
-#define	_T_HEX		8
-#define	_T_FORMAT	9		/* printf-like format */
+#include "functions.h"
 
 struct functions functions_list[] = {
 	{"atexit",      _T_INT,     1, {_T_ADDR}},
@@ -39,6 +19,7 @@ struct functions functions_list[] = {
 	{"malloc",      _T_ADDR,    1, {_T_UINT}},
 	{"memset",      _T_ADDR,    3, {_T_ADDR, _T_CHAR, _T_UINT}},
 	{"mkdir",       _T_INT,     2, {_T_STRING, _T_OCTAL}},
+	{"open",        _T_INT,     3, {_T_STRING, _T_INT, _T_INT}},
 	{"printf",      _T_INT,     1, {_T_FORMAT}},
 	{"rindex",      _T_STRING,  2, {_T_STRING, _T_CHAR}},
 	{"strcmp",      _T_INT,     2, {_T_STRING, _T_STRING}},
@@ -131,5 +112,6 @@ void print_function(const char *name, int esp)
 	for(i=1; i<tmp->no_params; i++) {
 		sprintf(message, "%s,%s", message, print_param(tmp->params_type[i], esp+4*(i+1)));
 	}
-	fprintf(stderr, "%s) = ???\n", message);
+	fprintf(output, "%s) = ???\n", message);
+	fflush(output);
 }
