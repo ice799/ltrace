@@ -1,3 +1,12 @@
+ltrace (0.3.16) unstable; urgency=low
+
+  * ltrace works again after an execve is received (closes: Bug#108835)
+  * Added prototypes for fnmatch() and bsearch()   (closes: Bug#106862)
+  * Re-wrote short description so it does not exceed 60 chars
+                                                   (closes: Bug#114682)
+
+ -- Juan Cespedes <cespedes@debian.org>  Mon, 10 Dec 2001 04:11:26 +0100
+
 ltrace (0.3.15) unstable; urgency=low
 
   * Fixed `-n' option so that it displays correct output even when

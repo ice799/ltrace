@@ -8,7 +8,7 @@ Build-Depends: binutils-dev
 Package: ltrace
 Architecture: i386 arm m68k
 Depends: ${shlibs:Depends}
-Description: Shows runtime library call information for dynamically linked executables
+Description: Shows runtime library calls in dynamically linked programs
  ltrace is a program that simply runs the specified command until it exits.
  It intercepts and records the dynamic library calls which are called by
  the executed process and the signals which are received by that process.

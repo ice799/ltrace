@@ -178,12 +178,17 @@ process_sysret(struct event * event) {
 
 			event->proc->filename = pid2name(event->proc->pid);
 			event->proc->list_of_symbols = read_elf(event->proc->filename);
+	/* This should fix Bug#108835 : */
+#if 0
 			sym = event->proc->list_of_symbols;
 			while (sym) {
 				insert_breakpoint(event->proc, sym->enter_addr);
 				sym = sym->next;
 			}
 			event->proc->breakpoints_enabled = 1;
+#else
+			event->proc->breakpoints_enabled = -1;
+#endif
 		}
 	}
 	if (fork_p(event->e_un.sysnum)) {
