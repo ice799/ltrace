@@ -30,6 +30,9 @@ void
 process_event(struct event * event) {
 	switch (event->thing) {
 		case LT_EV_NONE:
+			if (opt_d>0) {
+				output_line(0, "event: none");
+			}
 			return;
 		case LT_EV_SIGNAL:
 			if (opt_d>0) {
@@ -62,6 +65,9 @@ process_event(struct event * event) {
 			process_sysret(event);
 			return;
 		case LT_EV_BREAKPOINT:
+			if (opt_d>0) {
+				output_line(0, "event: breakpoint");
+			}
 			process_breakpoint(event);
 			return;
 		default:
@@ -174,21 +180,14 @@ static void
 process_sysret(struct event * event) {
 	if (exec_p(event->e_un.sysnum)) {
 		if (gimme_arg(LT_TOF_SYSCALL,event->proc,-1)==0) {
-			struct library_symbol * sym;
 
 			event->proc->filename = pid2name(event->proc->pid);
 			event->proc->list_of_symbols = read_elf(event->proc->filename);
-	/* This should fix Bug#108835 : */
-#if 0
-			sym = event->proc->list_of_symbols;
-			while (sym) {
-				insert_breakpoint(event->proc, sym->enter_addr);
-				sym = sym->next;
-			}
-			event->proc->breakpoints_enabled = 1;
-#else
+
+			/* The kernel will stop the process just after an execve()
+			 * and we will be able to enable breakpoints again
+			 */
 			event->proc->breakpoints_enabled = -1;
-#endif
 		}
 	}
 	if (fork_p(event->e_un.sysnum)) {
@@ -210,9 +209,7 @@ process_sysret(struct event * event) {
 static void
 process_breakpoint(struct event * event) {
 	struct library_symbol * tmp;
-	void * return_addr;
-	struct callstack_element * current_call = event->proc->callstack_depth>0 ?
-		&(event->proc->callstack[event->proc->callstack_depth-1]) : NULL;
+	int i,j;
 
 	if (opt_d>1) {
 		output_line(0,"event: breakpoint (0x%08x)", event->e_un.brk_addr);
@@ -223,12 +220,18 @@ process_breakpoint(struct event * event) {
 		return;
 	}
 
-	if (current_call && !current_call->is_syscall && event->e_un.brk_addr == current_call->return_addr) {
-		return_addr = current_call->return_addr;
-		callstack_pop(event->proc);
-		output_right(LT_TOF_FUNCTION, event->proc, current_call->c_un.libfunc->name);
-		continue_after_breakpoint(event->proc, address2bpstruct(event->proc, return_addr));
-		return;
+	for(i=event->proc->callstack_depth-1; i>=0; i--) {
+		if (event->e_un.brk_addr == event->proc->callstack[i].return_addr) {
+			for(j=event->proc->callstack_depth-1; j>=i; j--) {
+				callstack_pop(event->proc);
+			}
+			event->proc->return_addr = event->e_un.brk_addr;
+			output_right(LT_TOF_FUNCTION, event->proc,
+					event->proc->callstack[i].c_un.libfunc->name);
+			continue_after_breakpoint(event->proc,
+					address2bpstruct(event->proc, event->e_un.brk_addr));
+			return;
+		}
 	}
 
 	tmp = event->proc->list_of_symbols;

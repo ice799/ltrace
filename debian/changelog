@@ -1,3 +1,12 @@
+ltrace (0.3.17) unstable; urgency=low
+
+  * Added a bit more debugging
+  * Fixed display of return address in nested functions
+  * Added posibility to exit from a function different from the last called
+    one (this fixes "ltrace gnome-terminal", for example)
+
+ -- Juan Cespedes <cespedes@debian.org>  Mon, 25 Feb 2002 00:19:19 +0100
+
 ltrace (0.3.16) unstable; urgency=low
 
   * ltrace works again after an execve is received (closes: Bug#108835)

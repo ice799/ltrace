@@ -20,4 +20,3 @@
 * Option -c (summary)
 * More architectures: sparc, alpha
 * More operating systems (solaris?)
-* Try to find out what could happen with some recursive calls...

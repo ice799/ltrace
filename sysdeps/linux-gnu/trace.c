@@ -58,15 +58,7 @@ void untrace_pid(pid_t pid)
 void continue_after_signal(pid_t pid, int signum)
 {
 	/* We should always trace syscalls to be able to control fork(), clone(), execve()... */
-#if 0
-	if (opt_S) {
-		ptrace(PTRACE_SYSCALL, pid, 1, signum);
-	} else {
-		ptrace(PTRACE_CONT, pid, 1, signum);
-	}
-#else
-	ptrace(PTRACE_SYSCALL, pid, 1, signum);
-#endif
+	ptrace(PTRACE_SYSCALL, pid, 0, signum);
 }
 
 void continue_process(pid_t pid)
