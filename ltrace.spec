@@ -1,49 +1,42 @@
-Summary: A library call tracer
+Summary: Shows runtime library call information for dynamically linked executables
 Name: ltrace
-%define version 0.3.7
+%define version 0.3.8
 Version: %{version}
 Release: 1
+Source: ftp://ftp.debian.org/debian/dists/unstable/main/source/utils/ltrace_%{version}.tar.gz
 Copyright: GPL
 Group: Development/Debuggers
-Source: ftp://ftp.debian.org/debian/dists/unstable/main/source/utils/ltrace_%{version}.tar.gz
-BuildRoot: /tmp/ltrace
+BuildRoot: /tmp/ltrace-root
 
 %description
-ltrace is a library call tracer, i.e. a debugging tool which prints out
-a trace of all the dynamic library calls made by another process/program.
-
-It also displays system calls, as well as `strace', but strace still
-does a better job displaying arguments to system calls.
+ltrace is a program that simply runs the specified command until it exits.
+It intercepts and records the dynamic library calls which are called by
+the executed process and the signals which are received by that process.
+It can also intercept and print the system calls executed by the program.
 
 The program to be traced need not be recompiled for this, so you can
 use it on binaries for which you don't have the source handy.
 
-This is still a work in progress, so some things may fail or don't work
-as expected.
-
-%changelog
 %prep 
-%setup
+%setup -q
+./configure --prefix=/usr
 
 %build
-./configure --prefix=/usr
 make
 
 %install
 rm -rf $RPM_BUILD_ROOT
 mkdir -p $RPM_BUILD_ROOT
-make install DESTDIR=$RPM_BUILD_ROOT
-gzip -9 $RPM_BUILD_ROOT/usr/doc/ltrace/ChangeLog
+make DESTDIR=$RPM_BUILD_ROOT install
+rm -rf $RPM_BUILD_ROOT/usr/doc
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
 %files
+%defattr(-,root,root)
 %config /etc/ltrace.conf
+%doc COPYING README TODO BUGS ChangeLog
 /usr/bin/ltrace
-/usr/doc/ltrace/ChangeLog.gz
-/usr/doc/ltrace/BUGS
-/usr/doc/ltrace/COPYING
-/usr/doc/ltrace/README
-/usr/doc/ltrace/TODO
 /usr/man/man1/ltrace.1
+%changelog

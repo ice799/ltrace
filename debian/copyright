@@ -8,6 +8,8 @@ Copyright (C) 1997-1999 Juan Cespedes <cespedes@debian.org>
 
 ARMLinux port: Copyright (C) 1998 Pat Beirne <pbeirne@home.com>
 m68k port: Copyright (C) 1998 Roman Hodek <Roman.Hodek@informatik.uni-erlangen.de>
+Misc fixes: Copyright (C) 1999 Morten Eriksen <mortene@sim.no>
+
 
 Autoconf stuff: Copyright 1992-1996 Free Software Foundation, Inc.
 install-sh: Copyright 1991 by the Massachusetts Institute of Technology
@@ -27,8 +29,8 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 General Public License for more details.
 
 A copy of the GNU General Public License is available as
-`/usr/doc/copyright/GPL' in the Debian GNU/Linux distribution or on
-the World Wide Web at `http://www.gnu.org/copyleft/gpl.html'. You can
-also obtain it by writing to the Free Software Foundation, Inc., 59
-Temple Place - Suite 330, Boston, MA 02111-1307, USA
+`/usr/share/common-licenses/GPL' in the Debian GNU/Linux distribution
+or on the World Wide Web at `http://www.gnu.org/copyleft/gpl.html'.
+You can also obtain it by writing to the Free Software Foundation,
+Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA
 

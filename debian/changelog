@@ -1,3 +1,19 @@
+ltrace (0.3.8) unstable; urgency=low
+
+  * glibc-2.1 does no longer need `_GNU_SOURCE' defined to use <getopt.h>
+  * Changed description of package; adopted Red Hat's one
+    (thanks to whoever wrote it)
+  * Close all the file descriptors used before executing program (close-on-exec)
+  * Updated copyright file for new location /usr/share/common-licenses/GPL.
+  * Used GNU autoconf instead of "uname" to guess host system type
+  * Install man page in /usr/share/man instead of /usr/man
+  * Added a few functions to /etc/ltrace.conf
+  * Updated list of syscalls and signals to linux-2.2.12
+  * Fixed bugs in C++ demangle (Morten Eriksen <mortene@sim.no>)
+  * New Standards-Version: 3.0.1 (but keeping docs in /usr/doc)
+
+ -- Juan Cespedes <cespedes@debian.org>  Mon, 30 Aug 1999 19:34:47 +0200
+
 ltrace (0.3.7) unstable; urgency=low
 
   * Minor fixes

@@ -86,10 +86,19 @@ static void begin_of_line(enum tof type, struct process * proc)
 static struct function * name2func(char * name)
 {
 	struct function * tmp;
+	const char * str1, * str2;
 
 	tmp = list_of_functions;
 	while(tmp) {
-		if (!strcmp(tmp->name, name)) {
+#if HAVE_LIBIBERTY
+		str1 = opt_C ? my_demangle(tmp->name) : tmp->name;
+		str2 = opt_C ? my_demangle(name) : name;
+#else
+		str1 = tmp->name;
+		str2 = name;
+#endif
+		if (!strcmp(str1, str2)) {
+
 			return tmp;
 		}
 		tmp = tmp->next;
@@ -145,7 +154,7 @@ void output_left(enum tof type, struct process * proc, char * function_name)
 	proc->type_being_displayed = type;
 	begin_of_line(type, proc);
 #if HAVE_LIBIBERTY
-	current_column += fprintf(output, "%s(", my_demangle(function_name));
+	current_column += fprintf(output, "%s(", opt_C ? my_demangle(function_name): function_name);
 #else
 	current_column += fprintf(output, "%s(", function_name);
 #endif
@@ -191,11 +200,14 @@ void output_right(enum tof type, struct process * proc, char * function_name)
 
 	if (current_pid && current_pid!=proc->pid) {
 		fprintf(output, " <unfinished ...>\n");
+	}
+	if (current_pid != proc->pid) {
 		begin_of_line(type, proc);
+#if HAVE_LIBIBERTY
+		current_column += fprintf(output, "<... %s resumed> ", opt_C ? my_demangle(function_name) : function_name);
+#else
 		current_column += fprintf(output, "<... %s resumed> ", function_name);
-	} else if (!current_pid) {
-		begin_of_line(type, proc);
-		current_column += fprintf(output, "<... %s resumed> ", function_name);
+#endif
 	}
 
 	if (!func) {

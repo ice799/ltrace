@@ -8,13 +8,22 @@
 
 BEGIN {
 	max=0;
+	FS="[ \t\n()\+]+";
 }
 
 {
-	if (($1 ~ /^#define$/) && ($2 ~ /^__NR_/) && ($3>=0) && ($3<=1000)) {
-		SYSCALL[$3]=substr($2,6);
-		if ($3 > max) {
-			max=$3;
+#	printf("/%s/%s/%s/%s/\n", $1, $2, $3, $4);
+	if (($1 ~ /^#define$/) && ($2 ~ /^__NR_/)) {
+		if (($3>=0) && ($3<=1000)) {
+			SYSCALL[$3]=substr($2,6);
+			if ($3 > max) {
+				max=$3;
+			}
+		} else if (($3 ~ /^__NR_SYSCALL_BASE$/) && ($4>=0) && ($4<=1000)) {
+			SYSCALL[$4]=substr($2,6);
+			if ($4 > max) {
+				max=$4;
+			}
 		}
 	}
 }

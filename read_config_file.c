@@ -66,6 +66,33 @@ static void eat_spaces(char ** str)
 	}
 }
 
+/*
+  Returns position in string at the left parenthesis which starts the
+  function's argument signature. Returns NULL on error.
+  FIXME: this routine incorrectly returns the beginning of the string in
+         things like "hello)" (cespedes)
+*/
+static char * start_of_arg_sig(char * str)
+{
+	char * pos;
+	int stacked = 0;
+
+	if (!strlen(str)) return NULL;
+
+	pos = &str[strlen(str)];
+	do {
+		pos--;
+		while ((pos > str) && (*pos != ')') && (*pos != '(')) pos--;
+
+		if (pos < str) return NULL;
+		else if (*pos == ')') stacked++;
+		else stacked--;
+
+	} while (stacked > 0);
+
+	return (stacked == 0) ? pos : NULL;
+}
+
 static int line_no;
 static char * filename;
 
@@ -92,7 +119,12 @@ struct function * process_line (char * buf) {
 		output_line(0, " return_type = %d", fun.return_type);
 	}
 	eat_spaces(&str);
+#if 0  /* Obsoleted code. 19990702 mortene. */
+       /* FIXME: why the space? 19990702 mortene. */
 	tmp = strpbrk(str, " (");
+#else
+	tmp = start_of_arg_sig(str);
+#endif
 	if (!tmp) {
 		output_line(0, "Syntax error in `%s', line %d", filename, line_no);
 		return NULL;
@@ -164,4 +196,5 @@ void read_config_file(char * file)
 			list_of_functions = tmp;
 		}
 	}
+	fclose(stream);
 }

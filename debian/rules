@@ -4,18 +4,22 @@
 
 .PHONY:		binary binary-indep binary-arch clean
 
-build:		Makefile
+build:		Makefile config.h
 		$(checkdir)
 		$(MAKE)
 		touch build
 
-Makefile:	Makefile.in configure
+Makefile config.h:	configure Makefile.in config.h.in
 		$(checkdir)
 		./configure --prefix=/usr
 
 configure:	configure.in
 		$(checkdir)
 		autoconf
+
+config.h.in:	configure.in
+		$(checkdir)
+		$(RM) config.h.in
 		autoheader
 
 binary:		binary-arch binary-indep
@@ -34,17 +38,17 @@ binary-arch:	build
 		mv debian/tmp/usr/doc/ltrace/ChangeLog debian/tmp/usr/doc/ltrace/changelog
 		gzip -9f debian/tmp/usr/doc/ltrace/README debian/tmp/usr/doc/ltrace/changelog
 		cp -p debian/copyright debian/tmp/usr/doc/ltrace
-		gzip -9f debian/tmp/usr/man/man1/*
+		gzip -9f debian/tmp/usr/share/man/man1/*
 		dpkg-shlibdeps debian/tmp/usr/bin/ltrace
 		dpkg-gencontrol
 		chown -R root.root debian/tmp
 		chmod -R u+rw,go-w debian/tmp
 		dpkg --build debian/tmp ..
 
-clean:
+clean:		configure config.h.in
 		$(checkdir)
 		$(RM) -f build debian/files debian/substvars
-		$(MAKE) distclean || $(MAKE) -f Makefile.in distclean
+		-$(MAKE) distclean
 		$(RM) -rf debian/tmp
 
 define checkdir

@@ -5,13 +5,12 @@
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <fcntl.h>
 #include <errno.h>
 #include <limits.h>
 
 #if HAVE_GETOPT_H
-#define _GNU_SOURCE
 #include <getopt.h>
-#undef _GNU_SOURCE
 #endif
 
 #include "ltrace.h"
@@ -192,6 +191,7 @@ char ** process_options(int argc, char **argv)
 						exit(1);
 					}
 					setvbuf(output, (char *)NULL, _IOLBF, 0);
+					fcntl(fileno(output), F_SETFD, FD_CLOEXEC);
 					break;
 			case 'u':	opt_u = optarg;
 					break;

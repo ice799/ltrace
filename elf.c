@@ -112,4 +112,3 @@ struct library_symbol * read_elf(const char *filename)
 	close(fd);
 	return library_symbols;
 }
-

@@ -4,7 +4,7 @@
 
 extern char * cplus_demangle (const char *mangled, int options);
 
-char * my_demangle(char * function_name);
+const char * my_demangle(const char * function_name);
 
 /* Options passed to cplus_demangle (in 2nd parameter). */
 
