@@ -2,14 +2,20 @@
 # ltrace's Makefile.in
 #
 
-#OS	:=	$(shell uname -s)
-OS	:=	@HOST_OS@
+#OS		:= $(shell uname -s)
+OS		:= @HOST_OS@
 
-TOPDIR	=	$(shell pwd)
+TOPDIR		= $(shell pwd)
+
+prefix		= @prefix@
+sysconfdir	= @sysconfdir@
+bindir		= $(prefix)/bin
+mandir		= @mandir@
+docdir		= $(prefix)/doc/ltrace
 
 CC	=	@CC@
 CPPFLAGS =	-I$(TOPDIR) -I$(TOPDIR)/sysdeps/$(OS) -I- @DEFS@
-CFLAGS	=	-Wall @CFLAGS@
+CFLAGS	=	-Wall @CFLAGS@ -DSYSCONFDIR=\"$(sysconfdir)\"
 LDFLAGS	=
 LIBS	=	@LIBS@
 
@@ -40,12 +46,12 @@ dist:		clean
 		( cd .. ; tar zcvf ltrace-`date +%y%m%d`.tgz ltrace )
 
 install:	ltrace
-		@INSTALL@ -d $(DESTDIR)/usr/bin $(DESTDIR)/usr/doc/ltrace $(DESTDIR)/usr/share/man/man1
-		@INSTALL@ -d $(DESTDIR)/etc
-		@INSTALL@ -s ltrace $(DESTDIR)/usr/bin
-		@INSTALL@ -m 644 etc/ltrace.conf $(DESTDIR)/etc
-		@INSTALL@ -m 644 COPYING README TODO BUGS ChangeLog $(DESTDIR)/usr/doc/ltrace
-		@INSTALL@ -m 644 ltrace.1 $(DESTDIR)/usr/share/man/man1
+		@INSTALL@ -d $(DESTDIR)$(bindir) $(DESTDIR)$(docdir) $(DESTDIR)$(mandir)/man1
+		@INSTALL@ -d $(DESTDIR)$(sysconfdir)
+		@INSTALL@ -s ltrace $(DESTDIR)$(bindir)
+		@INSTALL@ -m 644 etc/ltrace.conf $(DESTDIR)$(sysconfdir)
+		@INSTALL@ -m 644 COPYING README TODO BUGS ChangeLog $(DESTDIR)$(docdir)
+		@INSTALL@ -m 644 ltrace.1 $(DESTDIR)$(mandir)/man1
 
 dummy:
 

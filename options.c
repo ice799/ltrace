@@ -3,7 +3,7 @@
 #endif
 
 #ifndef VERSION
-# define VERSION "???"
+# define VERSION "0.3.24"
 #endif
 
 #include <string.h>
@@ -116,7 +116,7 @@ usage(void) {
 
 static char *
 search_for_command(char * filename) {
-	static char pathname[1024];
+	static char pathname[PATH_MAX];
 	char *path;
 	int m, n;
 
@@ -130,7 +130,11 @@ search_for_command(char * filename) {
 		} else {
 			m = n = strlen(path);
 		}
-		strncpy(pathname, path, n);     /* Possible buffer overrun */
+		if (n + strlen(filename) + 1 >= PATH_MAX) {
+			fprintf(stderr, "Error: filename too long\n");
+			exit(1);
+		}
+		strncpy(pathname, path, n);
 		if (n && pathname[n - 1] != '/') {
 			pathname[n++] = '/';
 		}

@@ -28,7 +28,7 @@ execution of processes.
 
 %prep 
 %setup -q
-./configure --prefix=/usr
+./configure --prefix=/usr --sysconfdir=/etc
 
 %build
 make

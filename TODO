@@ -22,3 +22,4 @@
 * More operating systems (solaris?)
 * Option -I (inter-library calls)
 * Modify ARGTYPE_STRING[0-5] types so that they not stop displaying chars when '\0' is encountered
+* Version number guessing does no longer work with autoconf :-(

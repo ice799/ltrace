@@ -1,6 +1,6 @@
 #! /usr/bin/make -f 
 #
-# Copyright (C) 1997-2001 Juan Cespedes <cespedes@debian.org>
+# Copyright (C) 1997-2002 Juan Cespedes <cespedes@debian.org>
 
 .PHONY:		binary binary-indep binary-arch clean
 
@@ -11,7 +11,7 @@ build:		Makefile config.h
 
 Makefile config.h:	configure Makefile.in config.h.in
 		$(checkdir)
-		./configure --prefix=/usr
+		./configure --prefix=/usr --mandir=/usr/share/man --sysconfdir=/etc
 
 configure:	configure.in
 		$(checkdir)
@@ -33,12 +33,11 @@ binary-arch:	build
 
 		install -d debian/tmp/DEBIAN
 		cp debian/conffiles debian/tmp/DEBIAN
-		$(MAKE) install DESTDIR=`pwd`/debian/tmp
-		$(RM) debian/tmp/usr/doc/ltrace/COPYING
-		mv debian/tmp/usr/doc/ltrace/ChangeLog debian/tmp/usr/doc/ltrace/changelog
-		gzip -9f debian/tmp/usr/doc/ltrace/README debian/tmp/usr/doc/ltrace/changelog
-		cp -p debian/copyright debian/tmp/usr/doc/ltrace
-		mv debian/tmp/usr/doc debian/tmp/usr/share
+		$(MAKE) install DESTDIR=`pwd`/debian/tmp docdir=/usr/share/doc/ltrace
+		$(RM) debian/tmp/usr/share/doc/ltrace/COPYING
+		mv debian/tmp/usr/share/doc/ltrace/ChangeLog debian/tmp/usr/share/doc/ltrace/changelog
+		gzip -9f debian/tmp/usr/share/doc/ltrace/README debian/tmp/usr/share/doc/ltrace/changelog
+		cp -p debian/copyright debian/tmp/usr/share/doc/ltrace
 		gzip -9f debian/tmp/usr/share/man/man1/*
 		install -m 755 debian/postinst debian/tmp/DEBIAN/postinst
 		install -m 755 debian/prerm debian/tmp/DEBIAN/prerm

@@ -16,6 +16,10 @@
 #include "read_config_file.h"
 #include "options.h"
 
+#ifndef SYSCONFDIR
+#define SYSCONFDIR "/etc"
+#endif
+
 char * command = NULL;
 struct process * list_of_processes = NULL;
 
@@ -76,16 +80,22 @@ normal_exit(void) {
 int
 main(int argc, char **argv) {
 	struct opt_p_t * opt_p_tmp;
+	char * home;
 
 	atexit(normal_exit);
 	signal(SIGINT,signal_exit);	/* Detach processes when interrupted */
 	signal(SIGTERM,signal_exit);	/*  ... or killed */
 
 	argv = process_options(argc, argv);
-	read_config_file("/etc/ltrace.conf");
-	if (getenv("HOME")) {
+	read_config_file(SYSCONFDIR "/ltrace.conf");
+	home = getenv("HOME");
+	if (home) {
 		char path[PATH_MAX];
-		sprintf(path, getenv("HOME"));	/* FIXME: buffer overrun */
+		if (strlen(home) > PATH_MAX-15) {
+			fprintf(stderr, "Error: $HOME too long\n");
+			exit(1);
+		}
+		strcpy(path, getenv("HOME"));
 		strcat(path, "/.ltrace.conf");
 		read_config_file(path);
 	}

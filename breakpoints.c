@@ -9,6 +9,10 @@
 #include <stdlib.h>
 #include <assert.h>
 
+#ifdef __powerpc__
+#include <sys/ptrace.h>
+#endif
+
 /*****************************************************************************/
 
 /*
@@ -155,6 +159,19 @@ enable_bp_cb(struct process * proc, struct breakpoint * sbp, void * data) {
 void
 enable_all_breakpoints(struct process * proc) {
 	if (proc->breakpoints_enabled <= 0) {
+#ifdef __powerpc__
+		unsigned long a;
+
+		/*
+		 * PPC HACK! (XXX FIXME TODO)
+		 * If the dynamic linker hasn't populated the PLT then
+		 * dont enable the breakpoints
+		 */
+		a = ptrace(PTRACE_PEEKTEXT, proc->pid, proc->list_of_symbols->enter_addr, 0);
+		if (a == 0x0)
+			return;
+#endif
+
 		if (opt_d>0) {
 			output_line(0, "Enabling breakpoints for pid %u...", proc->pid);
 		}

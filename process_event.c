@@ -14,6 +14,10 @@
 #include "options.h"
 #include "elf.h"
 
+#ifdef __powerpc__
+#include <sys/ptrace.h>
+#endif
+
 static void process_signal(struct event * event);
 static void process_exit(struct event * event);
 static void process_exit_signal(struct event * event);

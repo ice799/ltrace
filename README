@@ -27,6 +27,7 @@ people have contributed significantly to this project:
 * Morten Eriksen <mortene@sim.no> (misc fixes)
 * Silvio Cesare <silvio@big.net.au> (ELF hacking)
 * Timothy Fesig <slate@us.ibm.com> (S390 port)
+* Anton Blanchard <anton@linuxcare.com.au> (Powerpc port)
 
 1. Introduction
 ---------------
@@ -51,7 +52,9 @@ Using software breakpoints, just like gdb.
 4. Where does it work
 ---------------------
 At the time of writting, it works only with ELF32 executables. It only
-works in Linux, and it only works on i386, m68k, and ARM processors.
+works in Linux, and it only works on i386, m68k, S/390 and ARM processors.
+
+It is part of at least Debian GNU/Linux, RedHat, SuSE and Mandrake.
 
 5. Bugs
 -------
@@ -63,7 +66,7 @@ This file is very incomplete and out-of-date.
 
 6. License
 ----------
-    Copyright (C) 1997-1999 Juan Cespedes <cespedes@debian.org>
+    Copyright (C) 1997-2002 Juan Cespedes <cespedes@debian.org>
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
