@@ -1,3 +1,12 @@
+ltrace (0.3.19) unstable; urgency=low
+
+  * Fixed small bug: "<unifinished...>" lines were sometimes incorrectly
+    displayed
+  * Added new functions to /etc/ltrace.conf (thanks to James R. Van Zandt
+    <jrv@vanzandt.mv.com>)                          (closes: Bug#91349)
+
+ -- Juan Cespedes <cespedes@debian.org>  Fri,  1 Mar 2002 21:05:37 +0100
+
 ltrace (0.3.18) unstable; urgency=low
 
   * Simplified arch-dependent stuff

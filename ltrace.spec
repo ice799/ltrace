@@ -1,6 +1,6 @@
 Summary: Tracks runtime library calls for dynamically linked executables
 Name: ltrace
-%define version 0.3.18
+%define version 0.3.19
 Version: %{version}
 Release: 1
 Source: ftp://ftp.debian.org/debian/dists/unstable/main/source/utils/ltrace_%{version}.tar.gz

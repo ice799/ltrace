@@ -190,8 +190,8 @@ void
 output_right(enum tof type, struct process * proc, char * function_name) {
 	struct function * func = name2func(function_name);
 
-	if ((current_pid && current_pid!=proc->pid) ||
-			current_depth != proc->callstack_depth) {
+	if (current_pid && (current_pid!=proc->pid ||
+			current_depth != proc->callstack_depth)) {
 		fprintf(output, " <unfinished ...>\n");
 		current_pid = 0;
 	}
