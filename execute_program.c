@@ -13,39 +13,8 @@
 
 #include "ltrace.h"
 #include "options.h"
-#include "output.h"
+#include "debug.h"
 #include "sysdep.h"
-
-static void change_uid(struct process * proc);
-
-void
-execute_program(struct process * sp, char **argv) {
-	pid_t pid;
-
-	if (opt_d) {
-		output_line(0, "Executing `%s'...", sp->filename);
-	}
-
-	pid = fork();
-	if (pid<0) {
-		perror("ltrace: fork");
-		exit(1);
-	} else if (!pid) {	/* child */
-		change_uid(sp);
-		trace_me();
-		execvp(sp->filename, argv);
-		fprintf(stderr, "Can't execute `%s': %s\n", sp->filename, strerror(errno));
-		exit(1);
-	}
-
-	if (opt_d) {
-		output_line(0, "PID=%d", pid);
-	}
-
-	sp->pid = pid;
-
-	return;
-}
 
 static void
 change_uid(struct process * proc) {
@@ -96,4 +65,29 @@ change_uid(struct process * proc) {
 			exit(1);
 		}
 	}
+}
+
+void
+execute_program(struct process * sp, char **argv) {
+	pid_t pid;
+
+	debug(1, "Executing `%s'...", sp->filename);
+
+	pid = fork();
+	if (pid<0) {
+		perror("ltrace: fork");
+		exit(1);
+	} else if (!pid) {	/* child */
+		change_uid(sp);
+		trace_me();
+		execvp(sp->filename, argv);
+		fprintf(stderr, "Can't execute `%s': %s\n", sp->filename, strerror(errno));
+		exit(1);
+	}
+
+	debug(1, "PID=%d", pid);
+
+	sp->pid = pid;
+
+	return;
 }

@@ -13,6 +13,7 @@
 #include "output.h"
 #include "options.h"
 #include "elf.h"
+#include "debug.h"
 
 #ifdef __powerpc__
 #include <sys/ptrace.h>
@@ -34,44 +35,30 @@ void
 process_event(struct event * event) {
 	switch (event->thing) {
 		case LT_EV_NONE:
-			if (opt_d>0) {
-				output_line(0, "event: none");
-			}
+			debug(1, "event: none");
 			return;
 		case LT_EV_SIGNAL:
-			if (opt_d>0) {
-				output_line(0, "event: signal (%d)", event->e_un.signum);
-			}
+			debug(1, "event: signal (%d)", event->e_un.signum);
 			process_signal(event);
 			return;
 		case LT_EV_EXIT:
-			if (opt_d>0) {
-				output_line(0, "event: exit (%d)", event->e_un.ret_val);
-			}
+			debug(1, "event: exit (%d)", event->e_un.ret_val);
 			process_exit(event);
 			return;
 		case LT_EV_EXIT_SIGNAL:
-			if (opt_d>0) {
-				output_line(0, "event: exit signal (%d)", event->e_un.signum);
-			}
+			debug(1, "event: exit signal (%d)", event->e_un.signum);
 			process_exit_signal(event);
 			return;
 		case LT_EV_SYSCALL:
-			if (opt_d>0) {
-				output_line(0, "event: syscall (%d)", event->e_un.sysnum);
-			}
+			debug(1, "event: syscall (%d)", event->e_un.sysnum);
 			process_syscall(event);
 			return;
 		case LT_EV_SYSRET:
-			if (opt_d>0) {
-				output_line(0, "event: sysret (%d)", event->e_un.sysnum);
-			}
+			debug(1, "event: sysret (%d)", event->e_un.sysnum);
 			process_sysret(event);
 			return;
 		case LT_EV_BREAKPOINT:
-			if (opt_d>0) {
-				output_line(0, "event: breakpoint");
-			}
+			debug(1, "event: breakpoint");
 			process_breakpoint(event);
 			return;
 		default:
@@ -144,9 +131,7 @@ static void
 remove_proc(struct process * proc) {
 	struct process *tmp, *tmp2;
 
-	if (opt_d) {
-		output_line(0,"Removing pid %u\n", proc->pid);
-	}
+	debug(1, "Removing pid %u\n", proc->pid);
 
 	if (list_of_processes == proc) {
 		tmp = list_of_processes;
@@ -215,9 +200,7 @@ process_breakpoint(struct event * event) {
 	struct library_symbol * tmp;
 	int i,j;
 
-	if (opt_d>1) {
-		output_line(0,"event: breakpoint (0x%08x)", event->e_un.brk_addr);
-	}
+	debug(2, "event: breakpoint (0x%08x)", event->e_un.brk_addr);
 	if (event->proc->breakpoint_being_enabled) {
 		/* Reinsert breakpoint */
 		continue_enabling_breakpoint(event->proc->pid, event->proc->breakpoint_being_enabled);
@@ -230,7 +213,7 @@ process_breakpoint(struct event * event) {
 #ifdef __powerpc__
                        unsigned long a;
                        unsigned long addr = event->proc->callstack[i].c_un.libfunc->enter_addr;
-                       struct breakpoint *sbp = dict_find_entry(event->proc, addr);
+                       struct breakpoint *sbp = address2bpstruct(event->proc, addr);
                        unsigned char break_insn[] = BREAKPOINT_VALUE;
 
                        /*

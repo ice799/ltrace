@@ -12,7 +12,7 @@
 
 #include "ltrace.h"
 #include "options.h"
-#include "output.h"
+#include "debug.h"
 
 static struct event event;
 
@@ -27,22 +27,16 @@ wait_for_something(void) {
 	int tmp;
 
 	if (!list_of_processes) {
-		if (opt_d) {
-			output_line(0, "No more children");
-		}
+		debug(1, "No more children");
 		exit(0);
 	}
 	pid = wait(&status);
 	if (pid==-1) {
 		if (errno==ECHILD) {
-			if (opt_d) {
-				output_line(0, "No more children");
-			}
+			debug(1, "No more children");
 			exit(0);
 		} else if (errno==EINTR) {
-			if (opt_d) {
-				output_line(0, "wait received EINTR ?");
-			}
+			debug(1, "wait received EINTR ?");
 			event.thing = LT_EV_NONE;
 			return &event;
 		}
@@ -55,9 +49,7 @@ wait_for_something(void) {
 		exit(1);
 	}
 	event.proc->instruction_pointer = NULL;
-	if (opt_d>2) {
-		output_line(0,"signal from pid %u", pid);
-	}
+	debug(3, "signal from pid %u", pid);
 	if (event.proc->breakpoints_enabled == -1) {
 		enable_all_breakpoints(event.proc);
 		event.thing = LT_EV_NONE;

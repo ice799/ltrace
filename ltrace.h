@@ -5,6 +5,7 @@
 #include <stdio.h>
 
 #include "defs.h"
+#include "dict.h"
 
 /* BREAKPOINT_LENGTH is defined in "sysdep.h" */
 #include "sysdep.h"
@@ -76,6 +77,7 @@ struct callstack_element {
 struct process {
 	char * filename;
 	pid_t pid;
+	struct dict * breakpoints;
 	int breakpoints_enabled;	/* -1:not enabled yet, 0:disabled, 1:enabled */
 
 	int callstack_depth;

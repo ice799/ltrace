@@ -21,8 +21,7 @@
 
 #include "ltrace.h"
 #include "elf.h"
-#include "options.h"
-#include "output.h"
+#include "debug.h"
 
 static void do_init_elf(struct ltelf *lte, const char *filename);
 static void do_close_elf(struct ltelf *lte);
@@ -42,9 +41,7 @@ static void
 do_init_elf(struct ltelf *lte, const char *filename) {
 	struct stat sbuf;
 
-	if (opt_d > 0) {
-		output_line(0, "Reading ELF from %s...", filename);
-	}
+	debug(1, "Reading ELF from %s...", filename);
 
 	lte->fd = open(filename, O_RDONLY);
 	if (lte->fd == -1) {
@@ -137,11 +134,9 @@ do_load_elf_symtab(struct ltelf *lte) {
 		}
 	}
 
-	if (opt_d > 1) {
-		output_line(0, "symtab: 0x%08x", (unsigned)lte->symtab);
-		output_line(0, "symtab_len: %lu", lte->symtab_len);
-		output_line(0, "strtab: 0x%08x", (unsigned)lte->strtab);
-	}
+	debug(2, "symtab: 0x%08x", (unsigned)lte->symtab);
+	debug(2, "symtab_len: %lu", lte->symtab_len);
+	debug(2, "strtab: 0x%08x", (unsigned)lte->strtab);
 }
 
 static void
@@ -165,14 +160,9 @@ add_library_symbol(
 	library_symbols->name = &lte->strtab[lte->symtab[i].st_name];
 	library_symbols->next = tmp;
 
-	if (opt_d > 1) {
-		output_line(
-			0,
-			"addr: 0x%08x, symbol: \"%s\"",
+	debug(2, "addr: 0x%08x, symbol: \"%s\"",
 			(unsigned)lte->symtab[i].st_value,
-			&lte->strtab[lte->symtab[i].st_name]
-		);
-	}
+			&lte->strtab[lte->symtab[i].st_name]);
 }
 
 /*

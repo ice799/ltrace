@@ -23,6 +23,7 @@ open_program(char * filename) {
 	}
 	proc->filename = filename;
 	proc->pid = 0;
+	proc->breakpoints = NULL;
 	proc->breakpoints_enabled = -1;
 	proc->callstack_depth = 0;
 	proc->breakpoint_being_enabled = NULL;

@@ -8,8 +8,8 @@
 
 #include "ltrace.h"
 #include "read_config_file.h"
-#include "options.h"
 #include "output.h"
+#include "debug.h"
 
 /*
  *	"void"		ARGTYPE_VOID
@@ -104,20 +104,14 @@ process_line (char * buf) {
 	int i;
 
 	line_no++;
-	if (opt_d>2) {
-		output_line(0, "Reading line %d of `%s'", line_no, filename);
-	}
+	debug(3, "Reading line %d of `%s'", line_no, filename);
 	eat_spaces(&str);
 	fun.return_type = str2type(&str);
 	if (fun.return_type==ARGTYPE_UNKNOWN) {
-		if (opt_d>2) {
-			output_line(0, " Skipping line %d", line_no);
-		}
+		debug(3, " Skipping line %d", line_no);
 		return NULL;
 	}
-	if (opt_d>3) {
-		output_line(0, " return_type = %d", fun.return_type);
-	}
+	debug(4, " return_type = %d", fun.return_type);
 	eat_spaces(&str);
 	tmp = start_of_arg_sig(str);
 	if (!tmp) {
@@ -127,9 +121,7 @@ process_line (char * buf) {
 	*tmp = '\0';
 	fun.name = strdup(str);
 	str = tmp+1;
-	if (opt_d>2) {
-		output_line(0, " name = %s", fun.name);
-	}
+	debug(3, " name = %s", fun.name);
 	fun.params_right = 0;
 	for(i=0; i<MAX_ARGS; i++) {
 		eat_spaces(&str);
@@ -171,9 +163,7 @@ read_config_file(char * file) {
 
 	filename = file;
 
-	if (opt_d) {
-		output_line(0, "Reading config file `%s'...", filename);
-	}
+	debug(1, "Reading config file `%s'...", filename);
 
 	stream = fopen(filename, "r");
 	if (!stream) {
@@ -184,9 +174,7 @@ read_config_file(char * file) {
 		struct function * tmp = process_line(buf);
 
 		if (tmp) {
-			if (opt_d > 1) {
-				output_line(0, "New function: `%s'", tmp->name);
-			}
+			debug(2, "New function: `%s'", tmp->name);
 			tmp->next = list_of_functions;
 			list_of_functions = tmp;
 		}

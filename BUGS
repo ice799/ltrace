@@ -2,4 +2,4 @@
 * Manual page is not accurate (config files...)
 * elf.c only supports elf32 binaries
 * netscape sometimes dies with SIGSEGV (is this still true?)
-* It only works on Linux/i386, Linux/m68k, and Linux/arm
+* It lacks support for several Linux archs, and many operating systems

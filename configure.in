@@ -12,8 +12,7 @@ AC_PROG_CC
 AC_PROG_INSTALL
 
 dnl Checks for libraries.
-AC_CHECK_LIB(dl, dlopen)
-AC_CHECK_LIB(iberty, cplus_demangle,,,-ldl)
+AC_CHECK_LIB(iberty, cplus_demangle,,,)
 
 AC_MSG_CHECKING(ltrace version)
 changequote(<<, >>)

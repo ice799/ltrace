@@ -15,6 +15,7 @@
 #include "output.h"
 #include "read_config_file.h"
 #include "options.h"
+#include "debug.h"
 
 #ifndef SYSCONFDIR
 #define SYSCONFDIR "/etc"
@@ -42,9 +43,7 @@ signal_alarm(int sig) {
 			}
 			tmp2 = tmp2->next;
 		}
-		if (opt_d>1) {
-			output_line(0,"Sending SIGSTOP to process %u\n",tmp->pid);
-		}
+		debug(2,"Sending SIGSTOP to process %u\n",tmp->pid);
 		kill(tmp->pid, SIGSTOP);
 		tmp = tmp->next;
 	}
@@ -53,18 +52,14 @@ signal_alarm(int sig) {
 static void
 signal_exit(int sig) {
 	exiting=1;
-	if (opt_d) {
-		output_line(0,"Received interrupt signal; exiting...");
-	}
+	debug(1,"Received interrupt signal; exiting...");
 	signal(SIGINT,SIG_IGN);
 	signal(SIGTERM,SIG_IGN);
 	signal(SIGALRM,signal_alarm);
 	if (opt_p) {
 		struct opt_p_t * tmp = opt_p;
 		while(tmp) {
-			if (opt_d>1) {
-				output_line(0,"Sending SIGSTOP to process %u\n",tmp->pid);
-			}
+			debug(2,"Sending SIGSTOP to process %u\n",tmp->pid);
 			kill(tmp->pid, SIGSTOP);
 			tmp = tmp->next;
 		}
@@ -99,10 +94,10 @@ main(int argc, char **argv) {
 		strcat(path, "/.ltrace.conf");
 		read_config_file(path);
 	}
-	if (opt_d && opt_e) {
+	if (opt_e) {
 		struct opt_e_t * tmp = opt_e;
 		while(tmp) {
-			printf("Option -e: %s\n", tmp->name);
+			debug(1,"Option -e: %s\n", tmp->name);
 			tmp = tmp->next;
 		}
 	}
