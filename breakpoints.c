@@ -167,9 +167,11 @@ enable_all_breakpoints(struct process * proc) {
 		 * If the dynamic linker hasn't populated the PLT then
 		 * dont enable the breakpoints
 		 */
-		a = ptrace(PTRACE_PEEKTEXT, proc->pid, proc->list_of_symbols->enter_addr, 0);
-		if (a == 0x0)
-			return;
+		if (opt_L) {
+			a = ptrace(PTRACE_PEEKTEXT, proc->pid, proc->list_of_symbols->enter_addr, 0);
+			if (a == 0x0)
+				return;
+		}
 #endif
 
 		if (opt_d>0) {

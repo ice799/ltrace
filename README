@@ -52,7 +52,8 @@ Using software breakpoints, just like gdb.
 4. Where does it work
 ---------------------
 At the time of writting, it works only with ELF32 executables. It only
-works in Linux, and it only works on i386, m68k, S/390 and ARM processors.
+works in Linux, and it only works on some architectures (i386, m68k,
+S/390, ARM and PowerPC processors).
 
 It is part of at least Debian GNU/Linux, RedHat, SuSE and Mandrake.
 
