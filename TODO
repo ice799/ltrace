@@ -1,12 +1,14 @@
 * Option -e
-* C++ name demangling
+* Improve C++ name demangling
 * Improve documentation
 * Display different argument types:
-  + format
   + how to display execl...?
+  + format+: for scanf()...: display args as pointers, and imply `+' for args
 * Update /etc/ltrace.conf
 * SPARC:
   + almost all...
 * netscape:
   + Why does it show so many `breakpointed at:' messages?
-* Option -T
+    \- Is this still true?
+* Option -T (print time spent in each libcall)
+* Option -V (version)

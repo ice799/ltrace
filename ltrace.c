@@ -38,6 +38,13 @@ int main(int argc, char **argv)
 		strcat(path, "/.ltrace.conf");
 		read_config_file(path);
 	}
+	if (opt_d && opt_e) {
+		struct opt_e_t * tmp = opt_e;
+		while(tmp) {
+			printf("Option -e: %s\n", tmp->name);
+			tmp = tmp->next;
+		}
+	}
 	if (command) {
 		execute_program(open_program(command), argv);
 	}

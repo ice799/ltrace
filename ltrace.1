@@ -6,7 +6,7 @@ ltrace \- A library call tracer
 
 .SH SYNOPSIS
 .B ltrace
-.I "[-difLSttt] [-a column] [-s strsize] [-o filename] [-u username] [-p pid] ... [command [arg ...]]"
+.I "[-dfiLStttChV] [-a column] [-s strsize] [-o filename] [-u username] [-p pid] ... [-e expr] [--debug] [--demangle] [--align=column] [--output=filename] [--help] [--version] [command [arg ...]]"
 
 .SH DESCRIPTION
 .B ltrace
@@ -15,23 +15,24 @@ is a program that simply runs the specified
 until it exits.  It intercepts and records the dynamic library calls
 which are called by the executed process and the signals which are
 received by that process.
+It can also intercept and print the system calls executed by the program.
 .PP
 Its use is very similar to
 .BR strace(1) .
 
 .SH OPTIONS
 .TP
-.I \-d
+.I \-d, \-\-debug
 Increase the debugging level.
-.TP
-.I \-i
-Print the instruction pointer at the time of the library call.
 .TP
 .I \-f
 Trace child processes as they are created by
 currently  traced processes as a result of the fork(2)
 or clone(2) system calls.
 The new process is attached as soon as its pid is known.
+.TP
+.I \-i
+Print the instruction pointer at the time of the library call.
 .TP
 .I \-L
 DON'T display library calls (use it with the
@@ -52,13 +53,18 @@ If given thrice, the time printed will include the microseconds and
 the leading portion will be printed as the number of seconds since the
 epoch.
 .TP
-.I \-a column
+.I \-C, \-\-demangle
+Decode (demangle) low-level symbol names into user-level names.
+Besides removing any initial underscore prepended by the system,
+this makes C++ function names readable.
+.TP
+.I \-a, \-\-align column
 Align return values in a secific column (default column 50).
 .TP
 .I \-s
 Specify the maximum string size to print (the default is 32).
 .TP
-.I \-o filename
+.I \-o, \-\-output filename
 Write the trace output to the file
 .I filename
 rather than to stderr.
@@ -73,13 +79,45 @@ correct execution of setuid and/or setgid binaries.
 Attach to the process with the process ID
 .I pid
 and begin tracing.
+.TP
+.I \-e expr
+A qualifying expression which modifies which events to trace.
+The format of the expression is:
+.br
+[!]value1[,value2]...
+.br
+where the values are the functions to trace.  Using an exclamation
+mark negates the set of values.  For example
+.I \-e printf
+means to trace only the printf library call.  By contrast,
+.I \-e !printf
+means to trace every library call except printf.
+.LP
+Note that some shells use the exclamation point for history
+expansion; even inside quoted arguments.  If so, you must escape
+the exclamation point with a backslash.
+.TP
+.I \-h, \-\-help
+Show a summary of the options to ltrace and exit.
+.TP
+.I \-V, \-\-version
+Show the version number of ltrace and exit.
 
 .SH BUGS
-At the moment, there are too many bugs to list here.
+It has most of the bugs stated in
+.BR strace(1) .
+.LP
+Manual page and documentation are not very up-to-date.
+.LP
+Option -f sometimes fails to trace some children.
+.LP
+Only Linux/i386 is supported
+.LP
+Only ELF32 binaries are supported
 .PP
 If you like to report a bug, send a notice to the author, or use the
 .BR bug(1)
-program if you are under Debian GNU/Linux.
+program if you are under the Debian GNU/Linux distribution.
 
 .SH FILES
 .TP

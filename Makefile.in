@@ -1,0 +1,50 @@
+#
+# ltrace's Makefile.in
+#
+
+##ARCH	:=	$(shell uname -m | sed -e s/i.86/i386/ -e s/sun4u/sparc64/)
+OS	:=	$(shell uname -s)
+
+TOPDIR	=	$(shell pwd)
+
+CC	=	@CC@
+CPPFLAGS =	-I$(TOPDIR) -I$(TOPDIR)/sysdeps/$(OS) -I- @DEFS@ #-I$(TOPDIR)/sysdeps/$(ARCH)
+CFLAGS	=	-Wall @CFLAGS@
+LDFLAGS	=
+LIBS	=	@LIBS@
+
+OBJ	=	ltrace.o options.o elf.o output.o read_config_file.o	\
+		execute_program.o wait_for_something.o process_event.o	\
+		display_args.o breakpoints.o proc.o demangle.o
+
+all:		dummy
+		$(MAKE) -C sysdeps/$(OS)
+		$(MAKE) ltrace
+
+ltrace:		sysdeps/sysdep.o $(OBJ)
+		$(CC) $(LDFLAGS) $^ $(LIBS) -o $@
+
+clean:
+		$(MAKE) -C sysdeps/$(OS) clean
+		$(RM) ltrace $(OBJ)
+		$(RM) *~ *.bak a.out core KK
+
+distclean:	clean
+		$(RM) config.cache config.status config.log config.h Makefile configure.scan
+
+dist:		clean
+		( cd .. ; tar zcvf ltrace-`date +%y%m%d`.tgz ltrace )
+
+install:	ltrace
+		@INSTALL@ -d $(DESTDIR)/usr/bin $(DESTDIR)/usr/doc/ltrace $(DESTDIR)/usr/man/man1
+		@INSTALL@ -d $(DESTDIR)/etc
+		@INSTALL@ -s ltrace $(DESTDIR)/usr/bin
+		@INSTALL@ -m 644 etc/ltrace.conf $(DESTDIR)/etc
+		@INSTALL@ -m 644 COPYING README TODO BUGS $(DESTDIR)/usr/doc/ltrace
+		@INSTALL@ -m 644 ltrace.1 $(DESTDIR)/usr/man/man1
+
+dummy:
+
+.PHONY:		all clean distclean dist install
+
+.EXPORT_ALL_VARIABLES:

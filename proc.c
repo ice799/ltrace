@@ -25,6 +25,25 @@ struct process * open_program(char * filename)
 	proc->next = NULL;
 	if (opt_L && filename) {
 		proc->list_of_symbols = read_elf(filename);
+		if (opt_e) {
+			struct library_symbol ** tmp1 = &(proc->list_of_symbols);
+			while(*tmp1) {
+				struct opt_e_t * tmp2 = opt_e;
+				int keep = !opt_e_enable;
+
+				while(tmp2) {
+					if (!strcmp((*tmp1)->name, tmp2->name)) {
+						keep = opt_e_enable;
+					}
+					tmp2 = tmp2->next;
+				}
+				if (!keep) {
+					*tmp1 = (*tmp1)->next;
+				} else {
+					tmp1 = &((*tmp1)->next);
+				}
+			}
+		}
 	} else {
 		proc->list_of_symbols = NULL;
 	}

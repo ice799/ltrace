@@ -5,10 +5,11 @@
 #include "ltrace.h"
 #include "options.h"
 
-static int display_char(char what);
+static int display_char(int what);
 static int display_string(enum tof type, struct process * proc, int arg_num);
 static int display_stringN(int arg2, enum tof type, struct process * proc, int arg_num);
 static int display_unknown(enum tof type, struct process * proc, int arg_num);
+static int display_format(enum tof type, struct process * proc, int arg_num);
 
 int display_arg(enum tof type, struct process * proc, int arg_num, enum param_type rt)
 {
@@ -37,6 +38,7 @@ int display_arg(enum tof type, struct process * proc, int arg_num, enum param_ty
 				return fprintf(output, "0x%08x", (unsigned)arg);
 			}
 		case LT_PT_FORMAT:
+			return display_format(type, proc, arg_num);
 		case LT_PT_STRING:
 			return display_string(type, proc, arg_num);
 		case LT_PT_STRING0:
@@ -54,7 +56,7 @@ int display_arg(enum tof type, struct process * proc, int arg_num, enum param_ty
 	return fprintf(output, "?");
 }
 
-static int display_char(char what)
+static int display_char(int what)
 {
 	switch(what) {
 		case -1:	return fprintf(output, "EOF");
@@ -130,4 +132,76 @@ static int display_unknown(enum tof type, struct process * proc, int arg_num)
 	} else {
 		return fprintf(output, "0x%08lx", tmp);
 	}
+}
+
+static int display_format(enum tof type, struct process * proc, int arg_num)
+{
+	void * addr;
+	char * str1;
+	int i;
+	int len=0;
+
+	addr = (void *)gimme_arg(type, proc, arg_num);
+	if (!addr) {
+		return fprintf(output, "NULL");
+	}
+
+	str1 = malloc(MIN(opt_s,string_maxlength)+3);
+	if (!str1) {
+		return fprintf(output, "???");
+	}
+	umovestr(proc, addr, MIN(opt_s,string_maxlength)+1, str1);
+	len = fprintf(output, "\"");
+	for(i=0; len<MIN(opt_s,string_maxlength)+1; i++) {
+		if (str1[i]) {
+			len += display_char(str1[i]);
+		} else {
+			break;
+		}
+	}
+	len += fprintf(output, "\"");
+	if (str1[i] && (opt_s <= string_maxlength)) {
+		len += fprintf(output, "...");
+	}
+	for(i=0; str1[i]; i++) {
+		if (str1[i]=='%') {
+			while(1) {
+				char c = str1[++i];
+				if (c == '%') {
+					break;
+				} else if (!c) {
+					break;
+				} else if ((c=='d') || (c=='i')) {
+					len += fprintf(output, ", %d", (int)gimme_arg(type, proc, ++arg_num));
+					break;
+				} else if (c=='u') {
+					len += fprintf(output, ", %u", (int)gimme_arg(type, proc, ++arg_num));
+					break;
+				} else if (c=='o') {
+					len += fprintf(output, ", 0%o", (int)gimme_arg(type, proc, ++arg_num));
+					break;
+				} else if ((c=='x') || (c=='X')) {
+					len += fprintf(output, ", 0x%x", (int)gimme_arg(type, proc, ++arg_num));
+					break;
+				} else if (c=='c') {
+					len += fprintf(output, ", '");
+					len += display_char((int)gimme_arg(type, proc, ++arg_num));
+					len += fprintf(output, "'");
+					break;
+				} else if (c=='s') {
+					len += fprintf(output, ", ");
+					len += display_string(type, proc, ++arg_num);
+					break;
+				} else if ((c=='e') || (c=='E') || (c=='f') || (c=='g')) {
+					len += fprintf(output, ", ...");
+					str1[i+1]='\0';
+					break;
+				} else if (c=='*') {
+					len += fprintf(output, ", %d", (int)gimme_arg(type, proc, ++arg_num));
+				}
+			}
+		}
+	}
+	free(str1);
+	return len;
 }

@@ -1,3 +1,15 @@
+ltrace (0.3.0) unstable; urgency=low
+
+  * Preliminary autoconf support
+  * Switched to getopt()
+  * New option: -C (demangle C++ names)
+  * New options: --help, --version
+  * Display "format" (printf-like) argument types
+  * Updated manual page
+  * New option: -e
+
+ -- Juan Cespedes <cespedes@debian.org>  Sat, 25 Apr 1998 14:21:59 +0200
+
 ltrace (0.2.9) frozen unstable; urgency=low
 
   * Bug#20616 wasn't completely fixed; it didn't work with some programs (Fixed)

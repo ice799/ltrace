@@ -1,3 +1,7 @@
+#if HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include <stdio.h>
 
 extern FILE * output;
@@ -10,12 +14,23 @@ extern int opt_S;	/* display system calls */
 extern int opt_f;	/* trace child processes */
 extern char * opt_u;	/* username to run command as */
 extern int opt_t;	/* print absolute timestamp */
+#if HAVE_LIBIBERTY
+extern int opt_C;	/* Demanglelow-level symbol names into user-level names */
+#endif
 
 struct opt_p_t {
 	pid_t pid;
 	struct opt_p_t * next;
 };
 
+struct opt_e_t {
+	char * name;
+	struct opt_e_t * next;
+};
+
 extern struct opt_p_t * opt_p;	/* attach to process with a given pid */
+
+extern struct opt_e_t * opt_e;	/* list of function names to display */
+extern int opt_e_enable;	/* 0 if '!' is used, 1 otherwise */
 
 extern char ** process_options(int argc, char **argv);

@@ -1,3 +1,7 @@
+#if HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include <stdio.h>
 #include <stdarg.h>
 #include <time.h>
@@ -7,6 +11,10 @@
 #include "ltrace.h"
 #include "options.h"
 #include "output.h"
+
+#if HAVE_LIBIBERTY
+#include "demangle.h"
+#endif
 
 static pid_t current_pid = 0;
 static int current_column = 0;
@@ -112,7 +120,11 @@ void output_left(enum tof type, struct process * proc, char * function_name)
 	current_pid=proc->pid;
 	proc->type_being_displayed = type;
 	begin_of_line(type, proc);
+#if HAVE_LIBIBERTY
+	current_column += fprintf(output, "%s(", my_demangle(function_name));
+#else
 	current_column += fprintf(output, "%s(", function_name);
+#endif
 
 	func = name2func(function_name);
 	if (!func) {

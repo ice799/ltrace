@@ -1,0 +1,43 @@
+dnl Process this file with autoconf to produce a configure script.
+AC_CONFIG_HEADER(config.h)
+AC_INIT(ltrace.c)
+
+dnl Checks for programs.
+AC_PROG_CC
+AC_PROG_INSTALL
+
+dnl Checks for libraries.
+AC_CHECK_LIB(iberty, cplus_demangle)
+
+AC_MSG_CHECKING(ltrace version)
+changequote(<<, >>)
+ltrace_version=`sed -n '1s/ltrace (\([0-9.]\+\)).*/\1/p' ${srcdir}/debian/changelog`
+changequote([, ])
+AC_DEFINE_UNQUOTED(VERSION,"$ltrace_version")
+AC_MSG_RESULT($ltrace_version)
+
+dnl
+dnl The following stuff may be useful, but I don't use it now.
+dnl
+
+dnl   dnl Checks for header files.
+AC_HEADER_STDC
+dnl   AC_HEADER_SYS_WAIT
+dnl   AC_CHECK_HEADERS(fcntl.h limits.h sys/time.h unistd.h)
+AC_CHECK_HEADERS(getopt.h)
+dnl   
+dnl   dnl Checks for typedefs, structures, and compiler characteristics.
+AC_C_CONST
+AC_TYPE_UID_T
+AC_TYPE_PID_T
+dnl   AC_HEADER_TIME
+dnl   AC_STRUCT_TM
+dnl   
+dnl   dnl Checks for library functions.
+dnl   AC_FUNC_MMAP
+dnl   AC_TYPE_SIGNAL
+dnl   AC_FUNC_VPRINTF
+dnl   AC_CHECK_FUNCS(gettimeofday strdup strerror strspn)
+AC_CHECK_FUNCS(getopt getopt_long)
+
+AC_OUTPUT(Makefile)

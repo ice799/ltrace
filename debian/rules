@@ -4,10 +4,19 @@
 
 .PHONY:		binary binary-indep binary-arch clean
 
-build:
+build:		Makefile
 		$(checkdir)
 		$(MAKE)
 		touch build
+
+Makefile:	Makefile.in configure
+		$(checkdir)
+		./configure --prefix=/usr
+
+configure:	configure.in
+		$(checkdir)
+		autoconf
+		autoheader
 
 binary:		binary-arch binary-indep
 
@@ -35,7 +44,7 @@ binary-arch:	build
 clean:
 		$(checkdir)
 		$(RM) -f build debian/files debian/substvars
-		$(MAKE) clean
+		$(MAKE) distclean || $(MAKE) -f Makefile.in distclean
 		$(RM) -rf debian/tmp
 
 define checkdir
