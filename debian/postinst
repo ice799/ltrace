@@ -1,0 +1,7 @@
+#!/bin/sh -e
+
+# FHS:
+if [ "$1" = "configure" -a -d /usr/doc -a ! -e /usr/doc/ltrace ]; then
+  ln -sf ../share/doc/ltrace /usr/doc/ltrace
+fi
+

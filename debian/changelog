@@ -1,3 +1,10 @@
+ltrace (0.3.9) unstable; urgency=low
+
+  * New Standards-Version (3.1.1)
+  * Fixed Lintian bugs
+
+ -- Juan Cespedes <cespedes@debian.org>  Sun, 19 Dec 1999 17:49:40 +0100
+
 ltrace (0.3.8) unstable; urgency=low
 
   * glibc-2.1 does no longer need `_GNU_SOURCE' defined to use <getopt.h>

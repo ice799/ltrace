@@ -38,11 +38,14 @@ binary-arch:	build
 		mv debian/tmp/usr/doc/ltrace/ChangeLog debian/tmp/usr/doc/ltrace/changelog
 		gzip -9f debian/tmp/usr/doc/ltrace/README debian/tmp/usr/doc/ltrace/changelog
 		cp -p debian/copyright debian/tmp/usr/doc/ltrace
+		mv debian/tmp/usr/doc debian/tmp/usr/share
 		gzip -9f debian/tmp/usr/share/man/man1/*
+		install -m 755 debian/postinst debian/tmp/DEBIAN/postinst
+		install -m 755 debian/prerm debian/tmp/DEBIAN/prerm
 		dpkg-shlibdeps debian/tmp/usr/bin/ltrace
 		dpkg-gencontrol
 		chown -R root.root debian/tmp
-		chmod -R u+rw,go-w debian/tmp
+		chmod -R u=rwX,go=rX debian/tmp
 		dpkg --build debian/tmp ..
 
 clean:		configure config.h.in

@@ -27,5 +27,8 @@
 /* Define if you have the <getopt.h> header file.  */
 #undef HAVE_GETOPT_H
 
+/* Define if you have the dl library (-ldl).  */
+#undef HAVE_LIBDL
+
 /* Define if you have the iberty library (-liberty).  */
 #undef HAVE_LIBIBERTY

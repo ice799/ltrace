@@ -1,0 +1,6 @@
+#!/bin/sh -e
+
+# FHS:
+if [ \( "$1" = "upgrade" -o "$1" = "remove" \) -a -L /usr/doc/ltrace ]; then
+  rm -f /usr/doc/ltrace
+fi
