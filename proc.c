@@ -15,7 +15,6 @@
 struct process *
 open_program(char * filename) {
 	struct process * proc;
-	struct library_symbol * sym;
 	proc = malloc(sizeof(struct process));
 	if (!proc) {
 		perror("malloc");

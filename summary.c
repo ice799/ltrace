@@ -49,7 +49,7 @@ compar(const void *a, const void *b) {
 }
 
 void
-summary(void) {
+show_summary(void) {
 	int i;
 
 	num_entries = 0;
@@ -66,7 +66,7 @@ summary(void) {
 		unsigned long long int p;
 		c = 1000000 * (int)entries[i].tv.tv_sec + (int)entries[i].tv.tv_usec;
 		p = 100000 * c / tot_usecs + 5;
-		printf("%3lu.%02d %4d.%06d %11lu %9d %s\n",
+		printf("%3lu.%02lu %4d.%06d %11lu %9d %s\n",
 				(unsigned long int)(p / 1000),
 				(unsigned long int)((p / 10) % 100),
 				(int)entries[i].tv.tv_sec, (int)entries[i].tv.tv_usec,

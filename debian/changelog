@@ -1,3 +1,12 @@
+ltrace (0.3.31) unstable; urgency=low
+
+  * Added a lot of functions to ltrace.conf,
+    thanks to Jakub Jelinek <jakub@redhat.com>    (closes: Bug#144518)
+  * Fixed off-by-one problem in checking syscall number
+  * Removed some warnings
+
+ -- Juan Cespedes <cespedes@debian.org>  Tue, 04 Feb 2003 23:22:46 +0100
+
 ltrace (0.3.30) unstable; urgency=low
 
   * Implemented -T option (show time spent inside each call)

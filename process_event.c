@@ -75,7 +75,7 @@ shortsignal(int signum) {
 	};
 	int nsignals0 = sizeof signalent0 / sizeof signalent0[0];
 
-	if (signum<0 || signum>=nsignals0) {
+	if (signum < 0 || signum >= nsignals0) {
 		return "UNKNOWN_SIGNAL";
 	} else {
 		return signalent0[signum];
@@ -90,7 +90,7 @@ sysname(int sysnum) {
 	};
 	int nsyscals0 = sizeof syscalent0 / sizeof syscalent0[0];
 
-	if (sysnum<0 || sysnum>nsyscals0) {
+	if (sysnum < 0 || sysnum >= nsyscals0) {
 		sprintf(result, "SYS_%d", sysnum);
 		return result;
 	} else {

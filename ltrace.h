@@ -140,6 +140,7 @@ extern void enable_all_breakpoints(struct process * proc);
 extern void disable_all_breakpoints(struct process * proc);
 extern struct process * open_program(char * filename);
 extern void open_pid(pid_t pid, int verbose);
+extern void show_summary(void);
 
 
 /* Arch-dependent stuff: */
@@ -148,6 +149,7 @@ extern void trace_me(void);
 extern int trace_pid(pid_t pid);
 extern void untrace_pid(pid_t pid);
 extern void * get_instruction_pointer(pid_t pid);
+extern void set_instruction_pointer(pid_t pid, void * addr);
 extern void * get_stack_pointer(pid_t pid);
 extern void * get_return_addr(pid_t pid, void * stack_pointer);
 extern void enable_breakpoint(pid_t pid, struct breakpoint * sbp);

@@ -20,8 +20,8 @@ get_instruction_pointer(pid_t pid) {
 }
 
 void
-set_instruction_pointer(pid_t pid, long addr) {
-	ptrace(PTRACE_POKEUSER, pid, 4*EIP, addr);
+set_instruction_pointer(pid_t pid, void * addr) {
+	ptrace(PTRACE_POKEUSER, pid, 4*EIP, (long)addr);
 }
 
 void *
