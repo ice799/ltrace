@@ -33,6 +33,8 @@ static struct ax_jmp_t * pointer;
 static void new_func(void);
 static void * new_func_ptr = NULL;
 
+static int current_pid;
+
 static void init_libtrace(void)
 {
 	int i,j;
@@ -50,14 +52,19 @@ static void init_libtrace(void)
 	}
 	new_func_ptr = new_func;
 
+	current_pid = _sys_getpid();
+
 	tmp = getenv("LTRACE_FILENAME");
 	if (tmp) {
-		fd = _sys_open(tmp, O_WRONLY | O_CREAT | O_TRUNC, 0666);
-		if (fd<0) {
+		int fd_old;
+
+		fd_old = _sys_open(tmp, O_WRONLY | O_CREAT | O_TRUNC, 0666);
+		if (fd_old<0) {
 			_sys_write(2, "Can't open LTRACE_FILENAME\n", 27);
 			return;
 		}
-		fd = _sys_dup2(fd, 234);
+		fd = _sys_dup2(fd_old, 234);
+		_sys_close(fd_old);
 		if (fd<0) {
 			_sys_write(2, "Not enough fd's?\n", 17);
 			return;

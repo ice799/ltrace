@@ -18,7 +18,6 @@ static size_t strnlen(const char * s, size_t count);
 static int vsprintf(char *buf, const char *fmt, va_list args);
 static char * strcat(char * dest, const char * src);
 
-#include "__setfpucw.c"
 #include "init_libtrace.c"
 #include "strlen.c"
 #include "strncmp.c"
@@ -31,3 +30,9 @@ static char * strcat(char * dest, const char * src);
 #include "strcmp.c"
 #include "strnlen.c"
 #include "strcat.c"
+
+__asm__(".section .init");
+void _init(void)
+{
+	init_libtrace();
+}

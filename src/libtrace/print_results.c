@@ -20,77 +20,78 @@ struct debug_functions {
 #define _TYPE_STRING	5
 #define _TYPE_ADDR	6
 #define _TYPE_FILE	7
+#define _TYPE_HEX	8
 
 #define MAX_STRING 30
 
 static struct debug_functions * function_actual;
-static int current_pid;
 
 static struct debug_functions functions_info[] = {
+	{"__libc_init", _TYPE_VOID,  0, {0}},
 	{"__setjmp",    _TYPE_INT,   1, {_TYPE_ADDR}},
-	{"__overflow",  _TYPE_CHAR,  2, {_TYPE_FILE, _TYPE_CHAR, 0, 0, 0}},
-	{"__random",    _TYPE_INT,   0, {0, 0, 0, 0, 0}},
-	{"__setfpucw",  _TYPE_VOID,  1, {_TYPE_UINT, 0, 0, 0, 0}},
-	{"__srandom",   _TYPE_VOID,  1, {_TYPE_UINT, 0, 0, 0, 0}},
-	{"__uflow",     _TYPE_INT,   1, {_TYPE_FILE, 0, 0, 0, 0}},
-	{"_fxstat",     _TYPE_INT,   3, {_TYPE_INT, _TYPE_INT, _TYPE_ADDR, 0, 0}},
-	{"_lxstat",     _TYPE_INT,   3, {_TYPE_INT, _TYPE_STRING, _TYPE_ADDR, 0, 0}},
-	{"_xmknod",     _TYPE_INT,   4, {_TYPE_INT, _TYPE_STRING, _TYPE_OCTAL, _TYPE_ADDR, 0}},
-	{"_xstat",      _TYPE_INT,   3, {_TYPE_INT, _TYPE_STRING, _TYPE_ADDR, 0, 0}},
-	{"access",      _TYPE_INT,   2, {_TYPE_STRING, _TYPE_INT, 0, 0, 0}},
-	{"alarm",       _TYPE_INT,   1, {_TYPE_INT, 0, 0, 0, 0}},
-	{"atexit",      _TYPE_INT,   1, {_TYPE_ADDR, 0, 0, 0, 0}},
-	{"atoi",        _TYPE_INT,   1, {_TYPE_STRING, 0, 0, 0, 0}},
-	{"basename",    _TYPE_STRING,1, {_TYPE_STRING, 0, 0, 0, 0}},
-	{"bcmp",        _TYPE_INT,   3, {_TYPE_ADDR, _TYPE_ADDR, _TYPE_UINT, 0, 0}},
-	{"bind",        _TYPE_INT,   3, {_TYPE_INT, _TYPE_ADDR, _TYPE_INT, 0, 0}},
-	{"bindresvport",_TYPE_INT,   2, {_TYPE_INT, _TYPE_ADDR, 0, 0, 0}},
-	{"brk",         _TYPE_INT,   1, {_TYPE_ADDR, 0, 0, 0, 0}},
-	{"bzero",       _TYPE_VOID,  2, {_TYPE_ADDR, _TYPE_UINT, 0, 0, 0}},
-	{"calloc",      _TYPE_ADDR,  2, {_TYPE_UINT, _TYPE_UINT, 0, 0, 0}},
-	{"cfgetospeed", _TYPE_UINT,  1, {_TYPE_ADDR, 0, 0, 0, 0}},
-	{"dup",         _TYPE_INT,   1, {_TYPE_UINT, 0, 0, 0, 0}},
-	{"dup2",        _TYPE_INT,   2, {_TYPE_UINT, _TYPE_UINT, 0, 0, 0}},
-	{"chdir",       _TYPE_INT,   1, {_TYPE_STRING, 0, 0, 0, 0}},
-	{"chmod",       _TYPE_INT,   2, {_TYPE_STRING, _TYPE_OCTAL, 0, 0, 0}},
-	{"chown",       _TYPE_INT,   3, {_TYPE_STRING, _TYPE_UINT, _TYPE_UINT, 0, 0}},
-	{"close",       _TYPE_INT,   1, {_TYPE_INT, 0, 0, 0, 0}},
-	{"closedir",    _TYPE_INT,   1, {_TYPE_ADDR, 0, 0, 0, 0}},
-	{"ctime",       _TYPE_STRING,1, {_TYPE_ADDR, 0, 0, 0, 0}},
-	{"endmntent",   _TYPE_INT,   1, {_TYPE_ADDR, 0, 0, 0, 0}},
-	{"fchmod",      _TYPE_INT,   2, {_TYPE_INT, _TYPE_OCTAL, 0, 0, 0}},
-	{"fchown",      _TYPE_INT,   3, {_TYPE_INT, _TYPE_UINT, _TYPE_UINT, 0, 0}},
-	{"fclose",      _TYPE_INT,   1, {_TYPE_FILE, 0, 0, 0, 0}},
-	{"fdopen",      _TYPE_FILE,  2, {_TYPE_INT, _TYPE_STRING, 0, 0, 0}},
-	{"feof",        _TYPE_INT,   1, {_TYPE_FILE, 0, 0, 0, 0}},
-	{"ferror",      _TYPE_INT,   1, {_TYPE_FILE, 0, 0, 0, 0}},
-	{"fflush",      _TYPE_INT,   1, {_TYPE_FILE, 0, 0, 0, 0}},
-	{"fgetc",       _TYPE_CHAR,  1, {_TYPE_FILE, 0, 0, 0, 0}},
-	{"fgets",       _TYPE_ADDR,  3, {_TYPE_ADDR, _TYPE_UINT, _TYPE_ADDR, 0, 0}},
-	{"fileno",      _TYPE_INT,   1, {_TYPE_ADDR, 0, 0, 0, 0}},
-	{"fopen",       _TYPE_ADDR,  2, {_TYPE_STRING, _TYPE_STRING, 0, 0, 0}},
-	{"fork",        _TYPE_INT,   0, {0, 0, 0, 0, 0}},
-	{"fprintf",     _TYPE_INT,   2, {_TYPE_FILE, _TYPE_STRING, 0, 0, 0}},
-	{"fputc",       _TYPE_INT,   2, {_TYPE_CHAR, _TYPE_FILE, 0, 0, 0}},
-	{"fputs",       _TYPE_INT,   2, {_TYPE_STRING, _TYPE_FILE, 0, 0, 0}},
-	{"fread",       _TYPE_UINT,  4, {_TYPE_FILE, _TYPE_UINT, _TYPE_UINT, _TYPE_ADDR, 0}},
-	{"free",        _TYPE_VOID,  1, {_TYPE_ADDR, 0, 0, 0, 0}},
-	{"freopen",     _TYPE_ADDR,  3, {_TYPE_STRING, _TYPE_STRING, _TYPE_ADDR, 0, 0}},
-	{"fseek",       _TYPE_INT,   3, {_TYPE_FILE, _TYPE_UINT, _TYPE_INT, 0, 0}},
-	{"ftell",       _TYPE_UINT,  1, {_TYPE_FILE, 0, 0, 0, 0}},
-	{"fwrite",      _TYPE_UINT,  4, {_TYPE_FILE, _TYPE_UINT, _TYPE_UINT, _TYPE_ADDR, 0}},
-	{"getdtablesize",_TYPE_INT,  0, {0, 0, 0, 0, 0}},
-	{"getenv",      _TYPE_STRING,1, {_TYPE_STRING, 0, 0, 0, 0}},
-	{"getgid",      _TYPE_INT,   0, {0, 0, 0, 0, 0}},
-	{"getgrgid",    _TYPE_ADDR,  1, {_TYPE_UINT, 0, 0, 0, 0}},
-	{"getgrnam",    _TYPE_ADDR,  1, {_TYPE_STRING, 0, 0, 0, 0}},
+	{"__overflow",  _TYPE_CHAR,  2, {_TYPE_FILE, _TYPE_CHAR}},
+	{"__random",    _TYPE_INT,   0, {0}},
+	{"__setfpucw",  _TYPE_VOID,  1, {_TYPE_UINT}},
+	{"__srandom",   _TYPE_VOID,  1, {_TYPE_UINT}},
+	{"__uflow",     _TYPE_INT,   1, {_TYPE_FILE}},
+	{"_fxstat",     _TYPE_INT,   3, {_TYPE_INT, _TYPE_INT, _TYPE_ADDR}},
+	{"_lxstat",     _TYPE_INT,   3, {_TYPE_INT, _TYPE_STRING, _TYPE_ADDR}},
+	{"_xmknod",     _TYPE_INT,   4, {_TYPE_INT, _TYPE_STRING, _TYPE_OCTAL, _TYPE_ADDR}},
+	{"_xstat",      _TYPE_INT,   3, {_TYPE_INT, _TYPE_STRING, _TYPE_ADDR}},
+	{"access",      _TYPE_INT,   2, {_TYPE_STRING, _TYPE_INT}},
+	{"alarm",       _TYPE_INT,   1, {_TYPE_INT}},
+	{"atexit",      _TYPE_INT,   1, {_TYPE_ADDR}},
+	{"atoi",        _TYPE_INT,   1, {_TYPE_STRING}},
+	{"basename",    _TYPE_STRING,1, {_TYPE_STRING}},
+	{"bcmp",        _TYPE_INT,   3, {_TYPE_ADDR, _TYPE_ADDR, _TYPE_UINT}},
+	{"bind",        _TYPE_INT,   3, {_TYPE_INT, _TYPE_ADDR, _TYPE_INT}},
+	{"bindresvport",_TYPE_INT,   2, {_TYPE_INT, _TYPE_ADDR}},
+	{"brk",         _TYPE_INT,   1, {_TYPE_ADDR}},
+	{"bzero",       _TYPE_VOID,  2, {_TYPE_ADDR, _TYPE_UINT}},
+	{"calloc",      _TYPE_ADDR,  2, {_TYPE_UINT, _TYPE_UINT}},
+	{"cfgetospeed", _TYPE_UINT,  1, {_TYPE_ADDR}},
+	{"dup",         _TYPE_INT,   1, {_TYPE_UINT}},
+	{"dup2",        _TYPE_INT,   2, {_TYPE_UINT, _TYPE_UINT}},
+	{"chdir",       _TYPE_INT,   1, {_TYPE_STRING}},
+	{"chmod",       _TYPE_INT,   2, {_TYPE_STRING, _TYPE_OCTAL}},
+	{"chown",       _TYPE_INT,   3, {_TYPE_STRING, _TYPE_UINT, _TYPE_UINT}},
+	{"close",       _TYPE_INT,   1, {_TYPE_INT}},
+	{"closedir",    _TYPE_INT,   1, {_TYPE_ADDR}},
+	{"ctime",       _TYPE_STRING,1, {_TYPE_ADDR}},
+	{"endmntent",   _TYPE_INT,   1, {_TYPE_ADDR}},
+	{"fchmod",      _TYPE_INT,   2, {_TYPE_INT, _TYPE_OCTAL}},
+	{"fchown",      _TYPE_INT,   3, {_TYPE_INT, _TYPE_UINT, _TYPE_UINT}},
+	{"fclose",      _TYPE_INT,   1, {_TYPE_FILE}},
+	{"fdopen",      _TYPE_FILE,  2, {_TYPE_INT, _TYPE_STRING}},
+	{"feof",        _TYPE_INT,   1, {_TYPE_FILE}},
+	{"ferror",      _TYPE_INT,   1, {_TYPE_FILE}},
+	{"fflush",      _TYPE_INT,   1, {_TYPE_FILE}},
+	{"fgetc",       _TYPE_CHAR,  1, {_TYPE_FILE}},
+	{"fgets",       _TYPE_ADDR,  3, {_TYPE_ADDR, _TYPE_UINT, _TYPE_ADDR}},
+	{"fileno",      _TYPE_INT,   1, {_TYPE_ADDR}},
+	{"fopen",       _TYPE_ADDR,  2, {_TYPE_STRING, _TYPE_STRING}},
+	{"fork",        _TYPE_INT,   0, {0}},
+	{"fprintf",     _TYPE_INT,   2, {_TYPE_FILE, _TYPE_STRING}},
+	{"fputc",       _TYPE_INT,   2, {_TYPE_CHAR, _TYPE_FILE}},
+	{"fputs",       _TYPE_INT,   2, {_TYPE_STRING, _TYPE_FILE}},
+	{"fread",       _TYPE_UINT,  4, {_TYPE_FILE, _TYPE_UINT, _TYPE_UINT, _TYPE_ADDR}},
+	{"free",        _TYPE_VOID,  1, {_TYPE_ADDR}},
+	{"freopen",     _TYPE_ADDR,  3, {_TYPE_STRING, _TYPE_STRING, _TYPE_ADDR}},
+	{"fseek",       _TYPE_INT,   3, {_TYPE_FILE, _TYPE_UINT, _TYPE_INT}},
+	{"ftell",       _TYPE_UINT,  1, {_TYPE_FILE}},
+	{"fwrite",      _TYPE_UINT,  4, {_TYPE_FILE, _TYPE_UINT, _TYPE_UINT, _TYPE_ADDR}},
+	{"getdtablesize",_TYPE_INT,  0, {0}},
+	{"getenv",      _TYPE_STRING,1, {_TYPE_STRING}},
+	{"getgid",      _TYPE_INT,   0, {0}},
+	{"getgrgid",    _TYPE_ADDR,  1, {_TYPE_UINT}},
+	{"getgrnam",    _TYPE_ADDR,  1, {_TYPE_STRING}},
 	{"gethostbyname",_TYPE_ADDR, 1, {_TYPE_STRING, 0, 0, 0, 0}},
 	{"gethostname", _TYPE_INT,   2, {_TYPE_STRING, _TYPE_UINT, 0, 0, 0}},
-	{"getmntent",   _TYPE_ADDR,  1, {_TYPE_ADDR, 0, 0, 0, 0}},
-	{"getopt",      _TYPE_INT,   3, {_TYPE_INT, _TYPE_ADDR, _TYPE_STRING, 0, 0}},
-	{"getopt_long", _TYPE_INT,   5, {_TYPE_INT, _TYPE_ADDR,_TYPE_STRING,_TYPE_ADDR,_TYPE_ADDR}},
-	{"getpagesize", _TYPE_UINT,  0, {0, 0, 0, 0, 0}},
-	{"getpid",      _TYPE_UINT,  0, {0, 0, 0, 0, 0}},
+	{"getmntent",   _TYPE_ADDR,  1, {_TYPE_ADDR}},
+	{"getopt",      _TYPE_CHAR,  3, {_TYPE_INT, _TYPE_ADDR, _TYPE_STRING}},
+	{"getopt_long", _TYPE_CHAR,  5, {_TYPE_INT, _TYPE_ADDR,_TYPE_STRING,_TYPE_ADDR,_TYPE_ADDR}},
+	{"getpagesize", _TYPE_UINT,  0, {0}},
+	{"getpid",      _TYPE_UINT,  0, {0}},
 	{"getpwnam",    _TYPE_ADDR,  1, {_TYPE_STRING, 0, 0, 0, 0}},
 	{"getpwuid",    _TYPE_ADDR,  1, {_TYPE_UINT, 0, 0, 0, 0}},
 	{"getservbyname",_TYPE_ADDR, 2, {_TYPE_STRING, _TYPE_STRING, 0, 0, 0}},
@@ -98,6 +99,7 @@ static struct debug_functions functions_info[] = {
 	{"htonl",       _TYPE_UINT,  1, {_TYPE_UINT, 0, 0, 0, 0}},
 	{"inet_addr",   _TYPE_ADDR,  1, {_TYPE_STRING, 0, 0, 0, 0}},
 	{"inet_ntoa",   _TYPE_STRING,1, {_TYPE_ADDR, 0, 0, 0, 0}},
+	{"ioctl",       _TYPE_INT,   2, {_TYPE_INT, _TYPE_HEX}},
 	{"isalnum",     _TYPE_INT,   1, {_TYPE_CHAR, 0, 0, 0, 0}},
 	{"isalpha",     _TYPE_INT,   1, {_TYPE_CHAR, 0, 0, 0, 0}},
 	{"isascii",     _TYPE_INT,   1, {_TYPE_CHAR, 0, 0, 0, 0}},
@@ -113,12 +115,14 @@ static struct debug_functions functions_info[] = {
 	{"isxdigit",    _TYPE_INT,   1, {_TYPE_CHAR, 0, 0, 0, 0}},
 	{"malloc",      _TYPE_ADDR,  1, {_TYPE_UINT, 0, 0, 0, 0}},
 	{"memmove",     _TYPE_ADDR,  3, {_TYPE_ADDR, _TYPE_ADDR, _TYPE_INT, 0, 0}},
+	{"memset",      _TYPE_ADDR,  3, {_TYPE_ADDR, _TYPE_HEX, _TYPE_UINT}},
 	{"mmap",        _TYPE_ADDR,  5, {_TYPE_UINT, _TYPE_UINT, _TYPE_UINT, _TYPE_INT,_TYPE_UINT}},
 	{"ntohl",       _TYPE_UINT,  1, {_TYPE_UINT, 0, 0, 0, 0}},
 	{"ntohs",       _TYPE_UINT,  1, {_TYPE_UINT, 0, 0, 0, 0}},
 	{"open",        _TYPE_INT,   3, {_TYPE_STRING, _TYPE_INT, _TYPE_OCTAL, 0, 0}},
 	{"opendir",     _TYPE_ADDR,  1, {_TYPE_STRING, 0, 0, 0, 0}},
 	{"perror",      _TYPE_VOID,  1, {_TYPE_STRING, 0, 0, 0, 0}},
+	{"pipe",        _TYPE_INT,   1, {_TYPE_ADDR}},
 	{"printf",      _TYPE_INT,   1, {_TYPE_STRING, 0, 0, 0, 0}},
 	{"putenv",      _TYPE_INT,   1, {_TYPE_STRING, 0, 0, 0, 0}},
 	{"puts",        _TYPE_INT,   1, {_TYPE_STRING, 0, 0, 0, 0}},
@@ -134,6 +138,7 @@ static struct debug_functions functions_info[] = {
 	{"sbrk",        _TYPE_ADDR,  1, {_TYPE_UINT, 0, 0, 0, 0}},
 	{"select",      _TYPE_INT,   5, {_TYPE_INT, _TYPE_ADDR, _TYPE_ADDR, _TYPE_ADDR,_TYPE_ADDR}},
 	{"setbuf",      _TYPE_VOID,  2, {_TYPE_ADDR, _TYPE_ADDR, 0, 0, 0}},
+	{"setgid",      _TYPE_INT,   1, {_TYPE_UINT}},
 	{"setlinebuf",  _TYPE_VOID,  1, {_TYPE_FILE, 0, 0, 0, 0}},
 	{"setmntent",   _TYPE_ADDR,  2, {_TYPE_STRING, _TYPE_STRING, 0, 0, 0}},
 	{"setuid",      _TYPE_INT,   1, {_TYPE_INT, 0, 0, 0, 0}},
@@ -141,6 +146,7 @@ static struct debug_functions functions_info[] = {
 	{"sigaction",   _TYPE_INT,   3, {_TYPE_INT, _TYPE_ADDR, _TYPE_ADDR, 0, 0}},
 	{"sleep",       _TYPE_UINT,  1, {_TYPE_UINT, 0, 0, 0, 0}},
 	{"sprintf",     _TYPE_INT,   2, {_TYPE_STRING, _TYPE_STRING, 0, 0, 0}},
+	{"sscanf",      _TYPE_INT,   2, {_TYPE_STRING, _TYPE_STRING, 0, 0, 0}},
 	{"strcasecmp",  _TYPE_INT,   2, {_TYPE_STRING, _TYPE_STRING, 0, 0, 0}},
 	{"stpcpy",      _TYPE_STRING,2, {_TYPE_STRING, _TYPE_STRING, 0, 0, 0}},
 	{"strcmp",      _TYPE_INT,   2, {_TYPE_STRING, _TYPE_STRING, 0, 0, 0}},
@@ -155,6 +161,7 @@ static struct debug_functions functions_info[] = {
 	{"strtoul",     _TYPE_INT,   3, {_TYPE_STRING, _TYPE_ADDR, _TYPE_UINT, 0, 0}},
 	{"tcgetattr",   _TYPE_INT,   2, {_TYPE_INT, _TYPE_ADDR, 0, 0, 0}},
 	{"tcsetattr",   _TYPE_INT,   2, {_TYPE_INT, _TYPE_ADDR, 0, 0, 0}},
+	{"time",        _TYPE_UINT,  1, {_TYPE_ADDR}},
 	{"toascii",     _TYPE_CHAR,  1, {_TYPE_CHAR, 0, 0, 0, 0}},
 	{"tolower",     _TYPE_CHAR,  1, {_TYPE_CHAR, 0, 0, 0, 0}},
 	{"toupper",     _TYPE_CHAR,  1, {_TYPE_CHAR, 0, 0, 0, 0}},
@@ -248,6 +255,9 @@ static char * print_param(int type, unsigned long value)
 				}
 			}
 			break;
+		case _TYPE_HEX:
+			sprintf(result, "0x%lx", value);
+			break;
 		case _TYPE_VOID:
 			sprintf(result, "<void>");
 			break;
@@ -264,6 +274,12 @@ static void print_results(u_long arg)
 {
 	char message[1024];
 	int i;
+
+#if 0
+	if (!current_pid) {
+		return;
+	}
+#endif
 
 	if (pointer != (void *)*(pointer->got)) {
 		pointer->real_func = (void *)*(pointer->got);
@@ -282,13 +298,18 @@ _sys_write(fd, ":\n", 2);
 		}
 		function_actual++;
 	}
-#if 0
-	if (!function_actual->function_name) {
-		_sys_write(fd, "*UNK* ", 6);
-	}
-#endif
 
 	function_args = &arg;
+
+#if 0
+	if (!strcmp(pointer->name, "fork")) {
+		if (_sys_getpid() != current_pid) {
+			_sys_close(fd);
+			current_pid=0;
+			return;
+		}
+	}
+#endif
 
 #if 0
 sprintf(message,"call to = 0x%08x\n"
