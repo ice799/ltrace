@@ -26,7 +26,7 @@ get_instruction_pointer(struct process * proc) {
 }
 
 void
-set_instruction_pointer(struct process * proc, long addr) {
+set_instruction_pointer(struct process * proc, void * addr) {
 	ptrace(PTRACE_POKEUSER, proc->pid, off_pc, addr);
 }
 

@@ -1,3 +1,11 @@
+ltrace (0.3.34) unstable; urgency=low
+
+  * Fixed prototype declaration problem in arm, m68k, powerpc, s390
+  * Added "amd64" to list of architectures        (closes: Bug#252756)
+  * Sparc port is hopefully working               (closes: Bug#35524)
+
+ -- Juan Cespedes <cespedes@debian.org>  Wed, 07 Jul 2004 10:40:56 +0200
+
 ltrace (0.3.33) unstable; urgency=low
 
   * Fixed two bugs, thanks to Mauro Meneghin <G1ld0@lycos.it>:
