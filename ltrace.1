@@ -6,7 +6,7 @@ ltrace \- A library call tracer
 
 .SH SYNOPSIS
 .B ltrace
-.I "[-diLS] [-a column] [-s strsize] [-o filename] command [arg ...]"
+.I "[-difLS] [-a column] [-s strsize] [-o filename] [-u username] [-p pid] ... [command [arg ...]]"
 
 .SH DESCRIPTION
 .B ltrace
@@ -21,22 +21,17 @@ Its use is very similar to
 
 .SH OPTIONS
 .TP
-.I \-a column
-Align return values in a secific column (default column 50).
 .I \-d
 Increase the debugging level.
+.TP
+.I \-i
+Print the instruction pointer at the time of the library call.
 .TP
 .I \-f
 Trace child processes as they are created by
 currently  traced processes as a result of the fork(2)
 or clone(2) system calls.
 The new process is attached as soon as its pid is known.
-.TP
-.I \-i
-Print the instruction pointer at the time of the library call.
-.TP
-.I \-s
-Specify the maximum string size to print (the default is 32).
 .TP
 .I \-L
 DON'T display library calls (use it with the
@@ -46,10 +41,27 @@ option).
 .I \-S
 Display system calls as well as library calls
 .TP
+.I \-a column
+Align return values in a secific column (default column 50).
+.TP
+.I \-s
+Specify the maximum string size to print (the default is 32).
+.TP
 .I \-o filename
 Write the trace output to the file
 .I filename
 rather than to stderr.
+.TP
+.I \-u username
+Run command with the userid, groupid and supplementary groups of
+.IR username .
+This option is only useful when running as root and enables the
+correct execution of setuid and/or setgid binaries.
+.TP
+.I \-p pid
+Attach to the process with the process ID
+.I pid
+and begin tracing.
 
 .SH BUGS
 At the moment, there are too many bugs to list here.

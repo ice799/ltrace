@@ -1,5 +1,6 @@
 * Option -p (trace running process)
 * Option -f (trace children)
+* Option -u (run command as username handling setuid and/or setgid)
 * SYSCALLS:
   + execve()		<- trace new program
 * Display different argument types:
@@ -9,4 +10,4 @@
 * SPARC:
   + almost all...
 * netscape:
-  + Why does it shows so many `breakpointed at:' messages?
+  + Why does it show so many `breakpointed at:' messages?

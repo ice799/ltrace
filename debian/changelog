@@ -1,3 +1,10 @@
+ltrace (0.2.1) unstable; urgency=low
+
+  * Added -u option (run command as other username)
+  * Updated manual page a bit
+
+ -- Juan Cespedes <cespedes@debian.org>  Tue, 10 Mar 1998 00:08:38 +0100
+
 ltrace (0.2.0) unstable; urgency=low
 
   * First `unstable' release

@@ -16,6 +16,7 @@ int opt_s = DEFAULT_STRLEN;	/* default maximum # of bytes printed in strings */
 int opt_S = 0;			/* display syscalls */
 int opt_L = 1;			/* display library calls */
 int opt_f = 0;			/* trace child processes as they are created */
+char * opt_u = NULL;		/* username to run command as */
 
 /* List of pids given to option -p: */
 struct opt_p_t * opt_p = NULL;	/* attach to process with a given pid */
@@ -23,7 +24,7 @@ struct opt_p_t * opt_p = NULL;	/* attach to process with a given pid */
 static void usage(void)
 {
 	fprintf(stderr, "Usage: ltrace [-dfiLS] [-a column] [-s strlen] [-o filename]\n"
-			"              [-p pid] ... [command [arg ...]]\n\n");
+			"              [-u username] [-p pid] ... [command [arg ...]]\n\n");
 }
 
 static char * search_for_command(char * filename)
@@ -91,6 +92,9 @@ char ** process_options(int argc, char **argv)
 			case 'S':	opt_S = 1;
 					break;
 			case 'f':	opt_f = 1;
+					break;
+			case 'u':	opt_u = argv[1];
+					argc--; argv++;
 					break;
 			case 'p':
 				{

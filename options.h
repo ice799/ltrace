@@ -8,6 +8,7 @@ extern int opt_s;	/* default maximum # of bytes printed in strings */
 extern int opt_L;	/* display library calls */
 extern int opt_S;	/* display system calls */
 extern int opt_f;	/* trace child processes */
+extern char * opt_u;	/* username to run command as */
 
 struct opt_p_t {
 	pid_t pid;
