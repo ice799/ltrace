@@ -7,7 +7,7 @@
 static int fd;
 
 static char trampoline[] = {
-	1, 2, 3, 4,			/* pointer to trampoline+4		*/
+	1, 2, 3, 4,			/* pointer to this pushl:		*/
 	0x68, 1, 2, 3, 4,		/* pushl $0x04030201 (symbol index)	*/
 	0xff, 0x25, 1, 2, 3, 4		/* jmp *0x04030201			*/
 };
@@ -21,10 +21,8 @@ struct trampoline_t {
 };
 
 void ** GOT;		/* Array indexed by 'symbol index' (value pushed) */
-char ** name;
-
-static struct ax_jmp_t * pointer_tmp;
-static struct ax_jmp_t * pointer;
+			/* This is the address of the real GOT corresponding to this function */
+char ** names;		/* names of the functions called */
 
 static void new_func(void);
 static void * new_func_ptr = NULL;
@@ -38,7 +36,7 @@ static void init_libtrace(void)
 	size_t symtab_len = 0;
 	char * tmp;
 	long buffer[6];
-	void * table;
+	struct trampoline_t * table;
 	unsigned long plt_min=-1, plt_max=0;
 	char * strtab = NULL;
 	size_t nsymbols;
@@ -113,38 +111,65 @@ static void init_libtrace(void)
 			printf("New symbol: %-16s, JMP: 0x%08x, GOT: 0x%08x\n",
 				(strtab+(symtab+i)->st_name),
 				(unsigned)((symtab+i)->st_value), got_tmp);
-			printf("tpnt = 0x%08x\n",
+			printf("tpnt = 0x%08lx\n",
 				*(long *)(2+((symtab+i)->st_value)+16+(long)*(long *)(((int)((symtab+i)->st_value))+12))
 			);
 
 #endif
 		}
 	}
-	printf("Total: %d symbols; plt_min=0x%08x, plt_max=0x%08x\n", nsymbols, plt_min, plt_max);
+	printf("Total: %d symbols; plt_min=0x%08lx, plt_max=0x%08lx\n", nsymbols, plt_min, plt_max);
 
 	buffer[0] = 0;
-	buffer[1] = nsymbols * sizeof(struct trampoline_t);
+	buffer[1] = nsymbols * sizeof(struct trampoline_t) + 2 * nsymbols * sizeof(void *);
 	buffer[2] = PROT_READ | PROT_WRITE | PROT_EXEC;
 	buffer[3] = MAP_PRIVATE | MAP_ANON;
 	buffer[4] = 0;
 	buffer[5] = 0;
-	table = (void *)_sys_mmap(buffer);
-	if (!table) {
+	GOT = (void **)_sys_mmap(buffer);
+	if (!GOT) {
 		printf("ltrace: Cannot mmap?\n");
 		return;
 	}
+	names = (char **)(GOT + nsymbols);
+	table = (struct trampoline_t *)(names + nsymbols);
 	plt_min = plt_min & ~(4096-1);
-	printf("plt_min=0x%08x\n", plt_min);
+	printf("plt_min=0x%08x, GOT=0x%08x, names=0x%08x, table=0x%08x\n", plt_min,GOT,names,table);
 	i = _sys_mprotect((void*)plt_min, plt_max-plt_min+6, PROT_READ | PROT_WRITE | PROT_EXEC);
 	if (i<0) {
 		printf("ltrace: Cannot mprotect?\n");
 		return;
+	}
+	j=0;
+	for(i=0; i<symtab_len/sizeof(struct elf32_sym); i++) {
+		if (!((symtab+i)->st_shndx) && (symtab+i)->st_value) {
+			void * table_tmp;
+			GOT[j] = (void **)*(long *)(((int)((symtab+i)->st_value))+2);
+			names[j] = (strtab+(symtab+i)->st_name);
+			bcopy(trampoline, (char *)&table[j], sizeof(struct trampoline_t));
+			table[j].aqui = (void *)(&table[j]) + sizeof(void *);
+			table[j].function_no = j;
+			table[j].new_func = new_func_ptr;
+			printf("GOT[%d] = 0x%08x\n", j, GOT[j]);
+			printf("names[%d] = \"%s\"\n", j, names[j]);
+			printf("table[%d].aqui = 0x%08x\n", j, table[j].aqui);
+			printf("table[%d].function_no = 0x%08x\n", j, table[j].function_no);
+			printf("table[%d].new_func = 0x%08x\n", j, table[j].new_func);
+			table_tmp = &table[j];
+#if 0 /* HCK: aun no funciona */
+			bcopy(table_tmp, (void*)(((int)((symtab+i)->st_value))+2), sizeof(void*));
+#endif
+			j++;
+		}
 	}
 #if 1
 	return;
 }
 static void new_func(void)
 {
+	_sys_sync();
+	printf("Se ha llamado a una funcion!\n");
+	_sys__exit(2);
 }
 #else
 

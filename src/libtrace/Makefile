@@ -1,6 +1,6 @@
 TOPDIR	=	/home/cespedes/c/ltrace
 CC	=	gcc
-CFLAGS	=	-Wall -O2 -I$(TOPDIR)/include
+CFLAGS	=	-Wall -O2 -I$(TOPDIR)/include -g
 LD	=	ld
 
 OBJS	=	libtrace.o
