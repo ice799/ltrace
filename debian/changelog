@@ -1,3 +1,10 @@
+ltrace (0.3.10) unstable; urgency=low
+
+  * Added C++ demangle (again)
+  * Added correct Build-Depends
+
+ -- Juan Cespedes <cespedes@debian.org>  Thu, 23 Dec 1999 00:22:33 +0100
+
 ltrace (0.3.9) unstable; urgency=low
 
   * New Standards-Version (3.1.1)

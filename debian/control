@@ -3,6 +3,7 @@ Section: utils
 Priority: optional
 Maintainer: Juan Cespedes <cespedes@debian.org>
 Standards-Version: 3.1.1
+Build-Depends: binutils-dev
 
 Package: ltrace
 Architecture: i386 arm m68k
