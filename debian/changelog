@@ -1,3 +1,9 @@
+ltrace (0.3.35) unstable; urgency=low
+
+  * Fixed include line in m68k, caused build problems
+
+ -- Juan Cespedes <cespedes@debian.org>  Fri, 16 Jul 2004 18:00:10 +0200
+
 ltrace (0.3.34) unstable; urgency=low
 
   * Fixed prototype declaration problem in arm, m68k, powerpc, s390
