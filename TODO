@@ -1,4 +1,5 @@
 * Regarding option -p: disable breakpoints on exit
+* Option -e
 * Improve documentation
 * Display different argument types:
   + format
@@ -8,3 +9,4 @@
   + almost all...
 * netscape:
   + Why does it show so many `breakpointed at:' messages?
+* Option -T

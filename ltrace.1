@@ -6,7 +6,7 @@ ltrace \- A library call tracer
 
 .SH SYNOPSIS
 .B ltrace
-.I "[-difLS] [-a column] [-s strsize] [-o filename] [-u username] [-p pid] ... [command [arg ...]]"
+.I "[-difLSttt] [-a column] [-s strsize] [-o filename] [-u username] [-p pid] ... [command [arg ...]]"
 
 .SH DESCRIPTION
 .B ltrace
@@ -40,6 +40,17 @@ option).
 .TP
 .I \-S
 Display system calls as well as library calls
+.TP
+.I \-t
+Prefix each line of the trace with the time of day.
+.TP
+.I \-tt
+If given twice, the time printed will include the microseconds.
+.TP
+.I \-ttt
+If given thrice, the time printed will include the microseconds and
+the leading portion will be printed as the number of seconds since the
+epoch.
 .TP
 .I \-a column
 Align return values in a secific column (default column 50).

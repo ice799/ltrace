@@ -142,9 +142,6 @@ static void process_syscall(struct event * event)
 	}
 	if (fork_p(event->e_un.sysnum) || exec_p(event->e_un.sysnum)) {
 		disable_all_breakpoints(event->proc);
-		if (event->proc->current_symbol) {
-			delete_breakpoint(event->proc->pid, &event->proc->return_value);
-		}
 	} else if (!event->proc->breakpoints_enabled) {
 		enable_all_breakpoints(event->proc);
 	}
@@ -163,9 +160,6 @@ static void process_sysret(struct event * event)
 			event->proc->breakpoints_enabled = -1;
 		} else {
 			enable_all_breakpoints(event->proc);
-			if (event->proc->current_symbol) {
-				insert_breakpoint(event->proc->pid, &event->proc->return_value);
-			}
 		}
 	}
 	if (fork_p(event->e_un.sysnum)) {
@@ -176,9 +170,6 @@ static void process_sysret(struct event * event)
 			}
 		}
 		enable_all_breakpoints(event->proc);
-		if (event->proc->current_symbol) {
-			insert_breakpoint(event->proc->pid, &event->proc->return_value);
-		}
 	}
 	event->proc->current_syscall = -1;
 	continue_process(event->proc->pid);

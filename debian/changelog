@@ -1,3 +1,11 @@
+ltrace (0.2.8) frozen unstable; urgency=low
+
+  * Fix important bug regarding -p: disable all breakpoints on exit (Bug#20616)
+  * Compile cleanly on libc5
+  * Added `-t' option (Bug#20615)
+
+ -- Juan Cespedes <cespedes@debian.org>  Sat,  4 Apr 1998 08:34:03 +0200
+
 ltrace (0.2.7) unstable; urgency=low
 
   * Some minor fixes

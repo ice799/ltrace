@@ -1,5 +1,8 @@
 #include <stdio.h>
 #include <stdarg.h>
+#include <time.h>
+#include <sys/time.h>
+#include <unistd.h>
 
 #include "ltrace.h"
 #include "options.h"
@@ -18,6 +21,24 @@ static void begin_of_line(enum tof type, struct process * proc)
 		current_column += fprintf(output, "%u ", proc->pid);
 	} else if (list_of_processes->next) {
 		current_column += fprintf(output, "[pid %u] ", proc->pid);
+	}
+	if (opt_t) {
+		struct timeval tv;
+		struct timezone tz;
+		struct tm * tmp;
+
+		gettimeofday(&tv, &tz);
+		tmp = localtime(&tv.tv_sec);
+		if (opt_t>2) {
+			current_column += fprintf(output, "%lu.%06d ",
+				tv.tv_sec, (int)tv.tv_usec);
+		} else if (opt_t>1) {
+			current_column += fprintf(output, "%02d:%02d:%02d.%06d ",
+				tmp->tm_hour, tmp->tm_min, tmp->tm_sec, (int)tv.tv_usec);
+		} else {
+			current_column += fprintf(output, "%02d:%02d:%02d ",
+				tmp->tm_hour, tmp->tm_min, tmp->tm_sec);
+		}
 	}
 	if (opt_i) {
 		if (type==LT_TOF_FUNCTION) {

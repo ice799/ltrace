@@ -1,6 +1,14 @@
 #include <sys/types.h>
 #include <sys/ptrace.h>
 
+#if (!defined(PTRACE_PEEKUSER) && defined(PTRACE_PEEKUSR))
+# define PTRACE_PEEKUSER PTRACE_PEEKUSR
+#endif
+
+#if (!defined(PTRACE_POKEUSER) && defined(PTRACE_POKEUSR))
+# define PTRACE_POKEUSER PTRACE_POKEUSR
+#endif
+
 int get_instruction_pointer(pid_t pid)
 {
 	return ptrace(PTRACE_PEEKUSER, pid, 4*EIP, 0);

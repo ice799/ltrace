@@ -14,6 +14,9 @@ void enable_all_breakpoints(struct process * proc)
 			insert_breakpoint(proc->pid, &tmp->brk);
 			tmp = tmp->next;
 		}
+		if (proc->current_symbol) {
+			insert_breakpoint(proc->pid, &proc->return_value);
+		}
 	}
 	proc->breakpoints_enabled = 1;
 }
@@ -29,6 +32,9 @@ void disable_all_breakpoints(struct process * proc)
 		while(tmp) {
 			delete_breakpoint(proc->pid, &tmp->brk);
 			tmp = tmp->next;
+		}
+		if (proc->current_symbol) {
+			delete_breakpoint(proc->pid, &proc->return_value);
 		}
 	}
 	proc->breakpoints_enabled = 0;

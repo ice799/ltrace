@@ -4,6 +4,7 @@
 #include <string.h>
 #include <errno.h>
 #include <sys/param.h>
+#include <signal.h>
 
 #include "ltrace.h"
 #include "elf.h"
@@ -14,8 +15,15 @@
 char * command = NULL;
 struct process * list_of_processes = NULL;
 
+static void normal_exit(void);
+static void signal_exit(int);
+
 int main(int argc, char **argv)
 {
+	atexit(normal_exit);
+	signal(SIGINT,signal_exit);	/* Detach processes when interrupted */
+	signal(SIGTERM,signal_exit);	/*  ... or killed */
+
 	argv = process_options(argc, argv);
 	read_config_file("/etc/ltrace.conf");
 	if (getenv("HOME")) {
@@ -36,3 +44,20 @@ int main(int argc, char **argv)
 	}
 }
 
+static void signal_exit(int sig)
+{
+	exit(2);
+}
+
+static void normal_exit(void)
+{
+	struct process * tmp = list_of_processes;
+
+	while(tmp) {
+		kill(tmp->pid, SIGSTOP);
+		disable_all_breakpoints(tmp);
+		continue_process(tmp->pid);
+		untrace_pid(tmp->pid);
+		tmp = tmp->next;
+	}
+}

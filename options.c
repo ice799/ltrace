@@ -17,13 +17,14 @@ int opt_S = 0;			/* display syscalls */
 int opt_L = 1;			/* display library calls */
 int opt_f = 0;			/* trace child processes as they are created */
 char * opt_u = NULL;		/* username to run command as */
+int opt_t = 0;			/* print absolute timestamp */
 
 /* List of pids given to option -p: */
 struct opt_p_t * opt_p = NULL;	/* attach to process with a given pid */
 
 static void usage(void)
 {
-	fprintf(stderr, "Usage: ltrace [-dfiLS] [-a column] [-s strlen] [-o filename]\n"
+	fprintf(stderr, "Usage: ltrace [-dfiLSttt] [-a column] [-s strlen] [-o filename]\n"
 			"              [-u username] [-p pid] ... [command [arg ...]]\n\n");
 }
 
@@ -70,11 +71,25 @@ char ** process_options(int argc, char **argv)
 			argc--; argv++;
 		}
 		switch (*nextchar++) {
+			case 'd':	opt_d++;
+					break;
+			case 'f':	opt_f = 1;
+					break;
+			case 'i':	opt_i++;
+					break;
+			case 'L':	opt_L = 0;
+					break;
+			case 'S':	opt_S = 1;
+					break;
+			case 't':	opt_t++;
+					break;
 			case 'a':	if (!argv[1]) { usage(); exit(1); }
 					opt_a = atoi(argv[1]);
 					argc--; argv++;
 					break;
-			case 'd':	opt_d++;
+			case 's':	if (!argv[1]) { usage(); exit(1); }
+					opt_s = atoi(argv[1]);
+					argc--; argv++;
 					break;
 			case 'o':	if (!argv[1]) { usage(); exit(1); }
 					output = fopen(argv[1], "w");
@@ -83,18 +98,6 @@ char ** process_options(int argc, char **argv)
 						exit(1);
 					}
 					argc--; argv++;
-					break;
-			case 'i':	opt_i++;
-					break;
-			case 's':	if (!argv[1]) { usage(); exit(1); }
-					opt_s = atoi(argv[1]);
-					argc--; argv++;
-					break;
-			case 'L':	opt_L = 0;
-					break;
-			case 'S':	opt_S = 1;
-					break;
-			case 'f':	opt_f = 1;
 					break;
 			case 'u':	if (!argv[1]) { usage(); exit(1); }
 					opt_u = argv[1];
