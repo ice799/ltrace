@@ -17,6 +17,7 @@ static int strcmp(const char * cs,const char * ct);
 static size_t strnlen(const char * s, size_t count);
 static int vsprintf(char *buf, const char *fmt, va_list args);
 static char * strcat(char * dest, const char * src);
+static void unsetenv(const char *);
 
 #include "init_libtrace.c"
 #include "strlen.c"
@@ -30,6 +31,7 @@ static char * strcat(char * dest, const char * src);
 #include "strcmp.c"
 #include "strnlen.c"
 #include "strcat.c"
+#include "unsetenv.c"
 
 __asm__(".section .init");
 void _init(void)

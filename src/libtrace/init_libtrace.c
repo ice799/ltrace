@@ -92,6 +92,11 @@ static void init_libtrace(void)
 	}
 	strtab = (char *)atoi(tmp);
 
+	unsetenv("LD_PRELOAD");
+	unsetenv("LTRACE_SYMTAB");
+	unsetenv("LTRACE_SYMTAB_LEN");
+	unsetenv("LTRACE_STRTAB");
+
 	for(i=0; i<symtab_len/sizeof(struct elf32_sym); i++) {
 		if (!((symtab+i)->st_shndx) && (symtab+i)->st_value) {
 			nsymbols++;
