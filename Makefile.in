@@ -40,7 +40,7 @@ install:	ltrace
 		@INSTALL@ -d $(DESTDIR)/etc
 		@INSTALL@ -s ltrace $(DESTDIR)/usr/bin
 		@INSTALL@ -m 644 etc/ltrace.conf $(DESTDIR)/etc
-		@INSTALL@ -m 644 COPYING README TODO BUGS $(DESTDIR)/usr/doc/ltrace
+		@INSTALL@ -m 644 COPYING README TODO BUGS ChangeLog $(DESTDIR)/usr/doc/ltrace
 		@INSTALL@ -m 644 ltrace.1 $(DESTDIR)/usr/man/man1
 
 dummy:

@@ -26,6 +26,7 @@ int opt_S = 0;			/* display syscalls */
 int opt_L = 1;			/* display library calls */
 int opt_f = 0;			/* trace child processes as they are created */
 char * opt_u = NULL;		/* username to run command as */
+int opt_r = 0;			/* print relative timestamp */
 int opt_t = 0;			/* print absolute timestamp */
 #if HAVE_LIBIBERTY
 int opt_C = 0;			/* Demangle low-level symbol names into user-level names */
@@ -56,6 +57,7 @@ static void usage(void)
 "  -i                  print instruction pointer at time of library call.\n"
 "  -L                  do NOT display library calls.\n"
 "  -S                  display system calls.\n"
+"  -r                  print relative timestamps.\n"
 "  -t, -tt, -ttt       print absolute timestamps.\n"
 # if HAVE_LIBIBERTY
 #  if HAVE_GETOPT_LONG
@@ -140,7 +142,7 @@ char ** process_options(int argc, char **argv)
 			{ "version", 0, 0, 'V'},
 			{ 0, 0, 0, 0}
 		};
-		c = getopt_long(argc, argv, "+dfiLSthV"
+		c = getopt_long(argc, argv, "+dfiLSrthV"
 # if HAVE_LIBIBERTY
 			"C"
 # endif
@@ -165,6 +167,8 @@ char ** process_options(int argc, char **argv)
 			case 'L':	opt_L = 0;
 					break;
 			case 'S':	opt_S = 1;
+					break;
+			case 'r':	opt_r++;
 					break;
 			case 't':	opt_t++;
 					break;
@@ -263,6 +267,10 @@ char ** process_options(int argc, char **argv)
 #elif HAVE_GETOPT
 		fprintf(stderr, "Try `%s -h' for more information\n", progname);
 #endif
+		exit(1);
+	}
+	if (opt_r && opt_t) {
+		fprintf(stderr, "%s: Incompatible options -r and -t\n", progname);
 		exit(1);
 	}
 	if (argc>0) {

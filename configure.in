@@ -12,6 +12,9 @@ AC_CHECK_LIB(iberty, cplus_demangle)
 AC_MSG_CHECKING(ltrace version)
 changequote(<<, >>)
 ltrace_version=`sed -n '1s/ltrace (\([0-9.]\+\)).*/\1/p' ${srcdir}/debian/changelog`
+sed -e "s/^%define version .*$/%define version ${ltrace_version}/" \
+	< ${srcdir}/ltrace.spec > ${srcdir}/ltrace.spec2
+mv ltrace.spec2 ltrace.spec
 changequote([, ])
 AC_DEFINE_UNQUOTED(VERSION,"$ltrace_version")
 AC_MSG_RESULT($ltrace_version)

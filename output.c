@@ -30,20 +30,44 @@ static void begin_of_line(enum tof type, struct process * proc)
 	} else if (list_of_processes->next) {
 		current_column += fprintf(output, "[pid %u] ", proc->pid);
 	}
+	if (opt_r) {
+		struct timeval tv;
+		struct timezone tz;
+		static struct timeval old_tv={0,0};
+		struct timeval diff;
+
+		gettimeofday(&tv, &tz);
+
+		if (old_tv.tv_sec==0 && old_tv.tv_usec==0) {
+			old_tv.tv_sec=tv.tv_sec;
+			old_tv.tv_usec=tv.tv_usec;
+		}
+		diff.tv_sec = tv.tv_sec - old_tv.tv_sec;
+		if (tv.tv_usec >= old_tv.tv_usec) {
+			diff.tv_usec = tv.tv_usec - old_tv.tv_usec;
+		} else {
+			diff.tv_sec++;
+			diff.tv_usec = 1000000 + tv.tv_usec - old_tv.tv_usec;
+		}
+		old_tv.tv_sec = tv.tv_sec;
+		old_tv.tv_usec = tv.tv_usec;
+		current_column += fprintf(output, "%3lu.%06d ",
+			diff.tv_sec, (int)diff.tv_usec);
+	}
 	if (opt_t) {
 		struct timeval tv;
 		struct timezone tz;
-		struct tm * tmp;
 
 		gettimeofday(&tv, &tz);
-		tmp = localtime(&tv.tv_sec);
 		if (opt_t>2) {
 			current_column += fprintf(output, "%lu.%06d ",
 				tv.tv_sec, (int)tv.tv_usec);
 		} else if (opt_t>1) {
+			struct tm * tmp = localtime(&tv.tv_sec);
 			current_column += fprintf(output, "%02d:%02d:%02d.%06d ",
 				tmp->tm_hour, tmp->tm_min, tmp->tm_sec, (int)tv.tv_usec);
 		} else {
+			struct tm * tmp = localtime(&tv.tv_sec);
 			current_column += fprintf(output, "%02d:%02d:%02d ",
 				tmp->tm_hour, tmp->tm_min, tmp->tm_sec);
 		}

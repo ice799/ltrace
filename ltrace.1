@@ -6,7 +6,7 @@ ltrace \- A library call tracer
 
 .SH SYNOPSIS
 .B ltrace
-.I "[-dfiLStttChV] [-a column] [-s strsize] [-o filename] [-u username] [-p pid] ... [-e expr] [--debug] [--demangle] [--align=column] [--output=filename] [--help] [--version] [command [arg ...]]"
+.I "[-dfiLSrtttChV] [-a column] [-s strsize] [-o filename] [-u username] [-p pid] ... [-e expr] [--debug] [--demangle] [--align=column] [--output=filename] [--help] [--version] [command [arg ...]]"
 
 .SH DESCRIPTION
 .B ltrace
@@ -41,6 +41,11 @@ option).
 .TP
 .I \-S
 Display system calls as well as library calls
+.TP
+.I \-r
+Print a relative timestamp with each line of the trace.
+This records the time difference between the beginning of
+successive lines.
 .TP
 .I \-t
 Prefix each line of the trace with the time of day.
