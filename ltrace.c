@@ -13,6 +13,8 @@
 #include <string.h>
 #include <signal.h>
 
+int pid;
+
 static int debug = 0;
 
 struct library_symbol {
@@ -24,7 +26,7 @@ struct library_symbol {
 
 struct library_symbol * library_symbols = NULL;
 
-int read_elf(char *filename)
+static int read_elf(char *filename)
 {
 	struct stat sbuf;
 	int fd;
@@ -113,7 +115,6 @@ int read_elf(char *filename)
 
 int main(int argc, char **argv)
 {
-	int pid;
 	int status;
 	struct library_symbol * tmp = NULL;
 
@@ -171,6 +172,7 @@ int main(int argc, char **argv)
 
 	while(1) {
 		int eip;
+		int esp;
 		int function_seen;
 
 		pid = wait4(-1, &status, 0, NULL);
@@ -201,17 +203,19 @@ int main(int argc, char **argv)
 		}
 		/* pid is stopped... */
 		eip = ptrace(PTRACE_PEEKUSR, pid, 4*EIP, 0);
-/*
+		esp = ptrace(PTRACE_PEEKUSR, pid, 4*UESP, 0);
+#if 0
 		fprintf(stderr,"EIP = 0x%08x\n", eip);
-		fprintf(stderr,"EBP = 0x%08x\n", ptrace(PTRACE_PEEKUSR, pid, 4*EBP, 0));
-*/
+		fprintf(stderr,"ESP = 0x%08x\n", esp);
+#endif
+		fprintf(stderr,"[0x%08x] ", ptrace(PTRACE_PEEKTEXT, pid, esp, 0));
 		tmp = library_symbols;
 		function_seen = 0;
 		while(tmp) {
 			if (eip == tmp->addr+1) {
 				int a;
 				function_seen = 1;
-				fprintf(stderr, "Function: %s\n", tmp->name);
+				print_function(tmp->name, esp);
 				a = ptrace(PTRACE_PEEKTEXT, pid, tmp->addr, 0);
 				a &= 0xFFFFFF00;
 				a |= tmp->value;

@@ -3,6 +3,8 @@ CFLAGS	=	-Wall -O2
 
 all:	ltrace
 
+ltrace:	ltrace.o functions.o
+
 clean:
 	rm -f ltrace ltrace.o
 
