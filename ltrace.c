@@ -1,6 +1,9 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <sys/param.h>
 #include <errno.h>
 #include <unistd.h>
+#include <string.h>
 
 #include "elf.h"
 #include "process.h"
@@ -18,9 +21,42 @@ static void usage(void)
 	fprintf(stderr,"Usage: ltrace [-d] [-i] [-S] [-o filename] command [arg ...]\n\n");
 }
 
+static char * search_for_command(char * filename)
+{
+	static char pathname[MAXPATHLEN];
+	char *path;
+	int m, n;
+
+	if (strchr(filename, '/')) {
+		return filename;
+	}
+	for (path = getenv("PATH"); path && *path; path += m) {
+		if (strchr(path, ':')) {
+			n = strchr(path, ':') - path;
+			m = n + 1;
+		} else {
+			m = n = strlen(path);
+		}
+		strncpy(pathname, path, n);
+		if (n && pathname[n - 1] != '/') {
+			pathname[n++] = '/';
+		}
+		strcpy(pathname + n, filename);
+		if (!access(pathname, X_OK)) {
+			break;
+		}
+	}
+	if (access(pathname, X_OK)) {
+		return NULL;
+	} else {
+		return pathname;
+	}
+}
+
 int main(int argc, char **argv)
 {
 	int pid;
+	char * command;
 
 	while ((argc>2) && (argv[1][0] == '-') && (argv[1][2] == '\0')) {
 		switch(argv[1][1]) {
@@ -48,8 +84,13 @@ int main(int argc, char **argv)
 		usage();
 		exit(1);
 	}
-	if (!read_elf(argv[1])) {
-		fprintf(stderr, "%s: Not dynamically linked\n", argv[1]);
+	command = search_for_command(argv[1]);
+	if (!command) {
+		fprintf(stderr, "%s: command not found\n", argv[1]);
+		exit(1);
+	}
+	if (!read_elf(command)) {
+		fprintf(stderr, "%s: Not dynamically linked\n", command);
 		exit(1);
 	}
 
@@ -59,7 +100,7 @@ int main(int argc, char **argv)
 	read_config_file("/etc/ltrace.cfg");
 	read_config_file(".ltracerc");
 
-	pid = execute_process(argv[1], argv+1);
+	pid = execute_process(command, argv+1);
 	if (opt_d>0) {
 		send_line("pid %u launched", pid);
 	}

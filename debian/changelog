@@ -1,3 +1,9 @@
+ltrace (0.1.5) experimental; urgency=low
+
+  * `command' is now searched in the PATH
+
+ -- Juan Cespedes <cespedes@etsit.upm.es>  Wed, 27 Aug 1997 22:27:33 +0200
+
 ltrace (0.1.4) experimental; urgency=low
 
   * Updated execute_process()

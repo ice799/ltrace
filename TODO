@@ -24,8 +24,6 @@
 * I should parse a config file (/etc/ltrace.conf & ~/.ltracerc) to
   handle different arguments to the library calls
 
-* main() should find the program in the PATH.
-
 * ltrace should accept `-p' option. (hey, it's not as difficult as it
   seems)
 
