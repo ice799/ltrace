@@ -336,7 +336,9 @@ _sys_write(fd, message, strlen(message));
 #endif
 
 	message[0] = '\0';
+#if 0
 	sprintf(message, "%s%s(", message, pointer->name);
+#endif
 	if (function_actual->no_params > 0) {
 		sprintf(message, "%s%s", message,
 			print_param(function_actual->params_type[0], function_args[0]));

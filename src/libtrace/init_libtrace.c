@@ -147,10 +147,10 @@ static int reentrant=0;
 
 static void print_results(u_long arg);
 
-void kk(void)
+static void kk(void)
 {
 	char buf[1024];
-	sprintf(buf, "-> %s\n", pointer_tmp->name);
+	sprintf(buf, "\n%s(", pointer_tmp->name);
 	_sys_write(fd,buf,strlen(buf));
 }
 
