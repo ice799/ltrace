@@ -11,3 +11,4 @@ struct library_symbol {
 extern struct library_symbol * library_symbols;
 
 void enable_all_breakpoints(int pid);
+void disable_all_breakpoints(int pid);

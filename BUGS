@@ -1,0 +1,2 @@
+* When a process fork()s, the child will continue receiving SIGTRAPs,
+  and will probably die due to that.

@@ -6,7 +6,6 @@
 #include <stdio.h>
 
 #include "ltrace.h"
-#include "trace.h"
 
 void insert_breakpoint(int pid, unsigned long addr, unsigned char * value)
 {
@@ -47,6 +46,11 @@ unsigned long get_esp(int pid)
 	return esp;
 }
 
+unsigned long get_orig_eax(int pid)
+{
+	return ptrace(PTRACE_PEEKUSER, pid, 4*ORIG_EAX);
+}
+
 unsigned long get_return(int pid, unsigned long esp)
 {
 	return ptrace(PTRACE_PEEKTEXT, pid, esp, 0);
@@ -66,6 +70,11 @@ int is_there_a_breakpoint(int pid, unsigned long eip)
 	} else {
 		return 0;
 	}
+}
+
+void continue_process(int pid, int signal)
+{
+	ptrace(PTRACE_SYSCALL, pid, 1, signal);
 }
 
 void continue_after_breakpoint(int pid, unsigned long eip, unsigned char * value, int delete_it)
@@ -92,3 +101,12 @@ void continue_after_breakpoint(int pid, unsigned long eip, unsigned char * value
 		continue_process(pid, 0);
 	}
 }
+
+void trace_me(void)
+{
+	if (ptrace(PTRACE_TRACEME, 0, 1, 0)<0) {
+		perror("PTRACE_TRACEME");
+		exit(1);
+	}
+}
+

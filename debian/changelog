@@ -1,3 +1,14 @@
+ltrace (0.1.1) experimental; urgency=low
+
+  * Added ``TODO''
+  * Added symbols.c:disable_all_breakpoints
+  * Added ``process.[ch]'': init_sighandler, pid2proc
+  * Removed ``trace.c''
+  * Added rudimentary support for multiple processes
+  * Now tracing syscalls (fork() needs a special treatment)
+
+ -- Juan Cespedes <cespedes@etsit.upm.es>  Fri, 22 Aug 1997 21:01:59 +0200
+
 ltrace (0.1.0) experimental; urgency=low
 
   * Some clean-ups

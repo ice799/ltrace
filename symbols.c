@@ -20,3 +20,14 @@ void enable_all_breakpoints(int pid)
 	}
 }
 
+void disable_all_breakpoints(int pid)
+{
+	struct library_symbol * tmp = NULL;
+
+	tmp = library_symbols;
+	while(tmp) {
+		delete_breakpoint(pid, tmp->addr, &tmp->old_value[0]);
+		tmp = tmp->next;
+	}
+}
+
