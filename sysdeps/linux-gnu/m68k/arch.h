@@ -1,3 +1,3 @@
-#define BREAKPOINT_VALUE {0x4e,0x4f}
+#define BREAKPOINT_VALUE { 0x4e, 0x4f }
 #define BREAKPOINT_LENGTH 2
 #define DECR_PC_AFTER_BREAK 2

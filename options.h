@@ -3,6 +3,7 @@
 #endif
 
 #include <stdio.h>
+#include <sys/types.h>
 
 extern FILE * output;
 extern int opt_a;	/* default alignment column for results */
