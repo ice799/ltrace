@@ -220,3 +220,20 @@
 	"mincore",                         /* 219 */
 	"madvise",                         /* 220 */
 	"fcntl64",                         /* 221 */
+	"222",                             /* 222 */
+	"security",                        /* 223 */
+	"gettid",                          /* 224 */
+	"readahead",                       /* 225 */
+	"setxattr",                        /* 226 */
+	"lsetxattr",                       /* 227 */
+	"fsetxattr",                       /* 228 */
+	"getxattr",                        /* 229 */
+	"lgetxattr",                       /* 230 */
+	"fgetxattr",                       /* 231 */
+	"listxattr",                       /* 232 */
+	"llistxattr",                      /* 233 */
+	"flistxattr",                      /* 234 */
+	"removexattr",                     /* 235 */
+	"lremovexattr",                    /* 236 */
+	"fremovexattr",                    /* 237 */
+	"tkill",                           /* 238 */

@@ -1,3 +1,11 @@
+ltrace (0.3.29) unstable; urgency=low
+
+  * Align return values depending on screen width
+  * Updated list of syscalls and signals to Linux 2.4.20
+  * Fixed bug introduced in 0.3.27 which caused -L option to segfault
+
+ -- Juan Cespedes <cespedes@debian.org>  Sat, 01 Feb 2003 19:01:39 +0100
+
 ltrace (0.3.28) unstable; urgency=medium
 
   * Fixed memory corruption when using execve() in a traced program

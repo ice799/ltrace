@@ -206,7 +206,7 @@ output_right(enum tof type, struct process * proc, char * function_name) {
 
 	if (!func) {
 		current_column += fprintf(output, ") ");
-		tabto(opt_a);
+		tabto(opt_a-1);
 		fprintf(output, "= ");
 		display_arg(type, proc, -1, ARGTYPE_UNKNOWN);
 		fprintf(output, "\n");
@@ -220,7 +220,7 @@ output_right(enum tof type, struct process * proc, char * function_name) {
 			current_column += display_arg(type, proc, i, func->arg_types[i]);
 		}
 		current_column += fprintf(output, ") ");
-			tabto(opt_a);
+			tabto(opt_a-1);
 			fprintf(output, "= ");
 		if (func->return_type == ARGTYPE_VOID) {
 			fprintf(output, "<void>");

@@ -220,3 +220,13 @@
 	"lremovexattr",                    /* 219 */
 	"fremovexattr",                    /* 220 */
 	"futex",                           /* 221 */
+	"sched_setaffinity",               /* 222 */
+	"sched_getaffinity",               /* 223 */
+	"security",                        /* 224 */
+	"tuxcall",                         /* 225 */
+	"sendfile64",                      /* 226 */
+	"io_setup",                        /* 227 */
+	"io_destroy",                      /* 228 */
+	"io_getevents",                    /* 229 */
+	"io_submit",                       /* 230 */
+	"io_cancel",                       /* 231 */

@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 
 #include "debug.h"
 
@@ -52,6 +53,7 @@ dict_clear(struct dict * d) {
 	int i;
 	struct dict_entry * entry, * nextentry;
 
+	assert(d);
 	for (i = 0; i < DICTTABLESIZE; i++) {
 		for (entry = d->buckets[i]; entry != NULL; entry = nextentry) {
 			nextentry = entry->next;
@@ -68,6 +70,7 @@ dict_enter(struct dict * d, void * key, void * value) {
 	unsigned int hash = d->key2hash(key);
 	unsigned int bucketpos = hash % DICTTABLESIZE;
 
+	assert(d);
 	newentry = malloc(sizeof(struct dict_entry));
 	if (!newentry) {
 		perror("malloc");
@@ -95,6 +98,7 @@ dict_find_entry(struct dict * d, void * key) {
 	unsigned int bucketpos = hash % DICTTABLESIZE;
 	struct dict_entry * entry;
 
+	assert(d);
 	for (entry = d->buckets[bucketpos]; entry; entry = entry->next) {
 		if (hash != entry->hash) {
 			continue;
@@ -110,6 +114,7 @@ void
 dict_apply_to_all(struct dict * d, void (*func)(void *key, void *value, void *data), void *data) {
 	int i;
 
+	assert(d);
 	for (i = 0; i < DICTTABLESIZE; i++) {
 		struct dict_entry * entry = d->buckets[i];
 		while (entry) {
@@ -126,6 +131,7 @@ dict_key2hash_string(void * key) {
 	const char * s = (const char *)key;
 	unsigned int total = 0, shift = 0;
 
+	assert(key);
 	while (*s) {
 		total = total ^ ((*s) << shift);
 		shift += 5;
@@ -137,6 +143,8 @@ dict_key2hash_string(void * key) {
 
 int
 dict_key_cmp_string(void * key1, void * key2) {
+	assert(key1);
+	assert(key2);
 	return strcmp((const char *)key1, (const char *)key2);
 }
 

@@ -215,7 +215,21 @@
 	"setgid32",                        /* 214 */
 	"setfsuid32",                      /* 215 */
 	"setfsgid32",                      /* 216 */
-	"217",                             /* 217 */
+	"pivot_root",                      /* 217 */
 	"218",                             /* 218 */
 	"219",                             /* 219 */
 	"getdents64",                      /* 220 */
+	"gettid",                          /* 221 */
+	"tkill",                           /* 222 */
+	"setxattr",                        /* 223 */
+	"lsetxattr",                       /* 224 */
+	"fsetxattr",                       /* 225 */
+	"getxattr",                        /* 226 */
+	"lgetxattr",                       /* 227 */
+	"fgetxattr",                       /* 228 */
+	"listxattr",                       /* 229 */
+	"llistxattr",                      /* 230 */
+	"flistxattr",                      /* 231 */
+	"removexattr",                     /* 232 */
+	"lremovexattr",                    /* 233 */
+	"fremovexattr",                    /* 234 */

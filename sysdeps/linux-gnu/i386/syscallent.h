@@ -236,3 +236,18 @@
 	"removexattr",                     /* 235 */
 	"lremovexattr",                    /* 236 */
 	"fremovexattr",                    /* 237 */
+	"tkill",                           /* 238 */
+	"sendfile64",                      /* 239 */
+	"futex",                           /* 240 */
+	"sched_setaffinity",               /* 241 */
+	"sched_getaffinity",               /* 242 */
+	"set_thread_area",                 /* 243 */
+	"get_thread_area",                 /* 244 */
+	"io_setup",                        /* 245 */
+	"io_destroy",                      /* 246 */
+	"io_getevents",                    /* 247 */
+	"io_submit",                       /* 248 */
+	"io_cancel",                       /* 249 */
+	"alloc_hugepages",                 /* 250 */
+	"free_hugepages",                  /* 251 */
+	"exit_group",                      /* 252 */

@@ -83,7 +83,9 @@ enable_all_breakpoints(struct process * proc) {
 #endif
 
 		debug(1, "Enabling breakpoints for pid %u...", proc->pid);
-		dict_apply_to_all(proc->breakpoints, enable_bp_cb, proc);
+		if (proc->breakpoints) {
+			dict_apply_to_all(proc->breakpoints, enable_bp_cb, proc);
+		}
 	}
 	proc->breakpoints_enabled = 1;
 }
