@@ -1,7 +1,7 @@
 CC	=	gcc
 CFLAGS	=	-O2 -g -Wall
 
-OBJ	=	ltrace.o functions.o elf.o i386.o symbols.o process.o syscall.o
+OBJ	=	ltrace.o functions.o elf.o i386.o symbols.o process.o syscall.o output.o signal.o
 
 all:		ltrace
 

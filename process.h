@@ -27,6 +27,8 @@ struct process {
 
 extern struct process * list_of_processes;
 
+unsigned int instruction_pointer;
+
 int execute_process(const char * file, char * const argv[]);
 void init_sighandler(void);
 

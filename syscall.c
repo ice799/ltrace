@@ -48,7 +48,7 @@ char * syscall_list[] = { "setup",		/* 0 */
 			"getgid",
 			"signal",
 			"geteuid",
-			"getegid",
+			"getegid",		/* 50 */
 			"acct",
 			"phys",
 			"lock",
@@ -58,7 +58,7 @@ char * syscall_list[] = { "setup",		/* 0 */
 			"setpgid",
 			"ulimit",
 			"oldolduname",
-			"umask",
+			"umask",		/* 60 */
 			"chroot",
 			"ustat",
 			"dup2",
@@ -68,7 +68,7 @@ char * syscall_list[] = { "setup",		/* 0 */
 			"sigaction",
 			"sgetmask",
 			"ssetmask",
-			"setreuid",
+			"setreuid",		/* 70 */
 			"setregid",
 			"sigsuspend",
 			"sigpending",
@@ -78,7 +78,7 @@ char * syscall_list[] = { "setup",		/* 0 */
 			"getrusage",
 			"gettimeofday",
 			"settimeofday",
-			"getgroups",
+			"getgroups",		/* 80 */
 			"setgroups",
 			"select",
 			"symlink",
@@ -88,7 +88,7 @@ char * syscall_list[] = { "setup",		/* 0 */
 			"swapon",
 			"reboot",
 			"readdir",
-			"mmap",
+			"mmap",			/* 90 */
 			"munmap",
 			"truncate",
 			"ftruncate",
@@ -98,7 +98,7 @@ char * syscall_list[] = { "setup",		/* 0 */
 			"setpriority",
 			"profil",
 			"statfs",
-			"fstatfs",
+			"fstatfs",		/* 100 */
 			"ioperm",
 			"socketcall",
 			"syslog",
@@ -108,7 +108,7 @@ char * syscall_list[] = { "setup",		/* 0 */
 			"lstat",
 			"fstat",
 			"olduname",
-			"iopl",
+			"iopl",			/* 110 */
 			"vhangup",
 			"idle",
 			"vm86",
@@ -118,7 +118,7 @@ char * syscall_list[] = { "setup",		/* 0 */
 			"ipc",
 			"fsync",
 			"sigreturn",
-			"clone",
+			"clone",		/* 120 */
 			"setdomainname",
 			"uname",
 			"modify_ldt",
@@ -128,7 +128,7 @@ char * syscall_list[] = { "setup",		/* 0 */
 			"create_module",
 			"init_module",
 			"delete_module",
-			"get_kernel_syms",
+			"get_kernel_syms",	/* 130 */
 			"quotactl",
 			"getpgid",
 			"fchdir",
@@ -138,7 +138,7 @@ char * syscall_list[] = { "setup",		/* 0 */
 			"afs_syscall",
 			"setfsuid",
 			"setfsgid",
-			"_llseek",
+			"_llseek",		/* 140 */
 			"getdents",
 			"_newselect",
 			"flock",
@@ -148,7 +148,7 @@ char * syscall_list[] = { "setup",		/* 0 */
 			"getsid",
 			"fdatasync",
 			"_sysctl",
-			"mlock",
+			"mlock",		/* 150 */
 			"munlock",
 			"mlockall",
 			"munlockall",
@@ -158,7 +158,7 @@ char * syscall_list[] = { "setup",		/* 0 */
 			"sched_getscheduler",
 			"sched_yield",
 			"sched_get_priority_max",
-			"sched_get_priority_min",
+			"sched_get_priority_min",	/* 160 */
 			"sched_rr_get_interval",
 			"nanosleep",
 			"mremap",

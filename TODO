@@ -34,6 +34,4 @@
   + Disabling breakpoints and displaying ``???'' as return value when
     a new function is called
 
-* ltrace should accept '-s' option to trace syscalls, too.
-
 * All architecture dependent stuff should be moved to ``arch.h''

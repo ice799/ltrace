@@ -3,24 +3,18 @@
 #include <unistd.h>
 
 #include "elf.h"
-#include "i386.h"
-#include "symbols.h"
-#include "functions.h"
 #include "process.h"
 
 extern void read_config_file(const char *);
 
 FILE * output = stderr;
-int opt_d = 0;
-int opt_i = 0;
-
-unsigned long return_addr;
-unsigned char return_value;
-struct library_symbol * current_symbol;
+int opt_d = 0;		/* debug */
+int opt_i = 0;		/* instruction pointer */
+int opt_S = 0;		/* syscalls */
 
 static void usage(void)
 {
-	fprintf(stderr,"Usage: ltrace [-d] [-o filename] command [arg ...]\n\n");
+	fprintf(stderr,"Usage: ltrace [-d] [-i] [-S] [-o filename] command [arg ...]\n\n");
 }
 
 int main(int argc, char **argv)
@@ -39,6 +33,8 @@ int main(int argc, char **argv)
 					argc--; argv++;
 					break;
 			case 'i':	opt_i++;
+					break;
+			case 'S':	opt_S++;
 					break;
 			default:	fprintf(stderr, "Unknown option '%c'\n", argv[1][1]);
 					usage();

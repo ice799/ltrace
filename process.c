@@ -15,8 +15,12 @@
 #include "symbols.h"
 #include "functions.h"
 #include "syscall.h"
+#include "signal.h"
+#include "output.h"
 
 struct process * list_of_processes = NULL;
+
+unsigned int instruction_pointer;
 
 int execute_process(const char * file, char * const argv[])
 {
@@ -149,8 +153,9 @@ static void chld_handler()
 		exit(1);
 	}
 	eip = get_eip(pid);
+	instruction_pointer = eip;
 	if (WSTOPSIG(status) != SIGTRAP) {
-		fprintf(output, "[0x%08lx] Signal: %u\n", eip, WSTOPSIG(status));
+		send_line("--- %s (%s) ---\n", signal_name[WSTOPSIG(status)], strsignal(WSTOPSIG(status)));
 		continue_process(pid, WSTOPSIG(status));
 		return;
 	}
@@ -162,15 +167,17 @@ static void chld_handler()
 			if (status==__NR_fork) {
 				disable_all_breakpoints(pid);
 			}
-			fprintf(output, "[0x%08lx] SYSCALL: %s()\n", eip, syscall_list[status]);
+			if (opt_S) {
+				send_line("SYSCALL: %s()\n", syscall_list[status]);
+			}
 			continue_process(pid, 0);
 			return;
 		case PROC_SYSRET:
 			if (status==__NR_fork) {
 				enable_all_breakpoints(pid);
 			}
-			if (opt_d>0) {
-				fprintf(output, "[0x%08lx] SYSRET:  %u\n", eip, status);
+			if (opt_S && (opt_d>0)) {
+				send_line("SYSRET:  %u\n", status);
 			}
 			continue_process(pid, 0);
 			return;
@@ -180,7 +187,8 @@ static void chld_handler()
 	/* pid is breakpointed... */
 	/* TODO: I may be here after a PTRACE_SINGLESTEP ... */
 	esp = get_esp(pid);
-	fprintf(output,"[0x%08lx] ", get_return(pid,esp));
+	instruction_pointer = get_return(pid, esp);
+	send_line("");
 	tmp = library_symbols;
 	function_seen = 0;
 	while(tmp) {
