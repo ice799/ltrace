@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <signal.h>
 
 #include "ltrace.h"
 #include "output.h"
@@ -90,14 +91,22 @@ static char * sysname(int sysnum)
 	}
 }
 
+static void remove_proc(struct process * proc);
+
 static void process_signal(struct event * event)
 {
+	if (exiting && event->e_un.signum == SIGSTOP) {
+		pid_t pid = event->proc->pid;
+		disable_all_breakpoints(event->proc);
+		untrace_pid(pid);
+		remove_proc(event->proc);
+		continue_after_signal(pid, event->e_un.signum);
+		return;
+	}
 	output_line(event->proc, "--- %s (%s) ---",
 		shortsignal(event->e_un.signum), strsignal(event->e_un.signum));
 	continue_after_signal(event->proc->pid, event->e_un.signum);
 }
-
-static void remove_proc(struct process * proc);
 
 static void process_exit(struct event * event)
 {
@@ -117,6 +126,10 @@ static void remove_proc(struct process * proc)
 {
 	struct process *tmp, *tmp2;
 
+	if (opt_d) {
+		output_line(0,"Removing pid %u\n", proc->pid);
+	}
+
 	if (list_of_processes == proc) {
 		tmp = list_of_processes;
 		list_of_processes = list_of_processes->next;
@@ -129,6 +142,7 @@ static void remove_proc(struct process * proc)
 			tmp2 = tmp->next;
 			tmp->next = tmp->next->next;
 			free(tmp2);
+			continue;
 		}
 		tmp = tmp->next;
 	}

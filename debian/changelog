@@ -1,3 +1,14 @@
+ltrace (0.2.9) frozen unstable; urgency=low
+
+  * Bug#20616 wasn't completely fixed; it didn't work with some programs (Fixed)
+  * Stopping ltrace with ^C DIDN'T WORK if -p option is not used!! (Fixed)
+  * Option -f caused program to segfault; fixed
+  * Fixed nasty bug about executing set[ug]id binaries:
+    When executing a program fails, don't left the program STOPPED.
+  * Make ltrace work with all setuid and setgid binaries when invoked as root
+
+ -- Juan Cespedes <cespedes@debian.org>  Sat, 11 Apr 1998 22:50:38 +0200
+
 ltrace (0.2.8) frozen unstable; urgency=low
 
   * Fix important bug regarding -p: disable all breakpoints on exit (Bug#20616)

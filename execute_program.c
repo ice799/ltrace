@@ -27,8 +27,8 @@ void execute_program(struct process * sp, char **argv)
 		perror("fork");
 		exit(1);
 	} else if (!pid) {	/* child */
-		change_uid(sp);
 		trace_me();
+		change_uid(sp);
 		execvp(sp->filename, argv);
 		fprintf(stderr, "Can't execute `%s': %s\n", sp->filename, strerror(errno));
 		exit(1);

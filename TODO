@@ -1,5 +1,5 @@
-* Regarding option -p: disable breakpoints on exit
 * Option -e
+* C++ name demangling
 * Improve documentation
 * Display different argument types:
   + format

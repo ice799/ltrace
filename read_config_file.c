@@ -3,7 +3,7 @@
 #include <ctype.h>
 
 #include "ltrace.h"
-#include "config_file.h"
+#include "read_config_file.h"
 #include "options.h"
 #include "output.h"
 

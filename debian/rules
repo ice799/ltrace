@@ -2,7 +2,10 @@
 #
 # Copyright (C) 1997,1998 Juan Cespedes <cespedes@debian.org>
 
+.PHONY:		binary binary-indep binary-arch clean
+
 build:
+		$(checkdir)
 		$(MAKE)
 		touch build
 
@@ -11,6 +14,7 @@ binary:		binary-arch binary-indep
 binary-indep:
 
 binary-arch:	build
+		$(checkdir)
 		test root = "`whoami`" || exit 1
 		$(RM) -rf debian/tmp
 
@@ -29,7 +33,11 @@ binary-arch:	build
 		dpkg --build debian/tmp ..
 
 clean:
+		$(checkdir)
 		$(RM) -f build debian/files debian/substvars
 		$(MAKE) clean
 		$(RM) -rf debian/tmp
 
+define checkdir
+		test -f ltrace.c -a -f debian/rules
+endef

@@ -4,10 +4,13 @@ OS	:=	$(shell uname -s)
 TOPDIR	=	$(shell pwd)
 
 CC	=	gcc
-CFLAGS	=	-O2 -g -Wall -I$(TOPDIR) -I$(TOPDIR)/sysdeps/$(OS) -I- #-I$(TOPDIR)/sysdeps/$(ARCH)
+CPPFLAGS =	-I$(TOPDIR) -I$(TOPDIR)/sysdeps/$(OS) -I- -DHAVE_CONFIG_H #-I$(TOPDIR)/sysdeps/$(ARCH)
+CFLAGS	=	-Wall -g -O2
+LDFLAGS	=
+LIBS	=
 
-OBJ	=	ltrace.o options.o elf.o output.o config_file.o	\
-		execute_program.o wait_for_something.o process_event.o \
+OBJ	=	ltrace.o options.o elf.o output.o read_config_file.o	\
+		execute_program.o wait_for_something.o process_event.o	\
 		display_args.o breakpoints.o proc.o
 
 all:		dummy
@@ -33,5 +36,7 @@ install:	ltrace
 		install -m 644 ltrace.1 $(DESTDIR)/usr/man/man1
 
 dummy:
+
+.PHONY:		all clean dist install
 
 .EXPORT_ALL_VARIABLES:

@@ -21,6 +21,12 @@ struct event * wait_for_something(void)
 	int status;
 	int tmp;
 
+	if (!list_of_processes) {
+		if (opt_d) {
+			output_line(0, "No more children");
+		}
+		exit(0);
+	}
 	pid = wait(&status);
 	if (pid==-1) {
 		if (errno==ECHILD) {
@@ -28,6 +34,12 @@ struct event * wait_for_something(void)
 				output_line(0, "No more children");
 			}
 			exit(0);
+		} else if (errno==EINTR) {
+			if (opt_d) {
+				output_line(0, "wait received EINTR ?");
+			}
+			event.thing = LT_EV_NONE;
+			return &event;
 		}
 		perror("wait");
 		exit(1);

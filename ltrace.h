@@ -11,6 +11,8 @@
 
 extern char * command;
 
+extern int exiting;		/* =1 if we have to exit ASAP */
+
 struct breakpoint {
 	void * addr;
 	unsigned char orig_value[BREAKPOINT_LENGTH];

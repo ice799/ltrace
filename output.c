@@ -72,13 +72,16 @@ void output_line(struct process * proc, char *fmt, ...)
 	if (current_pid) {
 		fprintf(output, " <unfinished ...>\n");
 	}
+	current_pid=0;
+	if (!fmt) {
+		return;
+	}
 	begin_of_line(LT_TOF_NONE, proc);
 
         va_start(args, fmt);
         vfprintf(output, fmt, args);
         fprintf(output, "\n");
         va_end(args);
-	current_pid=0;
 	current_column=0;
 }
 

@@ -1,4 +1,3 @@
-* processes attached with option -p die when the attacher is interrupted
 * Option -f sometimes fails to trace some children
 * Manual page is not accurate (config files...)
 * elf.c only supports elf32 binaries
