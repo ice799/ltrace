@@ -19,34 +19,34 @@ struct breakpoint {
 	int enabled;
 };
 
-enum param_type {
-	LT_PT_UNKNOWN=-1,
-	LT_PT_VOID,
-	LT_PT_INT,
-	LT_PT_UINT,
-	LT_PT_OCTAL,
-	LT_PT_CHAR,
-	LT_PT_ADDR,
-	LT_PT_FILE,
-	LT_PT_FORMAT,		/* printf-like format */
-	LT_PT_STRING,
-	LT_PT_STRING0,		/* stringN: string up to (arg N) bytes */
-	LT_PT_STRING1,
-	LT_PT_STRING2,
-	LT_PT_STRING3
+enum arg_type {
+	ARGTYPE_UNKNOWN=-1,
+	ARGTYPE_VOID,
+	ARGTYPE_INT,
+	ARGTYPE_UINT,
+	ARGTYPE_OCTAL,
+	ARGTYPE_CHAR,
+	ARGTYPE_ADDR,
+	ARGTYPE_FILE,
+	ARGTYPE_FORMAT,     /* printf-like format */
+	ARGTYPE_STRING,
+	ARGTYPE_STRING0,    /* stringN: string up to (arg N) bytes */
+	ARGTYPE_STRING1,
+	ARGTYPE_STRING2,
+	ARGTYPE_STRING3
 };
 
 enum tof {
-	LT_TOF_NONE,
+	LT_TOF_NONE=0,
 	LT_TOF_FUNCTION,	/* A real library function */
 	LT_TOF_SYSCALL		/* A syscall */
 };
 
 struct function {
 	const char * name;
-	enum param_type return_type;
+	enum arg_type return_type;
 	int num_params;
-	enum param_type param_types[MAX_ARGS];
+	enum arg_type arg_types[MAX_ARGS];
 	int params_right;
 	struct function * next;
 };
@@ -110,7 +110,7 @@ extern void * instruction_pointer;
 extern struct event * wait_for_something(void);
 extern void process_event(struct event * event);
 extern void execute_program(struct process *, char **);
-extern int display_arg(enum tof type, struct process * proc, int arg_num, enum param_type rt);
+extern int display_arg(enum tof type, struct process * proc, int arg_num, enum arg_type at);
 extern void enable_all_breakpoints(struct process * proc);
 extern void disable_all_breakpoints(struct process * proc);
 extern struct process * open_program(char * filename);

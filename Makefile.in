@@ -2,13 +2,12 @@
 # ltrace's Makefile.in
 #
 
-##ARCH	:=	$(shell uname -m | sed -e s/i.86/i386/ -e s/sun4u/sparc64/)
 OS	:=	$(shell uname -s)
 
 TOPDIR	=	$(shell pwd)
 
 CC	=	@CC@
-CPPFLAGS =	-I$(TOPDIR) -I$(TOPDIR)/sysdeps/$(OS) -I- @DEFS@ #-I$(TOPDIR)/sysdeps/$(ARCH)
+CPPFLAGS =	-I$(TOPDIR) -I$(TOPDIR)/sysdeps/$(OS) -I- @DEFS@
 CFLAGS	=	-Wall @CFLAGS@
 LDFLAGS	=
 LIBS	=	@LIBS@
@@ -17,12 +16,13 @@ OBJ	=	ltrace.o options.o elf.o output.o read_config_file.o	\
 		execute_program.o wait_for_something.o process_event.o	\
 		display_args.o breakpoints.o proc.o demangle.o
 
-all:		dummy
-		$(MAKE) -C sysdeps/$(OS)
-		$(MAKE) ltrace
+all:		ltrace
 
 ltrace:		sysdeps/sysdep.o $(OBJ)
 		$(CC) $(LDFLAGS) $^ $(LIBS) -o $@
+
+sysdeps/sysdep.o: dummy
+		$(MAKE) -C sysdeps/$(OS)
 
 clean:
 		$(MAKE) -C sysdeps/$(OS) clean
@@ -45,6 +45,6 @@ install:	ltrace
 
 dummy:
 
-.PHONY:		all clean distclean dist install
+.PHONY:		all clean distclean dist install dummy
 
 .EXPORT_ALL_VARIABLES:

@@ -12,39 +12,39 @@
 #include "output.h"
 
 /*
- *	"void"		LT_PT_VOID
- *	"int"		LT_PT_INT
- *	"uint"		LT_PT_UINT
- *	"octal"		LT_PT_OCTAL
- *	"char"		LT_PT_CHAR
- *	"string"	LT_PT_STRING
- *	"format"	LT_PT_FORMAT
- *	"addr"		LT_PT_ADDR
+ *	"void"		ARGTYPE_VOID
+ *	"int"		ARGTYPE_INT
+ *	"uint"		ARGTYPE_UINT
+ *	"octal"		ARGTYPE_OCTAL
+ *	"char"		ARGTYPE_CHAR
+ *	"string"	ARGTYPE_STRING
+ *	"format"	ARGTYPE_FORMAT
+ *	"addr"		ARGTYPE_ADDR
  */
 
 struct function * list_of_functions = NULL;
 
 static struct list_of_pt_t {
 	char * name;
-	enum param_type pt;
+	enum arg_type pt;
 } list_of_pt[] = {
-	{ "void",	LT_PT_VOID },
-	{ "int",	LT_PT_INT },
-	{ "uint",	LT_PT_UINT },
-	{ "octal",	LT_PT_OCTAL },
-	{ "char",	LT_PT_CHAR },
-	{ "addr",	LT_PT_ADDR },
-	{ "file",	LT_PT_FILE },
-	{ "format",	LT_PT_FORMAT },
-	{ "string",	LT_PT_STRING },
-	{ "string0",	LT_PT_STRING0 },
-	{ "string1",	LT_PT_STRING1 },
-	{ "string2",	LT_PT_STRING2 },
-	{ "string3",	LT_PT_STRING3 },
-	{ NULL,		LT_PT_UNKNOWN }		/* Must finish with NULL */
+	{ "void",   ARGTYPE_VOID },
+	{ "int",    ARGTYPE_INT },
+	{ "uint",   ARGTYPE_UINT },
+	{ "octal",  ARGTYPE_OCTAL },
+	{ "char",   ARGTYPE_CHAR },
+	{ "addr",   ARGTYPE_ADDR },
+	{ "file",   ARGTYPE_FILE },
+	{ "format", ARGTYPE_FORMAT },
+	{ "string", ARGTYPE_STRING },
+	{ "string0",ARGTYPE_STRING0 },
+	{ "string1",ARGTYPE_STRING1 },
+	{ "string2",ARGTYPE_STRING2 },
+	{ "string3",ARGTYPE_STRING3 },
+	{ NULL,     ARGTYPE_UNKNOWN }		/* Must finish with NULL */
 };
 
-static enum param_type str2type(char ** str)
+static enum arg_type str2type(char ** str)
 {
 	struct list_of_pt_t * tmp = &list_of_pt[0];
 
@@ -56,7 +56,7 @@ static enum param_type str2type(char ** str)
 		}
 		tmp++;
 	}
-	return LT_PT_UNKNOWN;
+	return ARGTYPE_UNKNOWN;
 }
 
 static void eat_spaces(char ** str)
@@ -82,7 +82,7 @@ struct function * process_line (char * buf) {
 	}
 	eat_spaces(&str);
 	fun.return_type = str2type(&str);
-	if (fun.return_type==LT_PT_UNKNOWN) {
+	if (fun.return_type==ARGTYPE_UNKNOWN) {
 		if (opt_d>2) {
 			output_line(0, " Skipping line %d", line_no);
 		}
@@ -115,8 +115,8 @@ struct function * process_line (char * buf) {
 		} else if (fun.params_right) {
 			fun.params_right++;
 		}
-		fun.param_types[i] = str2type(&str);
-		if (fun.return_type==LT_PT_UNKNOWN) {
+		fun.arg_types[i] = str2type(&str);
+		if (fun.return_type==ARGTYPE_UNKNOWN) {
 			output_line(0, "Syntax error in `%s', line %d", filename, line_no);
 			return NULL;
 		}

@@ -1,13 +1,23 @@
-* Improve option -e
-* Improve C++ name demangling
+* BFD:
+  + New executable formats
+  + Read list of libraries needed
+  + Read list of undefined symbols in executables
+  + Read list of exported symbols in libraries
+  + Read debugging info from executables/libraries
+* Update list of syscalls to Linux-2.2.*
+* "\\", "\"", '\''
 * Improve documentation
+* Improve option -e
+* "-l" option: trace functions from these libraries
+* Improve C++ name demangling
 * Display different argument types:
   + how to display execl...?
   + format+: for scanf()...: display args as pointers, and imply `+' for args
 * Update /etc/ltrace.conf
-* SPARC:
-  + almost all...
 * netscape:
   + Why does it show so many `breakpointed at:' messages?
     \- Is this still true?
 * Option -T (print time spent in each libcall)
+* Option -c (summary)
+* More architectures: sparc, alpha
+* More operating systems (solaris?)

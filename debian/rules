@@ -1,6 +1,6 @@
 #! /usr/bin/make -f 
 #
-# Copyright (C) 1997,1998 Juan Cespedes <cespedes@debian.org>
+# Copyright (C) 1997-1999 Juan Cespedes <cespedes@debian.org>
 
 .PHONY:		binary binary-indep binary-arch clean
 

@@ -1,0 +1,30 @@
+Each operating system must have a subdir here, with a Makefile
+The first target of that Makefile must build a file "sysdep.o" in this
+directory.
+The "clean" target of that Makefile must undo all the efects of the
+first target, and must remove "sysdep.o" in this dir.
+
+Files "sysdep.h", "signalent.h" and "syscallent.h" must be present
+inside the directory after invoking the first target of the Makefile.
+
+-----------
+"sysdep.o" must export the following functions:
+
+void continue_after_breakpoint(struct process * proc, struct breakpoint * sbp, int delete_it);
+void continue_after_signal(pid_t pid, int signum);
+void continue_enabling_breakpoint(pid_t pid, struct breakpoint * sbp);
+void continue_process(pid_t pid);
+void insert_breakpoint(pid_t pid, struct breakpoint * sbp);
+void delete_breakpoint(pid_t pid, struct breakpoint * sbp);
+int fork_p(int sysnum);
+int exec_p(int sysnum);
+int syscall_p(struct process * proc, int status, int * sysnum);
+void * get_instruction_pointer(pid_t pid);
+void * get_stack_pointer(pid_t pid);
+void * get_return_addr(pid_t pid, void * stack_pointer);
+long gimme_arg(enum tof type, struct process * proc, int arg_num);
+int umovestr(struct process * proc, void * addr, int len, void * laddr);
+char * pid2name(pid_t pid);
+void trace_me(void);
+int trace_pid(pid_t pid);
+void untrace_pid(pid_t pid);

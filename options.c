@@ -9,7 +9,9 @@
 #include <limits.h>
 
 #if HAVE_GETOPT_H
+#define _GNU_SOURCE
 #include <getopt.h>
+#undef _GNU_SOURCE
 #endif
 
 #include "ltrace.h"
@@ -97,7 +99,7 @@ static void usage(void)
 
 static char * search_for_command(char * filename)
 {
-	static char pathname[PATH_MAX];
+	static char pathname[1024];
 	char *path;
 	int m, n;
 
@@ -111,7 +113,7 @@ static char * search_for_command(char * filename)
 		} else {
 			m = n = strlen(path);
 		}
-		strncpy(pathname, path, n);
+		strncpy(pathname, path, n);     /* Possible buffer overrun */
 		if (n && pathname[n - 1] != '/') {
 			pathname[n++] = '/';
 		}
@@ -197,7 +199,7 @@ char ** process_options(int argc, char **argv)
 				{
 					struct opt_p_t * tmp = malloc(sizeof(struct opt_p_t));
 					if (!tmp) {
-						perror("malloc");
+						perror("ltrace: malloc");
 						exit(1);
 					}
 					tmp->pid = atoi(optarg);
@@ -209,7 +211,7 @@ char ** process_options(int argc, char **argv)
 				{
 					char * str_e = strdup(optarg);
 					if (!str_e) {
-						perror("strdup");
+						perror("ltrace: strdup");
 						exit(1);
 					}
 					if (str_e[0]=='!') {
@@ -224,7 +226,7 @@ char ** process_options(int argc, char **argv)
 						}
 						tmp = malloc(sizeof(struct opt_e_t));
 						if (!tmp) {
-							perror("malloc");
+							perror("ltrace: malloc");
 							exit(1);
 						}
 						tmp->name = str_e;
@@ -245,7 +247,7 @@ char ** process_options(int argc, char **argv)
 					"???"
 #endif
 					".\n"
-"Copyright (C) 1997-1998 Juan Cespedes <cespedes@debian.org>.\n"
+"Copyright (C) 1997-1999 Juan Cespedes <cespedes@debian.org>.\n"
 "This is free software; see the GNU General Public Licence\n"
 "version 2 or later for copying conditions.  There is NO warranty.\n");
 					exit(0);

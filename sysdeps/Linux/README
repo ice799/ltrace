@@ -1,0 +1,12 @@
+* "arch/syscallent.h" is made from <asm/unistd.h>.
+  It can be done automatically with "mksyscallent" for all the
+  architectures except "arm" and "mips" (their asm/unistd.h is a bit
+  different) (linux-2.1.119)
+
+* "arch/signalent.h" is made from <asm/signal.h>.
+  It can be done automatically with "mksignalent" for all the
+  architectures. (linux-2.1.119)
+
+* NOTE: This does not currently work for cross-compilers; Maybe
+  I should guess the architecture using `gcc -print-libgcc-file-name'
+  instead of `uname -m'

@@ -1,3 +1,17 @@
+ltrace (0.3.7) unstable; urgency=low
+
+  * Minor fixes
+  * Added minor patch from Alex Buell <alex.buell@tahallah.demon.co.uk>
+    to be able to compile under glibc 2.1
+  * Additions to config file from David Dyck <dcd@tc.fluke.com>
+  * Clean-up Makefile a bit
+  * Changed `LT_PT_*' with `ARGTYPE_*'
+  * Display '\\' instead of '\'
+  * Updated list of syscalls and signals to linux-2.2.5
+  * Compiled against glibc-2.1
+
+ -- Juan Cespedes <cespedes@debian.org>  Sat,  3 Apr 1999 03:21:50 +0200
+
 ltrace (0.3.6) unstable; urgency=low
 
   * Added m68k port (Roman Hodek <Roman.Hodek@informatik.uni-erlangen.de>) (Bug#27075)

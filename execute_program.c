@@ -28,7 +28,7 @@ void execute_program(struct process * sp, char **argv)
 
 	pid = fork();
 	if (pid<0) {
-		perror("fork");
+		perror("ltrace: fork");
 		exit(1);
 	} else if (!pid) {	/* child */
 		change_uid(sp);
@@ -67,7 +67,7 @@ static void change_uid(struct process * proc)
 		run_gid = pent->pw_gid;
 
 		if (initgroups(opt_u, run_gid) < 0) {
-			perror("initgroups");
+			perror("ltrace: initgroups");
 			exit(1);
 		}
 	} else {
@@ -88,11 +88,11 @@ static void change_uid(struct process * proc)
 			}
 		}
 		if (setregid(run_gid, run_egid) < 0) {
-			perror("setregid");
+			perror("ltrace: setregid");
 			exit(1);
 		}
 		if (setreuid(run_uid, run_euid) < 0) {
-			perror("setreuid");
+			perror("ltrace: setreuid");
 			exit(1);
 		}
 	}

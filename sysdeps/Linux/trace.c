@@ -14,7 +14,17 @@
  */
 int fork_p(int sysnum)
 {
-	return (sysnum == __NR_fork || sysnum == __NR_clone);
+	return 0
+#if defined(__NR_fork)
+		|| (sysnum == __NR_fork)
+#endif
+#if defined(__NR_clone)
+		|| (sysnum == __NR_clone)
+#endif
+#if defined(__NR_vfork)
+		|| (sysnum == __NR_vfork)
+#endif
+		;
 }
 
 /* Returns 1 if the sysnum may make the process exec other program

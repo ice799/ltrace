@@ -41,11 +41,11 @@ struct library_symbol * read_elf(const char *filename)
 
 	fd = open(filename, O_RDONLY);
 	if (fd==-1) {
-		fprintf(stderr, "Can't open \"%s\": %s\n", filename, sys_errlist[errno]);
+		fprintf(stderr, "Can't open \"%s\": %s\n", filename, strerror(errno));
 		exit(1);
 	}
 	if (fstat(fd, &sbuf)==-1) {
-		fprintf(stderr, "Can't stat \"%s\": %s\n", filename, sys_errlist[errno]);
+		fprintf(stderr, "Can't stat \"%s\": %s\n", filename, strerror(errno));
 		exit(1);
 	}
 	if (sbuf.st_size < sizeof(Elf32_Ehdr)) {
@@ -54,7 +54,7 @@ struct library_symbol * read_elf(const char *filename)
 	}
 	addr = mmap(NULL, sbuf.st_size, PROT_READ, MAP_SHARED, fd, 0);
 	if (addr==(void*)-1) {
-		fprintf(stderr, "Can't mmap \"%s\": %s\n", filename, sys_errlist[errno]);
+		fprintf(stderr, "Can't mmap \"%s\": %s\n", filename, strerror(errno));
 		exit(1);
 	}
 	hdr = addr;
@@ -95,7 +95,7 @@ struct library_symbol * read_elf(const char *filename)
 
 			library_symbols = malloc(sizeof(struct library_symbol));
 			if (!library_symbols) {
-				perror("malloc");
+				perror("ltrace: malloc");
 				exit(1);
 			}
 			library_symbols->brk.addr = (void *)((symtab+i)->st_value);

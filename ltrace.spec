@@ -1,6 +1,6 @@
 Summary: A library call tracer
 Name: ltrace
-%define version 0.3.5
+%define version 0.3.7
 Version: %{version}
 Release: 1
 Copyright: GPL

@@ -15,45 +15,45 @@ static int display_stringN(int arg2, enum tof type, struct process * proc, int a
 static int display_unknown(enum tof type, struct process * proc, int arg_num);
 static int display_format(enum tof type, struct process * proc, int arg_num);
 
-int display_arg(enum tof type, struct process * proc, int arg_num, enum param_type rt)
+int display_arg(enum tof type, struct process * proc, int arg_num, enum arg_type at)
 {
 	int tmp;
 	long arg;
 
-	switch(rt) {
-		case LT_PT_VOID:
+	switch(at) {
+		case ARGTYPE_VOID:
 			return 0;
-		case LT_PT_INT:
+		case ARGTYPE_INT:
 			return fprintf(output, "%d", (int)gimme_arg(type, proc, arg_num));
-		case LT_PT_UINT:
+		case ARGTYPE_UINT:
 			return fprintf(output, "%u", (unsigned)gimme_arg(type, proc, arg_num));
-		case LT_PT_OCTAL:
+		case ARGTYPE_OCTAL:
 			return fprintf(output, "0%o", (unsigned)gimme_arg(type, proc, arg_num));
-		case LT_PT_CHAR:
+		case ARGTYPE_CHAR:
 			tmp = fprintf(output, "'");
 			tmp += display_char((int)gimme_arg(type, proc, arg_num));
 			tmp += fprintf(output, "'");
 			return tmp;
-		case LT_PT_ADDR:
+		case ARGTYPE_ADDR:
 			arg = gimme_arg(type, proc, arg_num);
 			if (!arg) {
 				return fprintf(output, "NULL");
 			} else {
 				return fprintf(output, "0x%08x", (unsigned)arg);
 			}
-		case LT_PT_FORMAT:
+		case ARGTYPE_FORMAT:
 			return display_format(type, proc, arg_num);
-		case LT_PT_STRING:
+		case ARGTYPE_STRING:
 			return display_string(type, proc, arg_num);
-		case LT_PT_STRING0:
+		case ARGTYPE_STRING0:
 			return display_stringN(0, type, proc, arg_num);
-		case LT_PT_STRING1:
+		case ARGTYPE_STRING1:
 			return display_stringN(1, type, proc, arg_num);
-		case LT_PT_STRING2:
+		case ARGTYPE_STRING2:
 			return display_stringN(2, type, proc, arg_num);
-		case LT_PT_STRING3:
+		case ARGTYPE_STRING3:
 			return display_stringN(3, type, proc, arg_num);
-		case LT_PT_UNKNOWN:
+		case ARGTYPE_UNKNOWN:
 		default:
 			return display_unknown(type, proc, arg_num);
 	}
@@ -68,7 +68,7 @@ static int display_char(int what)
 		case '\n':	return fprintf(output, "\\n");
 		case '\t':	return fprintf(output, "\\t");
 		case '\b':	return fprintf(output, "\\b");
-		case '\\':	return fprintf(output, "\\");
+		case '\\':	return fprintf(output, "\\\\");
 		default:
 			if ((what<32) || (what>126)) {
 				return fprintf(output, "\\%03o", (unsigned char)what);
