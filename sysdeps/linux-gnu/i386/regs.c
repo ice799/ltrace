@@ -6,6 +6,8 @@
 #include <sys/ptrace.h>
 #include <asm/ptrace.h>
 
+#include "ltrace.h"
+
 #if (!defined(PTRACE_PEEKUSER) && defined(PTRACE_PEEKUSR))
 # define PTRACE_PEEKUSER PTRACE_PEEKUSR
 #endif
@@ -15,21 +17,21 @@
 #endif
 
 void *
-get_instruction_pointer(pid_t pid) {
-	return (void *)ptrace(PTRACE_PEEKUSER, pid, 4*EIP, 0);
+get_instruction_pointer(struct process * proc) {
+	return (void *)ptrace(PTRACE_PEEKUSER, proc->pid, 4*EIP, 0);
 }
 
 void
-set_instruction_pointer(pid_t pid, void * addr) {
-	ptrace(PTRACE_POKEUSER, pid, 4*EIP, (long)addr);
+set_instruction_pointer(struct process * proc, void * addr) {
+	ptrace(PTRACE_POKEUSER, proc->pid, 4*EIP, (long)addr);
 }
 
 void *
-get_stack_pointer(pid_t pid) {
-	return (void *)ptrace(PTRACE_PEEKUSER, pid, 4*UESP, 0);
+get_stack_pointer(struct process * proc) {
+	return (void *)ptrace(PTRACE_PEEKUSER, proc->pid, 4*UESP, 0);
 }
 
 void *
-get_return_addr(pid_t pid, void * stack_pointer) {
-	return (void *)ptrace(PTRACE_PEEKTEXT, pid, stack_pointer, 0);
+get_return_addr(struct process * proc, void * stack_pointer) {
+	return (void *)ptrace(PTRACE_PEEKTEXT, proc->pid, stack_pointer, 0);
 }

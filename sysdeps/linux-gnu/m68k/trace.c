@@ -18,6 +18,10 @@
 # define PTRACE_POKEUSER PTRACE_POKEUSR
 #endif
 
+void
+get_arch_dep(struct process * proc) {
+}
+
 /* Returns 1 if syscall, 2 if sysret, 0 otherwise.
  */
 int
@@ -47,9 +51,9 @@ gimme_arg(enum tof type, struct process * proc, int arg_num) {
 		return ptrace(PTRACE_PEEKUSER, proc->pid, 4*PT_D0, 0);
 	}
 
-	if (type==LT_TOF_FUNCTION) {
+	if (type==LT_TOF_FUNCTION || type==LT_TOF_FUNCTIONR) {
 		return ptrace(PTRACE_PEEKTEXT, proc->pid, proc->stack_pointer+4*(arg_num+1), 0);
-	} else if (type==LT_TOF_SYSCALL) {
+	} else if (type==LT_TOF_SYSCALL || type==LT_TOF_SYSCALLR) {
 #if 0
 		switch(arg_num) {
 			case 0:	return ptrace(PTRACE_PEEKUSER, proc->pid, 4*PT_D1, 0);
@@ -71,4 +75,8 @@ gimme_arg(enum tof type, struct process * proc, int arg_num) {
 	}
 
 	return 0;
+}
+
+void
+save_register_args(enum tof type, struct process * proc) {
 }

@@ -60,7 +60,7 @@ begin_of_line(enum tof type, struct process * proc) {
 		if (tv.tv_usec >= old_tv.tv_usec) {
 			diff.tv_usec = tv.tv_usec - old_tv.tv_usec;
 		} else {
-			diff.tv_sec++;
+			diff.tv_sec--;
 			diff.tv_usec = 1000000 + tv.tv_usec - old_tv.tv_usec;
 		}
 		old_tv.tv_sec = tv.tv_sec;
@@ -87,12 +87,12 @@ begin_of_line(enum tof type, struct process * proc) {
 		}
 	}
 	if (opt_i) {
-		if (type==LT_TOF_FUNCTION) {
-			current_column += fprintf(output, "[%08x] ",
-				(unsigned)proc->return_addr);
+		if (type==LT_TOF_FUNCTION || type==LT_TOF_FUNCTIONR) {
+			current_column += fprintf(output, "[%p] ",
+				proc->return_addr);
 		} else {
-			current_column += fprintf(output, "[%08x] ",
-				(unsigned)proc->instruction_pointer);
+			current_column += fprintf(output, "[%p] ",
+				proc->instruction_pointer);
 		}
 	}
 	if (opt_n > 0 && type!=LT_TOF_NONE) {
@@ -195,6 +195,9 @@ output_left(enum tof type, struct process * proc, char * function_name) {
 			if (func->params_right) {
 				current_column += fprintf(output, ", ");
 			}
+		}
+		if (func->params_right) {
+			save_register_args(type, proc);
 		}
 	}
 }

@@ -16,7 +16,7 @@
 * netscape:
   + Why does it show so many `breakpointed at:' messages?
     \- Is this still true?
-* More architectures: sparc, alpha
+* More architectures: sparc64...
 * More operating systems (solaris?)
 * Option -I (inter-library calls)
 * Modify ARGTYPE_STRING[0-5] types so that they not stop displaying chars when '\0' is encountered

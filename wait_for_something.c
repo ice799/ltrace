@@ -48,6 +48,7 @@ wait_for_something(void) {
 		fprintf(stderr, "signal from wrong pid %u ?!?\n", pid);
 		exit(1);
 	}
+	get_arch_dep(event.proc);
 	event.proc->instruction_pointer = NULL;
 	debug(3, "signal from pid %u", pid);
 	if (event.proc->breakpoints_enabled == -1) {
@@ -57,7 +58,7 @@ wait_for_something(void) {
 		return &event;
 	}
 	if (opt_i) {
-		event.proc->instruction_pointer = get_instruction_pointer(pid);
+		event.proc->instruction_pointer = get_instruction_pointer(event.proc);
 	}
 	switch(syscall_p(event.proc, status, &tmp)) {
 		case 1:	event.thing = LT_EV_SYSCALL;
@@ -88,7 +89,7 @@ wait_for_something(void) {
 	}
 	event.thing = LT_EV_BREAKPOINT;
 	if (!event.proc->instruction_pointer) {
-		event.proc->instruction_pointer = get_instruction_pointer(pid);
+		event.proc->instruction_pointer = get_instruction_pointer(event.proc);
 	}
 	event.e_un.brk_addr = event.proc->instruction_pointer - DECR_PC_AFTER_BREAK;
 	return &event;

@@ -1,3 +1,19 @@
+ltrace (0.3.33) unstable; urgency=low
+
+  * Fixed two bugs, thanks to Mauro Meneghin <G1ld0@lycos.it>:
+    + Cope correctly with breakpoint values greater than
+      sizeof(long) bytes
+    + Fixed small bug in option -r                (closes: Bug#212792)
+  * Show help if no (or few) arguments are given, just like
+    strace and fenris (thanks, Tomasz Wegrzanowski <taw@users.sf.net>)
+  * Some fixes from Jakub Bogusz <qboosh@pld-linux.org>:
+    + Small 64-bit cleanup of code
+    + support for more than 6 function arguments on amd64
+    + Adapted SPARC port from Jakub Jelinek <jakub@redhat.com>
+    + Added alpha support
+  
+ -- Juan Cespedes <cespedes@debian.org>  Mon, 14 Jun 2004 18:01:12 +0200
+ 
 ltrace (0.3.32) unstable; urgency=low
 
   * Fixed wrong version number

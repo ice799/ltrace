@@ -28,6 +28,10 @@
 # define PTRACE_POKEUSER PTRACE_POKEUSR
 #endif
 
+void
+get_arch_dep(struct process * proc) {
+}
+
 /* Returns 1 if syscall, 2 if sysret, 0 otherwise.
  */
 int
@@ -85,4 +89,8 @@ gimme_arg(enum tof type, struct process * proc, int arg_num) {
 				fprintf(stderr, "gimme_arg called with wrong arguments\n");
 				exit(2);
 	}
+}
+
+void
+save_register_args(enum tof type, struct process * proc) {
 }

@@ -26,6 +26,10 @@
 #define off_ip 48
 #define off_pc 60
 
+void
+get_arch_dep(struct process * proc) {
+}
+
 /* Returns 1 if syscall, 2 if sysret, 0 otherwise.
  */
 int
@@ -52,13 +56,13 @@ gimme_arg(enum tof type, struct process * proc, int arg_num) {
 	}
 
 	/* deal with the ARM calling conventions */
-	if (type==LT_TOF_FUNCTION) {
+	if (type==LT_TOF_FUNCTION || type==LT_TOF_FUNCTIONR) {
 		if (arg_num<4) {
 			return ptrace(PTRACE_PEEKUSER, proc->pid, 4*arg_num, 0);
 		} else {
 			return ptrace(PTRACE_PEEKDATA, proc->pid, proc->stack_pointer+4*(arg_num-4), 0);
 		}
-	} else if (type==LT_TOF_SYSCALL) {
+	} else if (type==LT_TOF_SYSCALL || type==LT_TOF_SYSCALLR) {
 		if (arg_num<5) {
 			return ptrace(PTRACE_PEEKUSER, proc->pid, 4*arg_num, 0);
 		} else {
@@ -70,4 +74,8 @@ gimme_arg(enum tof type, struct process * proc, int arg_num) {
 	}
 
 	return 0;
+}
+
+void
+save_register_args(enum tof type, struct process * proc) {
 }

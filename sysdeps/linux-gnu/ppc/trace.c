@@ -18,6 +18,10 @@
 # define PTRACE_POKEUSER PTRACE_POKEUSR
 #endif
 
+void
+get_arch_dep(struct process * proc) {
+}
+
 /* Returns 1 if syscall, 2 if sysret, 0 otherwise.
  */
 #define SYSCALL_INSN   0x44000002
@@ -49,4 +53,8 @@ gimme_arg(enum tof type, struct process * proc, int arg_num) {
 		return ptrace(PTRACE_PEEKDATA, proc->pid, proc->stack_pointer+8*(arg_num-8), 0);
 	}
 	return 0;
+}
+
+void
+save_register_args(enum tof type, struct process * proc) {
 }

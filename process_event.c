@@ -196,7 +196,7 @@ process_sysret(struct event * event) {
 	}
 	if (fork_p(event->e_un.sysnum)) {
 		if (opt_f) {
-			pid_t child = gimme_arg(LT_TOF_SYSCALL,event->proc,-1);
+			pid_t child = gimme_arg(LT_TOF_SYSCALLR,event->proc,-1);
 			if (child>0) {
 				open_pid(child, 0);
 			}
@@ -205,10 +205,10 @@ process_sysret(struct event * event) {
 	}
 	callstack_pop(event->proc);
 	if (opt_S) {
-		output_right(LT_TOF_SYSCALL, event->proc, sysname(event->e_un.sysnum));
+		output_right(LT_TOF_SYSCALLR, event->proc, sysname(event->e_un.sysnum));
 	}
 	if (exec_p(event->e_un.sysnum)) {
-		if (gimme_arg(LT_TOF_SYSCALL,event->proc,-1)==0) {
+		if (gimme_arg(LT_TOF_SYSCALLR,event->proc,-1)==0) {
 			event->proc->filename = pid2name(event->proc->pid);
 			breakpoints_init(event->proc);
 		}
@@ -257,7 +257,7 @@ process_breakpoint(struct event * event) {
 			}
 			callstack_pop(event->proc);
 			event->proc->return_addr = event->e_un.brk_addr;
-			output_right(LT_TOF_FUNCTION, event->proc,
+			output_right(LT_TOF_FUNCTIONR, event->proc,
 					event->proc->callstack[i].c_un.libfunc->name);
 			continue_after_breakpoint(event->proc,
 					address2bpstruct(event->proc, event->e_un.brk_addr));
@@ -268,8 +268,8 @@ process_breakpoint(struct event * event) {
 	tmp = event->proc->list_of_symbols;
 	while(tmp) {
 		if (event->e_un.brk_addr == tmp->enter_addr) {
-			event->proc->stack_pointer = get_stack_pointer(event->proc->pid);
-			event->proc->return_addr = get_return_addr(event->proc->pid, event->proc->stack_pointer);
+			event->proc->stack_pointer = get_stack_pointer(event->proc);
+			event->proc->return_addr = get_return_addr(event->proc, event->proc->stack_pointer);
 			output_left(LT_TOF_FUNCTION, event->proc, tmp->name);
 			callstack_push_symfunc(event->proc, tmp);
 			continue_after_breakpoint(event->proc, address2bpstruct(event->proc, tmp->enter_addr));

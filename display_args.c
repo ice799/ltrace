@@ -39,7 +39,7 @@ display_arg(enum tof type, struct process * proc, int arg_num, enum arg_type at)
 			if (!arg) {
 				return fprintf(output, "NULL");
 			} else {
-				return fprintf(output, "%p", (unsigned)arg);
+				return fprintf(output, "%p", (void *)arg);
 			}
 		case ARGTYPE_FORMAT:
 			return display_format(type, proc, arg_num);
@@ -85,7 +85,7 @@ static int string_maxlength=INT_MAX;
 static int
 display_string(enum tof type, struct process * proc, int arg_num) {
 	void * addr;
-	char * str1;
+	unsigned char * str1;
 	int i;
 	int len=0;
 
@@ -141,7 +141,7 @@ display_unknown(enum tof type, struct process * proc, int arg_num) {
 static int
 display_format(enum tof type, struct process * proc, int arg_num) {
 	void * addr;
-	char * str1;
+	unsigned char * str1;
 	int i;
 	int len=0;
 
@@ -170,7 +170,7 @@ display_format(enum tof type, struct process * proc, int arg_num) {
 	for(i=0; str1[i]; i++) {
 		if (str1[i]=='%') {
 			while(1) {
-				char c = str1[++i];
+				unsigned char c = str1[++i];
 				if (c == '%') {
 					break;
 				} else if (!c) {

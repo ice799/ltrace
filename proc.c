@@ -20,6 +20,7 @@ open_program(char * filename) {
 		perror("malloc");
 		exit(1);
 	}
+	memset(proc, 0, sizeof(struct process));
 	proc->filename = filename;
 	proc->pid = 0;
 	proc->breakpoints = NULL;

@@ -43,7 +43,9 @@ enum arg_type {
 enum tof {
 	LT_TOF_NONE=0,
 	LT_TOF_FUNCTION,	/* A real library function */
-	LT_TOF_SYSCALL		/* A syscall */
+	LT_TOF_FUNCTIONR,	/* Return from a real library function */
+	LT_TOF_SYSCALL,		/* A syscall */
+	LT_TOF_SYSCALLR		/* Return from a syscall */
 };
 
 struct function {
@@ -91,6 +93,7 @@ struct process {
 	void * stack_pointer;		/* To get return addr, args... */
 	void * return_addr;
 	struct breakpoint * breakpoint_being_enabled;
+	void * arch_ptr;
 
 	/* output: */
 	enum tof type_being_displayed;
@@ -148,10 +151,11 @@ extern char * pid2name(pid_t pid);
 extern void trace_me(void);
 extern int trace_pid(pid_t pid);
 extern void untrace_pid(pid_t pid);
-extern void * get_instruction_pointer(pid_t pid);
-extern void set_instruction_pointer(pid_t pid, void * addr);
-extern void * get_stack_pointer(pid_t pid);
-extern void * get_return_addr(pid_t pid, void * stack_pointer);
+extern void get_arch_dep(struct process * proc);
+extern void * get_instruction_pointer(struct process * proc);
+extern void set_instruction_pointer(struct process * proc, void * addr);
+extern void * get_stack_pointer(struct process * proc);
+extern void * get_return_addr(struct process * proc, void * stack_pointer);
 extern void enable_breakpoint(pid_t pid, struct breakpoint * sbp);
 extern void disable_breakpoint(pid_t pid, const struct breakpoint * sbp);
 extern int fork_p(int sysnum);
@@ -162,6 +166,7 @@ extern void continue_after_signal(pid_t pid, int signum);
 extern void continue_after_breakpoint(struct process * proc, struct breakpoint * sbp);
 extern void continue_enabling_breakpoint(pid_t pid, struct breakpoint * sbp);
 extern long gimme_arg(enum tof type, struct process * proc, int arg_num);
+extern void save_register_args(enum tof type, struct process * proc);
 extern int umovestr(struct process * proc, void * addr, int len, void * laddr);
 extern int ffcheck(void *maddr);
 #if 0	/* not yet */

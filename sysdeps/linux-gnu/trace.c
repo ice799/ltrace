@@ -4,7 +4,7 @@
 #include <errno.h>
 #include <unistd.h>
 #include <sys/types.h>
-#include <sys/ptrace.h>
+#include "ptrace.h"
 #include <asm/unistd.h>
 
 #include "ltrace.h"
@@ -77,26 +77,30 @@ continue_enabling_breakpoint(pid_t pid, struct breakpoint * sbp) {
 void
 continue_after_breakpoint(struct process *proc, struct breakpoint * sbp) {
 	if (sbp->enabled) disable_breakpoint(proc->pid, sbp);
-	set_instruction_pointer(proc->pid, sbp->addr);
+	set_instruction_pointer(proc, sbp->addr);
 	if (sbp->enabled == 0) {
 		continue_process(proc->pid);
 	} else {
 		proc->breakpoint_being_enabled = sbp;
+#ifdef __sparc__
+		continue_process(proc->pid);
+#else
 		ptrace(PTRACE_SINGLESTEP, proc->pid, 0, 0);
+#endif
 	}
 }
 
 int
 umovestr(struct process * proc, void * addr, int len, void * laddr) {
-	long a;
+	union { long a; char c[sizeof(long)]; } a;
 	int i;
 	int offset=0;
 
 	while(offset<len) {
-		a = ptrace(PTRACE_PEEKTEXT, proc->pid, addr+offset, 0);
+		a.a = ptrace(PTRACE_PEEKTEXT, proc->pid, addr+offset, 0);
 		for(i=0; i<sizeof(long); i++) {
-			if (((char*)&a)[i] && offset+i < len) {
-				*(char *)(laddr+offset+i) = ((char*)&a)[i];
+			if (a.c[i] && offset+i < len) {
+				*(char *)(laddr+offset+i) = a.c[i];
 			} else {
 				*(char *)(laddr+offset+i) = '\0';
 				return 0;

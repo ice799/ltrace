@@ -167,7 +167,11 @@ add_library_symbol(
 		exit(1);
 	}
 
+#ifdef __sparc__
+	library_symbols->enter_addr = (void *)(lte->symtab[i].st_value + 4 /* plt(?) */);
+#else
 	library_symbols->enter_addr = (void *)lte->symtab[i].st_value;
+#endif
 	library_symbols->name = &lte->strtab[lte->symtab[i].st_name];
 	library_symbols->next = tmp;
 

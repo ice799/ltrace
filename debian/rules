@@ -39,8 +39,6 @@ binary-arch:	build
 		gzip -9f debian/tmp/usr/share/doc/ltrace/README debian/tmp/usr/share/doc/ltrace/changelog
 		cp -p debian/copyright debian/tmp/usr/share/doc/ltrace
 		gzip -9f debian/tmp/usr/share/man/man1/*
-		install -m 755 debian/postinst debian/tmp/DEBIAN/postinst
-		install -m 755 debian/prerm debian/tmp/DEBIAN/prerm
 		dpkg-shlibdeps debian/tmp/usr/bin/ltrace
 		dpkg-gencontrol -isp
 		chown -R root.root debian/tmp

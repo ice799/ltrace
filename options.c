@@ -281,7 +281,7 @@ process_options(int argc, char **argv) {
 			case 'u':	opt_u = optarg;
 						break;
 			case 'V':	printf("ltrace version " VERSION ".\n"
-"Copyright (C) 1997-2003 Juan Cespedes <cespedes@debian.org>.\n"
+"Copyright (C) 1997-2004 Juan Cespedes <cespedes@debian.org>.\n"
 "This is free software; see the GNU General Public Licence\n"
 "version 2 or later for copying conditions.  There is NO warranty.\n");
 						exit(0);
@@ -300,11 +300,7 @@ process_options(int argc, char **argv) {
 
 	if (!opt_p && argc<1) {
 		fprintf(stderr, "%s: too few arguments\n", progname);
-#if HAVE_GETOPT_LONG
-		fprintf(stderr, "Try `%s --help' for more information\n", progname);
-#elif HAVE_GETOPT
-		fprintf(stderr, "Try `%s -h' for more information\n", progname);
-#endif
+		usage();
 		exit(1);
 	}
 	if (opt_r && opt_t) {

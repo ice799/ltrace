@@ -2,7 +2,7 @@
 
                        A Dynamic Library Tracer
 
-         Copyright 1997-2003 Juan Cespedes <cespedes@debian.org>
+         Copyright 1997-2004 Juan Cespedes <cespedes@debian.org>
 
 
 Contents
@@ -28,6 +28,8 @@ people have contributed significantly to this project:
 * Silvio Cesare <silvio@big.net.au> (ELF hacking)
 * Timothy Fesig <slate@us.ibm.com> (S390 port)
 * Anton Blanchard <anton@samba.org> (Powerpc port)
+* Jakub Jelinek <jakub@redhat.com> (SPARC port)
+* Jakub Bogusz <qboosh@pld-linux.org> (alpha port)
 
 1. Introduction
 ---------------
@@ -53,7 +55,7 @@ Using software breakpoints, just like gdb.
 ---------------------
 At the time of writting, it works only with ELF32 executables. It only
 works in Linux, and it only works on some architectures (i386, m68k,
-S/390, ARM and PowerPC processors).
+S/390, ARM, PowerPC, SPARC and alpha processors).
 
 It is part of at least Debian GNU/Linux, RedHat, SuSE and Mandrake.
 
@@ -67,7 +69,7 @@ This file is very incomplete and out-of-date.
 
 6. License
 ----------
-    Copyright (C) 1997-2003 Juan Cespedes <cespedes@debian.org>
+    Copyright (C) 1997-2004 Juan Cespedes <cespedes@debian.org>
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
