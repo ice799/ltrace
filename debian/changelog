@@ -1,3 +1,9 @@
+ltrace (0.2.7) unstable; urgency=low
+
+  * Some minor fixes
+
+ -- Juan Cespedes <cespedes@debian.org>  Sun, 15 Mar 1998 14:01:40 +0100
+
 ltrace (0.2.6) unstable; urgency=low
 
   * Option `-f' now works (but it fails to attach some processes...)

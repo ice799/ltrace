@@ -130,6 +130,7 @@ static void remove_proc(struct process * proc)
 			tmp->next = tmp->next->next;
 			free(tmp2);
 		}
+		tmp = tmp->next;
 	}
 }
 
@@ -168,15 +169,15 @@ static void process_sysret(struct event * event)
 		}
 	}
 	if (fork_p(event->e_un.sysnum)) {
-		enable_all_breakpoints(event->proc);
-		if (event->proc->current_symbol) {
-			insert_breakpoint(event->proc->pid, &event->proc->return_value);
-		}
 		if (opt_f) {
 			pid_t child = gimme_arg(LT_TOF_SYSCALL,event->proc,-1);
 			if (child>0) {
 				open_pid(child, 0);
 			}
+		}
+		enable_all_breakpoints(event->proc);
+		if (event->proc->current_symbol) {
+			insert_breakpoint(event->proc->pid, &event->proc->return_value);
 		}
 	}
 	event->proc->current_syscall = -1;

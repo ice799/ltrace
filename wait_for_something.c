@@ -37,7 +37,7 @@ struct event * wait_for_something(void)
 		fprintf(stderr, "signal from wrong pid %u ?!?\n", pid);
 		exit(1);
 	}
-	event.proc->instruction_pointer = get_instruction_pointer(pid);
+	event.proc->instruction_pointer = NULL;
 	if (opt_d>2) {
 		output_line(0,"signal from pid %u", pid);
 	}
@@ -47,17 +47,17 @@ struct event * wait_for_something(void)
 		continue_process(event.proc->pid);
 		return &event;
 	}
-	tmp = syscall_p(event.proc, status);
-	if (tmp>=0) {
-		event.thing = LT_EV_SYSCALL;
-		event.e_un.sysnum = tmp;
-		return &event;
+	if (opt_i) {
+		event.proc->instruction_pointer = get_instruction_pointer(pid);
 	}
-	tmp = sysret_p(event.proc, status);
-	if (tmp>=0) {
-		event.thing = LT_EV_SYSRET;
-		event.e_un.sysnum = tmp;
-		return &event;
+	switch(syscall_p(event.proc, status, &tmp)) {
+		case 1:	event.thing = LT_EV_SYSCALL;
+			event.e_un.sysnum = tmp;
+			return &event;
+		case 2:	event.thing = LT_EV_SYSRET;
+			event.e_un.sysnum = tmp;
+			return &event;
+		default:
 	}
 	if (WIFEXITED(status)) {
 		event.thing = LT_EV_EXIT;
@@ -79,6 +79,9 @@ struct event * wait_for_something(void)
 		return &event;
 	}
 	event.thing = LT_EV_BREAKPOINT;
+	if (!event.proc->instruction_pointer) {
+		event.proc->instruction_pointer = get_instruction_pointer(pid);
+	}
 	event.e_un.brk_addr = event.proc->instruction_pointer - DECR_PC_AFTER_BREAK;
 	return &event;
 }

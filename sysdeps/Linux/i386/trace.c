@@ -5,32 +5,21 @@
 
 #include "ltrace.h"
 
-/* Returns syscall number if `pid' stopped because of a syscall.
- * Returns -1 otherwise
+/* Returns 1 if syscall, 2 if sysret, 0 otherwise.
  */
-int syscall_p(struct process * proc, int status)
+int syscall_p(struct process * proc, int status, int * sysnum)
 {
 	if (WIFSTOPPED(status) && WSTOPSIG(status)==SIGTRAP) {
-		int tmp = ptrace(PTRACE_PEEKUSER, proc->pid, 4*ORIG_EAX);
-		if (tmp>=0 && proc->current_syscall!=tmp) {
-			return tmp;
+		*sysnum = ptrace(PTRACE_PEEKUSER, proc->pid, 4*ORIG_EAX);
+		if (*sysnum>=0) {
+			if (proc->current_syscall!=*sysnum) {
+				return 1;
+			} else {
+				return 2;
+			}
 		}
 	}
-	return -1;
-}
-
-/* Returns syscall number if `pid' stopped because of a sysret.
- * Returns -1 otherwise
- */
-int sysret_p(struct process * proc, int status)
-{
-	if (WIFSTOPPED(status) && WSTOPSIG(status)==SIGTRAP) {
-		int tmp = ptrace(PTRACE_PEEKUSER, proc->pid, 4*ORIG_EAX);
-		if (tmp>=0 && proc->current_syscall==tmp) {
-			return tmp;
-		}
-	}
-	return -1;
+	return 0;
 }
 
 void continue_after_breakpoint(struct process *proc, struct breakpoint * sbp, int delete_it)

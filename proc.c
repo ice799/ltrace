@@ -23,7 +23,7 @@ struct process * open_program(char * filename)
 	proc->current_symbol = NULL;
 	proc->breakpoint_being_enabled = NULL;
 	proc->next = NULL;
-	if (opt_L) {
+	if (opt_L && filename) {
 		proc->list_of_symbols = read_elf(filename);
 	} else {
 		proc->list_of_symbols = NULL;
@@ -39,21 +39,27 @@ void open_pid(pid_t pid, int verbose)
 	struct process * proc;
 	char * filename;
 
+	if (trace_pid(pid)<0) {
+#if 0
+		if (verbose) {
+#endif
+			fprintf(stderr, "Cannot attach to pid %u: %s\n", pid, strerror(errno));
+#if 0
+		}
+#endif
+		return;
+	}
+
 	filename = pid2name(pid);
 
+#if 0
 	if (!filename) {
 		if (verbose) {
 			fprintf(stderr, "Cannot trace pid %u: %s\n", pid, strerror(errno));
 		}
 		return;
 	}
-
-	if (trace_pid(pid)<0) {
-		if (verbose) {
-			fprintf(stderr, "Cannot attach to pid %u: %s\n", pid, strerror(errno));
-		}
-		return;
-	}
+#endif
 
 	proc = open_program(filename);
 	proc->pid = pid;
