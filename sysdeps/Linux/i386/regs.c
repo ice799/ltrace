@@ -1,5 +1,6 @@
 #include <sys/types.h>
 #include <sys/ptrace.h>
+#include <asm/ptrace.h>
 
 #if (!defined(PTRACE_PEEKUSER) && defined(PTRACE_PEEKUSR))
 # define PTRACE_PEEKUSER PTRACE_PEEKUSR

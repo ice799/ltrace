@@ -1,3 +1,11 @@
+ltrace (0.3.2) unstable; urgency=low
+
+  * Make the output line-buffered (Bug#22874)
+  * New Standards-Version (2.4.1)
+  * Make it compile cleanly with glibc 2.0.7
+
+ -- Juan Cespedes <cespedes@debian.org>  Tue, 14 Jul 1998 13:45:24 +0200
+
 ltrace (0.3.1) frozen unstable; urgency=low
 
   * setgid programs had their uid and gid swapped!  Fixed.

@@ -2,6 +2,7 @@
 #include <sys/wait.h>
 #include <signal.h>
 #include <sys/ptrace.h>
+#include <asm/ptrace.h>
 
 #include "ltrace.h"
 

@@ -183,6 +183,7 @@ char ** process_options(int argc, char **argv)
 						fprintf(stderr, "Can't open %s for output: %s\n", optarg, strerror(errno));
 						exit(1);
 					}
+					setvbuf(output, (char *)NULL, _IOLBF, 0);
 					break;
 			case 'u':	opt_u = optarg;
 					break;
