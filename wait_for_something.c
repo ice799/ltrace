@@ -38,21 +38,24 @@ struct event * wait_for_something(void)
 		exit(1);
 	}
 	event.proc->instruction_pointer = get_instruction_pointer(pid);
-	if (opt_d>1) {
+	if (opt_d>2) {
 		output_line(0,"signal from pid %u", pid);
 	}
 	if (event.proc->breakpoints_enabled == -1) {
-		if (opt_d>0) {
-			output_line(0,"Enabling breakpoints for pid %u...", pid);
-		}
 		enable_all_breakpoints(event.proc);
 		event.thing = LT_EV_NONE;
 		continue_process(event.proc->pid);
 		return &event;
 	}
-	tmp = syscall_p(pid, status);
+	tmp = syscall_p(event.proc, status);
 	if (tmp>=0) {
-		event.thing = (event.proc->current_syscall >= 0) ? LT_EV_SYSRET : LT_EV_SYSCALL;
+		event.thing = LT_EV_SYSCALL;
+		event.e_un.sysnum = tmp;
+		return &event;
+	}
+	tmp = sysret_p(event.proc, status);
+	if (tmp>=0) {
+		event.thing = LT_EV_SYSRET;
 		event.e_un.sysnum = tmp;
 		return &event;
 	}

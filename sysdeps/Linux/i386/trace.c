@@ -8,11 +8,25 @@
 /* Returns syscall number if `pid' stopped because of a syscall.
  * Returns -1 otherwise
  */
-int syscall_p(pid_t pid, int status)
+int syscall_p(struct process * proc, int status)
 {
 	if (WIFSTOPPED(status) && WSTOPSIG(status)==SIGTRAP) {
-		int tmp = ptrace(PTRACE_PEEKUSER, pid, 4*ORIG_EAX);
-		if (tmp>=0) {
+		int tmp = ptrace(PTRACE_PEEKUSER, proc->pid, 4*ORIG_EAX);
+		if (tmp>=0 && proc->current_syscall!=tmp) {
+			return tmp;
+		}
+	}
+	return -1;
+}
+
+/* Returns syscall number if `pid' stopped because of a sysret.
+ * Returns -1 otherwise
+ */
+int sysret_p(struct process * proc, int status)
+{
+	if (WIFSTOPPED(status) && WSTOPSIG(status)==SIGTRAP) {
+		int tmp = ptrace(PTRACE_PEEKUSER, proc->pid, 4*ORIG_EAX);
+		if (tmp>=0 && proc->current_syscall==tmp) {
 			return tmp;
 		}
 	}

@@ -73,18 +73,18 @@ struct function * process_line (char * buf) {
 	int i;
 
 	line_no++;
-	if (opt_d>1) {
+	if (opt_d>2) {
 		output_line(0, "Reading line %d of `%s'", line_no, filename);
 	}
 	eat_spaces(&str);
 	fun.return_type = str2type(&str);
 	if (fun.return_type==LT_PT_UNKNOWN) {
-		if (opt_d>1) {
+		if (opt_d>2) {
 			output_line(0, " Skipping line %d", line_no);
 		}
 		return NULL;
 	}
-	if (opt_d>2) {
+	if (opt_d>3) {
 		output_line(0, " return_type = %d", fun.return_type);
 	}
 	eat_spaces(&str);
@@ -153,7 +153,7 @@ void read_config_file(char * file)
 		struct function * tmp = process_line(buf);
 
 		if (tmp) {
-			if (opt_d) {
+			if (opt_d > 1) {
 				output_line(0, "New function: `%s'", tmp->name);
 			}
 			tmp->next = list_of_functions;

@@ -19,18 +19,33 @@ void process_event(struct event * event)
 		case LT_EV_NONE:
 			return;
 		case LT_EV_SIGNAL:
+			if (opt_d>0) {
+				output_line(0, "event: signal (%d)", event->e_un.signum);
+			}
 			process_signal(event);
 			return;
 		case LT_EV_EXIT:
+			if (opt_d>0) {
+				output_line(0, "event: exit (%d)", event->e_un.ret_val);
+			}
 			process_exit(event);
 			return;
 		case LT_EV_EXIT_SIGNAL:
+			if (opt_d>0) {
+				output_line(0, "event: exit signal (%d)", event->e_un.signum);
+			}
 			process_exit_signal(event);
 			return;
 		case LT_EV_SYSCALL:
+			if (opt_d>0) {
+				output_line(0, "event: syscall (%d)", event->e_un.sysnum);
+			}
 			process_syscall(event);
 			return;
 		case LT_EV_SYSRET:
+			if (opt_d>0) {
+				output_line(0, "event: sysret (%d)", event->e_un.sysnum);
+			}
 			process_sysret(event);
 			return;
 		case LT_EV_BREAKPOINT:
@@ -130,6 +145,9 @@ static void process_breakpoint(struct event * event)
 {
 	struct library_symbol * tmp;
 
+	if (opt_d>1) {
+		output_line(0,"event: breakpoint (0x%08x)", event->e_un.brk_addr);
+	}
 	if (event->proc->breakpoint_being_enabled) {
 		continue_enabling_breakpoint(event->proc->pid, event->proc->breakpoint_being_enabled);
 		event->proc->breakpoint_being_enabled = NULL;
