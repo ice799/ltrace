@@ -1,12 +1,21 @@
 CC	=	gcc
-CFLAGS	=	-Wall -O2
+CFLAGS	=	-g -Wall -O2
 
-all:	ltrace
+OBJ	=	ltrace.o functions.o elf.o i386.o trace.o
 
-ltrace:	ltrace.o functions.o
+all:		build
+
+build:		ltrace
+
+ltrace:		ltrace.o $(OBJ)
 
 clean:
-	rm -f ltrace ltrace.o
+		rm -f ltrace $(OBJ)
 
-dist:	#clean
-	( cd .. ; tar zcvf ltrace-`date +%y%m%d`.tgz ltrace )
+dist:		clean
+		( cd .. ; tar zcvf ltrace-`date +%y%m%d`.tgz ltrace )
+
+install:	build
+		install -d $(DESTDIR)/usr/bin $(DESTDIR)/usr/doc/ltrace
+		install -s ltrace $(DESTDIR)/usr/bin
+		install -m 644 README debian/copyright debian/changelog $(DESTDIR)/usr/doc/ltrace

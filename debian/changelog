@@ -1,0 +1,6 @@
+ltrace (0.0.1997.08.09) experimental; urgency=low
+
+  * Added Debian files
+  * Re-structured most of the code; new files: elf.c, i386.c, trace.c
+
+ -- Juan Cespedes <cespedes@etsit.upm.es>  Sat,  9 Aug 1997 20:55:24 +0200

@@ -1,0 +1,30 @@
+#! /usr/bin/make -f 
+
+build:
+	$(MAKE)
+	touch build
+
+binary:		binary-arch binary-indep
+
+binary-indep:
+
+binary-arch:	build
+	test root = "`whoami`" || exit 1
+	$(RM) -rf debian/tmp
+
+	install -d debian/tmp/DEBIAN
+	$(MAKE) install DESTDIR=`pwd`/debian/tmp
+	gzip -9fv debian/tmp/usr/doc/ltrace/*
+	install -d -m 755 debian/tmp/usr/man/man1
+	ln -s ../man7/undocumented.7.gz debian/tmp/usr/man/man1/ltrace.1.gz
+	dpkg-shlibdeps debian/tmp/usr/bin/ltrace
+	dpkg-gencontrol
+	chown -R root.root debian/tmp
+	chmod -R g-ws debian/tmp
+	dpkg --build debian/tmp ..
+
+clean:
+	$(RM) -f build debian/files debian/substvars
+	$(MAKE) clean
+	$(RM) -rf debian/tmp
+

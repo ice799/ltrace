@@ -1,0 +1,14 @@
+Source: ltrace
+Section: utils
+Priority: optional
+Maintainer: Juan Cespedes <cespedes@etsit.upm.es>
+Standards-Version: 2.2.0.0
+
+Package: ltrace
+Architecture: i386
+Depends: ${shlibs:Depends}
+Description: A library call tracer
+ ltrace is a library call tracer, i.e. a debugging tool which prints out
+ a trace of all the dynamic library calls made by another process/program.
+ The program to be traced need not be recompiled for this, so you can
+ use it on binaries for which you don't have source.

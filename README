@@ -1,11 +1,49 @@
-Funcionamiento:
+                                ltrace
+
+                       A Dynamic Library Tracer
+
+         Copyright 1997 Juan Cespedes <cespedes@etsit.upm.es>
+
+
+Contents
+--------
+ 1. Introduction
+ 2. How does it work
+ 3. Where does it work
+ 4. Licence
+
+
+1. Introduction
 ---------------
+ltrace is a debugging tool, similar to strace, but it traces library
+calls instead of system calls.
 
-* 2nd approach: using soft breakpoints (INT 3, CC) in process using
-  ptrace, just like gdb & strace
+2. How does it work
+-------------------
+Using i386 software breakpoints, just like gdb.
 
-Tue Jun 24 22:42:59 CEST 1997  Juan Cespedes <cespedes@etsit.upm.es>
+3. Where does it work
+---------------------
+At the time of writting, it works only with Intel ELF executables. It
+has been used only in Debian/GNU Linux, but it should work without any
+problem in any other i386 Linux, such as SuSe or RedHat, and maybe in
+other i386 based POSIX system, such as Hurd or *BSD.
 
-	* I think I've found the optimal format for config files:
-	  C prototypes!  For example:
-		void * malloc(unsigned int size);
+4. Licence
+----------
+    Copyright (C) 1997 Juan Cespedes <cespedes@etsit.upm.es>
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
