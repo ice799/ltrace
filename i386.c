@@ -8,25 +8,25 @@
 #include "i386.h"
 #include "ltrace.h"
 
-void insert_breakpoint(int pid, unsigned long addr, unsigned char * value)
+void insert_breakpoint(int pid, struct breakpoint * sbp)
 {
 	int a;
 
-	a = ptrace(PTRACE_PEEKTEXT, pid, addr, 0);
-	value[0] = a & 0xFF;
+	a = ptrace(PTRACE_PEEKTEXT, pid, sbp->addr, 0);
+	sbp->value[0] = a & 0xFF;
 	a &= 0xFFFFFF00;
 	a |= 0xCC;
-	ptrace(PTRACE_POKETEXT, pid, addr, a);
+	ptrace(PTRACE_POKETEXT, pid, sbp->addr, a);
 }
 
-void delete_breakpoint(int pid, unsigned long addr, unsigned char * value)
+void delete_breakpoint(int pid, struct breakpoint * sbp)
 {
 	int a;
 
-	a = ptrace(PTRACE_PEEKTEXT, pid, addr, 0);
+	a = ptrace(PTRACE_PEEKTEXT, pid, sbp->addr, 0);
 	a &= 0xFFFFFF00;
-	a |= value[0];
-	ptrace(PTRACE_POKETEXT, pid, addr, a);
+	a |= sbp->value[0];
+	ptrace(PTRACE_POKETEXT, pid, sbp->addr, a);
 }
 
 unsigned long get_eip(int pid)
@@ -78,10 +78,10 @@ void continue_process(int pid, int signal)
 	ptrace(PTRACE_SYSCALL, pid, 1, signal);
 }
 
-void continue_after_breakpoint(int pid, unsigned long eip, unsigned char * value, int delete_it)
+void continue_after_breakpoint(int pid, struct breakpoint * sbp, int delete_it)
 {
-	delete_breakpoint(pid, eip, value);
-	ptrace(PTRACE_POKEUSER, pid, 4*EIP, eip);
+	delete_breakpoint(pid, sbp);
+	ptrace(PTRACE_POKEUSER, pid, 4*EIP, sbp->addr);
 	if (delete_it) {
 		continue_process(pid, 0);
 	} else {
@@ -94,7 +94,7 @@ void continue_after_breakpoint(int pid, unsigned long eip, unsigned char * value
 			perror("wait4");
 			exit(1);
 		}
-		insert_breakpoint(pid, eip, value);
+		insert_breakpoint(pid, sbp);
 		continue_process(pid, 0);
 	}
 }
@@ -121,19 +121,24 @@ void untrace_pid(int pid)
  *  PROC_SYSCALL - Syscall entry
  *  PROC_SYSRET - Syscall return
  */
-int type_of_stop(struct process * proc, int *what)
+int type_of_stop(int pid, struct proc_arch * proc_arch, int *what)
 {
-	*what = get_orig_eax(proc->pid);
+	*what = get_orig_eax(pid);
 
 	if (*what!=-1) {
-		if (proc->syscall_number != *what) {
-			proc->syscall_number = *what;
+		if (proc_arch->syscall_number != *what) {
+			proc_arch->syscall_number = *what;
 			return PROC_SYSCALL;
 		} else {
-			proc->syscall_number = -1;
+			proc_arch->syscall_number = -1;
 			return PROC_SYSRET;
 		}
 	}
 
 	return PROC_BREAKPOINT;
+}
+
+void proc_arch_init(struct proc_arch *proc_arch)
+{
+	proc_arch->syscall_number=-1;
 }

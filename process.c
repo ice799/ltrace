@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <errno.h>
 #include <signal.h>
+#include <string.h>
 #include <sys/types.h>
 #include <sys/resource.h>
 #include <sys/wait.h>
@@ -44,7 +45,8 @@ int execute_process(const char * file, char * const argv[])
 	tmp = (struct process *)malloc(sizeof(struct process));
 	tmp->pid = pid;
 	tmp->breakpoints_enabled = 0;
-	tmp->syscall_number = -1;
+	proc_arch_init(&tmp->proc_arch);
+	tmp->within_function = 0;
 	tmp->next = list_of_processes;
 	list_of_processes = tmp;
 	
@@ -155,7 +157,7 @@ static void process_child(struct process * current_process)
 	eip = get_eip(pid);
 	instruction_pointer = eip;
 
-	switch (type_of_stop(current_process, &status)) {
+	switch (type_of_stop(current_process->pid, &current_process->proc_arch, &status)) {
 		case PROC_SYSCALL:
 			if (status==__NR_fork) {
 				disable_all_breakpoints(pid);
@@ -178,16 +180,31 @@ static void process_child(struct process * current_process)
 		default:
 	}
 	/* pid is breakpointed... */
-	/* TODO: I may be here after a PTRACE_SINGLESTEP ... */
+	/* TODO: I could be here after a PTRACE_SINGLESTEP ... */
 	esp = get_esp(pid);
 	instruction_pointer = get_return(pid, esp);
 	tmp = library_symbols;
 	function_seen = 0;
-	while(tmp) {
-		if (eip == tmp->addr) {
+	if (eip == current_process->return_value.addr) {
+		function_seen = 1;
+#if 0
+		send_line("return");
+		print_libret(tmp->name, pid, esp);
+#endif
+		continue_after_breakpoint(pid, &current_process->return_value, 1);
+	} else while(tmp) {
+		if (eip == tmp->sbp.addr) {
 			function_seen = 1;
-			print_function(tmp->name, pid, esp);
-			continue_after_breakpoint(pid, eip, tmp->old_value, 0);
+			if (current_process->within_function) {
+				delete_breakpoint(pid, &current_process->return_value);
+			}
+			current_process->return_value.addr = instruction_pointer;
+			insert_breakpoint(pid, &current_process->return_value);
+			current_process->within_function=1;
+#if 0
+			print_libcall(tmp->name, pid, esp);
+#endif
+			continue_after_breakpoint(pid, &tmp->sbp, 0);
 			break;
 		}
 		tmp = tmp->next;

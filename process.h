@@ -1,6 +1,8 @@
 #ifndef _LTRACE_PROCESS_H
 #define _LTRACE_PROCESS_H
 
+#include "i386.h"
+
 /* not ready yet */
 #if 0
 struct symbols_from_filename {
@@ -21,13 +23,15 @@ struct process {
 	char * filename;		/* from execve() (TODO) */
 	int pid;
 	int breakpoints_enabled;
-	int syscall_number;		/* outside syscall => -1 */
+	int within_function;
+	struct breakpoint return_value;	/* if within a function */
+	struct proc_arch proc_arch;
 	struct process * next;
 };
 
 extern struct process * list_of_processes;
 
-unsigned int instruction_pointer;
+extern unsigned int instruction_pointer;
 
 int execute_process(const char * file, char * const argv[]);
 void wait_for_child(void);

@@ -91,7 +91,7 @@ int read_elf(const char *filename)
 				perror("malloc");
 				exit(1);
 			}
-			library_symbols->addr = ((symtab+i)->st_value);
+			library_symbols->sbp.addr = ((symtab+i)->st_value);
 			library_symbols->name = strtab+(symtab+i)->st_name;
 			library_symbols->next = tmp;
 			if (opt_d>1) {

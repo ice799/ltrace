@@ -45,3 +45,13 @@ void send_line(const char * fmt, ...)
 	va_end(args);
 	new_line=1;
 }
+
+void print_libcall(const char name, int pid, int esp)
+{
+	fprintf(output, "libcall: %s\n", name);
+}
+
+void print_libret(const char name, int pid, int esp)
+{
+	fprintf(output, "libret: %s\n", name);
+}

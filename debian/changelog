@@ -1,3 +1,11 @@
+ltrace (0.1.7) experimental; urgency=low
+
+  * New Standards-Version (2.3.0.1)
+  * Clean up structures a bit
+  * Trying to log return values...
+
+ -- Juan Cespedes <cespedes@debian.org>  Sun, 26 Oct 1997 19:53:20 +0100
+
 ltrace (0.1.6) experimental; urgency=low
 
   * New maintainer address

@@ -15,7 +15,7 @@ void enable_all_breakpoints(int pid)
 
 	tmp = library_symbols;
 	while(tmp) {
-		insert_breakpoint(pid, tmp->addr, &tmp->old_value[0]);
+		insert_breakpoint(pid, &tmp->sbp);
 		tmp = tmp->next;
 	}
 }
@@ -26,7 +26,7 @@ void disable_all_breakpoints(int pid)
 
 	tmp = library_symbols;
 	while(tmp) {
-		delete_breakpoint(pid, tmp->addr, &tmp->old_value[0]);
+		delete_breakpoint(pid, &tmp->sbp);
 		tmp = tmp->next;
 	}
 }
