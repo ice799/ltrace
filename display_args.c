@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <limits.h>
 
 #include "ltrace.h"
 #include "options.h"
@@ -70,6 +71,10 @@ static int display_char(char what)
 	}
 }
 
+static int string_maxlength=INT_MAX;
+
+#define MIN(a,b) (((a)<(b)) ? (a) : (b))
+
 static int display_string(enum tof type, struct process * proc, int arg_num)
 {
 	void * addr;
@@ -82,13 +87,13 @@ static int display_string(enum tof type, struct process * proc, int arg_num)
 		return fprintf(output, "NULL");
 	}
 
-	str1 = malloc(opt_s+3);
+	str1 = malloc(MIN(opt_s,string_maxlength)+3);
 	if (!str1) {
 		return fprintf(output, "???");
 	}
-	umovestr(proc, addr, opt_s+1, str1);
+	umovestr(proc, addr, MIN(opt_s,string_maxlength)+1, str1);
 	len = fprintf(output, "\"");
-	for(i=0; len<opt_s+1; i++) {
+	for(i=0; len<MIN(opt_s,string_maxlength)+1; i++) {
 		if (str1[i]) {
 			len += display_char(str1[i]);
 		} else {
@@ -96,23 +101,20 @@ static int display_string(enum tof type, struct process * proc, int arg_num)
 		}
 	}
 	len += fprintf(output, "\"");
-	if (str1[i]) {
+	if (str1[i] && (opt_s <= string_maxlength)) {
 		len += fprintf(output, "...");
 	}
 	free(str1);
 	return len;
 }
 
-#define MIN(a,b) (((a)<(b)) ? (a) : (b))
-
 static int display_stringN(int arg2, enum tof type, struct process * proc, int arg_num)
 {
-	int a,b;
-	a = gimme_arg(type, proc, arg2-1);
-	b = opt_s;
-	opt_s = MIN(opt_s, a);
+	int a;
+
+	string_maxlength=gimme_arg(type, proc, arg2-1);
 	a = display_string(type, proc, arg_num);
-	opt_s = b;
+	string_maxlength=INT_MAX;
 	return a;
 }
 

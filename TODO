@@ -5,7 +5,7 @@
   + execve()		<- trace new program
 * Display different argument types:
   + format
-  + stringN should not display `...' when limit of bytes is reached
+  + how to display execl...?
 * Update /etc/ltrace.conf
 * SPARC:
   + almost all...

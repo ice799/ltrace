@@ -1,0 +1,489 @@
+Reading config file `/etc/ltrace.conf'...
+Reading line 1 of `/etc/ltrace.conf'
+ Skipping line 1
+Reading line 2 of `/etc/ltrace.conf'
+ Skipping line 2
+Reading line 3 of `/etc/ltrace.conf'
+ Skipping line 3
+Reading line 4 of `/etc/ltrace.conf'
+ Skipping line 4
+Reading line 5 of `/etc/ltrace.conf'
+ Skipping line 5
+Reading line 6 of `/etc/ltrace.conf'
+ Skipping line 6
+Reading line 7 of `/etc/ltrace.conf'
+ Skipping line 7
+Reading line 8 of `/etc/ltrace.conf'
+ Skipping line 8
+Reading line 9 of `/etc/ltrace.conf'
+ Skipping line 9
+Reading line 10 of `/etc/ltrace.conf'
+ Skipping line 10
+Reading line 11 of `/etc/ltrace.conf'
+ Skipping line 11
+Reading line 12 of `/etc/ltrace.conf'
+ Skipping line 12
+Reading line 13 of `/etc/ltrace.conf'
+ Skipping line 13
+Reading line 14 of `/etc/ltrace.conf'
+ Skipping line 14
+Reading line 15 of `/etc/ltrace.conf'
+ Skipping line 15
+Reading line 16 of `/etc/ltrace.conf'
+ Skipping line 16
+Reading line 17 of `/etc/ltrace.conf'
+ name = __errno_location
+New function: `__errno_location'
+Reading line 18 of `/etc/ltrace.conf'
+ Skipping line 18
+Reading line 19 of `/etc/ltrace.conf'
+ Skipping line 19
+Reading line 20 of `/etc/ltrace.conf'
+ name = open
+New function: `open'
+Reading line 21 of `/etc/ltrace.conf'
+ Skipping line 21
+Reading line 22 of `/etc/ltrace.conf'
+ Skipping line 22
+Reading line 23 of `/etc/ltrace.conf'
+ name = getopt_long
+New function: `getopt_long'
+Reading line 24 of `/etc/ltrace.conf'
+ Skipping line 24
+Reading line 25 of `/etc/ltrace.conf'
+ Skipping line 25
+Reading line 26 of `/etc/ltrace.conf'
+ name = bindtextdomain
+New function: `bindtextdomain'
+Reading line 27 of `/etc/ltrace.conf'
+ name = textdomain
+New function: `textdomain'
+Reading line 28 of `/etc/ltrace.conf'
+ Skipping line 28
+Reading line 29 of `/etc/ltrace.conf'
+ Skipping line 29
+Reading line 30 of `/etc/ltrace.conf'
+ name = _IO_putc
+New function: `_IO_putc'
+Reading line 31 of `/etc/ltrace.conf'
+ Skipping line 31
+Reading line 32 of `/etc/ltrace.conf'
+ Skipping line 32
+Reading line 33 of `/etc/ltrace.conf'
+ name = setlocale
+New function: `setlocale'
+Reading line 34 of `/etc/ltrace.conf'
+ Skipping line 34
+Reading line 35 of `/etc/ltrace.conf'
+ Skipping line 35
+Reading line 36 of `/etc/ltrace.conf'
+ name = fclose
+New function: `fclose'
+Reading line 37 of `/etc/ltrace.conf'
+ name = fgets
+New function: `fgets'
+Reading line 38 of `/etc/ltrace.conf'
+ name = fprintf
+New function: `fprintf'
+Reading line 39 of `/etc/ltrace.conf'
+ name = fputs
+New function: `fputs'
+Reading line 40 of `/etc/ltrace.conf'
+ name = printf
+New function: `printf'
+Reading line 41 of `/etc/ltrace.conf'
+ Skipping line 41
+Reading line 42 of `/etc/ltrace.conf'
+ Skipping line 42
+Reading line 43 of `/etc/ltrace.conf'
+ name = close
+New function: `close'
+Reading line 44 of `/etc/ltrace.conf'
+ name = fork
+New function: `fork'
+Reading line 45 of `/etc/ltrace.conf'
+ name = geteuid
+New function: `geteuid'
+Reading line 46 of `/etc/ltrace.conf'
+ name = gethostname
+New function: `gethostname'
+Reading line 47 of `/etc/ltrace.conf'
+ name = mkdir
+New function: `mkdir'
+Reading line 48 of `/etc/ltrace.conf'
+ name = read
+New function: `read'
+Reading line 49 of `/etc/ltrace.conf'
+ name = sethostname
+New function: `sethostname'
+Reading line 50 of `/etc/ltrace.conf'
+ name = sleep
+New function: `sleep'
+Reading line 51 of `/etc/ltrace.conf'
+ name = sync
+New function: `sync'
+Reading line 52 of `/etc/ltrace.conf'
+ name = write
+New function: `write'
+Reading line 53 of `/etc/ltrace.conf'
+ Skipping line 53
+Reading line 54 of `/etc/ltrace.conf'
+ Skipping line 54
+Reading line 55 of `/etc/ltrace.conf'
+ name = atexit
+New function: `atexit'
+Reading line 56 of `/etc/ltrace.conf'
+ name = exit
+New function: `exit'
+Reading line 57 of `/etc/ltrace.conf'
+ name = free
+New function: `free'
+Reading line 58 of `/etc/ltrace.conf'
+ name = malloc
+New function: `malloc'
+Reading line 59 of `/etc/ltrace.conf'
+ Skipping line 59
+Reading line 60 of `/etc/ltrace.conf'
+ Skipping line 60
+Reading line 61 of `/etc/ltrace.conf'
+ name = memset
+New function: `memset'
+Reading line 62 of `/etc/ltrace.conf'
+ name = rindex
+New function: `rindex'
+Reading line 63 of `/etc/ltrace.conf'
+ name = strcmp
+New function: `strcmp'
+Reading line 64 of `/etc/ltrace.conf'
+ name = strcpy
+New function: `strcpy'
+Reading line 65 of `/etc/ltrace.conf'
+ name = strdup
+New function: `strdup'
+Reading line 66 of `/etc/ltrace.conf'
+ name = strncmp
+New function: `strncmp'
+Reading line 67 of `/etc/ltrace.conf'
+ name = strncpy
+New function: `strncpy'
+Reading line 68 of `/etc/ltrace.conf'
+ name = strrchr
+New function: `strrchr'
+Reading line 69 of `/etc/ltrace.conf'
+ name = strstr
+New function: `strstr'
+Reading line 70 of `/etc/ltrace.conf'
+ Skipping line 70
+Reading line 71 of `/etc/ltrace.conf'
+ Skipping line 71
+Reading line 72 of `/etc/ltrace.conf'
+ name = time
+New function: `time'
+Reading line 73 of `/etc/ltrace.conf'
+ Skipping line 73
+Reading line 74 of `/etc/ltrace.conf'
+ Skipping line 74
+Reading line 75 of `/etc/ltrace.conf'
+ name = SYS_brk
+New function: `SYS_brk'
+Reading line 76 of `/etc/ltrace.conf'
+ name = SYS_close
+New function: `SYS_close'
+Reading line 77 of `/etc/ltrace.conf'
+ name = SYS_execve
+New function: `SYS_execve'
+Reading line 78 of `/etc/ltrace.conf'
+ name = SYS_exit
+New function: `SYS_exit'
+Reading line 79 of `/etc/ltrace.conf'
+ name = SYS_fork
+New function: `SYS_fork'
+Reading line 80 of `/etc/ltrace.conf'
+ name = SYS_getpid
+New function: `SYS_getpid'
+Reading line 81 of `/etc/ltrace.conf'
+ Skipping line 81
+Reading line 82 of `/etc/ltrace.conf'
+ name = SYS_munmap
+New function: `SYS_munmap'
+Reading line 83 of `/etc/ltrace.conf'
+ name = SYS_open
+New function: `SYS_open'
+Reading line 84 of `/etc/ltrace.conf'
+ name = SYS_personality
+New function: `SYS_personality'
+Reading line 85 of `/etc/ltrace.conf'
+ name = SYS_read
+New function: `SYS_read'
+Reading line 86 of `/etc/ltrace.conf'
+ name = SYS_write
+New function: `SYS_write'
+Reading line 87 of `/etc/ltrace.conf'
+ name = SYS_sync
+New function: `SYS_sync'
+Reading config file `/home/cespedes/.ltrace.conf'...
+Reading line 1 of `/home/cespedes/.ltrace.conf'
+ Skipping line 1
+Reading line 2 of `/home/cespedes/.ltrace.conf'
+ Skipping line 2
+Reading line 3 of `/home/cespedes/.ltrace.conf'
+ Skipping line 3
+Reading line 4 of `/home/cespedes/.ltrace.conf'
+ Skipping line 4
+Reading line 5 of `/home/cespedes/.ltrace.conf'
+ Skipping line 5
+Reading line 6 of `/home/cespedes/.ltrace.conf'
+ Skipping line 6
+Reading line 7 of `/home/cespedes/.ltrace.conf'
+ Skipping line 7
+Reading line 8 of `/home/cespedes/.ltrace.conf'
+ Skipping line 8
+Reading line 9 of `/home/cespedes/.ltrace.conf'
+ Skipping line 9
+Reading line 10 of `/home/cespedes/.ltrace.conf'
+ Skipping line 10
+Reading line 11 of `/home/cespedes/.ltrace.conf'
+ Skipping line 11
+Reading line 12 of `/home/cespedes/.ltrace.conf'
+ Skipping line 12
+Reading line 13 of `/home/cespedes/.ltrace.conf'
+ Skipping line 13
+Reading line 14 of `/home/cespedes/.ltrace.conf'
+ Skipping line 14
+Reading line 15 of `/home/cespedes/.ltrace.conf'
+ Skipping line 15
+Reading line 16 of `/home/cespedes/.ltrace.conf'
+ Skipping line 16
+Reading line 17 of `/home/cespedes/.ltrace.conf'
+ name = execlp
+New function: `execlp'
+Reading line 18 of `/home/cespedes/.ltrace.conf'
+ Skipping line 18
+Reading line 19 of `/home/cespedes/.ltrace.conf'
+ Skipping line 19
+Reading line 20 of `/home/cespedes/.ltrace.conf'
+ name = uname
+New function: `uname'
+Reading line 21 of `/home/cespedes/.ltrace.conf'
+ Skipping line 21
+Reading line 22 of `/home/cespedes/.ltrace.conf'
+ Skipping line 22
+Reading line 23 of `/home/cespedes/.ltrace.conf'
+ name = SYS_uname
+New function: `SYS_uname'
+Reading symbol table from /bin/arch...
+symtab: 0x400b5184
+symtab_len: 320
+strtab: 0x400b52c4
+addr: 0x0804843c, symbol: "__libc_init_first"
+addr: 0x0804845c, symbol: "exit"
+addr: 0x0804844c, symbol: "atexit"
+addr: 0x0804840c, symbol: "printf"
+addr: 0x0804841c, symbol: "perror"
+addr: 0x0804842c, symbol: "uname"
+Executing `/bin/arch'...
+PID=943
+signal from pid 943
+Enabling breakpoints for pid 943...
+signal from pid 943
+event: syscall (45)
+SYS_brk(NULL <unfinished ...>
+signal from pid 943
+event: sysret (45)
+<... SYS_brk resumed> )                           = 0x08049688
+signal from pid 943
+event: syscall (5)
+SYS_open("/etc/ld.so.preload", 0, 010000130160 <unfinished ...>
+signal from pid 943
+event: sysret (5)
+<... SYS_open resumed> )                          = -2
+signal from pid 943
+event: syscall (5)
+SYS_open("/usr/lib/miniutils/lib/libc.so.6", 0, 016234672457 <unfinished ...>
+signal from pid 943
+event: sysret (5)
+<... SYS_open resumed> )                          = -2
+signal from pid 943
+event: syscall (5)
+SYS_open("/etc/ld.so.cache", 0, 010000130160 <unfinished ...>
+signal from pid 943
+event: sysret (5)
+<... SYS_open resumed> )                          = 6
+signal from pid 943
+event: syscall (108)
+SYS_fstat(6, 0xbffff64c, 0x4000b070, 0xbffff6ac, 6 <unfinished ...>
+signal from pid 943
+event: sysret (108)
+<... SYS_fstat resumed> )                         = 0
+signal from pid 943
+event: syscall (90)
+SYS_mmap(0xbffff688, 0, 0x4000b070, 1, 6 <unfinished ...>
+signal from pid 943
+event: sysret (90)
+<... SYS_mmap resumed> )                          = 0x4000c000
+signal from pid 943
+event: syscall (6)
+SYS_close(6 <unfinished ...>
+signal from pid 943
+event: sysret (6)
+<... SYS_close resumed> )                         = 0
+signal from pid 943
+event: syscall (5)
+SYS_open("/lib/libc.so.6", 0, 010000130160 <unfinished ...>
+signal from pid 943
+event: sysret (5)
+<... SYS_open resumed> )                          = 6
+signal from pid 943
+event: syscall (90)
+SYS_mmap(0xbffff690, 0xbffff71c, 0x4000b070, 0xbffff71c, 52 <unfinished ...>
+signal from pid 943
+event: sysret (90)
+<... SYS_mmap resumed> )                          = 0x4000f000
+signal from pid 943
+event: syscall (91)
+SYS_munmap(0x4000f000, 4096 <unfinished ...>
+signal from pid 943
+event: sysret (91)
+<... SYS_munmap resumed> )                        = 0
+signal from pid 943
+event: syscall (90)
+SYS_mmap(0xbffff63c, 0, 0x4000b070, 667384, 6 <unfinished ...>
+signal from pid 943
+event: sysret (90)
+<... SYS_mmap resumed> )                          = 0x4000f000
+signal from pid 943
+event: syscall (125)
+SYS_mprotect(0x4009f000, 77560, 0, 0x4000f000, 0x4000b810 <unfinished ...>
+signal from pid 943
+event: sysret (125)
+<... SYS_mprotect resumed> )                      = 0
+signal from pid 943
+event: syscall (90)
+SYS_mmap(0xbffff63c, 28672, 0x4000b070, 0x4009f000, 6 <unfinished ...>
+signal from pid 943
+event: sysret (90)
+<... SYS_mmap resumed> )                          = 0x4009f000
+signal from pid 943
+event: syscall (90)
+SYS_mmap(0xbffff63c, 0, 0x4000b070, 0x400a6000, 48888 <unfinished ...>
+signal from pid 943
+event: sysret (90)
+<... SYS_mmap resumed> )                          = 0x400a6000
+signal from pid 943
+event: syscall (6)
+SYS_close(6 <unfinished ...>
+signal from pid 943
+event: sysret (6)
+<... SYS_close resumed> )                         = 0
+signal from pid 943
+event: syscall (125)
+SYS_mprotect(0x4000f000, 589824, 3, 0, -4096 <unfinished ...>
+signal from pid 943
+event: sysret (125)
+<... SYS_mprotect resumed> )                      = 0
+signal from pid 943
+event: syscall (125)
+SYS_mprotect(0x4000f000, 589824, 5, 4096, 0x4000f000 <unfinished ...>
+signal from pid 943
+event: sysret (125)
+<... SYS_mprotect resumed> )                      = 0
+signal from pid 943
+event: syscall (136)
+SYS_personality(0 <unfinished ...>
+signal from pid 943
+event: sysret (136)
+<... SYS_personality resumed> )                   = 0
+signal from pid 943
+event: syscall (20)
+SYS_getpid( <unfinished ...>
+signal from pid 943
+event: sysret (20)
+<... SYS_getpid resumed> )                        = 943
+signal from pid 943
+event: breakpoint (0x0804844c)
+atexit(0x40006150 <unfinished ...>
+signal from pid 943
+event: breakpoint (0x08048451)
+signal from pid 943
+event: breakpoint (0x0804847c)
+<... atexit resumed> )                            = 0
+signal from pid 943
+event: breakpoint (0x0804843c)
+__libc_init_first(1, 0xbffffb76, 0, 0xbffffb80, 0xbffffba8 <unfinished ...>
+signal from pid 943
+event: breakpoint (0x08048441)
+signal from pid 943
+event: breakpoint (0x08048482)
+<... __libc_init_first resumed> )                 = 0x40006150
+signal from pid 943
+event: breakpoint (0x0804844c)
+atexit(0x08048590 <unfinished ...>
+signal from pid 943
+event: breakpoint (0x4002c34f)
+signal from pid 943
+event: breakpoint (0x080484a4)
+<... atexit resumed> )                            = 0
+signal from pid 943
+event: breakpoint (0x0804842c)
+uname(0xbffff8f4 <unfinished ...>
+signal from pid 943
+event: breakpoint (0x08048431)
+signal from pid 943
+event: syscall (122)
+SYS_uname(0xbffff8f4 <unfinished ...>
+signal from pid 943
+event: sysret (122)
+<... SYS_uname resumed> )                         = 0
+signal from pid 943
+event: breakpoint (0x0804850e)
+<... uname resumed> )                             = 0
+signal from pid 943
+event: breakpoint (0x0804840c)
+printf("%s\n" <unfinished ...>
+signal from pid 943
+event: breakpoint (0x08048411)
+signal from pid 943
+event: syscall (108)
+SYS_fstat(1, 0xbffff14c, 0x400a5254, 0xbffff1c0, -1 <unfinished ...>
+signal from pid 943
+event: sysret (108)
+<... SYS_fstat resumed> )                         = 0
+signal from pid 943
+event: syscall (90)
+SYS_mmap(0xbffff19c, 0, 0x400a5254, 4096, 1 <unfinished ...>
+signal from pid 943
+event: sysret (90)
+<... SYS_mmap resumed> )                          = 0x400b2000
+signal from pid 943
+event: syscall (54)
+SYS_ioctl(1, 21505, 0xbffff12c, 0xbffff16c, 0 <unfinished ...>
+signal from pid 943
+event: sysret (54)
+<... SYS_ioctl resumed> )                         = 0
+signal from pid 943
+event: syscall (4)
+SYS_write(1, "i586\n", 5 <unfinished ...>
+signal from pid 943
+event: sysret (4)
+<... SYS_write resumed> )                         = 5
+signal from pid 943
+event: breakpoint (0x08048542)
+<... printf resumed> )                            = 5
+signal from pid 943
+event: breakpoint (0x0804845c)
+exit(0)                                           = <void>
+signal from pid 943
+event: breakpoint (0x08048461)
+signal from pid 943
+event: syscall (91)
+SYS_munmap(0x400b2000, 4096 <unfinished ...>
+signal from pid 943
+event: sysret (91)
+<... SYS_munmap resumed> )                        = 0
+signal from pid 943
+event: syscall (1)
+SYS_exit(0)                                       = <void>
+signal from pid 943
+event: exit (0)
++++ exited (status 0) +++
+No more children
