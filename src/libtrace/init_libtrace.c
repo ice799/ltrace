@@ -1,68 +1,172 @@
+#include <fcntl.h>
+#include <sys/types.h>
 #include <linux/elf.h>
 #include <hck/syscall.h>
+#include <sys/mman.h>
 
-static int errno;
+static int fd = 2;
 
-void init_libtrace(void)
+static char ax_jmp[] = {
+	0xb8, 1, 2, 3, 4,		/* movl $0x04030201, %eax	*/
+	0xa3, 5, 6, 7, 8,		/* movl %eax, 0x08070605	*/
+	0xff, 0x25, 1, 2, 3, 4,		/* jmp *0x04030201		*/
+	0, 0, 0, 0,			/* real_func			*/
+	0, 0, 0, 0,			/* name				*/
+	0, 0, 0, 0			/* got				*/
+};
+
+struct ax_jmp_t {
+	char tmp1;
+	void * src __attribute__ ((packed));
+	char tmp2;
+	void * dst __attribute__ ((packed));
+	char tmp3,tmp4;
+	void * new_func __attribute__ ((packed));
+	void * real_func __attribute__ ((packed));
+	char * name __attribute__ ((packed));
+	u_long * got __attribute__ ((packed));
+};
+
+static struct ax_jmp_t * pointer;
+
+static void new_func(void);
+static void * new_func_ptr = NULL;
+
+static void init_libtrace(void)
 {
-	unsigned long tmp[0];
-	unsigned long *stack = tmp;
-	int phnum=0, phent=0;
-	struct elf_phdr * phdr = NULL;
-	int i;
-	struct dynamic * dpnt;
+	int i,j;
+	void * k;
 	struct elf32_sym * symtab = NULL;
-	void * strtab = NULL;
+	size_t symtab_len = 0;
+	char * strtab = NULL;
+	char * tmp;
+	int nsymbols = 0;
+	long buffer[6];
+	struct ax_jmp_t * table;
 
-/*
- * When loading the interpreter, in linux/fs/binfmt_elf.h, the stack
- * is filled with an auxiliary table defined in include/linux/elf.h;
- * it has some important things such as pointers to the program
- * headers.  We are trying to find that table.
- *
- */
-	for(; (stack < (unsigned long *)(0xc0000000-256)); stack++) {
-		if ((stack[0]==3) && (stack[2]==4) && (stack[4]==5) && (stack[6]==6)) {
-			phdr = (struct elf_phdr *)stack[1];
-			phent = stack[3];
-			phnum = stack[5];
-			break;
+	if (new_func_ptr) {
+		return;
+	}
+	new_func_ptr = new_func;
+
+	tmp = getenv("LTRACE_FILENAME");
+	if (tmp) {
+		fd = _sys_open(tmp, O_WRONLY | O_CREAT | O_TRUNC, 0666);
+		if (fd<0) {
+			_sys_write(2, "Can't open LTRACE_FILENAME\n", 27);
+			return;
+		}
+		fd = _sys_dup2(fd, 234);
+		if (fd<0) {
+			_sys_write(2, "Not enough fd's?\n", 17);
+			return;
 		}
 	}
-	if (!phdr) {
-		_sys_write(2,"No auxiliary table in stack?\n",29);
+
+	tmp = getenv("LTRACE_SYMTAB");
+	if (!tmp) {
+		_sys_write(fd, "No LTRACE_SYMTAB...\n", 20);
+		return;
+	}
+	symtab = (struct elf32_sym *)atoi(tmp);
+
+	tmp = getenv("LTRACE_SYMTAB_LEN");
+	if (!tmp) {
+		_sys_write(fd, "No LTRACE_SYMTAB_LEN...\n", 24);
+		return;
+	}
+	symtab_len = atoi(tmp);
+
+	tmp = getenv("LTRACE_STRTAB");
+	if (!tmp) {
+		_sys_write(fd, "No LTRACE_STRTAB...\n", 20);
+		return;
+	}
+	strtab = (char *)atoi(tmp);
+
+	for(i=0; i<symtab_len/sizeof(struct elf32_sym); i++) {
+		if (!((symtab+i)->st_shndx) && (symtab+i)->st_value) {
+			nsymbols++;
+#if 0
+			_sys_write(fd, "New symbol: ", 12);
+			_sys_write(fd,strtab+(symtab+i)->st_name,strlen(strtab+(symtab+i)->st_name));
+			_sys_write(fd, "\n", 1);
+#endif
+		}
+	}
+
+	buffer[0] = 0;
+	buffer[1] = nsymbols * sizeof(struct ax_jmp_t);
+	buffer[2] = PROT_READ | PROT_WRITE | PROT_EXEC;
+	buffer[3] = MAP_PRIVATE | MAP_ANON;
+	buffer[4] = 0;
+	buffer[5] = 0;
+	table = (struct ax_jmp_t *)_sys_mmap(buffer);
+	if (!table) {
+		_sys_write(fd,"Cannot mmap?\n",13);
 		return;
 	}
 
-	for(i=0; i<phnum; i++) {
-		if (phdr->p_type == PT_DYNAMIC) {
-			break;
+	j=0;
+	for(i=0; i<symtab_len/sizeof(struct elf32_sym); i++) {
+		if (!((symtab+i)->st_shndx) && (symtab+i)->st_value) {
+			bcopy(ax_jmp, (char *)&table[j], sizeof(struct ax_jmp_t));
+			table[j].src = (char *)&table[j];
+			table[j].dst = &pointer;
+			table[j].new_func = &new_func_ptr;
+			table[j].name = strtab+(symtab+i)->st_name;
+			table[j].got = (u_long *)*(long *)(((int)((symtab+i)->st_value))+2);
+			table[j].real_func = (void *)*(table[j].got);
+			k = &table[j];
+			bcopy((char*)&k, (char *)table[j].got, 4);
+			j++;
 		}
-		phdr = (struct elf_phdr *)((void*)phdr + phent);
-	}
-	if (!phdr || phdr->p_type != PT_DYNAMIC) {
-		_sys_write(2,"No .dynamic in file?\n",21);
-		return;
-	}
-	dpnt = (struct dynamic *)phdr->p_vaddr;
-
-	while(dpnt->d_tag) {
-		if (dpnt->d_tag == DT_SYMTAB) {
-			symtab = (struct elf32_sym *) dpnt->d_un.d_ptr;
-		}
-		if (dpnt->d_tag == DT_STRTAB) {
-			strtab = (void *) dpnt->d_un.d_ptr;
-		}
-		dpnt++;
-	}
-	if (!symtab) {
-		_sys_write(2, "No .symtab?\n",12);
-		return;
-	}
-	if (!strtab) {
-		_sys_write(2, "No .strtab?\n",12);
-		return;
 	}
 
-	_sys_write(2,"Hola\n",5);
+	_sys_write(fd,"ltrace starting...\n",19);
+}
+
+static u_long where_to_return;
+static u_long returned_value;
+static u_long where_to_jump;
+
+static int reentrant=0;
+
+static void print_results(u_long arg);
+
+static void new_func(void)
+{
+	if (reentrant) {
+#if 0
+_sys_write(fd,"reentrant\n",10);
+#endif
+		__asm__ __volatile__(
+			"movl %%ebp, %%esp\n\t"
+			"popl %%ebp\n\t"
+			"jmp *%%eax\n"
+			: : "a" (pointer->real_func)
+		);
+	}
+	reentrant=1;
+	where_to_jump = (u_long)pointer->real_func;
+
+	/* This is only to avoid a GCC warning; shouldn't be here:
+	 */
+	where_to_return = returned_value = (u_long)print_results;
+
+	__asm__ __volatile__(
+		"movl %ebp, %esp\n\t"
+		"popl %ebp\n\t"
+		"popl %eax\n\t"
+		"movl %eax, where_to_return\n\t"
+		"movl where_to_jump, %eax\n\t"
+		"call *%eax\n\t"
+		"movl %eax, returned_value\n\t"
+		"call print_results\n\t"
+		"movl where_to_return, %eax\n\t"
+		"pushl %eax\n\t"
+		"movl returned_value, %eax\n\t"
+		"movl $0, reentrant\n\t"
+		"ret\n"
+	);
 }

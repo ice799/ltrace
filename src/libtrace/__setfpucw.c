@@ -4,8 +4,6 @@ This file is part of the Linux C Library.
 
 #include <fpu_control.h>
 
-extern void init_libtrace(void);
-
 void
 __setfpucw(unsigned short fpu_control)
 {

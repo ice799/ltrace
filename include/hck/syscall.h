@@ -86,6 +86,7 @@
 #define _INLINE static inline
 #endif
 
+#if 0
 #define __syscall_return(type, res) \
 do { \
 	if ((unsigned long)(res) >= (unsigned long)(-125)) { \
@@ -94,6 +95,12 @@ do { \
 	} \
 	return (type) (res); \
 } while (0)
+#else
+#define __syscall_return(type, res) \
+do { \
+	return (type) (res); \
+} while (0)
+#endif
 
 #define _syscall0(type,name) \
 _INLINE type _sys_##name(void) \
