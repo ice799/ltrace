@@ -1,3 +1,18 @@
+ltrace (0.3.35.1) unstable; urgency=low
+
+  * Non-maintainer upload
+  * Applied patch from Jakub Jelinek <jakub@redhat.com> to fix problems with
+    binaries built with recent binutils (closes: #274955)
+  * Applied patch from Jakub Jelinek to add long/ulong types to ltrace.conf
+    for amd64
+  * Applied patch from Jakub Jelinek to fix -C
+  * Applied patch from Jakub Jelinek to update syscallent.h
+  * debian/control: build-depend on dpatch and libelfg0-dev
+  * debian/rules: add dpatch support
+  * debian/changelog: convert to utf-8
+
+ -- Andrew Pollock <apollock@debian.org>  Fri, 22 Oct 2004 21:43:16 +1000
+
 ltrace (0.3.35) unstable; urgency=low
 
   * Fixed include line in m68k, caused build problems
@@ -207,7 +222,7 @@ ltrace (0.3.12) unstable; urgency=low
   * Re-wrote of "elf.c" (Silvio Cesare <silvio@big.net.au>)
   * Added "--library" option (Silvio)
   * Updated list of syscalls and signals to Linux 2.4.5
-  * Compile cleanly with gcc-3.0 (thanks to Frédéric L. W. Meunier)
+  * Compile cleanly with gcc-3.0 (thanks to FrÃ©dÃ©ric L. W. Meunier)
  
  -- Juan Cespedes <cespedes@debian.org>  Tue,  3 Jul 2001 00:43:25 +0200
 

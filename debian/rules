@@ -1,10 +1,13 @@
 #! /usr/bin/make -f 
 #
 # Copyright (C) 1997-2003 Juan Cespedes <cespedes@debian.org>
+#
+include /usr/share/dpatch/dpatch.make
+PACKAGE=ltrace
 
 .PHONY:		binary binary-indep binary-arch clean
 
-build:		Makefile config.h
+build:		patch Makefile config.h
 		$(checkdir)
 		$(MAKE)
 		touch build
@@ -45,7 +48,7 @@ binary-arch:	build
 		chmod -R u=rwX,go=rX debian/tmp
 		dpkg --build debian/tmp ..
 
-clean:		configure config.h.in
+clean:		unpatch configure config.h.in
 		$(checkdir)
 		$(RM) -f build debian/files debian/substvars
 		-$(MAKE) distclean
