@@ -11,6 +11,7 @@
 #include <linux/elf.h>
 #include <sys/mman.h>
 #include <string.h>
+#include <signal.h>
 
 static int debug = 0;
 
@@ -114,7 +115,6 @@ int main(int argc, char **argv)
 {
 	int pid;
 	int status;
-	struct rusage ru;
 	struct library_symbol * tmp = NULL;
 
 	while ((argc>1) && (argv[1][0] == '-') && (argv[1][2] == '\0')) {
@@ -151,7 +151,7 @@ int main(int argc, char **argv)
 	fprintf(stderr, "pid %u attached\n", pid);
 
 	/* Enable breakpoints: */
-	pid = wait4(-1, &status, 0, &ru);
+	pid = wait4(-1, &status, 0, NULL);
 	if (pid==-1) {
 		perror("wait4");
 		exit(1);
@@ -173,7 +173,7 @@ int main(int argc, char **argv)
 		int eip;
 		int function_seen;
 
-		pid = wait4(-1, &status, 0, &ru);
+		pid = wait4(-1, &status, 0, NULL);
 		if (pid==-1) {
 			if (errno == ECHILD) {
 				fprintf(stderr, "No more children\n");
@@ -186,8 +186,17 @@ int main(int argc, char **argv)
 			fprintf(stderr, "pid %u exited\n", pid);
 			continue;
 		}
+		if (WIFSIGNALED(status)) {
+			fprintf(stderr, "pid %u exited on signal %u\n", pid, WTERMSIG(status));
+			continue;
+		}
 		if (!WIFSTOPPED(status)) {
 			fprintf(stderr, "pid %u ???\n", pid);
+			continue;
+		}
+		if (WSTOPSIG(status) != SIGTRAP) {
+			fprintf(stderr, "Signal: %u\n", WSTOPSIG(status));
+			ptrace(PTRACE_CONT, pid, 1, WSTOPSIG(status));
 			continue;
 		}
 		/* pid is stopped... */
@@ -209,7 +218,7 @@ int main(int argc, char **argv)
 				ptrace(PTRACE_POKETEXT, pid, tmp->addr, a);
 				ptrace(PTRACE_POKEUSR, pid, 4*EIP, eip-1);
 				ptrace(PTRACE_SINGLESTEP, pid, 0, 0);
-				pid = wait4(-1, &status, 0, &ru);
+				pid = wait4(-1, &status, 0, NULL);
 				if (pid==-1) {
 					if (errno == ECHILD) {
 						fprintf(stderr, "No more children\n");
