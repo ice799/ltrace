@@ -147,8 +147,18 @@ static int reentrant=0;
 
 static void print_results(u_long arg);
 
+void kk(void)
+{
+	char buf[1024];
+	sprintf(buf, "-> %s\n", pointer_tmp->name);
+	_sys_write(fd,buf,strlen(buf));
+}
+
 static void new_func(void)
 {
+#if 1
+	kk();
+#endif
 	if (reentrant) {
 #if 0
 _sys_write(fd,"reentrant\n",10);
@@ -166,8 +176,9 @@ _sys_write(fd,"reentrant\n",10);
 
 	/* This is only to avoid a GCC warning; shouldn't be here:
 	 */
-	where_to_return = returned_value = (u_long)print_results;
+	where_to_return = (long)print_results;
 
+	/* HCK: Is all these stuff about 'ebp' buggy? */
 	__asm__ __volatile__(
 		"movl %ebp, %esp\n\t"
 		"popl %ebp\n\t"
