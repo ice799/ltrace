@@ -4,6 +4,7 @@
 
 #include "elf.h"
 #include "process.h"
+#include "output.h"
 
 extern void read_config_file(const char *);
 
@@ -52,24 +53,19 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 
-	init_sighandler();
-
 	if (opt_d>0) {
-		fprintf(output, "Reading config file(s)...\n");
+		send_line("Reading config file(s)...");
 	}
 	read_config_file("/etc/ltrace.cfg");
 	read_config_file(".ltracerc");
 
 	pid = execute_process(argv[1], argv+1);
 	if (opt_d>0) {
-		fprintf(output, "pid %u launched\n", pid);
+		send_line("pid %u launched", pid);
 	}
 
 	while(1) {
-		pause();
-		if (!list_of_processes) {
-			break;
-		}
+		wait_for_child();
 	}
 
 	exit(0);

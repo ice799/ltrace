@@ -10,16 +10,16 @@
     - It breakpointed at a syscall return
 
 * ``struct_process'' should also have:
+  + The state of the process:
+    - uninitialized               (DONE)
+    - running
+    - within a given library call
+    - within a given syscall      (DONE)
   + All the symbols it has breakpointed, and, for each of them:
     - its addr
     - its return addr, if any
     - whether the return addr is breakpointed (ie, if the symbol is ``active'')
     - the original value in the addr, and in the return addr, if appropiate
-    -
-  + The state of the process:
-    - uninitialized
-    - running
-    - within a given syscall
 
 * I should parse a config file (/etc/ltrace.conf & ~/.ltracerc) to
   handle different arguments to the library calls

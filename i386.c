@@ -89,12 +89,8 @@ void continue_after_breakpoint(int pid, unsigned long eip, unsigned char * value
 
 		ptrace(PTRACE_SINGLESTEP, pid, 0, 0);
 
-		pid = wait4(-1, &status, 0, NULL);
+		pid = wait4(pid, &status, 0, NULL);
 		if (pid==-1) {
-			if (errno == ECHILD) {
-				fprintf(output, "No more children\n");
-				exit(0);
-			}
 			perror("wait4");
 			exit(1);
 		}

@@ -1,3 +1,11 @@
+ltrace (0.1.4) experimental; urgency=low
+
+  * Updated execute_process()
+  * No longer uses signals to wait for children. Should be a little faster.
+  * Now every function uses output.c:send_*() instead of `FILE * output'
+
+ -- Juan Cespedes <cespedes@etsit.upm.es>  Mon, 25 Aug 1997 16:08:36 +0200
+
 ltrace (0.1.3) experimental; urgency=low
 
   * Added options `-i', `-S'

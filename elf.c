@@ -15,6 +15,7 @@
 #include "elf.h"
 #include "ltrace.h"
 #include "symbols.h"
+#include "output.h"
 
 int read_elf(const char *filename)
 {
@@ -29,7 +30,7 @@ int read_elf(const char *filename)
 	u_long symtab_len = 0;
 
 	if (opt_d>0) {
-		fprintf(output, "Reading symbol table from %s...\n", filename);
+		send_line("Reading symbol table from %s...", filename);
 	}
 
 	fd = open(filename, O_RDONLY);
@@ -74,9 +75,9 @@ int read_elf(const char *filename)
 		}
 	}
 	if (opt_d>1) {
-		fprintf(output, "symtab: 0x%08x\n", (unsigned)symtab);
-		fprintf(output, "symtab_len: %lu\n", symtab_len);
-		fprintf(output, "strtab: 0x%08x\n", (unsigned)strtab);
+		send_line("symtab: 0x%08x", (unsigned)symtab);
+		send_line("symtab_len: %lu", symtab_len);
+		send_line("strtab: 0x%08x", (unsigned)strtab);
 	}
 	if (!symtab) {
 		return 0;
@@ -94,7 +95,7 @@ int read_elf(const char *filename)
 			library_symbols->name = strtab+(symtab+i)->st_name;
 			library_symbols->next = tmp;
 			if (opt_d>1) {
-				fprintf(output, "addr: 0x%08x, symbol: \"%s\"\n",
+				send_line("addr: 0x%08x, symbol: \"%s\"",
 					(unsigned)((symtab+i)->st_value),
 					(strtab+(symtab+i)->st_name));
 			}

@@ -8,10 +8,11 @@
 Contents
 --------
  1. Introduction
- 2. How does it work
- 3. Where does it work
- 4. Bugs
- 5. Licence
+ 2. Where can I find it
+ 3. How does it work
+ 4. Where does it work
+ 5. Bugs
+ 6. Licence
 
 
 1. Introduction
@@ -19,24 +20,33 @@ Contents
 ltrace is a debugging tool, similar to strace, but it traces library
 calls instead of system calls.
 
-2. How does it work
+2. Where can I find it
+----------------------
+At the moment, it's only available as a Debian package, but it should
+work at least with any other i386 ELF Linux.  It's in:
+ * ftp://ftp.etsit.upm.es/pub/Linux/local/ltrace_*
+ * ftp://ftp.debian.org/debian/project/experimental/ltrace_*
+Alternatively, you may find it in any Debian mirror.  For more info,
+see ftp://ftp.debian.org/debian/README.mirrors
+
+3. How does it work
 -------------------
 Using i386 software breakpoints, just like gdb.
 
-3. Where does it work
+4. Where does it work
 ---------------------
 At the time of writting, it works only with Intel ELF executables. It
 has been used only in Debian/GNU Linux, but it should work without any
 problem in any other i386 Linux, such as SuSe or RedHat, and maybe in
 other i386 based POSIX system, such as Hurd or *BSD.
 
-4. Bugs
+5. Bugs
 -------
 Too many to list here :).  If you like to submit a bug report, or a
 feature request, either do that against the Debian `ltrace' package,
 or mail ``Juan Cespedes <cespedes@etsit.upm.es>''.
 
-5. Licence
+6. Licence
 ----------
     Copyright (C) 1997 Juan Cespedes <cespedes@etsit.upm.es>
 

@@ -4,9 +4,8 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-extern FILE * output;
-
 #include "functions.h"
+#include "output.h"
 
 static int current_pid;
 
@@ -126,8 +125,8 @@ void print_function(const char *name, int pid, int esp)
 	for(i=1; i<tmp->num_params; i++) {
 		sprintf(message, "%s,%s", message, print_param(tmp->params_type[i], esp+4*(i+1)));
 	}
-	fprintf(output, "%s) = ???\n", message);
-	fflush(output);
+	send_left("%s", message);
+	send_right(") = ???");
 }
 
 static int func_type(char ** buf)

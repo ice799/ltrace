@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <stdarg.h>
 
 #include "ltrace.h"
@@ -24,10 +25,8 @@ void send_right(const char * fmt, ...)
 
 	if (new_line==0) {
 		va_start(args, fmt);
-		if (opt_i) {
-			fprintf(output, "[%08x] ", instruction_pointer);
-		}
 		vfprintf(output, fmt, args);
+		fprintf(output, "\n");
 		va_end(args);
 	}
 	new_line=1;
@@ -42,6 +41,7 @@ void send_line(const char * fmt, ...)
 		fprintf(output, "[%08x] ", instruction_pointer);
 	}
 	vfprintf(output, fmt, args);
+	fprintf(output, "\n");
 	va_end(args);
 	new_line=1;
 }

@@ -15,13 +15,13 @@ struct library_symbol {
 	unsigned char old_value[BREAKPOINT_LENGTH];
 	struct library_symbol * next;
 };
-
 #endif
 
 struct process {
-	char * filename;	/* from execve() */
+	char * filename;		/* from execve() (TODO) */
 	int pid;
-	int syscall_number;	/* outside syscall => syscall_number=-1 */
+	int breakpoints_enabled;
+	int syscall_number;		/* outside syscall => -1 */
 	struct process * next;
 };
 
@@ -30,6 +30,6 @@ extern struct process * list_of_processes;
 unsigned int instruction_pointer;
 
 int execute_process(const char * file, char * const argv[]);
-void init_sighandler(void);
+void wait_for_child(void);
 
 #endif

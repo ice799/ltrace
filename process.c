@@ -22,8 +22,13 @@ struct process * list_of_processes = NULL;
 
 unsigned int instruction_pointer;
 
+static void detach_process(int pid);
+static struct process * pid2proc(int pid);
+static void process_child(struct process * current_process);
+
 int execute_process(const char * file, char * const argv[])
 {
+	struct process * tmp;
 	int pid = fork();
 
 	if (pid<0) {
@@ -35,27 +40,18 @@ int execute_process(const char * file, char * const argv[])
 		fprintf(stderr, "Can't execute \"%s\": %s\n", argv[1], sys_errlist[errno]);
 		exit(1);
 	}
+
+	tmp = (struct process *)malloc(sizeof(struct process));
+	tmp->pid = pid;
+	tmp->breakpoints_enabled = 0;
+	tmp->syscall_number = -1;
+	tmp->next = list_of_processes;
+	list_of_processes = tmp;
 	
 	return pid;
 }
 
-struct process * attach_process(int pid)
-{
-	struct process * tmp;
-
-	tmp = (struct process *)malloc(sizeof(struct process));
-	tmp->pid = pid;
-	tmp->syscall_number = -1;
-	tmp->next = list_of_processes;
-	list_of_processes = tmp;
-
-	return tmp;
-}
-
-/*
- * TODO: All the breakpoints should be disabled.
- */
-void detach_process(int pid)
+static void detach_process(int pid)
 {
 	struct process *tmp, *tmp2;
 
@@ -75,11 +71,12 @@ void detach_process(int pid)
 		}
 	}
 	if (!kill(pid,0)) {
+		disable_all_breakpoints(pid);
 		untrace_pid(pid);
 	}
 }
 
-struct process * pid2proc(int pid)
+static struct process * pid2proc(int pid)
 {
 	struct process * tmp;
 
@@ -93,13 +90,57 @@ struct process * pid2proc(int pid)
 	return NULL;
 }
 
-static void chld_handler();
-void init_sighandler(void)
+void wait_for_child(void)
 {
-	signal(SIGCHLD, chld_handler);
+	int pid;
+	int status;
+	struct process * current_process;
+
+	pid = wait4(-1, &status, 0, NULL);
+	if (pid==-1) {
+		if (errno == ECHILD) {
+			send_line("No more children");
+			exit(0);
+		}
+		perror("wait4");
+		exit(1);
+	}
+	current_process = pid2proc(pid);
+	if (!current_process) {
+		fprintf(stderr, "wrong pid %d ???\n", pid);
+		exit(1);
+	}
+	if (!current_process->breakpoints_enabled) {
+		if (opt_d>0) {
+			send_line("Enabling breakpoints for pid %d...", pid);
+		}
+		enable_all_breakpoints(pid);
+		current_process->breakpoints_enabled=1;
+	}
+	if (WIFEXITED(status)) {
+		send_line("pid %u exited", pid);
+		detach_process(pid);
+		return;
+	}
+	if (WIFSIGNALED(status)) {
+		send_line("--- %s (%s) ---", signal_name[WSTOPSIG(status)], strsignal(WSTOPSIG(status)));
+		send_line("+++ killed by %s +++", signal_name[WSTOPSIG(status)]);
+		detach_process(pid);
+		return;
+	}
+	if (!WIFSTOPPED(status)) {
+		send_line("pid %u ???", pid);
+		exit(1);
+	}
+	if (WSTOPSIG(status) != SIGTRAP) {
+		send_line("--- %s (%s) ---", signal_name[WSTOPSIG(status)], strsignal(WSTOPSIG(status)));
+		continue_process(pid, WSTOPSIG(status));
+		return;
+	}
+	process_child(current_process);
 }
 
-static void chld_handler()
+static void process_child(struct process * current_process)
 {
 	int pid;
 	unsigned long eip;
@@ -107,68 +148,18 @@ static void chld_handler()
 	int function_seen;
 	int status;
 	struct library_symbol * tmp = NULL;
-	struct process * current_process;
 
-	signal(SIGCHLD, chld_handler);
-
-	pid = wait4(-1, &status, WNOHANG, NULL);
-	if (!pid) {
-		if (errno!=0) {
-			perror("wait4");
-			exit(1);
-		}
-		return;
-	}
-	if (pid==-1) {
-		perror("wait4");
-		exit(1);
-	}
-	current_process = pid2proc(pid);
-	if (!current_process) {
-		/*
- 		* I should assume here that this process is new, so I
-		* have to enable breakpoints
- 		*/
-		if (opt_d>0) {
-			fprintf(output, "new process %d. Attaching it...\n", pid);
-		}
-		current_process = attach_process(pid);
-		if (opt_d>0) {
-			fprintf(output, "Enabling breakpoints for pid %d...\n", pid);
-		}
-		enable_all_breakpoints(pid);
-	}
-	if (WIFEXITED(status)) {
-		fprintf(output, "pid %u exited\n", pid);
-		detach_process(pid);
-		return;
-	}
-	if (WIFSIGNALED(status)) {
-		fprintf(output, "pid %u exited on signal %u\n", pid, WTERMSIG(status));
-		detach_process(pid);
-		return;
-	}
-	if (!WIFSTOPPED(status)) {
-		fprintf(output, "pid %u ???\n", pid);
-		exit(1);
-	}
+	pid = current_process->pid;
 	eip = get_eip(pid);
 	instruction_pointer = eip;
-	if (WSTOPSIG(status) != SIGTRAP) {
-		send_line("--- %s (%s) ---\n", signal_name[WSTOPSIG(status)], strsignal(WSTOPSIG(status)));
-		continue_process(pid, WSTOPSIG(status));
-		return;
-	}
-	if (opt_d>0) {
-		fprintf(output, "<pid:%u> ", pid);
-	}
+
 	switch (type_of_stop(current_process, &status)) {
 		case PROC_SYSCALL:
 			if (status==__NR_fork) {
 				disable_all_breakpoints(pid);
 			}
 			if (opt_S) {
-				send_line("SYSCALL: %s()\n", syscall_list[status]);
+				send_line("SYSCALL: %s()", syscall_list[status]);
 			}
 			continue_process(pid, 0);
 			return;
@@ -177,7 +168,7 @@ static void chld_handler()
 				enable_all_breakpoints(pid);
 			}
 			if (opt_S && (opt_d>0)) {
-				send_line("SYSRET:  %u\n", status);
+				send_line("SYSRET:  %u", status);
 			}
 			continue_process(pid, 0);
 			return;
@@ -188,7 +179,6 @@ static void chld_handler()
 	/* TODO: I may be here after a PTRACE_SINGLESTEP ... */
 	esp = get_esp(pid);
 	instruction_pointer = get_return(pid, esp);
-	send_line("");
 	tmp = library_symbols;
 	function_seen = 0;
 	while(tmp) {
@@ -201,7 +191,7 @@ static void chld_handler()
 		tmp = tmp->next;
 	}
 	if (!function_seen) {
-		fprintf(output, "pid %u stopped; continuing it...\n", pid);
+		send_line("pid %u stopped; continuing it...", pid);
 		continue_process(pid, 0);
 	}
 }
