@@ -6,7 +6,7 @@ ltrace \- A library call tracer
 
 .SH SYNOPSIS
 .B ltrace
-.I "[-dfiLSrtttChV] [-a column] [-s strsize] [-o filename] [-u username] [-p pid] ... [-e expr] [--debug] [--demangle] [--align=column] [--output=filename] [--help] [--version] [command [arg ...]]"
+.I "[-dfiLSrtttChV] [-a column] [-s strsize] [-o filename] [-n nr] [-u username] [-p pid] ... [-e expr] [--debug] [--demangle] [--align=column] [--output=filename] [--indent=nr] [--help] [--version] [command [arg ...]]"
 
 .SH DESCRIPTION
 .B ltrace
@@ -73,6 +73,12 @@ Specify the maximum string size to print (the default is 32).
 Write the trace output to the file
 .I filename
 rather than to stderr.
+.TP
+.I \-n, \-\-indent nr
+Indent trace output by
+.I nr
+number of spaces for each new nested call. Using this option makes
+the program flow visualization easy to follow.
 .TP
 .I \-u username
 Run command with the userid, groupid and supplementary groups of

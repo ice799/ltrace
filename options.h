@@ -18,6 +18,7 @@ extern int opt_t;	/* print absolute timestamp */
 #if HAVE_LIBIBERTY
 extern int opt_C;	/* Demanglelow-level symbol names into user-level names */
 #endif
+extern int opt_n;	/* indent trace output according to program flow */
 
 struct opt_p_t {
 	pid_t pid;

@@ -1,3 +1,15 @@
+ltrace (0.3.11) unstable; urgency=low
+
+  * Clean up lintian bugs
+  * Fixed small bug reading start of arguments in config file
+  * Keep a stack of nested calls (Morten Eriksen, 1999-07-04)
+  * Add "--indent" option (Morten Eriksen, 1999-07-04)
+  * cleans up connection between a breakpoint address and
+    a call instance (Morten Eriksen, 1999-07-04)
+  * New Standards-Version (3.5.5)
+
+ -- Juan Cespedes <cespedes@debian.org>  Mon,  2 Jul 2001 00:24:11 +0200
+
 ltrace (0.3.10) unstable; urgency=low
 
   * Added C++ demangle (again)

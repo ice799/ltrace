@@ -4,7 +4,7 @@
   + Read list of undefined symbols in executables
   + Read list of exported symbols in libraries
   + Read debugging info from executables/libraries
-* Update list of syscalls to Linux-2.2.*
+* Update list of syscalls to Linux-2.4.*
 * "\\", "\"", '\''
 * Improve documentation
 * Improve option -e

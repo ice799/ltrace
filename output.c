@@ -18,6 +18,26 @@
 
 static pid_t current_pid = 0;
 static int current_column = 0;
+static int indent_count = 0;
+
+void output_increase_indent(void)
+{
+	indent_count++;
+}
+
+void output_decrease_indent(void)
+{
+	indent_count--;
+}
+
+static void output_indent(void)
+{
+	int i, j;
+	for (i = 1; i < indent_count; i++) {
+		for (j = 0; j < opt_n; j++) fprintf(output, " ");
+		current_column += opt_n;
+	}
+}
 
 static void begin_of_line(enum tof type, struct process * proc)
 {
@@ -80,6 +100,9 @@ static void begin_of_line(enum tof type, struct process * proc)
 			current_column += fprintf(output, "[%08x] ",
 				(unsigned)proc->instruction_pointer);
 		}
+	}
+	if (opt_n > 0) {
+		output_indent();
 	}
 }
 
@@ -180,23 +203,12 @@ void output_left(enum tof type, struct process * proc, char * function_name)
 				current_column += fprintf(output, ", ");
 			}
 		}
-		if (!func->params_right && func->return_type == ARGTYPE_VOID) {
-			current_column += fprintf(output, ") ");
-			tabto(opt_a);
-			fprintf(output, "= <void>\n");
-			current_pid = 0;
-			current_column = 0;
-		}
 	}
 }
 
 void output_right(enum tof type, struct process * proc, char * function_name)
 {
 	struct function * func = name2func(function_name);
-
-	if (func && func->params_right==0 && func->return_type == ARGTYPE_VOID) {
-		return;
-	}
 
 	if (current_pid && current_pid!=proc->pid) {
 		fprintf(output, " <unfinished ...>\n");

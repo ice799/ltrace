@@ -76,6 +76,6 @@ void continue_process(pid_t pid)
 
 void continue_enabling_breakpoint(pid_t pid, struct breakpoint * sbp)
 {
-	insert_breakpoint(pid, sbp);
+	enable_breakpoint(pid, sbp);
 	continue_process(pid);
 }

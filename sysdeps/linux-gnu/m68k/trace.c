@@ -22,25 +22,30 @@
  */
 int syscall_p(struct process * proc, int status, int * sysnum)
 {
+	int depth;
+
 	if (WIFSTOPPED(status) && WSTOPSIG(status)==SIGTRAP) {
 		*sysnum = ptrace(PTRACE_PEEKUSER, proc->pid, 4*PT_ORIG_D0, 0);
 		if (*sysnum == -1) return 0;
 		if (*sysnum>=0) {
-			if (proc->current_syscall!=*sysnum) {
-				return 1;
-			} else {
+			depth = proc->callstack_depth;
+			if (depth>0 &&
+					proc->callstack[depth-1].is_syscall &&
+					proc->callstack[depth-1].c_un.syscall==*sysnum) {
 				return 2;
+			} else {
+				return 1;
 			}
 		}
 	}
 	return 0;
 }
 
-void continue_after_breakpoint(struct process *proc, struct breakpoint * sbp, int delete_it)
+void continue_after_breakpoint(struct process *proc, struct breakpoint * sbp)
 {
-	delete_breakpoint(proc->pid, sbp);
+	if (sbp->enabled) disable_breakpoint(proc->pid, sbp);
 	ptrace(PTRACE_POKEUSER, proc->pid, 4*PT_PC, sbp->addr);
-	if (delete_it) {
+	if (sbp->enabled == 0) {
 		continue_process(proc->pid);
 	} else {
 		proc->breakpoint_being_enabled = sbp;

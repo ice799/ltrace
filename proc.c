@@ -15,6 +15,7 @@
 struct process * open_program(char * filename)
 {
 	struct process * proc;
+	struct library_symbol * sym;
 	proc = malloc(sizeof(struct process));
 	if (!proc) {
 		perror("malloc");
@@ -23,8 +24,7 @@ struct process * open_program(char * filename)
 	proc->filename = filename;
 	proc->pid = 0;
 	proc->breakpoints_enabled = -1;
-	proc->current_syscall = -1;
-	proc->current_symbol = NULL;
+	proc->callstack_depth = 0;
 	proc->breakpoint_being_enabled = NULL;
 	proc->next = NULL;
 	if (opt_L && filename) {
@@ -50,6 +50,11 @@ struct process * open_program(char * filename)
 		}
 	} else {
 		proc->list_of_symbols = NULL;
+	}
+	sym = proc->list_of_symbols;
+	while (sym) {
+		insert_breakpoint(proc, sym->enter_addr); /* proc->pid==0 delays enabling. */
+		sym = sym->next;
 	}
 
 	proc->next = list_of_processes;

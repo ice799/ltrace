@@ -7,6 +7,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <signal.h>
+#include <assert.h>
 
 #include "ltrace.h"
 #include "output.h"
@@ -19,6 +20,10 @@ static void process_exit_signal(struct event * event);
 static void process_syscall(struct event * event);
 static void process_sysret(struct event * event);
 static void process_breakpoint(struct event * event);
+
+static void callstack_push_syscall(struct process * proc, int sysnum);
+static void callstack_push_symfunc(struct process * proc, struct library_symbol * sym);
+static void callstack_pop(struct process * proc);
 
 void process_event(struct event * event)
 {
@@ -154,7 +159,7 @@ static void remove_proc(struct process * proc)
 
 static void process_syscall(struct event * event)
 {
-	event->proc->current_syscall = event->e_un.sysnum;
+	callstack_push_syscall(event->proc, event->e_un.sysnum);
 	if (opt_S) {
 		output_left(LT_TOF_SYSCALL, event->proc, sysname(event->e_un.sysnum));
 	}
@@ -173,11 +178,16 @@ static void process_sysret(struct event * event)
 	}
 	if (exec_p(event->e_un.sysnum)) {
 		if (gimme_arg(LT_TOF_SYSCALL,event->proc,-1)==0) {
+			struct library_symbol * sym;
+
 			event->proc->filename = pid2name(event->proc->pid);
 			event->proc->list_of_symbols = read_elf(event->proc->filename);
-			event->proc->breakpoints_enabled = -1;
-		} else {
-			enable_all_breakpoints(event->proc);
+			sym = event->proc->list_of_symbols;
+			while (sym) {
+				insert_breakpoint(event->proc, sym->enter_addr);
+				sym = sym->next;
+			}
+			event->proc->breakpoints_enabled = 1;
 		}
 	}
 	if (fork_p(event->e_un.sysnum)) {
@@ -189,13 +199,16 @@ static void process_sysret(struct event * event)
 		}
 		enable_all_breakpoints(event->proc);
 	}
-	event->proc->current_syscall = -1;
+	callstack_pop(event->proc);
 	continue_process(event->proc->pid);
 }
 
 static void process_breakpoint(struct event * event)
 {
 	struct library_symbol * tmp;
+	void * return_addr;
+	struct callstack_element * current_call = event->proc->callstack_depth>0 ?
+		&(event->proc->callstack[event->proc->callstack_depth-1]) : NULL;
 
 	if (opt_d>1) {
 		output_line(0,"event: breakpoint (0x%08x)", event->e_un.brk_addr);
@@ -205,26 +218,21 @@ static void process_breakpoint(struct event * event)
 		event->proc->breakpoint_being_enabled = NULL;
 		return;
 	}
-	if (event->proc->current_symbol && event->e_un.brk_addr == event->proc->return_value.addr) {
-		output_right(LT_TOF_FUNCTION, event->proc, event->proc->current_symbol->name);
-		continue_after_breakpoint(event->proc, &event->proc->return_value, 1);
-		event->proc->current_symbol = NULL;
+
+	if (current_call && !current_call->is_syscall && event->e_un.brk_addr == current_call->return_addr) {
+		output_right(LT_TOF_FUNCTION, event->proc, current_call->c_un.libfunc->name);
+		return_addr = current_call->return_addr;
+		callstack_pop(event->proc);
+		continue_after_breakpoint(event->proc, address2bpstruct(event->proc, return_addr));
 		return;
 	}
 
 	tmp = event->proc->list_of_symbols;
 	while(tmp) {
-		if (event->e_un.brk_addr == tmp->brk.addr) {
-			if (event->proc->current_symbol) {
-				delete_breakpoint(event->proc->pid, &event->proc->return_value);
-			}
-			event->proc->current_symbol = tmp;
-			event->proc->stack_pointer = get_stack_pointer(event->proc->pid);
-			event->proc->return_addr = get_return_addr(event->proc->pid, event->proc->stack_pointer);
+		if (event->e_un.brk_addr == tmp->enter_addr) {
+			callstack_push_symfunc(event->proc, tmp);
 			output_left(LT_TOF_FUNCTION, event->proc, tmp->name);
-			event->proc->return_value.addr = event->proc->return_addr;
-			insert_breakpoint(event->proc->pid, &event->proc->return_value);
-			continue_after_breakpoint(event->proc, &tmp->brk, 0);
+			continue_after_breakpoint(event->proc, address2bpstruct(event->proc, tmp->enter_addr));
 			return;
 		}
 		tmp = tmp->next;
@@ -232,4 +240,58 @@ static void process_breakpoint(struct event * event)
 	output_line(event->proc, "breakpointed at 0x%08x (?)",
 		(unsigned)event->e_un.brk_addr);
 	continue_process(event->proc->pid);
+}
+
+static void callstack_push_syscall(struct process * proc, int sysnum)
+{
+	struct callstack_element * elem;
+
+	/* FIXME: not good -- should use dynamic allocation. 19990703 mortene. */
+	if (proc->callstack_depth == MAX_CALLDEPTH-1) {
+		fprintf(stderr, "Error: call nesting too deep!\n");
+		return;
+	}
+
+	elem = & proc->callstack[proc->callstack_depth];
+	elem->is_syscall = 1;
+	elem->c_un.syscall = sysnum;
+	elem->return_addr = NULL;
+
+	proc->callstack_depth++;
+	output_increase_indent();
+}
+
+static void callstack_push_symfunc(struct process * proc, struct library_symbol * sym)
+{
+	struct callstack_element * elem;
+
+	/* FIXME: not good -- should use dynamic allocation. 19990703 mortene. */
+	if (proc->callstack_depth == MAX_CALLDEPTH-1) {
+		fprintf(stderr, "Error: call nesting too deep!\n");
+		return;
+	}
+
+	elem = & proc->callstack[proc->callstack_depth];
+	elem->is_syscall = 0;
+	elem->c_un.libfunc = sym;
+
+	proc->stack_pointer = get_stack_pointer(proc->pid);
+	elem->return_addr = get_return_addr(proc->pid, proc->stack_pointer);
+	insert_breakpoint(proc, elem->return_addr);
+
+	proc->callstack_depth++;
+	output_increase_indent();
+}
+
+static void callstack_pop(struct process * proc)
+{
+	struct callstack_element * elem;
+	assert(proc->callstack_depth > 0);
+
+	elem = & proc->callstack[proc->callstack_depth-1];
+	if (!elem->is_syscall) {
+		delete_breakpoint(proc, elem->return_addr);
+	}
+	proc->callstack_depth--;
+	output_decrease_indent();
 }

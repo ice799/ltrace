@@ -98,8 +98,7 @@ struct library_symbol * read_elf(const char *filename)
 				perror("ltrace: malloc");
 				exit(1);
 			}
-			library_symbols->brk.addr = (void *)((symtab+i)->st_value);
-			library_symbols->brk.enabled = 0;
+			library_symbols->enter_addr = (void *)((symtab+i)->st_value);
 			library_symbols->name = strtab+(symtab+i)->st_name;
 			library_symbols->next = tmp;
 			if (opt_d>1) {

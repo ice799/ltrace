@@ -21,47 +21,6 @@ struct process * list_of_processes = NULL;
 
 int exiting=0;				/* =1 if a SIGINT or SIGTERM has been received */
 
-static void normal_exit(void);
-static void signal_exit(int);
-static pid_t my_pid;
-
-int main(int argc, char **argv)
-{
-	struct opt_p_t * opt_p_tmp;
-
-	my_pid = getpid();
-	atexit(normal_exit);
-	signal(SIGINT,signal_exit);	/* Detach processes when interrupted */
-	signal(SIGTERM,signal_exit);	/*  ... or killed */
-
-	argv = process_options(argc, argv);
-	read_config_file("/etc/ltrace.conf");
-	if (getenv("HOME")) {
-		char path[PATH_MAX];
-		sprintf(path, getenv("HOME"));	/* FIXME: buffer overrun */
-		strcat(path, "/.ltrace.conf");
-		read_config_file(path);
-	}
-	if (opt_d && opt_e) {
-		struct opt_e_t * tmp = opt_e;
-		while(tmp) {
-			printf("Option -e: %s\n", tmp->name);
-			tmp = tmp->next;
-		}
-	}
-	if (command) {
-		execute_program(open_program(command), argv);
-	}
-	opt_p_tmp = opt_p;
-	while (opt_p_tmp) {
-		open_pid(opt_p_tmp->pid, 1);
-		opt_p_tmp = opt_p_tmp->next;
-	}
-	while(1) {
-		process_event(wait_for_something());
-	}
-}
-
 static void signal_alarm(int sig)
 {
 	struct process * tmp = list_of_processes;
@@ -112,4 +71,40 @@ static void signal_exit(int sig)
 static void normal_exit(void)
 {
 	output_line(0,0);
+}
+
+int main(int argc, char **argv)
+{
+	struct opt_p_t * opt_p_tmp;
+
+	atexit(normal_exit);
+	signal(SIGINT,signal_exit);	/* Detach processes when interrupted */
+	signal(SIGTERM,signal_exit);	/*  ... or killed */
+
+	argv = process_options(argc, argv);
+	read_config_file("/etc/ltrace.conf");
+	if (getenv("HOME")) {
+		char path[PATH_MAX];
+		sprintf(path, getenv("HOME"));	/* FIXME: buffer overrun */
+		strcat(path, "/.ltrace.conf");
+		read_config_file(path);
+	}
+	if (opt_d && opt_e) {
+		struct opt_e_t * tmp = opt_e;
+		while(tmp) {
+			printf("Option -e: %s\n", tmp->name);
+			tmp = tmp->next;
+		}
+	}
+	if (command) {
+		execute_program(open_program(command), argv);
+	}
+	opt_p_tmp = opt_p;
+	while (opt_p_tmp) {
+		open_pid(opt_p_tmp->pid, 1);
+		opt_p_tmp = opt_p_tmp->next;
+	}
+	while(1) {
+		process_event(wait_for_something());
+	}
 }

@@ -5,7 +5,7 @@
 #include <sys/ptrace.h>
 #include "ltrace.h"
 
-void insert_breakpoint(pid_t pid, struct breakpoint * sbp)
+void enable_breakpoint(pid_t pid, struct breakpoint * sbp)
 {
 	int a;
 
@@ -18,7 +18,7 @@ void insert_breakpoint(pid_t pid, struct breakpoint * sbp)
 	ptrace(PTRACE_POKETEXT, pid, sbp->addr, a);
 }
 
-void delete_breakpoint(pid_t pid, struct breakpoint * sbp)
+void disable_breakpoint(pid_t pid, const struct breakpoint * sbp)
 {
 	int a;
 

@@ -46,11 +46,11 @@ int syscall_p(struct process * proc, int status, int * sysnum)
 }
             
 
-void continue_after_breakpoint(struct process *proc, struct breakpoint * sbp, int delete_it)
+void continue_after_breakpoint(struct process *proc, struct breakpoint * sbp)
 {
-	delete_breakpoint(proc->pid, sbp);
+	if (sbp->enabled) disable_breakpoint(proc->pid, sbp);
 	ptrace(PTRACE_POKEUSER, proc->pid, off_pc, sbp->addr);
-	if (delete_it) {
+	if (sbp->enabled == 0) {
 		continue_process(proc->pid);
 	} else {
 		proc->breakpoint_being_enabled = sbp;

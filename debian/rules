@@ -1,6 +1,6 @@
 #! /usr/bin/make -f 
 #
-# Copyright (C) 1997-1999 Juan Cespedes <cespedes@debian.org>
+# Copyright (C) 1997-2001 Juan Cespedes <cespedes@debian.org>
 
 .PHONY:		binary binary-indep binary-arch clean
 
@@ -43,7 +43,7 @@ binary-arch:	build
 		install -m 755 debian/postinst debian/tmp/DEBIAN/postinst
 		install -m 755 debian/prerm debian/tmp/DEBIAN/prerm
 		dpkg-shlibdeps debian/tmp/usr/bin/ltrace
-		dpkg-gencontrol
+		dpkg-gencontrol -isp
 		chown -R root.root debian/tmp
 		chmod -R u=rwX,go=rX debian/tmp
 		dpkg --build debian/tmp ..

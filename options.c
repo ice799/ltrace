@@ -32,6 +32,7 @@ int opt_t = 0;			/* print absolute timestamp */
 #if HAVE_LIBIBERTY
 int opt_C = 0;			/* Demangle low-level symbol names into user-level names */
 #endif
+int opt_n = 0;			/* indent trace output according to program flow */
 
 /* List of pids given to option -p: */
 struct opt_p_t * opt_p = NULL;	/* attach to process with a given pid */
@@ -81,6 +82,11 @@ static void usage(void)
 "  -u USERNAME         run command with the userid, groupid of username.\n"
 "  -p PID              attach to the process with the process ID pid.\n"
 "  -e expr             modify which events to trace.\n"
+# if HAVE_GETOPT_LONG
+"  -n, --indent=NR     indent output by NR spaces for each call level nesting.\n"
+# else
+"  -n NR               indent output by NR spaces for each call level nesting.\n"
+# endif
 # if HAVE_GETOPT_LONG
 "  -h, --help          display this help and exit.\n"
 # else
@@ -140,6 +146,7 @@ char ** process_options(int argc, char **argv)
 # if HAVE_LIBIBERTY
 			{ "demangle", 0, 0, 'C'},
 #endif
+			{ "indent", 0, 0, 'n'},
 			{ "help", 0, 0, 'h'},
 			{ "output", 1, 0, 'o'},
 			{ "version", 0, 0, 'V'},
@@ -149,13 +156,13 @@ char ** process_options(int argc, char **argv)
 # if HAVE_LIBIBERTY
 			"C"
 # endif
-			"a:s:o:u:p:e:", long_options, &option_index);
+			"a:s:o:u:p:e:n:", long_options, &option_index);
 #else
 		c = getopt(argc, argv, "+dfiLSrthV"
 # if HAVE_LIBIBERTY
 			"C"
 # endif
-			"a:s:o:u:p:e:");
+			"a:s:o:u:p:e:n:");
 #endif
 		if (c==-1) {
 			break;
@@ -182,6 +189,8 @@ char ** process_options(int argc, char **argv)
 			case 'a':	opt_a = atoi(optarg);
 					break;
 			case 's':	opt_s = atoi(optarg);
+					break;
+			case 'n':	opt_n = atoi(optarg);
 					break;
 			case 'h':	usage();
 					exit(0);
