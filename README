@@ -1,5 +1,5 @@
 Funcionamiento:
 ---------------
 
-* Puts soft breakpoints (INT 3, CC) in process using ptrace, just like
-  gdb/strace
+* 2nd approach: using soft breakpoints (INT 3, CC) in process using
+  ptrace, just like gdb/strace
