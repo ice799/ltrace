@@ -1,113 +1,60 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/param.h>
-#include <errno.h>
 #include <unistd.h>
 #include <string.h>
+#include <errno.h>
+#include <sys/param.h>
 
+#include "ltrace.h"
 #include "elf.h"
-#include "process.h"
 #include "output.h"
+#include "config_file.h"
+#include "options.h"
 
-extern void read_config_file(const char *);
+char * command;
+struct process * list_of_processes = NULL;
 
-FILE * output = stderr;
-int opt_d = 0;		/* debug */
-int opt_i = 0;		/* instruction pointer */
-int opt_S = 0;		/* syscalls */
-
-static void usage(void)
-{
-	fprintf(stderr,"Usage: ltrace [-d] [-i] [-S] [-o filename] command [arg ...]\n\n");
-}
-
-static char * search_for_command(char * filename)
-{
-	static char pathname[MAXPATHLEN];
-	char *path;
-	int m, n;
-
-	if (strchr(filename, '/')) {
-		return filename;
-	}
-	for (path = getenv("PATH"); path && *path; path += m) {
-		if (strchr(path, ':')) {
-			n = strchr(path, ':') - path;
-			m = n + 1;
-		} else {
-			m = n = strlen(path);
-		}
-		strncpy(pathname, path, n);
-		if (n && pathname[n - 1] != '/') {
-			pathname[n++] = '/';
-		}
-		strcpy(pathname + n, filename);
-		if (!access(pathname, X_OK)) {
-			break;
-		}
-	}
-	if (access(pathname, X_OK)) {
-		return NULL;
-	} else {
-		return pathname;
-	}
-}
+static struct process * open_program(void);
 
 int main(int argc, char **argv)
 {
-	int pid;
-	char * command;
-
-	while ((argc>2) && (argv[1][0] == '-') && (argv[1][2] == '\0')) {
-		switch(argv[1][1]) {
-			case 'd':	opt_d++;
-					break;
-			case 'o':	output = fopen(argv[2], "w");
-					if (!output) {
-						fprintf(stderr, "Can't open %s for output: %s\n", argv[2], sys_errlist[errno]);
-						exit(1);
-					}
-					argc--; argv++;
-					break;
-			case 'i':	opt_i++;
-					break;
-			case 'S':	opt_S++;
-					break;
-			default:	fprintf(stderr, "Unknown option '%c'\n", argv[1][1]);
-					usage();
-					exit(1);
-		}
-		argc--; argv++;
-	}
-
-	if (argc<2) {
-		usage();
+	argv = process_options(argc, argv);
+	if (opt_p || opt_f) {
+		fprintf(stderr, "ERROR: Options -p and -f don't work yet\n");
 		exit(1);
 	}
-	command = search_for_command(argv[1]);
-	if (!command) {
-		fprintf(stderr, "%s: command not found\n", argv[1]);
-		exit(1);
+	read_config_file("/etc/ltrace.conf");
+	if (getenv("HOME")) {
+		char path[PATH_MAX];
+		sprintf(path, getenv("HOME"));	/* FIXME: buffer overrun */
+		strcat(path, "/.ltrace.conf");
+		read_config_file(path);
 	}
-	if (!read_elf(command)) {
-		fprintf(stderr, "%s: Not dynamically linked\n", command);
-		exit(1);
-	}
-
-	if (opt_d>0) {
-		send_line("Reading config file(s)...");
-	}
-	read_config_file("/etc/ltrace.cfg");
-	read_config_file(".ltracerc");
-
-	pid = execute_process(command, argv+1);
-	if (opt_d>0) {
-		send_line("pid %u launched", pid);
-	}
-
+	execute_program(open_program(), argv);
 	while(1) {
-		wait_for_child();
+		process_event(wait_for_something());
+	}
+}
+
+static struct process * open_program(void)
+{
+	list_of_processes = malloc(sizeof(struct process));
+	if (!list_of_processes) {
+		perror("malloc");
+		exit(1);
+	}
+	list_of_processes->filename = command;
+	list_of_processes->pid = 0;
+	list_of_processes->breakpoints_enabled = -1;
+	list_of_processes->current_syscall = -1;
+	list_of_processes->current_symbol = NULL;
+	list_of_processes->breakpoint_being_enabled = NULL;
+	list_of_processes->next = NULL;
+	if (opt_L) {
+		list_of_processes->list_of_symbols = read_elf(command);
+	} else {
+		list_of_processes->list_of_symbols = NULL;
 	}
 
-	exit(0);
+	return list_of_processes;
 }

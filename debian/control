@@ -2,7 +2,7 @@ Source: ltrace
 Section: utils
 Priority: optional
 Maintainer: Juan Cespedes <cespedes@debian.org>
-Standards-Version: 2.3.0.0
+Standards-Version: 2.4.0.0
 
 Package: ltrace
 Architecture: i386
@@ -10,5 +10,12 @@ Depends: ${shlibs:Depends}
 Description: A library call tracer
  ltrace is a library call tracer, i.e. a debugging tool which prints out
  a trace of all the dynamic library calls made by another process/program.
+ .
+ It also displays system calls, as well as `strace', but strace still
+ does a better job displaying arguments to system calls.
+ .
  The program to be traced need not be recompiled for this, so you can
- use it on binaries for which you don't have source.
+ use it on binaries for which you don't have the source handy.
+ .
+ This is still a work in progress, so some things may fail or don't work
+ as expected.

@@ -1,5 +1,27 @@
+ltrace (0.2.0) unstable; urgency=low
+
+  * First `unstable' release
+  * Complete re-structured all the code to be able to add support for
+    different architectures (but only i386 arch is supported in this
+    version)
+  * Log also return values
+  * Log arguments (and return values) for syscalls
+  * Added preliminary support for various simultaneous processes
+  * getopt-like options
+  * New option: -a (alignment column)
+  * New option: -L (don't display library calls)
+  * New option: -s (maximum # of chars in strings)
+  * Now it reads config files with function names and parameter types
+  * Programs using clone() should work ok now
+  * debian/rules: gzipped only big files in /usr/doc/ltrace
+  * New Standards-Version: 2.4.0.0
+  * beginning to work on sparc port (not yet done)
+
+ -- Juan Cespedes <cespedes@debian.org>  Sun,  8 Mar 1998 22:27:30 +0100
+
 ltrace (0.1.7) experimental; urgency=low
 
+  * Internal release.
   * New Standards-Version (2.3.0.1)
   * Clean up structures a bit
   * Trying to log return values...

@@ -1,3 +1,4 @@
+#include "ltrace.h"
 
-extern int read_elf(const char *);
+extern struct library_symbol * read_elf(const char *);
 

@@ -8,29 +8,31 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#include <linux/elf.h>
+#include <elf.h>
 #include <sys/mman.h>
 #include <string.h>
+#include <unistd.h>
 
-#include "elf.h"
 #include "ltrace.h"
-#include "symbols.h"
+#include "elf.h"
+#include "options.h"
 #include "output.h"
 
-int read_elf(const char *filename)
+struct library_symbol * read_elf(const char *filename)
 {
+	struct library_symbol * library_symbols = NULL;
 	struct stat sbuf;
 	int fd;
 	void * addr;
-	struct elf32_hdr * hdr;
+	Elf32_Ehdr * hdr;
 	Elf32_Shdr * shdr;
-	struct elf32_sym * symtab = NULL;
+	Elf32_Sym * symtab = NULL;
 	int i;
 	char * strtab = NULL;
 	u_long symtab_len = 0;
 
 	if (opt_d>0) {
-		send_line("Reading symbol table from %s...", filename);
+		output_line(0, "Reading symbol table from %s...", filename);
 	}
 
 	fd = open(filename, O_RDONLY);
@@ -42,8 +44,8 @@ int read_elf(const char *filename)
 		fprintf(stderr, "Can't stat \"%s\": %s\n", filename, sys_errlist[errno]);
 		exit(1);
 	}
-	if (sbuf.st_size < sizeof(struct elf32_hdr)) {
-		fprintf(stderr, "\"%s\" is not an ELF object\n", filename);
+	if (sbuf.st_size < sizeof(Elf32_Ehdr)) {
+		fprintf(stderr, "\"%s\" is not an ELF binary object\n", filename);
 		exit(1);
 	}
 	addr = mmap(NULL, sbuf.st_size, PROT_READ, MAP_SHARED, fd, 0);
@@ -53,7 +55,7 @@ int read_elf(const char *filename)
 	}
 	hdr = addr;
 	if (strncmp(hdr->e_ident, ELFMAG, SELFMAG)) {
-		fprintf(stderr, "\"%s\" is not an ELF object\n", filename);
+		fprintf(stderr, "\"%s\" is not an ELF binary object\n", filename);
 		exit(1);
 	}
 	for(i=0; i<hdr->e_shnum; i++) {
@@ -61,9 +63,9 @@ int read_elf(const char *filename)
 		if (shdr->sh_type == SHT_DYNSYM) {
 			if (!symtab) {
 #if 0
-				symtab = (struct elf32_sym *)shdr->sh_addr;
+				symtab = (Elf32_Sym *)shdr->sh_addr;
 #else
-				symtab = (struct elf32_sym *)(addr + shdr->sh_offset);
+				symtab = (Elf32_Sym *)(addr + shdr->sh_offset);
 #endif
 				symtab_len = shdr->sh_size;
 			}
@@ -75,14 +77,15 @@ int read_elf(const char *filename)
 		}
 	}
 	if (opt_d>1) {
-		send_line("symtab: 0x%08x", (unsigned)symtab);
-		send_line("symtab_len: %lu", symtab_len);
-		send_line("strtab: 0x%08x", (unsigned)strtab);
+		output_line(0, "symtab: 0x%08x", (unsigned)symtab);
+		output_line(0, "symtab_len: %lu", symtab_len);
+		output_line(0, "strtab: 0x%08x", (unsigned)strtab);
 	}
 	if (!symtab) {
-		return 0;
+		close(fd);
+		return NULL;
 	}
-	for(i=0; i<symtab_len/sizeof(struct elf32_sym); i++) {
+	for(i=0; i<symtab_len/sizeof(Elf32_Sym); i++) {
 		if (!((symtab+i)->st_shndx) && (symtab+i)->st_value) {
 			struct library_symbol * tmp = library_symbols;
 
@@ -91,16 +94,18 @@ int read_elf(const char *filename)
 				perror("malloc");
 				exit(1);
 			}
-			library_symbols->sbp.addr = ((symtab+i)->st_value);
+			library_symbols->brk.addr = (void *)((symtab+i)->st_value);
+			library_symbols->brk.enabled = 0;
 			library_symbols->name = strtab+(symtab+i)->st_name;
 			library_symbols->next = tmp;
 			if (opt_d>1) {
-				send_line("addr: 0x%08x, symbol: \"%s\"",
+				output_line(0, "addr: 0x%08x, symbol: \"%s\"",
 					(unsigned)((symtab+i)->st_value),
 					(strtab+(symtab+i)->st_name));
 			}
 		}
 	}
-	return 1;
+	close(fd);
+	return library_symbols;
 }
 

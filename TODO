@@ -1,37 +1,12 @@
-* {enable,disable}_all_breakpoints should be process-dependent
-
-* All wait4's should be wait_for_child():
-  + A process may stop because:
-    - It execve()'d (needs breakpoints to be added) (DONE)
-    - It received a signal                          (DONE)
-    - It breakpointed at a library call             (DONE)
-    - It breakpointed at a library return
-    - It breakpointed at a syscall
-    - It breakpointed at a syscall return
-    - It breakpointed after a SINGLESTEP
-
-* ``struct_process'' should also have:
-  + The state of the process:
-    - uninitialized               (DONE)
-    - running
-    - within a given library call
-    - within a given syscall      (DONE)
-  + All the symbols it has breakpointed, and, for each of them:
-    - its addr
-    - the original value in the addr, if appropiate
-  + Whether a return from a libcall is pending, and if so:
-    - its return addr
-    - the original value in the return addr
-
-* I should parse a config file (/etc/ltrace.conf & ~/.ltracerc) to
-  handle different arguments to the library calls
-
-* ltrace should accept `-p' option. (hey, it's not as difficult as it
-  seems)
-
-* return values should be logged.  That implies:
-  + Breakpointing each return value
-  + Disabling breakpoints and displaying ``???'' as return value when
-    a new function is called
-
-* All architecture dependent stuff should be moved to ``arch.h''
+* Option -p (trace running process)
+* Option -f (trace children)
+* SYSCALLS:
+  + execve()		<- trace new program
+* Display different argument types:
+  + format
+  + stringN should not display `...' when limit of bytes is reached
+* Update /etc/ltrace.conf
+* SPARC:
+  + almost all...
+* netscape:
+  + Why does it shows so many `breakpointed at:' messages?

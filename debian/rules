@@ -1,6 +1,6 @@
 #! /usr/bin/make -f 
 #
-# Copyright (C) 1997 Juan Cespedes <cespedes@debian.org>
+# Copyright (C) 1997,1998 Juan Cespedes <cespedes@debian.org>
 
 build:
 		$(MAKE)
@@ -15,16 +15,17 @@ binary-arch:	build
 		$(RM) -rf debian/tmp
 
 		install -d debian/tmp/DEBIAN
+		cp debian/conffiles debian/tmp/DEBIAN
 		$(MAKE) install DESTDIR=`pwd`/debian/tmp
-		cp -p README debian/tmp/usr/doc/ltrace
-		cp -p BUGS debian/tmp/usr/doc/ltrace
-		cp -p TODO debian/tmp/usr/doc/ltrace
+		$(RM) debian/tmp/usr/doc/ltrace/COPYING
 		cp -p debian/changelog debian/tmp/usr/doc/ltrace
-		gzip -9fv debian/tmp/usr/doc/ltrace/*
+		gzip -9f debian/tmp/usr/doc/ltrace/README debian/tmp/usr/doc/ltrace/changelog
 		cp -p debian/copyright debian/tmp/usr/doc/ltrace
 		gzip -9f debian/tmp/usr/man/man1/*
 		dpkg-shlibdeps debian/tmp/usr/bin/ltrace
 		dpkg-gencontrol
+		chown -R root.root debian/tmp
+		chmod -R u+rw,go-w debian/tmp
 		dpkg --build debian/tmp ..
 
 clean:

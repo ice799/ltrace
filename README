@@ -2,7 +2,7 @@
 
                        A Dynamic Library Tracer
 
-         Copyright 1997 Juan Cespedes <cespedes@debian.org>
+         Copyright 1997,1998 Juan Cespedes <cespedes@debian.org>
 
 
 Contents
@@ -22,10 +22,12 @@ calls instead of system calls.
 
 2. Where can I find it
 ----------------------
-At the moment, it's only available as a Debian package, but it should
-work at least with any other i386 ELF Linux.  It's in:
- * ftp://ftp.etsit.upm.es/pub/Linux/local/ltrace_*
- * ftp://ftp.debian.org/debian/project/experimental/ltrace_*
+At the moment, it's only available as a Debian package.  Please let
+me know if you distribute it any other way.
+
+You may find it at:
+ * ftp://ftp.debian.org/debian/dists/unstable/main/source/utils/ltrace_*
+
 Alternatively, you may find it in any Debian mirror.  For more info,
 see ftp://ftp.debian.org/debian/README.mirrors
 

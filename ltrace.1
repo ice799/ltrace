@@ -6,7 +6,7 @@ ltrace \- A library call tracer
 
 .SH SYNOPSIS
 .B ltrace
-.I "[-d] [-o filename] command [arg ...]"
+.I "[-diLS] [-a column] [-s strsize] [-o filename] command [arg ...]"
 
 .SH DESCRIPTION
 .B ltrace
@@ -21,11 +21,27 @@ Its use is very similar to
 
 .SH OPTIONS
 .TP
+.I \-a column
+Align return values in a secific column (default column 50).
 .I \-d
 Increase the debugging level.
 .TP
+.I \-f
+Trace child processes as they are created by
+currently  traced processes as a result of the fork(2)
+or clone(2) system calls.
+The new process is attached as soon as its pid is known.
+.TP
 .I \-i
 Print the instruction pointer at the time of the library call.
+.TP
+.I \-s
+Specify the maximum string size to print (the default is 32).
+.TP
+.I \-L
+DON'T display library calls (use it with the
+.I \-S
+option).
 .TP
 .I \-S
 Display system calls as well as library calls
@@ -41,6 +57,15 @@ At the moment, there are too many bugs to list here.
 If you like to report a bug, send a notice to the author, or use the
 .BR bug(1)
 program if you are under Debian GNU/Linux.
+
+.SH FILES
+.TP
+.I /etc/ltrace.conf
+System configuration file
+.TP
+.I ~/.ltrace.conf
+Personal config file, overrides
+.I /etc/ltrace.conf
 
 .SH AUTHOR
 Juan Cespedes <cespedes@debian.org>
