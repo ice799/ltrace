@@ -136,7 +136,9 @@ char ** process_options(int argc, char **argv)
 		static struct option long_options[] = {
 			{ "align", 1, 0, 'a'},
 			{ "debug", 0, 0, 'd'},
+# if HAVE_LIBIBERTY
 			{ "demangle", 0, 0, 'C'},
+#endif
 			{ "help", 0, 0, 'h'},
 			{ "output", 1, 0, 'o'},
 			{ "version", 0, 0, 'V'},
@@ -148,7 +150,7 @@ char ** process_options(int argc, char **argv)
 # endif
 			"a:s:o:u:p:e:", long_options, &option_index);
 #else
-		c = getopt(argc, argv, "+dfiLSth"
+		c = getopt(argc, argv, "+dfiLSrthV"
 # if HAVE_LIBIBERTY
 			"C"
 # endif
