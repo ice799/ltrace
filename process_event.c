@@ -158,10 +158,10 @@ remove_proc(struct process * proc) {
 
 static void
 process_syscall(struct event * event) {
-	callstack_push_syscall(event->proc, event->e_un.sysnum);
 	if (opt_S) {
 		output_left(LT_TOF_SYSCALL, event->proc, sysname(event->e_un.sysnum));
 	}
+	callstack_push_syscall(event->proc, event->e_un.sysnum);
 	if (fork_p(event->e_un.sysnum) || exec_p(event->e_un.sysnum)) {
 		disable_all_breakpoints(event->proc);
 	} else if (!event->proc->breakpoints_enabled) {
@@ -229,8 +229,10 @@ process_breakpoint(struct event * event) {
 	tmp = event->proc->list_of_symbols;
 	while(tmp) {
 		if (event->e_un.brk_addr == tmp->enter_addr) {
-			callstack_push_symfunc(event->proc, tmp);
+			event->proc->stack_pointer = get_stack_pointer(event->proc->pid);
+			event->proc->return_addr = get_return_addr(event->proc->pid, event->proc->stack_pointer);
 			output_left(LT_TOF_FUNCTION, event->proc, tmp->name);
+			callstack_push_symfunc(event->proc, tmp);
 			continue_after_breakpoint(event->proc, address2bpstruct(event->proc, tmp->enter_addr));
 			return;
 		}
@@ -273,8 +275,7 @@ callstack_push_symfunc(struct process * proc, struct library_symbol * sym) {
 	elem->is_syscall = 0;
 	elem->c_un.libfunc = sym;
 
-	proc->stack_pointer = get_stack_pointer(proc->pid);
-	proc->return_addr = elem->return_addr = get_return_addr(proc->pid, proc->stack_pointer);
+	elem->return_addr = proc->return_addr;
 	insert_breakpoint(proc, elem->return_addr);
 
 	proc->callstack_depth++;

@@ -1,3 +1,10 @@
+ltrace (0.3.15) unstable; urgency=low
+
+  * Fixed `-n' option so that it displays correct output even when
+    tracing several processes
+
+ -- Juan Cespedes <cespedes@debian.org>  Mon,  9 Jul 2001 01:02:46 +0200
+
 ltrace (0.3.14) unstable; urgency=low
 
   * Assume a syscall is always immediatly followed by a sysret

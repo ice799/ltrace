@@ -19,25 +19,10 @@
 
 static pid_t current_pid = 0;
 static int current_column = 0;
-static int indent_count = 0;
 
-static void output_increase_indent(void)
+static void output_indent(struct process * proc)
 {
-	indent_count++;
-}
-
-static void output_decrease_indent(void)
-{
-	indent_count--;
-}
-
-static void output_indent(void)
-{
-	int i, j;
-	for (i = 0; i < indent_count; i++) {
-		for (j = 0; j < opt_n; j++) fprintf(output, " ");
-		current_column += opt_n;
-	}
+	current_column += fprintf(output, "%*s", opt_n * proc->callstack_depth, "");
 }
 
 static void begin_of_line(enum tof type, struct process * proc)
@@ -103,7 +88,7 @@ static void begin_of_line(enum tof type, struct process * proc)
 		}
 	}
 	if (opt_n > 0) {
-		output_indent();
+		output_indent(proc);
 	}
 }
 
@@ -169,7 +154,6 @@ void output_left(enum tof type, struct process * proc, char * function_name)
 	current_pid=proc->pid;
 	proc->type_being_displayed = type;
 	begin_of_line(type, proc);
-	output_increase_indent();
 #if HAVE_LIBIBERTY
 	current_column += fprintf(output, "%s(", opt_C ? my_demangle(function_name): function_name);
 #else
@@ -203,8 +187,6 @@ void output_left(enum tof type, struct process * proc, char * function_name)
 void output_right(enum tof type, struct process * proc, char * function_name)
 {
 	struct function * func = name2func(function_name);
-
-	output_decrease_indent();
 
 	if (current_pid && current_pid!=proc->pid) {
 		fprintf(output, " <unfinished ...>\n");
