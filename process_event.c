@@ -157,7 +157,7 @@ process_syscall(struct event * event) {
 		output_left(LT_TOF_SYSCALL, event->proc, sysname(event->e_un.sysnum));
 	}
 	callstack_push_syscall(event->proc, event->e_un.sysnum);
-	if (fork_p(event->e_un.sysnum) || exec_p(event->e_un.sysnum)) {
+	if (fork_p(event->e_un.sysnum)) {
 		disable_all_breakpoints(event->proc);
 	} else if (!event->proc->breakpoints_enabled) {
 		enable_all_breakpoints(event->proc);
@@ -167,18 +167,6 @@ process_syscall(struct event * event) {
 
 static void
 process_sysret(struct event * event) {
-	if (exec_p(event->e_un.sysnum)) {
-		if (gimme_arg(LT_TOF_SYSCALL,event->proc,-1)==0) {
-
-			event->proc->filename = pid2name(event->proc->pid);
-			event->proc->list_of_symbols = read_elf(event->proc->filename);
-
-			/* The kernel will stop the process just after an execve()
-			 * and we will be able to enable breakpoints again
-			 */
-			event->proc->breakpoints_enabled = -1;
-		}
-	}
 	if (fork_p(event->e_un.sysnum)) {
 		if (opt_f) {
 			pid_t child = gimme_arg(LT_TOF_SYSCALL,event->proc,-1);
@@ -191,6 +179,12 @@ process_sysret(struct event * event) {
 	callstack_pop(event->proc);
 	if (opt_S) {
 		output_right(LT_TOF_SYSCALL, event->proc, sysname(event->e_un.sysnum));
+	}
+	if (exec_p(event->e_un.sysnum)) {
+		if (gimme_arg(LT_TOF_SYSCALL,event->proc,-1)==0) {
+			event->proc->filename = pid2name(event->proc->pid);
+			breakpoints_init(event->proc);
+		}
 	}
 	continue_process(event->proc->pid);
 }

@@ -3,7 +3,7 @@
 #endif
 
 #ifndef VERSION
-# define VERSION "0.3.27"
+# define VERSION "0.3.28"
 #endif
 
 #include <string.h>
