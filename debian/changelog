@@ -1,3 +1,9 @@
+ltrace (0.0.1997.08.10) experimental; urgency=low
+
+  * So far nothing to say
+
+ -- Juan Cespedes <cespedes@etsit.upm.es>  Sun, 10 Aug 1997 00:20:35 +0200
+
 ltrace (0.0.1997.08.09) experimental; urgency=low
 
   * Added Debian files

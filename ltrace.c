@@ -59,9 +59,11 @@ int main(int argc, char **argv)
 	pid = attach_process(argv[1], argv+1);
 	fprintf(output, "pid %u attached\n", pid);
 
+#if 0
 	/* Enable breakpoints: */
 	fprintf(output, "Enabling breakpoints...\n");
 	enable_all_breakpoints();
+#endif
 	fprintf(output, "Reading config file(s)...\n");
 	read_config_file("/etc/ltrace.cfg");
 	read_config_file(".ltracerc");

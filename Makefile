@@ -18,4 +18,4 @@ dist:		clean
 install:	build
 		install -d $(DESTDIR)/usr/bin $(DESTDIR)/usr/doc/ltrace
 		install -s ltrace $(DESTDIR)/usr/bin
-		install -m 644 README debian/copyright debian/changelog $(DESTDIR)/usr/doc/ltrace
+		install -m 644 README $(DESTDIR)/usr/doc/ltrace
