@@ -32,42 +32,6 @@ static void callstack_push_syscall(struct process * proc, int sysnum);
 static void callstack_push_symfunc(struct process * proc, struct library_symbol * sym);
 static void callstack_pop(struct process * proc);
 
-void
-process_event(struct event * event) {
-	switch (event->thing) {
-		case LT_EV_NONE:
-			debug(1, "event: none");
-			return;
-		case LT_EV_SIGNAL:
-			debug(1, "event: signal (%d)", event->e_un.signum);
-			process_signal(event);
-			return;
-		case LT_EV_EXIT:
-			debug(1, "event: exit (%d)", event->e_un.ret_val);
-			process_exit(event);
-			return;
-		case LT_EV_EXIT_SIGNAL:
-			debug(1, "event: exit signal (%d)", event->e_un.signum);
-			process_exit_signal(event);
-			return;
-		case LT_EV_SYSCALL:
-			debug(1, "event: syscall (%d)", event->e_un.sysnum);
-			process_syscall(event);
-			return;
-		case LT_EV_SYSRET:
-			debug(1, "event: sysret (%d)", event->e_un.sysnum);
-			process_sysret(event);
-			return;
-		case LT_EV_BREAKPOINT:
-			debug(1, "event: breakpoint");
-			process_breakpoint(event);
-			return;
-		default:
-			fprintf(stderr, "Error! unknown event?\n");
-			exit(1);
-	}
-}
-
 static char *
 shortsignal(int signum) {
 	static char * signalent0[] = {
@@ -96,6 +60,42 @@ sysname(int sysnum) {
 	} else {
 		sprintf(result, "SYS_%s", syscalent0[sysnum]);
 		return result;
+	}
+}
+
+void
+process_event(struct event * event) {
+	switch (event->thing) {
+		case LT_EV_NONE:
+			debug(1, "event: none");
+			return;
+		case LT_EV_SIGNAL:
+			debug(1, "event: signal (%s [%d])", shortsignal(event->e_un.signum), event->e_un.signum);
+			process_signal(event);
+			return;
+		case LT_EV_EXIT:
+			debug(1, "event: exit (%d)", event->e_un.ret_val);
+			process_exit(event);
+			return;
+		case LT_EV_EXIT_SIGNAL:
+			debug(1, "event: exit signal (%s [%d])", shortsignal(event->e_un.signum), event->e_un.signum);
+			process_exit_signal(event);
+			return;
+		case LT_EV_SYSCALL:
+			debug(1, "event: syscall (%s [%d])", sysname (event->e_un.sysnum), event->e_un.sysnum);
+			process_syscall(event);
+			return;
+		case LT_EV_SYSRET:
+			debug(1, "event: sysret (%s [%d])", sysname (event->e_un.sysnum), event->e_un.sysnum);
+			process_sysret(event);
+			return;
+		case LT_EV_BREAKPOINT:
+			debug(1, "event: breakpoint");
+			process_breakpoint(event);
+			return;
+		default:
+			fprintf(stderr, "Error! unknown event?\n");
+			exit(1);
 	}
 }
 
@@ -221,7 +221,7 @@ process_breakpoint(struct event * event) {
 	struct library_symbol * tmp;
 	int i,j;
 
-	debug(2, "event: breakpoint (0x%08x)", event->e_un.brk_addr);
+	debug(2, "event: breakpoint (%p)", event->e_un.brk_addr);
 	if (event->proc->breakpoint_being_enabled) {
 		/* Reinsert breakpoint */
 		continue_enabling_breakpoint(event->proc->pid, event->proc->breakpoint_being_enabled);
@@ -277,8 +277,8 @@ process_breakpoint(struct event * event) {
 		}
 		tmp = tmp->next;
 	}
-	output_line(event->proc, "breakpointed at 0x%08x (?)",
-		(unsigned)event->e_un.brk_addr);
+	output_line(event->proc, "breakpointed at %p (?)",
+		(void *)event->e_un.brk_addr);
 	continue_process(event->proc->pid);
 }
 

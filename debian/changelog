@@ -1,3 +1,21 @@
+ltrace (0.3.32) unstable; urgency=low
+
+  * Fixed wrong version number
+  * Removed unused file "opt_c.c"
+  * Remove error when tracing no calls and doing fork()
+  * Clean-up of sysdeps/linux-gnu/s390/trace.c
+  * Clean-up of sysdeps/linux-gnu/ppc/trace.c
+  * Make `--library' option really work           (closes: Bug#232321)
+  * Merged several patches from SuSE:
+    + Added some functions to ltrace.conf 
+    + Handle 64-big ELF files nicely
+    + AMD64 support
+    + Updated list of syscalls for S/390
+    + Improved some debugging statements
+    Many thanks to Bernhard Kaindl <bk@suse.de> for his great work
+
+ -- Juan Cespedes <cespedes@debian.org>  Sun, 04 Apr 2004 01:31:37 +0200
+
 ltrace (0.3.31) unstable; urgency=low
 
   * Added a lot of functions to ltrace.conf,

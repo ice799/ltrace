@@ -3,7 +3,7 @@
 #endif
 
 #ifndef VERSION
-# define VERSION "0.3.30"
+# define VERSION "0.3.32"
 #endif
 
 #include <string.h>
@@ -168,7 +168,7 @@ process_options(int argc, char **argv) {
 #endif
 			{ "indent", 0, 0, 'n'},
 			{ "help", 0, 0, 'h'},
-			{ "library", 0, 0, 'l'},
+			{ "library", 1, 0, 'l'},
 			{ "output", 1, 0, 'o'},
 			{ "version", 0, 0, 'V'},
 			{ 0, 0, 0, 0}
@@ -281,7 +281,7 @@ process_options(int argc, char **argv) {
 			case 'u':	opt_u = optarg;
 						break;
 			case 'V':	printf("ltrace version " VERSION ".\n"
-"Copyright (C) 1997-2002 Juan Cespedes <cespedes@debian.org>.\n"
+"Copyright (C) 1997-2003 Juan Cespedes <cespedes@debian.org>.\n"
 "This is free software; see the GNU General Public Licence\n"
 "version 2 or later for copying conditions.  There is NO warranty.\n");
 						exit(0);

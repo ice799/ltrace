@@ -21,7 +21,7 @@ the executed process and the signals received by that process.
 It can also intercept and print the system calls executed by the program.
 
 The program to be traced need not be recompiled for this, so you can
-use it on binaries for which you don't have the source handy.
+use it on binaries for which you don't have the source.
 
 You should install ltrace if you need a sysadmin tool for tracking the
 execution of processes.

@@ -39,7 +39,7 @@ display_arg(enum tof type, struct process * proc, int arg_num, enum arg_type at)
 			if (!arg) {
 				return fprintf(output, "NULL");
 			} else {
-				return fprintf(output, "0x%08x", (unsigned)arg);
+				return fprintf(output, "%p", (unsigned)arg);
 			}
 		case ARGTYPE_FORMAT:
 			return display_format(type, proc, arg_num);
@@ -134,7 +134,7 @@ display_unknown(enum tof type, struct process * proc, int arg_num) {
 	if (tmp<1000000 && tmp>-1000000) {
 		return fprintf(output, "%ld", tmp);
 	} else {
-		return fprintf(output, "0x%08lx", tmp);
+		return fprintf(output, "%p", (void *)tmp);
 	}
 }
 
@@ -185,7 +185,7 @@ display_format(enum tof type, struct process * proc, int arg_num) {
 					len += fprintf(output, ", 0%o", (int)gimme_arg(type, proc, ++arg_num));
 					break;
 				} else if ((c=='x') || (c=='X')) {
-					len += fprintf(output, ", 0x%x", (int)gimme_arg(type, proc, ++arg_num));
+					len += fprintf(output, ", %#x", (int)gimme_arg(type, proc, ++arg_num));
 					break;
 				} else if (c=='c') {
 					len += fprintf(output, ", '");

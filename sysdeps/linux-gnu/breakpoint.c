@@ -14,7 +14,7 @@ enable_breakpoint(pid_t pid, struct breakpoint * sbp) {
 	int i,j;
 
 	if (opt_d>1) {
-		output_line(0, "enable_breakpoint(%d,0x%08x)", pid, sbp->addr);
+		output_line(0, "enable_breakpoint(%d,%p)", pid, sbp->addr);
 	}
 
 	for(i=0; i < 1+((BREAKPOINT_LENGTH-1)/sizeof(long)); i++) {
@@ -34,7 +34,7 @@ disable_breakpoint(pid_t pid, const struct breakpoint * sbp) {
 	int i,j;
 
 	if (opt_d>1) {
-		output_line(0, "disable_breakpoint(%d,0x%08x)", pid, sbp->addr);
+		output_line(0, "disable_breakpoint(%d,%p)", pid, sbp->addr);
 	}
 
 	for(i=0; i < 1+((BREAKPOINT_LENGTH-1)/sizeof(long)); i++) {

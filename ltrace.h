@@ -163,6 +163,7 @@ extern void continue_after_breakpoint(struct process * proc, struct breakpoint *
 extern void continue_enabling_breakpoint(pid_t pid, struct breakpoint * sbp);
 extern long gimme_arg(enum tof type, struct process * proc, int arg_num);
 extern int umovestr(struct process * proc, void * addr, int len, void * laddr);
+extern int ffcheck(void *maddr);
 #if 0	/* not yet */
 extern int umoven(struct process * proc, void * addr, int len, void * laddr);
 #endif

@@ -4,7 +4,7 @@ Dynamic Library Tracer ``ltrace''.
 
 Copyrights
 ----------
-Copyright (C) 1997-2003 Juan Cespedes <cespedes@debian.org>
+Copyright (C) 1997-2004 Juan Cespedes <cespedes@debian.org>
 
 ARMLinux port: Copyright (C) 1998 Pat Beirne <pbeirne@home.com>
 m68k port: Copyright (C) 1998 Roman Hodek <Roman.Hodek@informatik.uni-erlangen.de>

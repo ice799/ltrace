@@ -1,0 +1,6 @@
+#define BREAKPOINT_VALUE {0xcc}
+#define BREAKPOINT_LENGTH 1
+#define DECR_PC_AFTER_BREAK 1
+
+#define FILEFORMAT_CHECK	1
+#define ELFSIZE	64

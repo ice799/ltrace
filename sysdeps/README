@@ -14,8 +14,8 @@ void continue_after_breakpoint(struct process * proc, struct breakpoint * sbp, i
 void continue_after_signal(pid_t pid, int signum);
 void continue_enabling_breakpoint(pid_t pid, struct breakpoint * sbp);
 void continue_process(pid_t pid);
-void insert_breakpoint(pid_t pid, struct breakpoint * sbp);
-void delete_breakpoint(pid_t pid, struct breakpoint * sbp);
+void enable_breakpoint(pid_t pid, struct breakpoint * sbp);
+void disable_breakpoint(pid_t pid, struct breakpoint * sbp);
 int fork_p(int sysnum);
 int exec_p(int sysnum);
 int syscall_p(struct process * proc, int status, int * sysnum);

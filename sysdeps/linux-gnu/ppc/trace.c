@@ -43,17 +43,10 @@ long
 gimme_arg(enum tof type, struct process * proc, int arg_num) {
 	if (arg_num==-1) {		/* return value */
 		return ptrace(PTRACE_PEEKUSER, proc->pid, 4*PT_R3, 0);
-	}
-
-	if (type==LT_TOF_FUNCTION || type==LT_TOF_SYSCALL) {
-		if (arg_num < 8) {
-			return ptrace(PTRACE_PEEKUSER, proc->pid, 4*(arg_num+PT_R3), 0);
-		} else {
-			return ptrace(PTRACE_PEEKDATA, proc->pid, proc->stack_pointer+8*(arg_num-8), 0);
-		}
+	} else if (arg_num < 8) {
+		return ptrace(PTRACE_PEEKUSER, proc->pid, 4*(arg_num+PT_R3), 0);
 	} else {
-		fprintf(stderr, "gimme_arg called with wrong arguments\n");
-		exit(1);
+		return ptrace(PTRACE_PEEKDATA, proc->pid, proc->stack_pointer+8*(arg_num-8), 0);
 	}
 	return 0;
 }

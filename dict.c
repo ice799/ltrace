@@ -114,7 +114,9 @@ void
 dict_apply_to_all(struct dict * d, void (*func)(void *key, void *value, void *data), void *data) {
 	int i;
 
-	assert(d);
+	if (!d) {
+		return;
+	}
 	for (i = 0; i < DICTTABLESIZE; i++) {
 		struct dict_entry * entry = d->buckets[i];
 		while (entry) {

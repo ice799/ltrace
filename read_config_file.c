@@ -95,7 +95,7 @@ start_of_arg_sig(char * str) {
 static int line_no;
 static char * filename;
 
-struct function *
+static struct function *
 process_line (char * buf) {
 	struct function fun;
 	struct function * fun_p;

@@ -1,5 +1,3 @@
-* Option -T (print time spent in each libcall)
-* Option -c (summary)
 * BFD:
   + New executable formats
   + Read list of libraries needed

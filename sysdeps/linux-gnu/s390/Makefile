@@ -1,6 +1,6 @@
 #
-# S/390        version
-# (C) Copyright        2001 IBM Poughkeepsie, IBM Corporation
+# S/390 version
+# Copyright (C) 2001 IBM Poughkeepsie, IBM Corporation
 #
 OBJ	=	trace.o regs.o
 

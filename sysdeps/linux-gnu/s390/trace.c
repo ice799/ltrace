@@ -5,7 +5,7 @@
 ** at link time with this code.
 **
 ** S/390 version
-** (C) Copyright 2001 IBM Poughkeepsie, IBM Corporation
+** Copyright (C) 2001 IBM Poughkeepsie, IBM Corporation
 */
 
 #if HAVE_CONFIG_H
@@ -73,37 +73,16 @@ syscall_p(struct process * proc, int status, int * sysnum) {
 
 long
 gimme_arg(enum tof type, struct process * proc, int arg_num) {
-	if (arg_num==-1) {		/* return value */
-		return ptrace(PTRACE_PEEKUSER, proc->pid, PT_GPR2, 0);
-	}
-
-	if (type==LT_TOF_FUNCTION) {
-		switch(arg_num) {
-			case 0: return ptrace(PTRACE_PEEKUSER, proc->pid, PT_ORIGGPR2, 0);
-			case 1: return ptrace(PTRACE_PEEKUSER, proc->pid, PT_GPR3, 0);
-			case 2: return ptrace(PTRACE_PEEKUSER, proc->pid, PT_GPR4, 0);
-			case 3: return ptrace(PTRACE_PEEKUSER, proc->pid, PT_GPR5, 0);
-			case 4: return ptrace(PTRACE_PEEKUSER, proc->pid, PT_GPR6, 0);
-			default:
-					fprintf(stderr, "gimme_arg called with wrong arguments\n");
-					exit(2);
-		}
-
-	} else if (type==LT_TOF_SYSCALL) {
-		switch(arg_num) {
-			case 0: return ptrace(PTRACE_PEEKUSER, proc->pid, PT_ORIGGPR2, 0);
-			case 1: return ptrace(PTRACE_PEEKUSER, proc->pid, PT_GPR3, 0);
-			case 2: return ptrace(PTRACE_PEEKUSER, proc->pid, PT_GPR4, 0);
-			case 3: return ptrace(PTRACE_PEEKUSER, proc->pid, PT_GPR5, 0);
-			case 4: return ptrace(PTRACE_PEEKUSER, proc->pid, PT_GPR6, 0);
-			default:
+	switch(arg_num) {
+		case -1: /* return value */
+			return ptrace(PTRACE_PEEKUSER, proc->pid, PT_GPR2, 0);
+		case 0: return ptrace(PTRACE_PEEKUSER, proc->pid, PT_ORIGGPR2, 0);
+		case 1: return ptrace(PTRACE_PEEKUSER, proc->pid, PT_GPR3, 0);
+		case 2: return ptrace(PTRACE_PEEKUSER, proc->pid, PT_GPR4, 0);
+		case 3: return ptrace(PTRACE_PEEKUSER, proc->pid, PT_GPR5, 0);
+		case 4: return ptrace(PTRACE_PEEKUSER, proc->pid, PT_GPR6, 0);
+		default:
 				fprintf(stderr, "gimme_arg called with wrong arguments\n");
 				exit(2);
-		}
-	} else {
-		fprintf(stderr, "gimme_arg called with wrong arguments\n");
-		exit(1);
 	}
-
-	return 0;
 }

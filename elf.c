@@ -62,7 +62,7 @@ do_init_elf(struct ltelf *lte, const char *filename) {
 		);
 		exit(1);
 	}
-	if (sbuf.st_size < sizeof(Elf32_Ehdr)) {
+	if (sbuf.st_size < sizeof(Elf_Ehdr)) {
 		fprintf(
 			stderr,
 			"\"%s\" is not an ELF binary object\n",
@@ -82,6 +82,17 @@ do_init_elf(struct ltelf *lte, const char *filename) {
 		);
 		exit(1);
 	}
+
+#if defined(FILEFORMAT_CHECK)
+	if (! ffcheck(lte->maddr)) {
+		fprintf(
+				stderr,
+				"%s: wrong architecture or ELF format\n",
+				filename
+			   );
+		exit(1);
+	}
+#endif
 
 	lte->ehdr = lte->maddr;
 
@@ -114,8 +125,8 @@ do_close_elf(struct ltelf *lte) {
 static void
 do_load_elf_symtab(struct ltelf *lte) {
 	void *maddr = lte->maddr;
-	Elf32_Ehdr *ehdr = lte->ehdr;
-	Elf32_Shdr *shdr = (Elf32_Shdr *)(maddr + ehdr->e_shoff);
+	Elf_Ehdr *ehdr = lte->ehdr;
+	Elf_Shdr *shdr = (Elf_Shdr *)(maddr + ehdr->e_shoff);
 	int i;
 
 /*
@@ -126,7 +137,7 @@ do_load_elf_symtab(struct ltelf *lte) {
 
 	for(i = 0; i < ehdr->e_shnum; i++) {
 		if (shdr[i].sh_type == SHT_DYNSYM) {
-			lte->symtab = (Elf32_Sym *)(maddr + shdr[i].sh_offset);
+			lte->symtab = (Elf_Sym *)(maddr + shdr[i].sh_offset);
 			lte->symtab_len = shdr[i].sh_size;
 			lte->strtab = (char *)(
 				maddr + shdr[shdr[i].sh_link].sh_offset
@@ -134,9 +145,9 @@ do_load_elf_symtab(struct ltelf *lte) {
 		}
 	}
 
-	debug(2, "symtab: 0x%08x", (unsigned)lte->symtab);
+	debug(2, "symtab: %p", lte->symtab);
 	debug(2, "symtab_len: %lu", lte->symtab_len);
-	debug(2, "strtab: 0x%08x", (unsigned)lte->strtab);
+	debug(2, "strtab: %p", lte->strtab);
 }
 
 static void
@@ -160,8 +171,8 @@ add_library_symbol(
 	library_symbols->name = &lte->strtab[lte->symtab[i].st_name];
 	library_symbols->next = tmp;
 
-	debug(2, "addr: 0x%08x, symbol: \"%s\"",
-			(unsigned)lte->symtab[i].st_value,
+	debug(2, "addr: %p, symbol: \"%s\"",
+			lte->symtab[i].st_value,
 			&lte->strtab[lte->symtab[i].st_name]);
 }
 
@@ -199,12 +210,12 @@ in_load_libraries(const char *func) {
 	if (library_num == 0) return 1;
 
 	for (i = 0; i < library_num; i++) {
-		Elf32_Sym *symtab = library_lte[i].symtab;
+		Elf_Sym *symtab = library_lte[i].symtab;
 		char *strtab = library_lte[i].strtab;
 
 		for(
 			j = 0;
-			j < library_lte[i].symtab_len / sizeof(Elf32_Sym);
+			j < library_lte[i].symtab_len / sizeof(Elf_Sym);
 			j++
 		) {
 			if (
@@ -230,8 +241,8 @@ read_elf(const char *filename) {
 	do_load_elf_symtab(&lte);
 	do_init_load_libraries();
 
-	for(i = 0; i < lte.symtab_len / sizeof(Elf32_Sym); i++) {
-		Elf32_Sym *symtab = lte.symtab;
+	for(i = 0; i < lte.symtab_len / sizeof(Elf_Sym); i++) {
+		Elf_Sym *symtab = lte.symtab;
 		char *strtab = lte.strtab;
 
 		if (!symtab[i].st_shndx && symtab[i].st_value) {
