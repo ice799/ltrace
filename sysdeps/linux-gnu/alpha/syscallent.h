@@ -421,4 +421,19 @@
 	"clock_gettime",	/* 420 */
 	"clock_getres",		/* 421 */
 	"clock_nanosleep",	/* 422 */
-	"semtimedop"		/* 423 */
+	"semtimedop",		/* 423 */
+	"tgkill",		/* 424 */
+	"stat64",		/* 425 */
+	"lstat64",		/* 426 */
+	"fstat64",		/* 427 */
+	"vserver",		/* 428 */
+	"mbind",		/* 429 */
+	"get_mempolicy",	/* 430 */
+	"set_mempolicy",	/* 431 */
+	"mq_open",		/* 432 */
+	"mq_unlink",		/* 433 */
+	"mq_timedsend",		/* 434 */
+	"mq_timedreceive",	/* 435 */
+	"mq_notify",		/* 436 */
+	"mq_getsetattr",	/* 437 */
+	"waitid"		/* 438 */

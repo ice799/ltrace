@@ -1,9 +1,9 @@
-OBJ	=	regs.o trace.o
+OBJ	=	regs.o trace.o plt.o
 
 all:		arch.o
 
 arch.o:		$(OBJ)
-		$(LD) -r -o arch.o $(OBJ)
+		$(CC) -nostdlib -r -o arch.o $(OBJ)
 
 clean:
 		$(RM) $(OBJ) arch.o

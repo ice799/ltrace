@@ -28,7 +28,7 @@ people have contributed significantly to this project:
 * Silvio Cesare <silvio@big.net.au> (ELF hacking)
 * Timothy Fesig <slate@us.ibm.com> (S390 port)
 * Anton Blanchard <anton@samba.org> (Powerpc port)
-* Jakub Jelinek <jakub@redhat.com> (SPARC port)
+* Jakub Jelinek <jakub@redhat.com> (SPARC port, support for libelf, many fixes)
 * Jakub Bogusz <qboosh@pld-linux.org> (alpha port)
 * SuSE (amd64 port)
 

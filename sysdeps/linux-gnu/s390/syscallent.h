@@ -221,7 +221,7 @@
 	"getdents64",                      /* 220 */
 	"fcntl64",                         /* 221 */
 	"readahead",                       /* 222 */
-	"223",                             /* 223 */
+	"sendfile64",                      /* 223 */
 	"setxattr",                        /* 224 */
 	"lsetxattr",                       /* 225 */
 	"fsetxattr",                       /* 226 */
@@ -236,3 +236,42 @@
 	"fremovexattr",                    /* 235 */
 	"gettid",                          /* 236 */
 	"tkill",                           /* 237 */
+	"futex",                           /* 238 */
+	"sched_setaffinity",               /* 239 */
+	"sched_getaffinity",               /* 240 */
+	"241",                             /* 241 */
+	"242",                             /* 242 */
+	"io_setup",                        /* 243 */
+	"io_destroy",                      /* 244 */
+	"io_getevents",                    /* 245 */
+	"io_submit",                       /* 246 */
+	"io_cancel",                       /* 247 */
+	"exit_group",                      /* 248 */
+	"epoll_create",                    /* 249 */
+	"epoll_ctl",                       /* 250 */
+	"epoll_wait",                      /* 251 */
+	"set_tid_address",                 /* 252 */
+	"fadvise64",                       /* 253 */
+	"timer_create",                    /* 254 */
+	"timer_settime",                   /* 255 */
+	"timer_gettime",                   /* 256 */
+	"timer_getoverrun",                /* 257 */
+	"timer_delete",                    /* 258 */
+	"clock_settime",                   /* 259 */
+	"clock_gettime",                   /* 260 */
+	"clock_getres",                    /* 261 */
+	"clock_nanosleep",                 /* 262 */
+	"263",                             /* 263 */
+	"fadvise64_64",                    /* 264 */
+	"statfs64",                        /* 265 */
+	"fstatfs64",                       /* 266 */
+	"267",                             /* 267 */
+	"268",                             /* 268 */
+	"269",                             /* 269 */
+	"270",                             /* 270 */
+	"mq_open",                         /* 271 */
+	"mq_unlink",                       /* 272 */
+	"mq_timedsend",                    /* 273 */
+	"mq_timedreceive",                 /* 274 */
+	"mq_notify",                       /* 275 */
+	"mq_getsetattr",                   /* 276 */

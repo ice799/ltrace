@@ -15,7 +15,7 @@
 #include "output.h"
 #include "dict.h"
 
-#if HAVE_LIBIBERTY
+#ifdef USE_DEMANGLE
 #include "demangle.h"
 #endif
 
@@ -107,7 +107,7 @@ name2func(char * name) {
 
 	tmp = list_of_functions;
 	while(tmp) {
-#if HAVE_LIBIBERTY
+#ifdef USE_DEMANGLE
 		str1 = opt_C ? my_demangle(tmp->name) : tmp->name;
 		str2 = opt_C ? my_demangle(name) : name;
 #else
@@ -169,7 +169,7 @@ output_left(enum tof type, struct process * proc, char * function_name) {
 	current_depth = proc->callstack_depth;
 	proc->type_being_displayed = type;
 	begin_of_line(type, proc);
-#if HAVE_LIBIBERTY
+#ifdef USE_DEMANGLE
 	current_column += fprintf(output, "%s(", opt_C ? my_demangle(function_name): function_name);
 #else
 	current_column += fprintf(output, "%s(", function_name);
@@ -244,7 +244,7 @@ output_right(enum tof type, struct process * proc, char * function_name) {
 	}
 	if (current_pid != proc->pid) {
 		begin_of_line(type, proc);
-#if HAVE_LIBIBERTY
+#ifdef USE_DEMANGLE
 		current_column += fprintf(output, "<... %s resumed> ", opt_C ? my_demangle(function_name) : function_name);
 #else
 		current_column += fprintf(output, "<... %s resumed> ", function_name);

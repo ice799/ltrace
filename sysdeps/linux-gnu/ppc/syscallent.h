@@ -222,7 +222,7 @@
 	"futex",                           /* 221 */
 	"sched_setaffinity",               /* 222 */
 	"sched_getaffinity",               /* 223 */
-	"security",                        /* 224 */
+	"224",                             /* 224 */
 	"tuxcall",                         /* 225 */
 	"sendfile64",                      /* 226 */
 	"io_setup",                        /* 227 */
@@ -230,3 +230,34 @@
 	"io_getevents",                    /* 229 */
 	"io_submit",                       /* 230 */
 	"io_cancel",                       /* 231 */
+	"set_tid_address",                 /* 232 */
+	"fadvise64",                       /* 233 */
+	"exit_group",                      /* 234 */
+	"lookup_dcookie",                  /* 235 */
+	"epoll_create",                    /* 236 */
+	"epoll_ctl",                       /* 237 */
+	"epoll_wait",                      /* 238 */
+	"remap_file_pages",                /* 239 */
+	"timer_create",                    /* 240 */
+	"timer_settime",                   /* 241 */
+	"timer_gettime",                   /* 242 */
+	"timer_getoverrun",                /* 243 */
+	"timer_delete",                    /* 244 */
+	"clock_settime",                   /* 245 */
+	"clock_gettime",                   /* 246 */
+	"clock_getres",                    /* 247 */
+	"clock_nanosleep",                 /* 248 */
+	"swapcontext",                     /* 249 */
+	"tgkill",                          /* 250 */
+	"utimes",                          /* 251 */
+	"statfs64",                        /* 252 */
+	"fstatfs64",                       /* 253 */
+	"fadvise64_64",                    /* 254 */
+	"rtas",                            /* 255 */
+	"mq_open",                         /* 262 */
+	"mq_unlink",                       /* 263 */
+	"mq_timedsend",                    /* 264 */
+	"mq_timedreceive",                 /* 265 */
+	"mq_notify",                       /* 266 */
+	"mq_getsetattr",                   /* 267 */
+	"kexec_load",			   /* 268 */

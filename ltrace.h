@@ -13,6 +13,10 @@
 
 #define MAX_LIBRARY	30
 
+#if defined HAVE_LIBIBERTY || defined HAVE_LIBSUPC__
+# define USE_DEMANGLE
+#endif
+
 extern char * command;
 
 extern int exiting;		/* =1 if we have to exit ASAP */
@@ -28,6 +32,8 @@ enum arg_type {
 	ARGTYPE_VOID,
 	ARGTYPE_INT,
 	ARGTYPE_UINT,
+	ARGTYPE_LONG,
+	ARGTYPE_ULONG,
 	ARGTYPE_OCTAL,
 	ARGTYPE_CHAR,
 	ARGTYPE_ADDR,
@@ -37,7 +43,9 @@ enum arg_type {
 	ARGTYPE_STRING0,    /* stringN: string up to (arg N) bytes */
 	ARGTYPE_STRING1,
 	ARGTYPE_STRING2,
-	ARGTYPE_STRING3
+	ARGTYPE_STRING3,
+	ARGTYPE_STRING4,
+	ARGTYPE_STRING5
 };
 
 enum tof {

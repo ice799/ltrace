@@ -15,6 +15,8 @@
  *	"void"		ARGTYPE_VOID
  *	"int"		ARGTYPE_INT
  *	"uint"		ARGTYPE_UINT
+ *	"long"		ARGTYPE_LONG
+ *	"ulong"		ARGTYPE_ULONG
  *	"octal"		ARGTYPE_OCTAL
  *	"char"		ARGTYPE_CHAR
  *	"string"	ARGTYPE_STRING
@@ -31,6 +33,8 @@ static struct list_of_pt_t {
 	{ "void",   ARGTYPE_VOID },
 	{ "int",    ARGTYPE_INT },
 	{ "uint",   ARGTYPE_UINT },
+	{ "long",   ARGTYPE_LONG },
+	{ "ulong",  ARGTYPE_ULONG },
 	{ "octal",  ARGTYPE_OCTAL },
 	{ "char",   ARGTYPE_CHAR },
 	{ "addr",   ARGTYPE_ADDR },
@@ -41,6 +45,8 @@ static struct list_of_pt_t {
 	{ "string1",ARGTYPE_STRING1 },
 	{ "string2",ARGTYPE_STRING2 },
 	{ "string3",ARGTYPE_STRING3 },
+	{ "string4",ARGTYPE_STRING4 },
+	{ "string5",ARGTYPE_STRING5 },
 	{ NULL,     ARGTYPE_UNKNOWN }		/* Must finish with NULL */
 };
 

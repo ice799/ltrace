@@ -13,11 +13,17 @@ bindir		= $(prefix)/bin
 mandir		= @mandir@
 docdir		= $(prefix)/doc/ltrace
 
-CC	=	@CC@
-CPPFLAGS =	-I$(TOPDIR) -I$(TOPDIR)/sysdeps/$(OS) -I- @DEFS@
-CFLAGS	=	-Wall @CFLAGS@ -DSYSCONFDIR=\"$(sysconfdir)\"
-LDFLAGS	=
-LIBS	=	@LIBS@
+CC		=	@CC@
+CPPFLAGS	=	-I$(TOPDIR) -I$(TOPDIR)/sysdeps/$(OS) -I- @DEFS@ -DSYSCONFDIR=\"$(sysconfdir)\"
+CFLAGS		=	-Wall @CFLAGS@
+LDFLAGS		=
+LIBS		=	@LIBS@
+
+INSTALL		=	@INSTALL@
+INSTALL_FILE	=	$(INSTALL) -p    -o root -g root  -m  644
+INSTALL_PROGRAM	=	$(INSTALL) -p    -o root -g root  -m  755
+INSTALL_SCRIPT	=	$(INSTALL) -p    -o root -g root  -m  755
+INSTALL_DIR	=	$(INSTALL) -p -d -o root -g root  -m  755
 
 OBJ	=	ltrace.o options.o elf.o output.o read_config_file.o	\
 		execute_program.o wait_for_something.o process_event.o	\
@@ -38,7 +44,8 @@ clean:
 		$(RM) *~ *.bak a.out core KK
 
 distclean:	clean
-		$(RM) config.cache config.status config.log config.h Makefile ltrace.spec configure.scan
+		$(RM) config.cache config.status config.log config.h Makefile configure.scan
+		$(RM) -r autom4te.cache
 
 realclean:	distclean
 		$(RM) configure config.h.in
@@ -47,12 +54,12 @@ dist:		clean
 		( cd .. ; tar zcvf ltrace-`date +%y%m%d`.tgz ltrace )
 
 install:	ltrace
-		@INSTALL@ -d $(DESTDIR)$(bindir) $(DESTDIR)$(docdir) $(DESTDIR)$(mandir)/man1
-		@INSTALL@ -d $(DESTDIR)$(sysconfdir)
-		@INSTALL@ -s ltrace $(DESTDIR)$(bindir)
-		@INSTALL@ -m 644 etc/ltrace.conf $(DESTDIR)$(sysconfdir)
-		@INSTALL@ -m 644 COPYING README TODO BUGS ChangeLog $(DESTDIR)$(docdir)
-		@INSTALL@ -m 644 ltrace.1 $(DESTDIR)$(mandir)/man1
+		$(INSTALL_DIR) $(DESTDIR)$(bindir) $(DESTDIR)$(docdir) $(DESTDIR)$(mandir)/man1
+		$(INSTALL_DIR) $(DESTDIR)$(sysconfdir)
+		$(INSTALL_PROGRAM) ltrace $(DESTDIR)$(bindir)
+		$(INSTALL_FILE) etc/ltrace.conf $(DESTDIR)$(sysconfdir)
+		$(INSTALL_FILE) COPYING README TODO BUGS ChangeLog $(DESTDIR)$(docdir)
+		$(INSTALL_FILE) ltrace.1 $(DESTDIR)$(mandir)/man1
 
 dummy:
 

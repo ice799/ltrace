@@ -1,4 +1,7 @@
-/* config.h.in.  Generated from configure.in by autoheader.  */
+/* config.h.in.  Generated from configure.ac by autoheader.  */
+
+/* Defined if ELF_C_READ_MMAP is valid argument for elf_begin */
+#undef HAVE_ELF_C_READ_MMAP
 
 /* Define to 1 if you have the `getopt' function. */
 #undef HAVE_GETOPT
@@ -12,8 +15,14 @@
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
 
+/* Define to 1 if you have the `elf' library (-lelf). */
+#undef HAVE_LIBELF
+
 /* Define to 1 if you have the `iberty' library (-liberty). */
 #undef HAVE_LIBIBERTY
+
+/* Define to 1 if you have the `supc++' library (-lsupc++). */
+#undef HAVE_LIBSUPC__
 
 /* Define to 1 if you have the <memory.h> header file. */
 #undef HAVE_MEMORY_H
@@ -56,6 +65,12 @@
 
 /* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS
+
+/* Number of bits in a file offset, on hosts where this is settable. */
+#undef _FILE_OFFSET_BITS
+
+/* Define for large files, on AIX-style hosts. */
+#undef _LARGE_FILES
 
 /* Define to empty if `const' does not conform to ANSI C. */
 #undef const

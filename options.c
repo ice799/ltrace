@@ -37,7 +37,7 @@ int opt_f = 0;			/* trace child processes as they are created */
 char * opt_u = NULL;		/* username to run command as */
 int opt_r = 0;			/* print relative timestamp */
 int opt_t = 0;			/* print absolute timestamp */
-#if HAVE_LIBIBERTY
+#ifdef USE_DEMANGLE
 int opt_C = 0;			/* Demangle low-level symbol names into user-level names */
 #endif
 int opt_n = 0;			/* indent trace output according to program flow */
@@ -65,7 +65,7 @@ usage(void) {
 "  -a COLUMN           align return values in a secific column.\n"
 # endif
 "  -c                  count time and calls, and report a summary on exit.\n"
-# if HAVE_LIBIBERTY
+# ifdef USE_DEMANGLE
 #  if HAVE_GETOPT_LONG
 "  -C, --demangle      decode low-level symbol names into user-level names.\n"
 #  else
@@ -163,10 +163,10 @@ process_options(int argc, char **argv) {
 		static struct option long_options[] = {
 			{ "align", 1, 0, 'a'},
 			{ "debug", 0, 0, 'd'},
-# if HAVE_LIBIBERTY
+# ifdef USE_DEMANGLE
 			{ "demangle", 0, 0, 'C'},
 #endif
-			{ "indent", 0, 0, 'n'},
+			{ "indent", 1, 0, 'n'},
 			{ "help", 0, 0, 'h'},
 			{ "library", 1, 0, 'l'},
 			{ "output", 1, 0, 'o'},
@@ -174,13 +174,13 @@ process_options(int argc, char **argv) {
 			{ 0, 0, 0, 0}
 		};
 		c = getopt_long(argc, argv, "+cdfhiLrStTV"
-# if HAVE_LIBIBERTY
+# ifdef USE_DEMANGLE
 			"C"
 # endif
 			"a:e:l:n:o:p:s:u:", long_options, &option_index);
 #else
 		c = getopt(argc, argv, "+cdfhiLrStTV"
-# if HAVE_LIBIBERTY
+# ifdef USE_DEMANGLE
 			"C"
 # endif
 			"a:e:l:n:o:p:s:u:");
@@ -193,7 +193,7 @@ process_options(int argc, char **argv) {
 						break;
 			case 'c':	opt_c++;
 						break;
-#if HAVE_LIBIBERTY
+#ifdef USE_DEMANGLE
 			case 'C':	opt_C++;
 						break;
 #endif

@@ -17,9 +17,7 @@ extern int opt_f;	/* trace child processes */
 extern char * opt_u;	/* username to run command as */
 extern int opt_r;	/* print relative timestamp */
 extern int opt_t;	/* print absolute timestamp */
-#if HAVE_LIBIBERTY
 extern int opt_C;	/* Demanglelow-level symbol names into user-level names */
-#endif
 extern int opt_n;	/* indent trace output according to program flow */
 extern int opt_T;	/* show the time spent inside each call */
 

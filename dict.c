@@ -152,7 +152,7 @@ dict_key_cmp_string(void * key1, void * key2) {
 
 unsigned int
 dict_key2hash_int(void * key) {
-	return (unsigned int)key;
+	return (unsigned long)key;
 }
 
 int

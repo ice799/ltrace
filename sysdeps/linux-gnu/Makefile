@@ -1,8 +1,8 @@
-ARCH	:=	$(shell uname -m | sed -e s/i.86/i386/ -e s/sun4u/sparc64/ -e s/arm.*/arm/ -e s/sa110/arm/)
+ARCH		:=	$(shell uname -m | sed -e s/i.86/i386/ -e s/sun4u/sparc64/ -e s/arm.*/arm/ -e s/sa110/arm/)
 
-CFLAGS	+=	-I$(TOPDIR)/sysdeps/linux-gnu/$(ARCH)
+CPPFLAGS	+=	-I$(TOPDIR)/sysdeps/linux-gnu/$(ARCH)
 
-OBJ	=	trace.o proc.o breakpoint.o
+OBJ		=	trace.o proc.o breakpoint.o
 
 all:		sysdep.h signalent.h syscallent.h ../sysdep.o
 
@@ -16,10 +16,10 @@ syscallent.h:
 		cp $(ARCH)/syscallent.h syscallent.h
 
 ../sysdep.o:	os.o $(ARCH)/arch.o
-		$(LD) -r -o ../sysdep.o os.o $(ARCH)/arch.o
+		$(CC) -nostdlib -r -o ../sysdep.o os.o $(ARCH)/arch.o
 
 os.o:		$(OBJ)
-		$(LD) -r -o os.o $(OBJ)
+		$(CC) -nostdlib -r -o os.o $(OBJ)
 
 $(ARCH)/arch.o:	dummy
 		$(MAKE) -C $(ARCH)

@@ -1,4 +1,4 @@
-	"0",                               /* 0 */
+	"restart_syscall",                 /* 0 */
 	"exit",                            /* 1 */
 	"fork",                            /* 2 */
 	"read",                            /* 3 */
@@ -178,8 +178,8 @@
 	"rt_sigtimedwait",                 /* 177 */
 	"rt_sigqueueinfo",                 /* 178 */
 	"rt_sigsuspend",                   /* 179 */
-	"pread",                           /* 180 */
-	"pwrite",                          /* 181 */
+	"pread64",                         /* 180 */
+	"pwrite64",                        /* 181 */
 	"chown",                           /* 182 */
 	"getcwd",                          /* 183 */
 	"capget",                          /* 184 */
@@ -221,7 +221,7 @@
 	"getdents64",                      /* 220 */
 	"fcntl64",                         /* 221 */
 	"222",                             /* 222 */
-	"security",                        /* 223 */
+	"223",                             /* 223 */
 	"gettid",                          /* 224 */
 	"readahead",                       /* 225 */
 	"setxattr",                        /* 226 */
@@ -248,6 +248,38 @@
 	"io_getevents",                    /* 247 */
 	"io_submit",                       /* 248 */
 	"io_cancel",                       /* 249 */
-	"alloc_hugepages",                 /* 250 */
-	"free_hugepages",                  /* 251 */
+	"fadvise64",                       /* 250 */
+	"251",                             /* 251 */
 	"exit_group",                      /* 252 */
+	"lookup_dcookie",                  /* 253 */
+	"epoll_create",                    /* 254 */
+	"epoll_ctl",                       /* 255 */
+	"epoll_wait",                      /* 256 */
+	"remap_file_pages",                /* 257 */
+	"set_tid_address",                 /* 258 */
+	"timer_create",                    /* 259 */
+	"timer_settime",                   /* 260 */
+	"timer_gettime",                   /* 261 */
+	"timer_getoverrun",                /* 262 */
+	"timer_delete",                    /* 263 */
+	"clock_settime",                   /* 264 */
+	"clock_gettime",                   /* 265 */
+	"clock_getres",                    /* 266 */
+	"clock_nanosleep",                 /* 267 */
+	"statfs64",                        /* 268 */
+	"fstatfs64",                       /* 269 */
+	"tgkill",                          /* 270 */
+	"utimes",                          /* 271 */
+	"fadvise64_64",                    /* 272 */
+	"vserver",                         /* 273 */
+	"mbind",                           /* 274 */
+	"get_mempolicy",                   /* 275 */
+	"set_mempolicy",                   /* 276 */
+	"mq_open",                         /* 277 */
+	"mq_unlink",                       /* 278 */
+	"mq_timedsend",                    /* 279 */
+	"mq_timedreceive",                 /* 280 */
+	"mq_notify",                       /* 281 */
+	"mq_getsetattr",                   /* 282 */
+	"kexec_load",			   /* 283 */
+	"waitid",			   /* 284 */

@@ -1,32 +1,31 @@
 #ifndef LTRACE_ELF_H
 #define LTRACE_ELF_H
 
-#include <elf.h>
+#include <gelf.h>
+#include <stdlib.h>
+
 #include "ltrace.h"
 
-#if ELFSIZE == 64
-#define Elf_Sym  Elf64_Sym
-#define Elf_Ehdr Elf64_Ehdr
-#define Elf_Shdr Elf64_Shdr
-#else
-#define Elf_Sym  Elf32_Sym
-#define Elf_Ehdr Elf32_Ehdr
-#define Elf_Shdr Elf32_Shdr
-#endif
-
-struct ltelf {
-	int		fd;
-	void*		maddr;
-	Elf_Ehdr*	ehdr;
-	char*		strtab;
-	Elf_Sym*	symtab;
-	int		symtab_len;
+struct ltelf
+{
+  int fd;
+  Elf *elf;
+  GElf_Ehdr ehdr;
+  Elf_Data *dynsym;
+  size_t dynsym_count;
+  const char *dynstr;
+  GElf_Addr plt_addr;
+  Elf_Data *relplt;
+  size_t relplt_count;
+  Elf32_Word *hash;
+  int hash_malloced;
 };
 
 extern int library_num;
 extern char *library[MAX_LIBRARY];
-extern struct ltelf library_lte[MAX_LIBRARY];
 
-extern struct library_symbol * read_elf(const char *);
+extern struct library_symbol *read_elf (const char *);
+
+extern GElf_Addr arch_plt_sym_val (struct ltelf *, size_t, GElf_Rela *);
 
 #endif
