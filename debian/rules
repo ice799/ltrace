@@ -53,8 +53,8 @@ binary-arch:	build
 		$(MAKE) install DESTDIR=`pwd`/debian/tmp docdir=/usr/share/doc/ltrace INSTALL_PROGRAM="${INSTALL_PROGRAM}"
 		$(RM) debian/tmp/usr/share/doc/ltrace/COPYING
 		$(RM) debian/tmp/usr/share/doc/ltrace/ChangeLog
-		cp -p debian/changelog debian/tmp/usr/share/doc/ltrace/changelog
-		gzip -9f debian/tmp/usr/share/doc/ltrace/README debian/tmp/usr/share/doc/ltrace/changelog
+		cp -p debian/changelog debian/tmp/usr/share/doc/ltrace/changelog.Debian
+		gzip -9f debian/tmp/usr/share/doc/ltrace/README debian/tmp/usr/share/doc/ltrace/changelog.Debian
 		cp -p debian/copyright debian/tmp/usr/share/doc/ltrace
 		gzip -9f debian/tmp/usr/share/man/man1/*
 		dpkg-shlibdeps debian/tmp/usr/bin/ltrace
