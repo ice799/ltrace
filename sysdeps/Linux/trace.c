@@ -32,11 +32,17 @@ void trace_me(void)
 	}
 }
 
-void trace_pid(pid_t pid)
+int trace_pid(pid_t pid)
 {
 	if (ptrace(PTRACE_ATTACH, pid, 1, 0) < 0) {
-		perror("PTRACE_ATTACH");
+		return -1;
 	}
+	return 0;
+}
+
+void untrace_pid(pid_t pid)
+{
+	ptrace(PTRACE_DETACH, pid, 1, 0);
 }
 
 void continue_after_signal(pid_t pid, int signum)

@@ -8,7 +8,7 @@ CFLAGS	=	-O2 -g -Wall -I$(TOPDIR) -I$(TOPDIR)/sysdeps/$(OS) -I- #-I$(TOPDIR)/sys
 
 OBJ	=	ltrace.o options.o elf.o output.o config_file.o	\
 		execute_program.o wait_for_something.o process_event.o \
-		display_args.o breakpoints.o
+		display_args.o breakpoints.o proc.o
 
 all:		dummy
 		$(MAKE) -C sysdeps/$(OS)

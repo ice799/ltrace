@@ -14,8 +14,10 @@ static void begin_of_line(enum tof type, struct process * proc)
 	if (!proc) {
 		return;
 	}
-	if (list_of_processes && list_of_processes->next) {
-		current_column += fprintf(output, "[pid %d] ", proc->pid);
+	if ((output!=stderr) && (opt_p || opt_f)) {
+		current_column += fprintf(output, "%u ", proc->pid);
+	} else if (list_of_processes->next) {
+		current_column += fprintf(output, "[pid %u] ", proc->pid);
 	}
 	if (opt_i) {
 		if (type==LT_TOF_FUNCTION) {

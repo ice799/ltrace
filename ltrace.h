@@ -105,17 +105,21 @@ extern struct process * list_of_processes;
 
 extern void * instruction_pointer;
 
-struct event * wait_for_something(void);
-void process_event(struct event * event);
-void execute_program(struct process *, char **);
-int display_arg(enum tof type, struct process * proc, int arg_num, enum param_type rt);
-void enable_all_breakpoints(struct process * proc);
-void disable_all_breakpoints(struct process * proc);
+extern struct event * wait_for_something(void);
+extern void process_event(struct event * event);
+extern void execute_program(struct process *, char **);
+extern int display_arg(enum tof type, struct process * proc, int arg_num, enum param_type rt);
+extern void enable_all_breakpoints(struct process * proc);
+extern void disable_all_breakpoints(struct process * proc);
+extern struct process * open_program(char * filename);
+extern void open_pid(pid_t pid, int verbose);
+
 
 /* Arch-dependent stuff: */
 extern char * pid2name(pid_t pid);
 extern void trace_me(void);
-extern void trace_pid(pid_t pid);
+extern int trace_pid(pid_t pid);
+extern void untrace_pid(pid_t pid);
 extern void * get_instruction_pointer(int pid);
 extern void * get_stack_pointer(int pid);
 extern void * get_return_addr(int pid, void * stack_pointer);

@@ -1,6 +1,5 @@
 * Improve documentation
 * Regarding option -p: disable breakpoints on exit
-* Option -f (trace children)
 * Display different argument types:
   + format
   + how to display execl...?

@@ -1,3 +1,10 @@
+ltrace (0.2.6) unstable; urgency=low
+
+  * Option `-f' now works (but it fails to attach some processes...)
+  * Output is now more similar to strace's
+
+ -- Juan Cespedes <cespedes@debian.org>  Sat, 14 Mar 1998 20:50:16 +0100
+
 ltrace (0.2.5) unstable; urgency=low
 
   * After a successful execve(), library calls are now logged

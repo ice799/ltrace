@@ -173,8 +173,10 @@ static void process_sysret(struct event * event)
 			insert_breakpoint(event->proc->pid, &event->proc->return_value);
 		}
 		if (opt_f) {
-			fprintf(stderr, "ERROR: Option `-f' doesn't work yet\n");
-			exit(1);
+			pid_t child = gimme_arg(LT_TOF_SYSCALL,event->proc,-1);
+			if (child>0) {
+				open_pid(child, 0);
+			}
 		}
 	}
 	event->proc->current_syscall = -1;

@@ -1,5 +1,5 @@
 * processes attached with option -p die when the attacher is interrupted
-* option -f doesn't work yet
+* Using option -f sometimes it doesn't trace some children
 * Manual page is not accurate (config files...)
 * elf.c only supports elf32 binaries
 * netscape sometimes dies with SIGSEGV (is this still true?)
