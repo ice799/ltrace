@@ -99,7 +99,9 @@ void wait_for_child(void)
 	pid = wait4(-1, &status, 0, NULL);
 	if (pid==-1) {
 		if (errno == ECHILD) {
-			send_line("No more children");
+			if (opt_d>0) {
+				send_line("No more children");
+			}
 			exit(0);
 		}
 		perror("wait4");

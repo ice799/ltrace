@@ -1,35 +1,34 @@
 #! /usr/bin/make -f 
+#
+# Copyright (C) 1997 Juan Cespedes <cespedes@debian.org>
 
 build:
-	$(MAKE)
-	touch build
+		$(MAKE)
+		touch build
 
 binary:		binary-arch binary-indep
 
 binary-indep:
 
 binary-arch:	build
-	test root = "`whoami`" || exit 1
-	$(RM) -rf debian/tmp
+		test root = "`whoami`" || exit 1
+		$(RM) -rf debian/tmp
 
-	install -d debian/tmp/DEBIAN
-#	install -m 644 debian/conffiles debian/tmp/DEBIAN
-	$(MAKE) install DESTDIR=`pwd`/debian/tmp
-	install -m 644 README debian/tmp/usr/doc/ltrace
-	install -m 644 BUGS debian/tmp/usr/doc/ltrace
-	install -m 644 TODO debian/tmp/usr/doc/ltrace
-	install -m 644 debian/changelog debian/tmp/usr/doc/ltrace
-	gzip -9fv debian/tmp/usr/doc/ltrace/*
-	install -m 644 debian/copyright debian/tmp/usr/doc/ltrace
-	gzip -9f debian/tmp/usr/man/man1/*
-	dpkg-shlibdeps debian/tmp/usr/bin/ltrace
-	dpkg-gencontrol
-	chown -R root.root debian/tmp
-	chmod -R g-ws debian/tmp
-	dpkg --build debian/tmp ..
+		install -d debian/tmp/DEBIAN
+		$(MAKE) install DESTDIR=`pwd`/debian/tmp
+		cp -p README debian/tmp/usr/doc/ltrace
+		cp -p BUGS debian/tmp/usr/doc/ltrace
+		cp -p TODO debian/tmp/usr/doc/ltrace
+		cp -p debian/changelog debian/tmp/usr/doc/ltrace
+		gzip -9fv debian/tmp/usr/doc/ltrace/*
+		cp -p debian/copyright debian/tmp/usr/doc/ltrace
+		gzip -9f debian/tmp/usr/man/man1/*
+		dpkg-shlibdeps debian/tmp/usr/bin/ltrace
+		dpkg-gencontrol
+		dpkg --build debian/tmp ..
 
 clean:
-	$(RM) -f build debian/files debian/substvars
-	$(MAKE) clean
-	$(RM) -rf debian/tmp
+		$(RM) -f build debian/files debian/substvars
+		$(MAKE) clean
+		$(RM) -rf debian/tmp
 

@@ -1,3 +1,10 @@
+ltrace (0.1.6) experimental; urgency=low
+
+  * New maintainer address
+  * New Standards-Version
+
+ -- Juan Cespedes <cespedes@debian.org>  Thu, 11 Sep 1997 23:22:32 +0200
+
 ltrace (0.1.5) experimental; urgency=low
 
   * `command' is now searched in the PATH

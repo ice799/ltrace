@@ -1,8 +1,8 @@
 Source: ltrace
 Section: utils
 Priority: optional
-Maintainer: Juan Cespedes <cespedes@etsit.upm.es>
-Standards-Version: 2.2.0.0
+Maintainer: Juan Cespedes <cespedes@debian.org>
+Standards-Version: 2.3.0.0
 
 Package: ltrace
 Architecture: i386

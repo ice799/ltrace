@@ -1,9 +1,10 @@
-; +	== May vary (ie, is a returned value)
+; +		== May vary (ie, is a returned value)
 ; int
-; addr	== (void *)		[int, expresado en hexa]
-; file	== (FILE *)
+; addr		== (void *)		[int, written in hexa]
+; file		== (FILE *)
 ; format	== ((char *), ...)	[printf() like]
-; octal	== int			[expresado en octal]
+; octal		== int			[written in octal]
+; string	== (char *)
 
 int atexit(addr);
 int close(int);

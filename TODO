@@ -1,13 +1,14 @@
 * {enable,disable}_all_breakpoints should be process-dependent
 
-* All wait4's should be moved to chld_handler():
+* All wait4's should be wait_for_child():
   + A process may stop because:
-    - It execve()'d (needs breakpoints to be added)
+    - It execve()'d (needs breakpoints to be added) (DONE)
     - It received a signal                          (DONE)
     - It breakpointed at a library call             (DONE)
     - It breakpointed at a library return
     - It breakpointed at a syscall
     - It breakpointed at a syscall return
+    - It breakpointed after a SINGLESTEP
 
 * ``struct_process'' should also have:
   + The state of the process:
@@ -17,9 +18,10 @@
     - within a given syscall      (DONE)
   + All the symbols it has breakpointed, and, for each of them:
     - its addr
-    - its return addr, if any
-    - whether the return addr is breakpointed (ie, if the symbol is ``active'')
-    - the original value in the addr, and in the return addr, if appropiate
+    - the original value in the addr, if appropiate
+  + Whether a return from a libcall is pending, and if so:
+    - its return addr
+    - the original value in the return addr
 
 * I should parse a config file (/etc/ltrace.conf & ~/.ltracerc) to
   handle different arguments to the library calls
