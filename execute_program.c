@@ -27,8 +27,8 @@ void execute_program(struct process * sp, char **argv)
 		perror("fork");
 		exit(1);
 	} else if (!pid) {	/* child */
-		trace_me();
 		change_uid(sp);
+		trace_me();
 		execvp(sp->filename, argv);
 		fprintf(stderr, "Can't execute `%s': %s\n", sp->filename, strerror(errno));
 		exit(1);
@@ -80,7 +80,7 @@ static void change_uid(struct process * proc)
 				run_euid = statbuf.st_uid;
 			}
 			if (statbuf.st_mode & S_ISGID) {
-				run_euid = statbuf.st_gid;
+				run_egid = statbuf.st_gid;
 			}
 		}
 		if (setregid(run_gid, run_egid) < 0) {

@@ -1,3 +1,9 @@
+ltrace (0.3.1) frozen unstable; urgency=low
+
+  * setgid programs had their uid and gid swapped!  Fixed.
+
+ -- Juan Cespedes <cespedes@debian.org>  Wed, 29 Apr 1998 19:25:11 +0200
+
 ltrace (0.3.0) unstable; urgency=low
 
   * Preliminary autoconf support
