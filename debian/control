@@ -5,7 +5,7 @@ Maintainer: Juan Cespedes <cespedes@debian.org>
 Standards-Version: 2.4.1
 
 Package: ltrace
-Architecture: i386 arm
+Architecture: i386 arm m68k
 Depends: ${shlibs:Depends}
 Description: A library call tracer
  ltrace is a library call tracer, i.e. a debugging tool which prints out

@@ -1,3 +1,7 @@
+#if HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 extern char * cplus_demangle (const char *mangled, int options);
 
 char * my_demangle(char * function_name);

@@ -23,6 +23,7 @@ but he has received many contributions from other people.  The following
 people have contributed significantly to this project:
 
 * Pat Beirne <pbeirne@home.com> (ARM port)
+* Roman Hodek <Roman.Hodek@informatik.uni-erlangen.de> (m68k port)
 
 1. Introduction
 ---------------
@@ -47,13 +48,15 @@ Using software breakpoints, just like gdb.
 4. Where does it work
 ---------------------
 At the time of writting, it works only with ELF32 executables. It only
-works in Linux, and it only works on i386 and ARM processors.
+works in Linux, and it only works on i386, m68k, and ARM processors.
 
 5. Bugs
 -------
 Too many to list here :).  If you like to submit a bug report, or a
 feature request, either do that against the Debian `ltrace' package,
 or mail ``Juan Cespedes <cespedes@debian.org>''.
+
+This file is very incomplete and out-of-date.
 
 6. Licence
 ----------

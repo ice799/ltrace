@@ -1,3 +1,7 @@
+#if HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #define	_GNU_SOURCE	1
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -98,7 +102,7 @@ struct event * wait_for_something(void)
 	return &event;
 }
 
-static struct process * pid2proc(int pid)
+static struct process * pid2proc(pid_t pid)
 {
 	struct process * tmp;
 

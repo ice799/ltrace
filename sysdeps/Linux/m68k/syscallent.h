@@ -1,4 +1,4 @@
-	"(NONE)",		/* 0 */
+	"setup",		/* 0 */	/* used only by init, to get system going */
 	"exit",			/* 1 */
 	"fork",			/* 2 */
 	"read",			/* 3 */
@@ -14,7 +14,7 @@
 	"time",			/* 13 */
 	"mknod",		/* 14 */
 	"chmod",		/* 15 */
-	"lchown",		/* 16 */
+	"chown",		/* 16 */
 	"break",		/* 17 */
 	"oldstat",		/* 18 */
 	"lseek",		/* 19 */
@@ -108,10 +108,10 @@
 	"lstat",		/* 107 */
 	"fstat",		/* 108 */
 	"olduname",		/* 109 */
-	"iopl",			/* 110 */
+	"iopl",			/* 110 */ /* not supported */
 	"vhangup",		/* 111 */
 	"idle",			/* 112 */
-	"vm86old",		/* 113 */
+	"vm86",			/* 113 */ /* not supported */
 	"wait4",		/* 114 */
 	"swapoff",		/* 115 */
 	"sysinfo",		/* 116 */
@@ -121,7 +121,7 @@
 	"clone",		/* 120 */
 	"setdomainname",	/* 121 */
 	"uname",		/* 122 */
-	"modify_ldt",		/* 123 */
+	"cacheflush",		/* 123 */
 	"adjtimex",		/* 124 */
 	"mprotect",		/* 125 */
 	"sigprocmask",		/* 126 */
@@ -135,7 +135,7 @@
 	"bdflush",		/* 134 */
 	"sysfs",		/* 135 */
 	"personality",		/* 136 */
-	"afs_syscall",		/* 137 */
+	"afs_syscall",		/* 137 */ /* Syscall for Andrew File System */
 	"setfsuid",		/* 138 */
 	"setfsgid",		/* 139 */
 	"_llseek",		/* 140 */
@@ -164,7 +164,6 @@
 	"mremap",		/* 163 */
 	"setresuid",		/* 164 */
 	"getresuid",		/* 165 */
-	"vm86",			/* 166 */
 	"query_module",		/* 167 */
 	"poll",			/* 168 */
 	"nfsservctl",		/* 169 */
@@ -180,11 +179,11 @@
 	"rt_sigsuspend",	/* 179 */
 	"pread",		/* 180 */
 	"pwrite",		/* 181 */
-	"chown",		/* 182 */
+	"lchown",		/* 182 */
 	"getcwd",		/* 183 */
 	"capget",		/* 184 */
 	"capset",		/* 185 */
 	"sigaltstack",		/* 186 */
 	"sendfile",		/* 187 */
-	"streams1",		/* 188 */
-	"streams2",		/* 189 */
+	"streams1",		/* 188 */	/* some people actually want it */
+	"streams2",		/* 189 */	/* some people actually want it */

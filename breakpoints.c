@@ -1,3 +1,7 @@
+#if HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include "ltrace.h"
 #include "options.h"
 #include "output.h"

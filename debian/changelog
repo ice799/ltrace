@@ -1,3 +1,11 @@
+ltrace (0.3.6) unstable; urgency=low
+
+  * Added m68k port (Roman Hodek <Roman.Hodek@informatik.uni-erlangen.de>) (Bug#27075)
+  * Changed "int pid" with "pid_t pid" everywhere
+  * Fixed return type of some functions from "int" to "void *" (thanks, Roman)
+
+ -- Juan Cespedes <cespedes@debian.org>  Fri, 25 Sep 1998 14:48:37 +0200
+
 ltrace (0.3.5) unstable; urgency=low
 
   * Added ARMLinux port (Pat Beirne <pbeirne@home.com>) (Bug#27040)

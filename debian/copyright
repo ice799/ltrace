@@ -7,6 +7,7 @@ Copyrights
 Copyright (C) 1997,1998 Juan Cespedes <cespedes@debian.org>
 
 ARMLinux port: Copyright (C) 1998 Pat Beirne <pbeirne@home.com>
+m68k port: Copyright (C) 1998 Roman Hodek <Roman.Hodek@informatik.uni-erlangen.de>
 
 Autoconf stuff: Copyright 1992-1996 Free Software Foundation, Inc.
 install-sh: Copyright 1991 by the Massachusetts Institute of Technology

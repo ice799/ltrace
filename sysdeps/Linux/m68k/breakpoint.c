@@ -10,11 +10,10 @@ void insert_breakpoint(pid_t pid, struct breakpoint * sbp)
 	int a;
 
 	a = ptrace(PTRACE_PEEKTEXT, pid, sbp->addr, 0);
-	sbp->orig_value[0] = a;
-	sbp->orig_value[1] = a>>8;
-	sbp->orig_value[2] = a>>16;
-	sbp->orig_value[3] = a>>24;
-	a = BREAKPOINT_VALUE;
+	sbp->orig_value[0] = (a & 0xFF000000) >> 24;
+	sbp->orig_value[1] = (a & 0x00FF0000) >> 16;
+	a &= 0x0000FFFF;
+	a |= 0x4E4F0000;
 	ptrace(PTRACE_POKETEXT, pid, sbp->addr, a);
 }
 
@@ -22,6 +21,8 @@ void delete_breakpoint(pid_t pid, struct breakpoint * sbp)
 {
 	int a;
 
-	a = sbp->orig_value[0] + (sbp->orig_value[1]<<8) + (sbp->orig_value[2]<<16) + (sbp->orig_value[3]<<24);
+	a = ptrace(PTRACE_PEEKTEXT, pid, sbp->addr, 0);
+	a &= 0x0000FFFF;
+	a |= (sbp->orig_value[0] << 24) | (sbp->orig_value[1] << 16);
 	ptrace(PTRACE_POKETEXT, pid, sbp->addr, a);
 }

@@ -1,4 +1,4 @@
-	"(NONE)",		/* 0 */
+	"setup",		/* 0 */
 	"exit",			/* 1 */
 	"fork",			/* 2 */
 	"read",			/* 3 */
@@ -14,7 +14,7 @@
 	"time",			/* 13 */
 	"mknod",		/* 14 */
 	"chmod",		/* 15 */
-	"lchown",		/* 16 */
+	"chown",		/* 16 */
 	"break",		/* 17 */
 	"oldstat",		/* 18 */
 	"lseek",		/* 19 */
@@ -108,10 +108,10 @@
 	"lstat",		/* 107 */
 	"fstat",		/* 108 */
 	"olduname",		/* 109 */
-	"iopl",			/* 110 */
+	"(NONE)",		/* 110 */
 	"vhangup",		/* 111 */
 	"idle",			/* 112 */
-	"vm86old",		/* 113 */
+	"(NONE)",		/* 113 */
 	"wait4",		/* 114 */
 	"swapoff",		/* 115 */
 	"sysinfo",		/* 116 */
@@ -121,7 +121,7 @@
 	"clone",		/* 120 */
 	"setdomainname",	/* 121 */
 	"uname",		/* 122 */
-	"modify_ldt",		/* 123 */
+	"cacheflush",		/* 123 */
 	"adjtimex",		/* 124 */
 	"mprotect",		/* 125 */
 	"sigprocmask",		/* 126 */
@@ -164,7 +164,7 @@
 	"mremap",		/* 163 */
 	"setresuid",		/* 164 */
 	"getresuid",		/* 165 */
-	"vm86",			/* 166 */
+	"(NONE)",		/* 166 */
 	"query_module",		/* 167 */
 	"poll",			/* 168 */
 	"nfsservctl",		/* 169 */
@@ -180,7 +180,7 @@
 	"rt_sigsuspend",	/* 179 */
 	"pread",		/* 180 */
 	"pwrite",		/* 181 */
-	"chown",		/* 182 */
+	"lchown",		/* 182 */
 	"getcwd",		/* 183 */
 	"capget",		/* 184 */
 	"capset",		/* 185 */

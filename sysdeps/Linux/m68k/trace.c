@@ -23,7 +23,8 @@
 int syscall_p(struct process * proc, int status, int * sysnum)
 {
 	if (WIFSTOPPED(status) && WSTOPSIG(status)==SIGTRAP) {
-		*sysnum = ptrace(PTRACE_PEEKUSER, proc->pid, 4*ORIG_EAX, 0);
+		*sysnum = ptrace(PTRACE_PEEKUSER, proc->pid, 4*PT_ORIG_D0, 0);
+		if (*sysnum == -1) return 0;
 		if (*sysnum>=0) {
 			if (proc->current_syscall!=*sysnum) {
 				return 1;
@@ -38,7 +39,7 @@ int syscall_p(struct process * proc, int status, int * sysnum)
 void continue_after_breakpoint(struct process *proc, struct breakpoint * sbp, int delete_it)
 {
 	delete_breakpoint(proc->pid, sbp);
-	ptrace(PTRACE_POKEUSER, proc->pid, 4*EIP, sbp->addr);
+	ptrace(PTRACE_POKEUSER, proc->pid, 4*PT_PC, sbp->addr);
 	if (delete_it) {
 		continue_process(proc->pid);
 	} else {
@@ -50,7 +51,7 @@ void continue_after_breakpoint(struct process *proc, struct breakpoint * sbp, in
 long gimme_arg(enum tof type, struct process * proc, int arg_num)
 {
 	if (arg_num==-1) {		/* return value */
-		return ptrace(PTRACE_PEEKUSER, proc->pid, 4*EAX, 0);
+		return ptrace(PTRACE_PEEKUSER, proc->pid, 4*PT_D0, 0);
 	}
 
 	if (type==LT_TOF_FUNCTION) {
@@ -58,16 +59,17 @@ long gimme_arg(enum tof type, struct process * proc, int arg_num)
 	} else if (type==LT_TOF_SYSCALL) {
 #if 0
 		switch(arg_num) {
-			case 0:	return ptrace(PTRACE_PEEKUSER, proc->pid, 4*EBX, 0);
-			case 1:	return ptrace(PTRACE_PEEKUSER, proc->pid, 4*ECX, 0);
-			case 2:	return ptrace(PTRACE_PEEKUSER, proc->pid, 4*EDX, 0);
-			case 3:	return ptrace(PTRACE_PEEKUSER, proc->pid, 4*ESI, 0);
-			case 4:	return ptrace(PTRACE_PEEKUSER, proc->pid, 4*EDI, 0);
+			case 0:	return ptrace(PTRACE_PEEKUSER, proc->pid, 4*PT_D1, 0);
+			case 1:	return ptrace(PTRACE_PEEKUSER, proc->pid, 4*PT_D2, 0);
+			case 2:	return ptrace(PTRACE_PEEKUSER, proc->pid, 4*PT_D3, 0);
+			case 3:	return ptrace(PTRACE_PEEKUSER, proc->pid, 4*PT_D4, 0);
+			case 4:	return ptrace(PTRACE_PEEKUSER, proc->pid, 4*PT_D5, 0);
 			default:
 				fprintf(stderr, "gimme_arg called with wrong arguments\n");
 				exit(2);
 		}
 #else
+		/* That hack works on m68k, too */
 		return ptrace(PTRACE_PEEKUSER, proc->pid, 4*arg_num, 0);
 #endif
 	} else {

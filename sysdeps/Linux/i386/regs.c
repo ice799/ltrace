@@ -1,3 +1,7 @@
+#if HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include <sys/types.h>
 #include <sys/ptrace.h>
 #include <asm/ptrace.h>
@@ -10,18 +14,18 @@
 # define PTRACE_POKEUSER PTRACE_POKEUSR
 #endif
 
-int get_instruction_pointer(pid_t pid)
+void * get_instruction_pointer(pid_t pid)
 {
-	return ptrace(PTRACE_PEEKUSER, pid, 4*EIP, 0);
+	return (void *)ptrace(PTRACE_PEEKUSER, pid, 4*EIP, 0);
 }
 
-int get_stack_pointer(pid_t pid)
+void * get_stack_pointer(pid_t pid)
 {
-	return ptrace(PTRACE_PEEKUSER, pid, 4*UESP, 0);
+	return (void *)ptrace(PTRACE_PEEKUSER, pid, 4*UESP, 0);
 }
 
-int get_return_addr(pid_t pid, void * stack_pointer)
+void * get_return_addr(pid_t pid, void * stack_pointer)
 {
-	return ptrace(PTRACE_PEEKTEXT, pid, stack_pointer, 0);
+	return (void *)ptrace(PTRACE_PEEKTEXT, pid, stack_pointer, 0);
 }
 

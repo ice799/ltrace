@@ -111,7 +111,7 @@
 	"iopl",			/* 110 */
 	"vhangup",		/* 111 */
 	"idle",			/* 112 */
-	"vm86",			/* 113 */
+	"syscall",		/* 113 */
 	"wait4",		/* 114 */
 	"swapoff",		/* 115 */
 	"sysinfo",		/* 116 */
@@ -157,8 +157,28 @@
 	"sched_setscheduler",	/* 156 */
 	"sched_getscheduler",	/* 157 */
 	"sched_yield",		/* 158 */
-	"sched_get_priority_max",/* 159 */
-	"sched_get_priority_min",/* 160 */
-	"sched_rr_get_interval",/* 161 */
+	"sched_get_priority_max",	/* 159 */
+	"sched_get_priority_min",	/* 160 */
+	"sched_rr_get_interval",	/* 161 */
 	"nanosleep",		/* 162 */
 	"mremap",		/* 163 */
+	"setresuid",		/* 164 */
+	"getresuid",		/* 165 */
+	"vm86",			/* 166 */
+	"query_module",		/* 167 */
+	"poll",			/* 168 */
+	"nfsservctl",		/* 169 */
+	"setresgid",		/* 170 */
+	"getresgid",		/* 171 */
+	"prctl",		/* 172 */
+	"rt_sigreturn",		/* 173 */
+	"rt_sigaction",		/* 174 */
+	"rt_sigprocmask",	/* 175 */
+	"rt_sigpending",	/* 176 */
+	"rt_sigtimedwait",	/* 177 */
+	"rt_sigqueueinfo",	/* 178 */
+	"rt_sigsuspend",	/* 179 */
+	"pread",		/* 180 */
+	"pwrite",		/* 181 */
+	"xstat",		/* 182 */
+	"xmknod",		/* 183 */

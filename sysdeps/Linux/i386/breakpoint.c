@@ -1,7 +1,11 @@
+#if HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include <sys/ptrace.h>
 #include "ltrace.h"
 
-void insert_breakpoint(int pid, struct breakpoint * sbp)
+void insert_breakpoint(pid_t pid, struct breakpoint * sbp)
 {
 	int a;
 
@@ -12,7 +16,7 @@ void insert_breakpoint(int pid, struct breakpoint * sbp)
 	ptrace(PTRACE_POKETEXT, pid, sbp->addr, a);
 }
 
-void delete_breakpoint(int pid, struct breakpoint * sbp)
+void delete_breakpoint(pid_t pid, struct breakpoint * sbp)
 {
 	int a;
 

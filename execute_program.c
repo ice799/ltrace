@@ -1,3 +1,7 @@
+#if HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -16,7 +20,7 @@ static void change_uid(struct process * proc);
 
 void execute_program(struct process * sp, char **argv)
 {
-	int pid;
+	pid_t pid;
 
 	if (opt_d) {
 		output_line(0, "Executing `%s'...", sp->filename);
