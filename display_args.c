@@ -96,7 +96,7 @@ static int display_string(enum tof type, struct process * proc, int arg_num)
 	}
 	umovestr(proc, addr, MIN(opt_s,string_maxlength)+1, str1);
 	len = fprintf(output, "\"");
-	for(i=0; len<MIN(opt_s,string_maxlength)+1; i++) {
+	for(i=0; i<MIN(opt_s,string_maxlength); i++) {
 		if (str1[i]) {
 			len += display_char(str1[i]);
 		} else {

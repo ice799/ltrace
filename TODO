@@ -1,4 +1,4 @@
-* Option -e
+* Improve option -e
 * Improve C++ name demangling
 * Improve documentation
 * Display different argument types:
@@ -11,4 +11,3 @@
   + Why does it show so many `breakpointed at:' messages?
     \- Is this still true?
 * Option -T (print time spent in each libcall)
-* Option -V (version)

@@ -1,3 +1,10 @@
+ltrace (0.3.3) unstable; urgency=low
+
+  * Fixed a little bug in display_string
+  * A few more functions added to /etc/ltrace.conf
+
+ -- Juan Cespedes <cespedes@debian.org>  Sun,  6 Sep 1998 14:03:10 +0200
+
 ltrace (0.3.2) unstable; urgency=low
 
   * Make the output line-buffered (Bug#22874)
