@@ -10,7 +10,8 @@ Contents
  1. Introduction
  2. How does it work
  3. Where does it work
- 4. Licence
+ 4. Bugs
+ 5. Licence
 
 
 1. Introduction
@@ -29,7 +30,13 @@ has been used only in Debian/GNU Linux, but it should work without any
 problem in any other i386 Linux, such as SuSe or RedHat, and maybe in
 other i386 based POSIX system, such as Hurd or *BSD.
 
-4. Licence
+4. Bugs
+-------
+Too many to list here :).  If you like to submit a bug report, or a
+feature request, either do that against the Debian `ltrace' package,
+or mail me (Juan Cespedes <cespedes@etsit.upm.es>)
+
+5. Licence
 ----------
     Copyright (C) 1997 Juan Cespedes <cespedes@etsit.upm.es>
 

@@ -29,3 +29,5 @@ struct function {
 };
 
 extern struct function * list_of_functions;
+
+extern void print_function(const char *, int pid, int esp);

@@ -1,15 +1,14 @@
 #include <stdio.h>
 #include <errno.h>
 #include <unistd.h>
-#include <sys/ptrace.h>
 #include <sys/wait.h>
 #include <signal.h>
 
 #include "elf.h"
 #include "trace.h"
 #include "symbols.h"
+#include "functions.h"
 
-extern void print_function(const char *, int);
 extern void read_config_file(const char *);
 
 int pid;
@@ -103,18 +102,18 @@ int main(int argc, char **argv)
 		}
 		/* pid is stopped... */
 		eip = get_eip(pid);
-		esp = ptrace(PTRACE_PEEKUSER, pid, 4*UESP, 0);
+		esp = get_esp(pid);
 #if 0
 		fprintf(output,"EIP = 0x%08x\n", eip);
 		fprintf(output,"ESP = 0x%08x\n", esp);
 #endif
-		fprintf(output,"[0x%08x] ", ptrace(PTRACE_PEEKTEXT, pid, esp, 0));
+		fprintf(output,"[0x%08lx] ", get_return(pid,esp));
 		tmp = library_symbols;
 		function_seen = 0;
 		while(tmp) {
 			if (eip == tmp->addr) {
 				function_seen = 1;
-				print_function(tmp->name, esp);
+				print_function(tmp->name, pid, esp);
 				continue_after_breakpoint(pid, eip, tmp->old_value, 0);
 				break;
 			}

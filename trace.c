@@ -10,20 +10,18 @@
 #include <signal.h>
 #include <sys/wait.h>
 
-int attached_pid;
-
 #include "i386.h"
 #include "trace.h"
 
 int attach_process(const char * file, char * const argv[])
 {
 	int status;
-	attached_pid = fork();
+	int pid = fork();
 
-	if (attached_pid<0) {
+	if (pid<0) {
 		perror("fork");
 		exit(1);
-	} else if (!attached_pid) {
+	} else if (!pid) {
 		if (ptrace(PTRACE_TRACEME, 0, 1, 0) < 0) {
 			perror("PTRACE_TRACEME");
 			exit(1);
@@ -33,7 +31,7 @@ int attach_process(const char * file, char * const argv[])
 		exit(1);
 	}
 	/* Wait until execve... */
-	if (wait4(attached_pid, &status, 0, NULL)==-1) {
+	if (wait4(pid, &status, 0, NULL)==-1) {
 		perror("wait4");
 		exit(1);
 	}
@@ -41,7 +39,7 @@ int attach_process(const char * file, char * const argv[])
 		fprintf(stderr, "Unknown exit status for process %s\n", file);
 		exit(1);
 	}
-	return attached_pid;
+	return pid;
 }
 
 void continue_process(int pid, int signal)

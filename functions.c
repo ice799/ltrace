@@ -4,10 +4,11 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-extern int attached_pid;
 extern FILE * output;
 
 #include "functions.h"
+
+static int current_pid;
 
 struct function * list_of_functions = NULL;
 
@@ -63,7 +64,7 @@ static char * print_string(int addr)
 
 	tmp[0] = '\0';
 	while(1) {
-		a = ptrace(PTRACE_PEEKTEXT, attached_pid, addr+i, 0);
+		a = ptrace(PTRACE_PEEKTEXT, current_pid, addr+i, 0);
 		*(int *)&tmp[i] = a;
 		if (!tmp[i] || !tmp[i+1] || !tmp[i+2] || !tmp[i+3] || i>100) {
 			break;
@@ -78,7 +79,7 @@ static char * print_param(int type, int esp)
 	static char tmp[256];
 	int a;
 
-	a = ptrace(PTRACE_PEEKTEXT, attached_pid, esp, 0);
+	a = ptrace(PTRACE_PEEKTEXT, current_pid, esp, 0);
 
 	switch(type) {
 		case _T_STRING:
@@ -95,11 +96,13 @@ static char * print_param(int type, int esp)
 	return tmp;
 }
 
-void print_function(const char *name, int esp)
+void print_function(const char *name, int pid, int esp)
 {
 	struct function * tmp;
 	char message[1024];
 	int i;
+
+	current_pid = pid;
 
 	tmp = list_of_functions;
 	while(tmp) {

@@ -1,0 +1,43 @@
+.\" Copyright (c) 1997 Juan Cespedes <cespedes@etsit.upm.es>
+.\" This file is covered by the GNU GPL
+.TH ltrace 1 
+.SH NAME
+ltrace \- A library call tracer
+
+.SH SYNOPSIS
+.B ltrace
+.I "[-d] [-o filename] command [arg ...]"
+
+.SH DESCRIPTION
+.B ltrace
+is a program that simply runs the specified
+.I command
+until it exits.  It intercepts and records the dynamic library calls
+which are called by the executed process and the signals which are
+received by that process.
+.PP
+Its use is very similar to
+.BR strace (1).
+
+.SH OPTIONS
+.TP
+.I \-d
+Enable debugging
+.TP
+.I \-o filename
+Write the trace output to the file
+.I filename
+rather than to stderr.
+
+.SH BUGS
+At the moment, there are too many bugs to list here.
+.PP
+If you like to report a bug, send a notice to the author.
+
+.SH AUTHOR
+Juan Cespedes <cespedes@etsit.upm.es>
+
+.SH "SEE ALSO"
+.BR strace(1) ,
+.BR ptrace(2)
+

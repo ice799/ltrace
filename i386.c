@@ -38,6 +38,25 @@ unsigned long get_eip(int pid)
 	return eip-1;			/* Length of breakpoint (0xCC) is 1 byte */
 }
 
+unsigned long get_esp(int pid)
+{
+	unsigned long esp;
+
+	esp = ptrace(PTRACE_PEEKUSER, pid, 4*UESP, 0);
+
+	return esp;
+}
+
+unsigned long get_return(int pid, unsigned long esp)
+{
+	return ptrace(PTRACE_PEEKTEXT, pid, esp, 0);
+}
+
+unsigned long get_arg(int pid, unsigned long esp, int arg_num)
+{
+	return ptrace(PTRACE_PEEKTEXT, pid, esp+4*arg_num);
+}
+
 int is_there_a_breakpoint(int pid, unsigned long eip)
 {
 	int a;

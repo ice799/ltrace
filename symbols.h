@@ -3,6 +3,7 @@
 struct library_symbol {
 	char * name;
 	unsigned long addr;
+	unsigned long return_addr;
 	unsigned char old_value[BREAKPOINT_LENGTH];
 	struct library_symbol * next;
 };

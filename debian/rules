@@ -18,8 +18,7 @@ binary-arch:	build
 	install -m 644 debian/changelog debian/tmp/usr/doc/ltrace
 	gzip -9fv debian/tmp/usr/doc/ltrace/*
 	install -m 644 debian/copyright debian/tmp/usr/doc/ltrace
-	install -d -m 755 debian/tmp/usr/man/man1
-	ln -s ../man7/undocumented.7.gz debian/tmp/usr/man/man1/ltrace.1.gz
+	gzip -9f debian/tmp/usr/man/man1/*
 	dpkg-shlibdeps debian/tmp/usr/bin/ltrace
 	dpkg-gencontrol
 	chown -R root.root debian/tmp
