@@ -7,6 +7,7 @@
 
 #include "elf.h"
 #include "trace.h"
+#include "symbols.h"
 
 extern void print_function(const char *, int);
 extern void read_config_file(const char *);
@@ -59,18 +60,18 @@ int main(int argc, char **argv)
 	pid = attach_process(argv[1], argv+1);
 	fprintf(output, "pid %u attached\n", pid);
 
-#if 0
+#if 1
 	/* Enable breakpoints: */
 	fprintf(output, "Enabling breakpoints...\n");
-	enable_all_breakpoints();
+	enable_all_breakpoints(pid);
 #endif
 	fprintf(output, "Reading config file(s)...\n");
 	read_config_file("/etc/ltrace.cfg");
 	read_config_file(".ltracerc");
-	ptrace(PTRACE_CONT, pid, 1, 0);
+	continue_process(pid, 0);
 
 	while(1) {
-		int eip;
+		unsigned long eip;
 		int esp;
 		int function_seen;
 
@@ -96,12 +97,12 @@ int main(int argc, char **argv)
 			continue;
 		}
 		if (WSTOPSIG(status) != SIGTRAP) {
-			fprintf(output, "Signal: %u\n", WSTOPSIG(status));
-			ptrace(PTRACE_CONT, pid, 1, WSTOPSIG(status));
+			fprintf(output, "[0x%08lx] Signal: %u\n", get_eip(pid), WSTOPSIG(status));
+			continue_process(pid, WSTOPSIG(status));
 			continue;
 		}
 		/* pid is stopped... */
-		eip = ptrace(PTRACE_PEEKUSER, pid, 4*EIP, 0);
+		eip = get_eip(pid);
 		esp = ptrace(PTRACE_PEEKUSER, pid, 4*UESP, 0);
 #if 0
 		fprintf(output,"EIP = 0x%08x\n", eip);
@@ -111,30 +112,17 @@ int main(int argc, char **argv)
 		tmp = library_symbols;
 		function_seen = 0;
 		while(tmp) {
-			if (eip == tmp->addr+1) {
+			if (eip == tmp->addr) {
 				function_seen = 1;
 				print_function(tmp->name, esp);
-				delete_breakpoint(pid, tmp->addr, tmp->old_value);
-				ptrace(PTRACE_POKEUSER, pid, 4*EIP, eip-1);
-				ptrace(PTRACE_SINGLESTEP, pid, 0, 0);
-				pid = wait4(-1, &status, 0, NULL);
-				if (pid==-1) {
-					if (errno == ECHILD) {
-						fprintf(output, "No more children\n");
-						exit(0);
-					}
-					perror("wait4");
-					exit(1);
-				}
-				insert_breakpoint(pid, tmp->addr, tmp->old_value);
-				ptrace(PTRACE_CONT, pid, 1, 0);
+				continue_after_breakpoint(pid, eip, tmp->old_value, 0);
 				break;
 			}
 			tmp = tmp->next;
 		}
 		if (!function_seen) {
 			fprintf(output, "pid %u stopped; continuing it...\n", pid);
-			ptrace(PTRACE_CONT, pid, 1, 0);
+			continue_process(pid, 0);
 		}
 	}
 	exit(0);

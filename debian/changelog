@@ -1,3 +1,21 @@
+ltrace (0.0.1997.08.15) experimental; urgency=low
+
+  * So far nothing to say
+
+ -- Juan Cespedes <cespedes@etsit.upm.es>  Fri, 15 Aug 1997 13:26:03 +0200
+
+ltrace (0.0.1997.08.14) experimental; urgency=low
+
+  * Still re-structuring code... new file: symbols.c
+
+ -- Juan Cespedes <cespedes@etsit.upm.es>  Thu, 14 Aug 1997 22:22:43 +0200
+
+ltrace (0.0.1997.08.13) experimental; urgency=low
+
+  * So far nothing to say
+
+ -- Juan Cespedes <cespedes@etsit.upm.es>  Wed, 13 Aug 1997 13:04:40 +0200
+
 ltrace (0.0.1997.08.10) experimental; urgency=low
 
   * So far nothing to say

@@ -1,3 +1,7 @@
+/*
+ * This file contains functions specific to ELF binaries
+ */
+
 #include <stdio.h>
 #include <errno.h>
 #include <stdlib.h>
@@ -15,7 +19,7 @@
 
 #include "elf.h"
 #include "ltrace.h"
-#include "trace.h"
+#include "symbols.h"
 
 int read_elf(const char *filename)
 {

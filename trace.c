@@ -1,3 +1,8 @@
+/*
+ * This file contains low-level functions to do process tracing
+ *  (ie, 'ptrace' in POSIX)
+ */
+
 #include <stdio.h>
 #include <unistd.h>
 #include <sys/ptrace.h>
@@ -9,8 +14,6 @@ int attached_pid;
 
 #include "i386.h"
 #include "trace.h"
-
-struct library_symbol * library_symbols = NULL;
 
 int attach_process(const char * file, char * const argv[])
 {
@@ -41,13 +44,7 @@ int attach_process(const char * file, char * const argv[])
 	return attached_pid;
 }
 
-void enable_all_breakpoints(void)
+void continue_process(int pid, int signal)
 {
-	struct library_symbol * tmp = NULL;
-
-	tmp = library_symbols;
-	while(tmp) {
-		insert_breakpoint(attached_pid, tmp->addr, &tmp->old_value[0]);
-		tmp = tmp->next;
-	}
+	ptrace(PTRACE_CONT, pid, 1, signal);
 }
