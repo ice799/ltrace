@@ -34,7 +34,7 @@ static int dict_initialized = 0;
 static void dict_init(void);
 static void dict_clear(void);
 static struct breakpoint * dict_enter(struct process * proc, void * brkaddr);
-static struct breakpoint * dict_find_entry(struct process * proc, void * brkaddr);
+struct breakpoint * dict_find_entry(struct process * proc, void * brkaddr);
 static void dict_apply_to_all(void (* func)(struct process *, struct breakpoint *, void * data), void * data);
 
 
@@ -88,7 +88,7 @@ dict_enter(struct process * proc, void * brkaddr) {
 	return &(newentry->brk);
 }
 
-static struct breakpoint *
+struct breakpoint *
 dict_find_entry(struct process * proc, void * brkaddr) {
 	unsigned int bucketpos = ((unsigned long int)brkaddr) % DICTTABLESIZE;
 	struct dict_entry * entry = dict_buckets[bucketpos];

@@ -28,14 +28,12 @@ syscall_p(struct process * proc, int status, int * sysnum) {
 		int insn = ptrace(PTRACE_PEEKTEXT, proc->pid, pc-4, 0);
 
 		if (insn == SYSCALL_INSN) {
-			*sysnum = ptrace(PTRACE_PEEKUSER, proc->pid, 4*PT_RO, 0);
+			*sysnum = ptrace(PTRACE_PEEKUSER, proc->pid, 4*PT_R0, 0);
 			if (proc->callstack_depth > 0 &&
 					proc->callstack[proc->callstack_depth-1].is_syscall) {
 				return 2;
 			}
-			if (*sysnum >= 0 && *sysnum <= 255) {
-				return 1;
-			}
+			return 1;
 		}
 	}
 	return 0;
@@ -51,7 +49,7 @@ gimme_arg(enum tof type, struct process * proc, int arg_num) {
 		if (arg_num < 8) {
 			return ptrace(PTRACE_PEEKUSER, proc->pid, 4*(arg_num+PT_R3), 0);
 		} else {
-			return ptrace(PTRACE_PEEKDATA, proc->pid, proc->stack_pointer+4*(arg_num-8), 0); /* Check */
+			return ptrace(PTRACE_PEEKDATA, proc->pid, proc->stack_pointer+8*(arg_num-8), 0);
 		}
 	} else {
 		fprintf(stderr, "gimme_arg called with wrong arguments\n");

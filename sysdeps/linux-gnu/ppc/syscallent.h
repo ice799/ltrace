@@ -206,3 +206,17 @@
 	"madvise",                         /* 205 */
 	"mincore",                         /* 206 */
 	"gettid",                          /* 207 */
+	"tkill",                           /* 208 */
+	"setxattr",                        /* 209 */
+	"lsetxattr",                       /* 210 */
+	"fsetxattr",                       /* 211 */
+	"getxattr",                        /* 212 */
+	"lgetxattr",                       /* 213 */
+	"fgetxattr",                       /* 214 */
+	"listxattr",                       /* 215 */
+	"llistxattr",                      /* 216 */
+	"flistxattr",                      /* 217 */
+	"removexattr",                     /* 218 */
+	"lremovexattr",                    /* 219 */
+	"fremovexattr",                    /* 220 */
+	"futex",                           /* 221 */

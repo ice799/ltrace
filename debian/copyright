@@ -11,7 +11,7 @@ m68k port: Copyright (C) 1998 Roman Hodek <Roman.Hodek@informatik.uni-erlangen.d
 Misc fixes: Copyright (C) 1999 Morten Eriksen <mortene@sim.no>
 s390 port: Copyright (C) 2001 IBM Poughkeepsie, IBM Cororation <slate@us.ibm.com>
 ELF hacking: Copyright (C) 1999 Silvio Cesare <silvio@big.net.au>
-PowerPC port: Copyright (C) 2001 Anton Blanchard <anton@linuxcare.com.au>
+PowerPC port: Copyright (C) 2001-2002 Anton Blanchard <anton@samba.org>
 
 
 Autoconf stuff: Copyright 1992-1996 Free Software Foundation, Inc.

@@ -227,6 +227,24 @@ process_breakpoint(struct event * event) {
 
 	for(i=event->proc->callstack_depth-1; i>=0; i--) {
 		if (event->e_un.brk_addr == event->proc->callstack[i].return_addr) {
+#ifdef __powerpc__
+                       unsigned long a;
+                       unsigned long addr = event->proc->callstack[i].c_un.libfunc->enter_addr;
+                       struct breakpoint *sbp = dict_find_entry(event->proc, addr);
+                       unsigned char break_insn[] = BREAKPOINT_VALUE;
+
+                       /*
+                        * PPC HACK! (XXX FIXME TODO)
+                        * The PLT gets modified during the first call,
+                        * so be sure to re-enable the breakpoint.
+                        */
+                       a = ptrace(PTRACE_PEEKTEXT, event->proc->pid, addr);
+
+                       if (memcmp(&a, break_insn, 4)) {
+                               sbp->enabled--;
+                               insert_breakpoint(event->proc, addr);
+                       }
+#endif
 			for(j=event->proc->callstack_depth-1; j>=i; j--) {
 				callstack_pop(event->proc);
 			}

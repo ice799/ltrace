@@ -1,9 +1,15 @@
+ltrace (0.3.25) unstable; urgency=low
+
+  * Finally added powerpc support (Anton Blanchard <anton@samba.org>)
+
+ -- Juan Cespedes <cespedes@debian.org>  Sun, 31 Mar 2002 19:58:25 +0200
+
 ltrace (0.3.24) unstable; urgency=low
 
   * Fixed 2 minor buffer overflows (closes: Bug#130746)
   * Obey --prefix, --sysconfdir, --mandir options in configure
   * Adding powerpc support (doesn't work yet)
-    (Anton Blanchard <anton@linuxcare.com.au>)
+    (Anton Blanchard <anton@samba.org>)
 
  -- Juan Cespedes <cespedes@debian.org>  Wed, 27 Mar 2002 00:20:57 +0100
 

@@ -27,7 +27,7 @@ people have contributed significantly to this project:
 * Morten Eriksen <mortene@sim.no> (misc fixes)
 * Silvio Cesare <silvio@big.net.au> (ELF hacking)
 * Timothy Fesig <slate@us.ibm.com> (S390 port)
-* Anton Blanchard <anton@linuxcare.com.au> (Powerpc port)
+* Anton Blanchard <anton@samba.org> (Powerpc port)
 
 1. Introduction
 ---------------

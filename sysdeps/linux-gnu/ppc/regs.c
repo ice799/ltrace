@@ -31,5 +31,5 @@ get_stack_pointer(pid_t pid) {
 
 void *
 get_return_addr(pid_t pid, void * stack_pointer) {
-	return (void *)ptrace(PTRACE_PEEKTEXT, pid, 4*PT_LNK, 0);
+	return (void *)ptrace(PTRACE_PEEKUSER, pid, 4*PT_LNK, 0);
 }
