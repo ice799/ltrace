@@ -11,6 +11,7 @@ struct debug_functions {
  *	Lista de types:
  */
 
+#define _TYPE_UNKNOWN	-1
 #define _TYPE_VOID	0
 #define _TYPE_INT	1
 #define _TYPE_UINT	2
@@ -166,7 +167,7 @@ static struct debug_functions functions_info[] = {
 	{"wait3",       _TYPE_UINT,  3, {_TYPE_ADDR, _TYPE_INT, _TYPE_ADDR, 0, 0}},
 	{"waitpid",     _TYPE_UINT,  3, {_TYPE_UINT, _TYPE_ADDR, _TYPE_ADDR, 0, 0}},
 	{"write",       _TYPE_INT,   3, {_TYPE_INT, _TYPE_ADDR, _TYPE_UINT, 0, 0}},
-	{NULL, 0, 0, {0, 0, 0, 0, 0}}
+	{NULL, _TYPE_UNKNOWN, 1, {_TYPE_UNKNOWN, 0, 0, 0, 0}}
 };
 
 static char * print_char(unsigned long value)
@@ -193,18 +194,14 @@ static char * print_param(int type, unsigned long value)
 {
 	static char result[1024];
 
-_sys_write(fd, "Toi en a\n", 9);
 	switch(type) {
 		case _TYPE_INT:
-_sys_write(fd, "Toi en b\n", 9);
 			sprintf(result, "%d", (int)value);
 			break;
 		case _TYPE_UINT:
-_sys_write(fd, "Toi en c\n", 9);
 			sprintf(result, "%u", (unsigned int)value);
 			break;
 		case _TYPE_ADDR:
-_sys_write(fd, "Toi en d\n", 9);
 			if (!value) {
 				sprintf(result, "NULL");
 			} else {
@@ -212,7 +209,6 @@ _sys_write(fd, "Toi en d\n", 9);
 			}
 			break;
 		case _TYPE_FILE:
-_sys_write(fd, "Toi en e\n", 9);
 #if 0
 			if (value==(unsigned long)stdin) {
 				sprintf(result, "stdin");
@@ -228,11 +224,9 @@ _sys_write(fd, "Toi en e\n", 9);
 #endif
 			break;
 		case _TYPE_OCTAL:
-_sys_write(fd, "Toi en f\n", 9);
 			sprintf(result, "0%o", (unsigned int)value);
 			break;
 		case _TYPE_CHAR:
-_sys_write(fd, "Toi en g\n", 9);
 			if (value==-1) {
 				sprintf(result, "EOF");
 			} else {
@@ -240,13 +234,10 @@ _sys_write(fd, "Toi en g\n", 9);
 			}
 			break;
 		case _TYPE_STRING:
-_sys_write(fd, "Toi en h\n", 9);
 			if (value==0) {
-_sys_write(fd, "Toi en h1\n", 10);
 				sprintf(result, "<NULL>");
 			} else {
 				int i;
-_sys_write(fd, "Toi en h2\n", 10);
 				sprintf(result, "\"");
 				for(i=0; *((char*)value+i) && i<MAX_STRING; i++) {
 					strcat(result, print_char(*((char*)value+i)));
@@ -258,8 +249,10 @@ _sys_write(fd, "Toi en h2\n", 10);
 			}
 			break;
 		case _TYPE_VOID:
-_sys_write(fd, "Toi en i\n", 9);
 			sprintf(result, "<void>");
+			break;
+		case _TYPE_UNKNOWN:
+			sprintf(result, "???");
 			break;
 		default:
 			sprintf(result, "???");
@@ -277,8 +270,10 @@ static void print_results(u_long arg)
 		bcopy((char *)&pointer, (char *)pointer->got, 4);
 	}
 
+#if 0
 _sys_write(fd, pointer->name, strlen(pointer->name));
 _sys_write(fd, ":\n", 2);
+#endif
 
 	function_actual = functions_info;
 	while(function_actual->function_name) {
@@ -287,34 +282,35 @@ _sys_write(fd, ":\n", 2);
 		}
 		function_actual++;
 	}
+#if 0
 	if (!function_actual->function_name) {
-		sprintf(message, "** WARN **: debug(%s) NOT FOUND\n", pointer->name);
-		_sys_write(fd, message, strlen(message));
+		_sys_write(fd, "*UNK* ", 6);
 	}
+#endif
 
 	function_args = &arg;
 
-sprintf(message,"return  = 0x%08x\n"
+#if 0
+sprintf(message,"call to = 0x%08x\n"
+		"got     = 0x%08x\n"
+		"return  = 0x%08x\n"
 		"args[0] = 0x%08x\n"
 		"args[1] = 0x%08x\n"
 		"args[2] = 0x%08x\n"
 		"args[3] = 0x%08x\n"
 		"args[4] = 0x%08x\n"
-		"args[5] = 0x%08x\n", where_to_return,
+		"args[5] = 0x%08x\n",
+		pointer, pointer->got, where_to_return,
 		function_args[0], function_args[1], function_args[2],
 		function_args[3], function_args[4], function_args[5]);
 _sys_write(fd, message, strlen(message));
+#endif
 
-#if 0
 	message[0] = '\0';
-_sys_write(fd, "Toi en 3\n", 9);
 	sprintf(message, "%s%s(", message, pointer->name);
-_sys_write(fd, "Toi en 4\n", 9);
 	if (function_actual->no_params > 0) {
-_sys_write(fd, "Toi en 5\n", 9);
 		sprintf(message, "%s%s", message,
 			print_param(function_actual->params_type[0], function_args[0]));
-_sys_write(fd, "Toi en 6\n", 9);
 	}
 	for(i=1; i<function_actual->no_params; i++) {
 		sprintf(message, "%s,%s", message,
@@ -323,5 +319,4 @@ _sys_write(fd, "Toi en 6\n", 9);
 	sprintf(message, "%s) = %s\n", message,
 		print_param(function_actual->return_type, returned_value));
 	_sys_write(fd, message, strlen(message));
-#endif
 }

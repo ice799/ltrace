@@ -27,6 +27,7 @@ struct ax_jmp_t {
 	u_long * got __attribute__ ((packed));
 };
 
+static struct ax_jmp_t * pointer_tmp;
 static struct ax_jmp_t * pointer;
 
 static void new_func(void);
@@ -112,7 +113,7 @@ static void init_libtrace(void)
 		if (!((symtab+i)->st_shndx) && (symtab+i)->st_value) {
 			bcopy(ax_jmp, (char *)&table[j], sizeof(struct ax_jmp_t));
 			table[j].src = (char *)&table[j];
-			table[j].dst = &pointer;
+			table[j].dst = &pointer_tmp;
 			table[j].new_func = &new_func_ptr;
 			table[j].name = strtab+(symtab+i)->st_name;
 			table[j].got = (u_long *)*(long *)(((int)((symtab+i)->st_value))+2);
@@ -144,10 +145,11 @@ _sys_write(fd,"reentrant\n",10);
 			"movl %%ebp, %%esp\n\t"
 			"popl %%ebp\n\t"
 			"jmp *%%eax\n"
-			: : "a" (pointer->real_func)
+			: : "a" (pointer_tmp->real_func)
 		);
 	}
 	reentrant=1;
+	pointer = pointer_tmp;
 	where_to_jump = (u_long)pointer->real_func;
 
 	/* This is only to avoid a GCC warning; shouldn't be here:
