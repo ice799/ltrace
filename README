@@ -3,3 +3,9 @@ Funcionamiento:
 
 * 2nd approach: using soft breakpoints (INT 3, CC) in process using
   ptrace, just like gdb/strace
+
+Tue Jun 24 22:42:59 CEST 1997  Juan Cespedes <cespedes@etsit.upm.es>
+
+	* I think I've found the optimal format for config files:
+	  C prototypes!  For example:
+		void * malloc(unsigned int size);

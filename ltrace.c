@@ -13,6 +13,8 @@
 #include <string.h>
 #include <signal.h>
 
+void print_function(const char *, int);
+
 int pid;
 
 static int debug = 0;
@@ -21,6 +23,8 @@ struct library_symbol {
 	char * name;
 	unsigned long addr;
 	unsigned char value;
+	unsigned long return_addr;
+	unsigned char return_value;
 	struct library_symbol * next;
 };
 

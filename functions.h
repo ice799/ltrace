@@ -7,7 +7,7 @@ extern int pid;
 struct functions {
 	const char * function_name;
 	int return_type;
-	int no_params;
+	int num_params;
 	int params_type[10];
 };
 
