@@ -4,11 +4,10 @@
   + Read list of undefined symbols in executables
   + Read list of exported symbols in libraries
   + Read debugging info from executables/libraries
-* Update list of syscalls to Linux-2.4.*
-* "\\", "\"", '\''
+* Update list of syscalls automatically?
 * Improve documentation
-* Improve option -e
-* "-l" option: trace functions from these libraries
+* Improve -e option
+* Improce -l option
 * Improve C++ name demangling
 * Display different argument types:
   + how to display execl...?
@@ -21,3 +20,4 @@
 * Option -c (summary)
 * More architectures: sparc, alpha
 * More operating systems (solaris?)
+* Try to find out what could happen with some recursive calls...

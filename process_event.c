@@ -276,7 +276,7 @@ static void callstack_push_symfunc(struct process * proc, struct library_symbol 
 	elem->c_un.libfunc = sym;
 
 	proc->stack_pointer = get_stack_pointer(proc->pid);
-	elem->return_addr = get_return_addr(proc->pid, proc->stack_pointer);
+	proc->return_addr = elem->return_addr = get_return_addr(proc->pid, proc->stack_pointer);
 	insert_breakpoint(proc, elem->return_addr);
 
 	proc->callstack_depth++;

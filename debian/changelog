@@ -1,3 +1,9 @@
+ltrace (0.3.13) unstable; urgency=low
+
+  * Fixed "ltrace -i", broken since version 0.3.11
+
+ -- Juan Cespedes <cespedes@debian.org>  Tue,  3 Jul 2001 18:36:15 +0200
+
 ltrace (0.3.12) unstable; urgency=low
 
   * Re-wrote of "elf.c" (Silvio Cesare <silvio@big.net.au>)

@@ -63,12 +63,12 @@ struct library_symbol {
 };
 
 struct callstack_element {
-       union {
-               int syscall;
-               struct library_symbol * libfunc;
-       } c_un;
-       int is_syscall;
-	   void * return_addr;
+	union {
+		int syscall;
+		struct library_symbol * libfunc;
+	} c_un;
+	int is_syscall;
+	void * return_addr;
 };
 
 #define MAX_CALLDEPTH 64
