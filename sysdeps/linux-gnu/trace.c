@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
+#include <unistd.h>
 #include <sys/types.h>
 #include <sys/ptrace.h>
 #include <asm/unistd.h>
@@ -70,6 +71,18 @@ void
 continue_enabling_breakpoint(pid_t pid, struct breakpoint * sbp) {
 	enable_breakpoint(pid, sbp);
 	continue_process(pid);
+}
+
+void
+continue_after_breakpoint(struct process *proc, struct breakpoint * sbp) {
+	if (sbp->enabled) disable_breakpoint(proc->pid, sbp);
+	set_instruction_pointer(proc->pid, sbp->addr);
+	if (sbp->enabled == 0) {
+		continue_process(proc->pid);
+	} else {
+		proc->breakpoint_being_enabled = sbp;
+		ptrace(PTRACE_SINGLESTEP, proc->pid, 0, 0);
+	}
 }
 
 int

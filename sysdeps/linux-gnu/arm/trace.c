@@ -45,18 +45,6 @@ syscall_p(struct process * proc, int status, int * sysnum) {
 	return 0;
 }
             
-void
-continue_after_breakpoint(struct process *proc, struct breakpoint * sbp) {
-	if (sbp->enabled) disable_breakpoint(proc->pid, sbp);
-	ptrace(PTRACE_POKEUSER, proc->pid, off_pc, sbp->addr);
-	if (sbp->enabled == 0) {
-		continue_process(proc->pid);
-	} else {
-		proc->breakpoint_being_enabled = sbp;
-		ptrace(PTRACE_SINGLESTEP, proc->pid, 0, 0);
-	}
-}
-
 long
 gimme_arg(enum tof type, struct process * proc, int arg_num) {
 	if (arg_num==-1) {		/* return value */

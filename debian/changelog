@@ -1,3 +1,11 @@
+ltrace (0.3.23) unstable; urgency=low
+
+  * Fixed missing include <unistd.h> in trace.c
+  * One arch-dependent function less (continue_after_breakpoint)
+  * Fixed S/390 port (it didn't compile yet...)
+
+ -- Juan Cespedes <cespedes@debian.org>  Sun,  3 Mar 2002 18:58:36 +0100
+
 ltrace (0.3.22) unstable; urgency=low
 
   * S/390: Removed extra target in sysdeps/linux-gnu/s390 which avoided

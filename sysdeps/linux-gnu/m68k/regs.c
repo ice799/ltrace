@@ -19,6 +19,11 @@ get_instruction_pointer(pid_t pid) {
 	return (void *)ptrace(PTRACE_PEEKUSER, pid, 4*PT_PC, 0);
 }
 
+void
+set_instruction_pointer(pid_t pid, long addr) {
+	ptrace(PTRACE_POKEUSER, pid, 4*PT_PC, addr);
+}
+
 void *
 get_stack_pointer(pid_t pid) {
 	return (void *)ptrace(PTRACE_PEEKUSER, pid, 4*PT_USP, 0);

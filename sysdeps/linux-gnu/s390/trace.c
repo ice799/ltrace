@@ -55,10 +55,11 @@ syscall_p(struct process * proc, int status, int * sysnum) {
 		}
 		if (svcop == 10 && *sysnum>=0) {
 			/* System call was encountered... */
-			if (proc->current_syscall!=*sysnum) {
-				return 1;
-			} else {
+			if (proc->callstack_depth > 0 &&
+					proc->callstack[proc->callstack_depth-1].is_syscall) {
 				return 2;
+			} else {
+				return 1;
 			}
 		}
 		else {
@@ -68,18 +69,6 @@ syscall_p(struct process * proc, int status, int * sysnum) {
 	}
 	/* Unknown status... */
 	return 0;
-}
-
-void
-continue_after_breakpoint(struct process *proc, struct breakpoint * sbp) {
-	if (sbp->enabled) disable_breakpoint(proc->pid, sbp);
-	ptrace(PTRACE_POKEUSER, proc->pid, PT_PSWADDR, sbp->addr);
-	if (sbp->enabled == 0) {
-		continue_process(proc->pid);
-	} else {
-		proc->breakpoint_being_enabled = sbp;
-		ptrace(PTRACE_SINGLESTEP, proc->pid, 0, 0);
-	}
 }
 
 long
