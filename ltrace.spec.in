@@ -1,5 +1,5 @@
 %define package ltrace
-%define version 0.3.20
+%define version @VERSION@
 %define release 1
 %define _mandir /usr/share/man
 Summary: Tracks runtime library calls for dynamically linked executables

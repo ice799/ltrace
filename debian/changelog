@@ -1,3 +1,13 @@
+ltrace (0.3.20) unstable; urgency=low
+
+  * Added s390 port (Timothy R. Fesig <slate@us.ibm.com>)
+  * Modified configure process to use ltrace.spec.in to generate
+    ltrace.spec (Timothy R. Fesig <slate@us.ibm.com>)
+  * Fixed some problems using ltrace.spec on Intel platform.
+                (Timothy R. Fesig <slate@us.ibm.com>)
+
+ -- Juan Cespedes <cespedes@debian.org>  Sat,  2 Mar 2002 23:33:00 +0100
+
 ltrace (0.3.19) unstable; urgency=low
 
   * Fixed small bug: "<unifinished...>" lines were sometimes incorrectly

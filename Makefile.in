@@ -31,7 +31,7 @@ clean:
 		$(RM) *~ *.bak a.out core KK
 
 distclean:	clean
-		$(RM) config.cache config.status config.log config.h Makefile configure.scan
+		$(RM) config.cache config.status config.log config.h Makefile ltrace.spec configure.scan
 
 realclean:	distclean
 		$(RM) configure config.h.in

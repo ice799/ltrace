@@ -2,7 +2,7 @@
 
                        A Dynamic Library Tracer
 
-         Copyright 1997-2001 Juan Cespedes <cespedes@debian.org>
+         Copyright 1997-2002 Juan Cespedes <cespedes@debian.org>
 
 
 Contents
@@ -26,6 +26,7 @@ people have contributed significantly to this project:
 * Roman Hodek <Roman.Hodek@informatik.uni-erlangen.de> (m68k port)
 * Morten Eriksen <mortene@sim.no> (misc fixes)
 * Silvio Cesare <silvio@big.net.au> (ELF hacking)
+* Timothy Fesig <slate@us.ibm.com> (S390 port)
 
 1. Introduction
 ---------------

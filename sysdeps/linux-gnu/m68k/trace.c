@@ -20,8 +20,8 @@
 
 /* Returns 1 if syscall, 2 if sysret, 0 otherwise.
  */
-int syscall_p(struct process * proc, int status, int * sysnum)
-{
+int
+syscall_p(struct process * proc, int status, int * sysnum) {
 	int depth;
 
 	if (WIFSTOPPED(status) && WSTOPSIG(status)==SIGTRAP) {
@@ -41,8 +41,8 @@ int syscall_p(struct process * proc, int status, int * sysnum)
 	return 0;
 }
 
-void continue_after_breakpoint(struct process *proc, struct breakpoint * sbp)
-{
+void
+continue_after_breakpoint(struct process *proc, struct breakpoint * sbp) {
 	if (sbp->enabled) disable_breakpoint(proc->pid, sbp);
 	ptrace(PTRACE_POKEUSER, proc->pid, 4*PT_PC, sbp->addr);
 	if (sbp->enabled == 0) {
@@ -53,8 +53,8 @@ void continue_after_breakpoint(struct process *proc, struct breakpoint * sbp)
 	}
 }
 
-long gimme_arg(enum tof type, struct process * proc, int arg_num)
-{
+long
+gimme_arg(enum tof type, struct process * proc, int arg_num) {
 	if (arg_num==-1) {		/* return value */
 		return ptrace(PTRACE_PEEKUSER, proc->pid, 4*PT_D0, 0);
 	}

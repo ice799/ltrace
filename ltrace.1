@@ -1,4 +1,4 @@
-.\" Copyright (c) 1997-2001 Juan Cespedes <cespedes@debian.org>
+.\" Copyright (c) 1997-2002 Juan Cespedes <cespedes@debian.org>
 .\" This file is covered by the GNU GPL
 .TH ltrace 1 
 .SH NAME
@@ -24,6 +24,9 @@ Its use is very similar to
 .TP
 .I \-d, \-\-debug
 Increase the debugging level.
+Use more (ie.
+.I \=dd
+) for greater debugging information.
 .TP
 .I \-f
 Trace child processes as they are created by
@@ -128,9 +131,9 @@ Manual page and documentation are not very up-to-date.
 .LP
 Option -f sometimes fails to trace some children.
 .LP
-It only works on Linux/i386, Linux/m68k, and Linux/arm
+It only works on Linux/i386, Linux/m68k, Linux/arm, and Linux/S390.
 .LP
-Only ELF32 binaries are supported
+Only ELF32 binaries are supported.
 .PP
 If you like to report a bug, send a notice to the author, or use the
 .BR bug(1)

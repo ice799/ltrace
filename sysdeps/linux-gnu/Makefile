@@ -1,6 +1,6 @@
 ARCH	:=	$(shell uname -m | sed -e s/i.86/i386/ -e s/sun4u/sparc64/ -e s/arm.*/arm/ -e s/sa110/arm/)
 
-CFLAGS	+=	-I$(TOPDIR)/sysdeps/Linux/$(ARCH)
+CFLAGS	+=	-I$(TOPDIR)/sysdeps/linux-gnu/$(ARCH)
 
 OBJ	=	trace.o proc.o
 

@@ -6,7 +6,7 @@ Standards-Version: 3.5.5
 Build-Depends: binutils-dev
 
 Package: ltrace
-Architecture: i386 arm m68k
+Architecture: i386 arm m68k s390
 Depends: ${shlibs:Depends}
 Description: Tracks runtime library calls in dynamically linked programs
  ltrace is a debugging program which runs a specified command until it

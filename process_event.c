@@ -215,6 +215,7 @@ process_breakpoint(struct event * event) {
 		output_line(0,"event: breakpoint (0x%08x)", event->e_un.brk_addr);
 	}
 	if (event->proc->breakpoint_being_enabled) {
+		/* Reinsert breakpoint */
 		continue_enabling_breakpoint(event->proc->pid, event->proc->breakpoint_being_enabled);
 		event->proc->breakpoint_being_enabled = NULL;
 		return;

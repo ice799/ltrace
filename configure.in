@@ -1,6 +1,6 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_CONFIG_HEADER(config.h)
 AC_INIT(ltrace.c)
+AC_CONFIG_HEADER(config.h)
 
 dnl Check host system type
 AC_CANONICAL_HOST
@@ -18,11 +18,10 @@ AC_CHECK_LIB(iberty, cplus_demangle,,,-ldl)
 AC_MSG_CHECKING(ltrace version)
 changequote(<<, >>)
 ltrace_version=`sed -n '1s/ltrace (\([0-9.]\+\)).*/\1/p' ${srcdir}/debian/changelog`
-sed -e "s/^%define version .*$/%define version ${ltrace_version}/" \
-	< ${srcdir}/ltrace.spec > ${srcdir}/ltrace.spec2
-mv ltrace.spec2 ltrace.spec
+sed -e "s/@VERSION@/${ltrace_version}/g" \
+	< ${srcdir}/ltrace.spec.in > ${srcdir}/ltrace.spec
 changequote([, ])
-AC_DEFINE_UNQUOTED(VERSION,"$ltrace_version")
+dnl AC_DEFINE_UNQUOTED(VERSION,"$ltrace_version")
 AC_MSG_RESULT($ltrace_version)
 
 dnl
