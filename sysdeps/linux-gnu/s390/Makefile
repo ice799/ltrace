@@ -2,7 +2,7 @@
 # S/390        version
 # (C) Copyright        2001 IBM Poughkeepsie, IBM Corporation
 #
-OBJ	=	breakpoint.o trace.o regs.o
+OBJ	=	trace.o regs.o
 
 all:		arch.o
 

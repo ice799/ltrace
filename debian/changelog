@@ -1,3 +1,10 @@
+ltrace (0.3.22) unstable; urgency=low
+
+  * S/390: Removed extra target in sysdeps/linux-gnu/s390 which avoided
+    compiling...
+
+ -- Juan Cespedes <cespedes@debian.org>  Sun,  3 Mar 2002 14:04:38 +0100
+
 ltrace (0.3.21) unstable; urgency=low
 
   * Get rid of arch/breakpoint.c; we can do it arch-independent
