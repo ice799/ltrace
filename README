@@ -2,3 +2,6 @@ Funcionamiento:
 ---------------
 
 * Intercepts library function '__setfpucw'
+
+YA NO: Ahora usa seccion 'ctors' para inicializacion de la libreria;
+       ya no exporta ninguna funcion.

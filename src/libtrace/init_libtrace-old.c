@@ -4,24 +4,31 @@
 #include <hck/syscall.h>
 #include <sys/mman.h>
 
-static int fd;
+static int fd = 2;
 
-static char trampoline[] = {
-	1, 2, 3, 4,			/* pointer to trampoline+4		*/
-	0x68, 1, 2, 3, 4,		/* pushl $0x04030201 (symbol index)	*/
-	0xff, 0x25, 1, 2, 3, 4		/* jmp *0x04030201			*/
+static char ax_jmp[] = {
+	0xb8, 1, 2, 3, 4,		/* movl $0x04030201, %eax	*/
+	0xa3, 5, 6, 7, 8,		/* movl %eax, 0x08070605	*/
+	0xff, 0x25, 1, 2, 3, 4,		/* jmp *0x04030201		*/
+	0, 0, 0, 0,			/* real_func			*/
+	0, 0, 0, 0,			/* name				*/
+	0, 0, 0, 0			/* got				*/
 };
 
-struct trampoline_t {
-	void * aqui __attribute__ ((packed));
+static char where_to_ret[] = {
+};
+
+struct ax_jmp_t {
 	char tmp1;
-	long function_no __attribute__ ((packed));
-	char tmp2, tmp3;
-	void (*new_func)() __attribute__ ((packed));
+	void * src __attribute__ ((packed));
+	char tmp2;
+	void * dst __attribute__ ((packed));
+	char tmp3,tmp4;
+	void * new_func __attribute__ ((packed));
+	void * real_func __attribute__ ((packed));
+	char * name __attribute__ ((packed));
+	u_long * got __attribute__ ((packed));
 };
-
-void ** GOT;		/* Array indexed by 'symbol index' (value pushed) */
-char ** name;
 
 static struct ax_jmp_t * pointer_tmp;
 static struct ax_jmp_t * pointer;
@@ -34,14 +41,14 @@ static int current_pid;
 static void init_libtrace(void)
 {
 	int i,j;
+	void * k;
 	struct elf32_sym * symtab = NULL;
 	size_t symtab_len = 0;
-	char * tmp;
-	long buffer[6];
-	void * table;
-	unsigned long plt_min=-1, plt_max=0;
 	char * strtab = NULL;
-	size_t nsymbols;
+	char * tmp;
+	int nsymbols = 0;
+	long buffer[6];
+	struct ax_jmp_t * table;
 
 	if (new_func_ptr) {
 		return;
@@ -61,12 +68,10 @@ static void init_libtrace(void)
 		}
 		fd = _sys_dup2(fd_old, 234);
 		_sys_close(fd_old);
-	} else {
-		fd = _sys_dup2(2, 234);
-	}
-	if (fd<0) {
-		_sys_write(2, "Not enough fd's?\n", 17);
-		return;
+		if (fd<0) {
+			_sys_write(2, "Not enough fd's?\n", 17);
+			return;
+		}
 	}
 
 	tmp = getenv("LTRACE_SYMTAB");
@@ -95,63 +100,32 @@ static void init_libtrace(void)
 	unsetenv("LTRACE_SYMTAB_LEN");
 	unsetenv("LTRACE_STRTAB");
 
-	nsymbols = 0;
 	for(i=0; i<symtab_len/sizeof(struct elf32_sym); i++) {
 		if (!((symtab+i)->st_shndx) && (symtab+i)->st_value) {
-			unsigned got_tmp;
 			nsymbols++;
-			if ((symtab+i)->st_value < plt_min) {
-				plt_min = (symtab+i)->st_value;
-			}
-			if ((symtab+i)->st_value > plt_max) {
-				plt_max = (symtab+i)->st_value;
-			}
-
-#if 1
-                        got_tmp = (long)*(long *)(((int)((symtab+i)->st_value))+2);
-
-			printf("New symbol: %-16s, JMP: 0x%08x, GOT: 0x%08x\n",
-				(strtab+(symtab+i)->st_name),
-				(unsigned)((symtab+i)->st_value), got_tmp);
-			printf("tpnt = 0x%08x\n",
-				*(long *)(2+((symtab+i)->st_value)+16+(long)*(long *)(((int)((symtab+i)->st_value))+12))
-			);
-
+#if 0
+			_sys_write(fd, "New symbol: ", 12);
+			_sys_write(fd,strtab+(symtab+i)->st_name,strlen(strtab+(symtab+i)->st_name));
+			_sys_write(fd, "\n", 1);
 #endif
 		}
 	}
-	printf("Total: %d symbols; plt_min=0x%08x, plt_max=0x%08x\n", nsymbols, plt_min, plt_max);
 
 	buffer[0] = 0;
-	buffer[1] = nsymbols * sizeof(struct trampoline_t);
+	buffer[1] = nsymbols * sizeof(struct ax_jmp_t);
 	buffer[2] = PROT_READ | PROT_WRITE | PROT_EXEC;
 	buffer[3] = MAP_PRIVATE | MAP_ANON;
 	buffer[4] = 0;
 	buffer[5] = 0;
-	table = (void *)_sys_mmap(buffer);
+	table = (struct ax_jmp_t *)_sys_mmap(buffer);
 	if (!table) {
-		printf("ltrace: Cannot mmap?\n");
+		_sys_write(fd,"Cannot mmap?\n",13);
 		return;
 	}
-	plt_min = plt_min & ~(4096-1);
-	printf("plt_min=0x%08x\n", plt_min);
-	i = _sys_mprotect((void*)plt_min, plt_max-plt_min+6, PROT_READ | PROT_WRITE | PROT_EXEC);
-	if (i<0) {
-		printf("ltrace: Cannot mprotect?\n");
-		return;
-	}
-#if 1
-	return;
-}
-static void new_func(void)
-{
-}
-#else
 
 	j=0;
 	for(i=0; i<symtab_len/sizeof(struct elf32_sym); i++) {
 		if (!((symtab+i)->st_shndx) && (symtab+i)->st_value) {
-#if 0
 			bcopy(ax_jmp, (char *)&table[j], sizeof(struct ax_jmp_t));
 			table[j].src = (char *)&table[j];
 			table[j].dst = &pointer_tmp;
@@ -162,7 +136,6 @@ static void new_func(void)
 			k = &table[j];
 			bcopy((char*)&k, (char *)table[j].got, 4);
 			j++;
-#endif
 		}
 	}
 
@@ -225,5 +198,3 @@ _sys_write(fd,"reentrant\n",10);
 		"ret\n"
 	);
 }
-
-#endif

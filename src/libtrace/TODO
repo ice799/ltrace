@@ -15,10 +15,15 @@ WARNING: Si se quiere loggear todo, hay que tener presente que pueden
          tener un 'where_to_return'; hay que tener muchos (tal vez se
          podria hacer con un struct similar a 'ax_jmp_t')...
 
-* Utilizar prefijos para cada simbolo dentro de un mismo ejecutable
-  (ejemplo: init_a, init_b, print_a, print_b ...)
+SOLUCION 2: Para evitar que se nos pase alguna funcion (por ejemplo,
+            dos funciones noreturn que se llaman una detras de otra),
+            se podria modificar el ".plt" en lugar del ".got", y
+            saltar siempre luego a la direccion del ".got" que
+            corresponda.
 
-* Usar 'errno' para loggear errores de function calls
+* Usar 'errno' para loggear errores de library calls
 
 * Usar 'msync' (o algo parecido; 'access'?) para ver si las
   direcciones dereferenciadas son validas, para evitar SIGSEGV
+
+* Deberia usar 'pusha' e incluso 'pushf'

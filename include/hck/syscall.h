@@ -77,6 +77,7 @@
 #define __NR_wait4	114
 #define __NR_swapoff	115
 #define __NR_uname	122
+#define __NR_mprotect	125
 #define __NR_llseek	140
 #define __NR_select	142
 
@@ -229,6 +230,7 @@ _syscall2(int,fstat,int,filedes,struct stat *,buff)
 _syscall4(pid_t,wait4,pid_t,pid,int *,status,int,options,struct rusage *,rusage)
 _syscall1(int,swapoff,const char *,path)
 _syscall1(int,uname,struct utsname *,buf)
+_syscall3(int,mprotect,caddr_t,addr,size_t,len,int,prot)
 _syscall5(int,llseek,int,fd,unsigned long,hi,unsigned long,lo,loff_t *,result,unsigned int,whence)
 _syscall5(int,select,int,n,fd_set *,readfds,fd_set *,writefds,fd_set *,exceptfds,struct timeval *,timeout)
 

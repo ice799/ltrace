@@ -76,6 +76,7 @@ int main(int argc, char **argv)
  * Tengo que decirle a libtrace:
  *  - Comienzo y tamanno de '.dynsym'	LTRACE_SYMTAB_ADDR,	LTRACE_SYMTAB_SIZE
  *  - Comienzo de '.dynstr'		LTRACE_STRTAB_ADDR
+ *  - Comienzo y tamanno de '.got'	LTRACE_GOT_ADDR,	LTRACE_GOT_SIZE
  *
  * Todo ello especificado en decimal (por elegir algo)
  */
