@@ -1,0 +1,4 @@
+Funcionamiento:
+---------------
+
+* Intercepts library function '__setfpucw'
