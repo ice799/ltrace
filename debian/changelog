@@ -1,3 +1,12 @@
+ltrace (0.3.12) unstable; urgency=low
+
+  * Re-wrote of "elf.c" (Silvio Cesare <silvio@big.net.au>)
+  * Added "--library" option (Silvio)
+  * Updated list of syscalls and signals to Linux 2.4.5
+  * Compile cleanly with gcc-3.0 (thanks to Frédéric L. W. Meunier)
+ 
+ -- Juan Cespedes <cespedes@debian.org>  Tue,  3 Jul 2001 00:43:25 +0200
+
 ltrace (0.3.11) unstable; urgency=low
 
   * Clean up lintian bugs

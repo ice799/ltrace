@@ -2,6 +2,10 @@
 #include "config.h"
 #endif
 
+#ifndef VERSION
+# define VERSION "???"
+#endif
+
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -17,6 +21,9 @@
 #include "options.h"
 #include "defs.h"
 
+#define MAX_LIBRARY		30
+char *library[MAX_LIBRARY];
+int library_num = 0;
 static char *progname;		/* Program name (`ltrace') */
 FILE * output;
 int opt_a = DEFAULT_ACOLUMN;	/* default alignment column for results */
@@ -61,6 +68,11 @@ static void usage(void)
 "  -S                  display system calls.\n"
 "  -r                  print relative timestamps.\n"
 "  -t, -tt, -ttt       print absolute timestamps.\n"
+#  if HAVE_GETOPT_LONG
+"  -l, --library=FILE  print library calls from this library only.\n"
+#  else
+"  -l FILE             print library calls from this library only.\n"
+#  endif
 # if HAVE_LIBIBERTY
 #  if HAVE_GETOPT_LONG
 "  -C, --demangle      decode low-level symbol names into user-level names.\n"
@@ -147,6 +159,7 @@ char ** process_options(int argc, char **argv)
 			{ "demangle", 0, 0, 'C'},
 #endif
 			{ "indent", 0, 0, 'n'},
+			{ "library", 0, 0, 'l'},
 			{ "help", 0, 0, 'h'},
 			{ "output", 1, 0, 'o'},
 			{ "version", 0, 0, 'V'},
@@ -156,18 +169,24 @@ char ** process_options(int argc, char **argv)
 # if HAVE_LIBIBERTY
 			"C"
 # endif
-			"a:s:o:u:p:e:n:", long_options, &option_index);
+			"a:s:o:u:p:e:n:l:", long_options, &option_index);
 #else
 		c = getopt(argc, argv, "+dfiLSrthV"
 # if HAVE_LIBIBERTY
 			"C"
 # endif
-			"a:s:o:u:p:e:n:");
+			"a:s:o:u:p:e:n:l:");
 #endif
 		if (c==-1) {
 			break;
 		}
 		switch(c) {
+			case 'l':	if (library_num == MAX_LIBRARY) {
+						fprintf(stderr, "Too many libraries.  Maximum is %i.\n", MAX_LIBRARY);
+						exit(1);
+					}
+					library[library_num++] = optarg;
+					break;
 			case 'd':	opt_d++;
 					break;
 			case 'f':	opt_f = 1;
@@ -249,13 +268,7 @@ char ** process_options(int argc, char **argv)
 					}
 					break;
 				}
-			case 'V':	printf("ltrace version "
-#ifdef VERSION
-					VERSION
-#else
-					"???"
-#endif
-					".\n"
+			case 'V':	printf("ltrace version " VERSION ".\n"
 "Copyright (C) 1997-1999 Juan Cespedes <cespedes@debian.org>.\n"
 "This is free software; see the GNU General Public Licence\n"
 "version 2 or later for copying conditions.  There is NO warranty.\n");

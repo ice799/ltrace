@@ -110,7 +110,7 @@
 	"olduname",                        /* 109 */
 	"110",                             /* 110 */
 	"vhangup",                         /* 111 */
-	"idle",                            /* 112 */
+	"112",                             /* 112 */
 	"113",                             /* 113 */
 	"wait4",                           /* 114 */
 	"swapoff",                         /* 115 */
@@ -164,7 +164,7 @@
 	"mremap",                          /* 163 */
 	"setresuid",                       /* 164 */
 	"getresuid",                       /* 165 */
-	"166",                             /* 166 */
+	"getpagesize",                     /* 166 */
 	"query_module",                    /* 167 */
 	"poll",                            /* 168 */
 	"nfsservctl",                      /* 169 */
@@ -189,3 +189,33 @@
 	"getpmsg",                         /* 188 */
 	"putpmsg",                         /* 189 */
 	"vfork",                           /* 190 */
+	"ugetrlimit",                      /* 191 */
+	"mmap2",                           /* 192 */
+	"truncate64",                      /* 193 */
+	"ftruncate64",                     /* 194 */
+	"stat64",                          /* 195 */
+	"lstat64",                         /* 196 */
+	"fstat64",                         /* 197 */
+	"chown32",                         /* 198 */
+	"getuid32",                        /* 199 */
+	"getgid32",                        /* 200 */
+	"geteuid32",                       /* 201 */
+	"getegid32",                       /* 202 */
+	"setreuid32",                      /* 203 */
+	"setregid32",                      /* 204 */
+	"getgroups32",                     /* 205 */
+	"setgroups32",                     /* 206 */
+	"fchown32",                        /* 207 */
+	"setresuid32",                     /* 208 */
+	"getresuid32",                     /* 209 */
+	"setresgid32",                     /* 210 */
+	"getresgid32",                     /* 211 */
+	"lchown32",                        /* 212 */
+	"setuid32",                        /* 213 */
+	"setgid32",                        /* 214 */
+	"setfsuid32",                      /* 215 */
+	"setfsgid32",                      /* 216 */
+	"217",                             /* 217 */
+	"218",                             /* 218 */
+	"219",                             /* 219 */
+	"getdents64",                      /* 220 */

@@ -2,8 +2,8 @@
 
 # hack expression to generate arch/syscallent.h from <asm/unistd.h>
 # It reads from stdin and writes to stdout
-# Currently (linux-2.2.3), it works OK on i386,m68k
-# It does NOT work in arm,mips
+# Currently (linux-2.2.3), it works OK on i386,m68k,arm
+# It does NOT work in mips
 # It is untested in other architectures
 
 BEGIN {

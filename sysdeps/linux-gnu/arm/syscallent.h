@@ -1,4 +1,4 @@
-	"setup",                           /* 0 */
+	"0",                               /* 0 */
 	"exit",                            /* 1 */
 	"fork",                            /* 2 */
 	"read",                            /* 3 */
@@ -16,7 +16,7 @@
 	"chmod",                           /* 15 */
 	"lchown",                          /* 16 */
 	"break",                           /* 17 */
-	"oldstat",                         /* 18 */
+	"18",                              /* 18 */
 	"lseek",                           /* 19 */
 	"getpid",                          /* 20 */
 	"mount",                           /* 21 */
@@ -26,7 +26,7 @@
 	"stime",                           /* 25 */
 	"ptrace",                          /* 26 */
 	"alarm",                           /* 27 */
-	"oldfstat",                        /* 28 */
+	"28",                              /* 28 */
 	"pause",                           /* 29 */
 	"utime",                           /* 30 */
 	"stty",                            /* 31 */
@@ -50,14 +50,14 @@
 	"geteuid",                         /* 49 */
 	"getegid",                         /* 50 */
 	"acct",                            /* 51 */
-	"phys",                            /* 52 */
+	"umount2",                         /* 52 */
 	"lock",                            /* 53 */
 	"ioctl",                           /* 54 */
 	"fcntl",                           /* 55 */
 	"mpx",                             /* 56 */
 	"setpgid",                         /* 57 */
 	"ulimit",                          /* 58 */
-	"oldolduname",                     /* 59 */
+	"59",                              /* 59 */
 	"umask",                           /* 60 */
 	"chroot",                          /* 61 */
 	"ustat",                           /* 62 */
@@ -74,7 +74,7 @@
 	"sigpending",                      /* 73 */
 	"sethostname",                     /* 74 */
 	"setrlimit",                       /* 75 */
-	"getrlimit",                       /* 76 */
+	"old_getrlimit",                   /* 76 */
 	"getrusage",                       /* 77 */
 	"gettimeofday",                    /* 78 */
 	"settimeofday",                    /* 79 */
@@ -82,7 +82,7 @@
 	"setgroups",                       /* 81 */
 	"select",                          /* 82 */
 	"symlink",                         /* 83 */
-	"oldlstat",                        /* 84 */
+	"84",                              /* 84 */
 	"readlink",                        /* 85 */
 	"uselib",                          /* 86 */
 	"swapon",                          /* 87 */
@@ -107,8 +107,8 @@
 	"stat",                            /* 106 */
 	"lstat",                           /* 107 */
 	"fstat",                           /* 108 */
-	"olduname",                        /* 109 */
-	"iopl",                            /* 110 */
+	"109",                             /* 109 */
+	"110",                             /* 110 */
 	"vhangup",                         /* 111 */
 	"idle",                            /* 112 */
 	"syscall",                         /* 113 */
@@ -189,3 +189,34 @@
 	"188",                             /* 188 */
 	"189",                             /* 189 */
 	"vfork",                           /* 190 */
+	"getrlimit",                       /* 191 */
+	"mmap2",                           /* 192 */
+	"truncate64",                      /* 193 */
+	"ftruncate64",                     /* 194 */
+	"stat64",                          /* 195 */
+	"lstat64",                         /* 196 */
+	"fstat64",                         /* 197 */
+	"lchown32",                        /* 198 */
+	"getuid32",                        /* 199 */
+	"getgid32",                        /* 200 */
+	"geteuid32",                       /* 201 */
+	"getegid32",                       /* 202 */
+	"setreuid32",                      /* 203 */
+	"setregid32",                      /* 204 */
+	"getgroups32",                     /* 205 */
+	"setgroups32",                     /* 206 */
+	"fchown32",                        /* 207 */
+	"setresuid32",                     /* 208 */
+	"getresuid32",                     /* 209 */
+	"setresgid32",                     /* 210 */
+	"getresgid32",                     /* 211 */
+	"chown32",                         /* 212 */
+	"setuid32",                        /* 213 */
+	"setgid32",                        /* 214 */
+	"setfsuid32",                      /* 215 */
+	"setfsgid32",                      /* 216 */
+	"getdents64",                      /* 217 */
+	"pivot_root",                      /* 218 */
+	"mincore",                         /* 219 */
+	"madvise",                         /* 220 */
+	"fcntl64",                         /* 221 */

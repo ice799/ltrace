@@ -6,7 +6,7 @@ ltrace \- A library call tracer
 
 .SH SYNOPSIS
 .B ltrace
-.I "[-dfiLSrtttChV] [-a column] [-s strsize] [-o filename] [-n nr] [-u username] [-p pid] ... [-e expr] [--debug] [--demangle] [--align=column] [--output=filename] [--indent=nr] [--help] [--version] [command [arg ...]]"
+.I "[-dfiLSrtttChV] [-a column] [-s strsize] [-o filename] [-n nr] [-l filename] [-u username] [-p pid] ... [-e expr] [--debug] [--demangle] [--align=column] [--output=filename] [--indent=nr] [--library=filename] [--help] [--version] [command [arg ...]]"
 
 .SH DESCRIPTION
 .B ltrace
@@ -79,6 +79,12 @@ Indent trace output by
 .I nr
 number of spaces for each new nested call. Using this option makes
 the program flow visualization easy to follow.
+.TP
+.I \-l, \-\-library filename
+Display only the symbols included in the library
+.I filename.
+Up to 20 library names can be specified with several instances
+of this option.
 .TP
 .I \-u username
 Run command with the userid, groupid and supplementary groups of

@@ -189,3 +189,34 @@
 	"getpmsg",                         /* 188 */
 	"putpmsg",                         /* 189 */
 	"vfork",                           /* 190 */
+	"ugetrlimit",                      /* 191 */
+	"mmap2",                           /* 192 */
+	"truncate64",                      /* 193 */
+	"ftruncate64",                     /* 194 */
+	"stat64",                          /* 195 */
+	"lstat64",                         /* 196 */
+	"fstat64",                         /* 197 */
+	"lchown32",                        /* 198 */
+	"getuid32",                        /* 199 */
+	"getgid32",                        /* 200 */
+	"geteuid32",                       /* 201 */
+	"getegid32",                       /* 202 */
+	"setreuid32",                      /* 203 */
+	"setregid32",                      /* 204 */
+	"getgroups32",                     /* 205 */
+	"setgroups32",                     /* 206 */
+	"fchown32",                        /* 207 */
+	"setresuid32",                     /* 208 */
+	"getresuid32",                     /* 209 */
+	"setresgid32",                     /* 210 */
+	"getresgid32",                     /* 211 */
+	"chown32",                         /* 212 */
+	"setuid32",                        /* 213 */
+	"setgid32",                        /* 214 */
+	"setfsuid32",                      /* 215 */
+	"setfsgid32",                      /* 216 */
+	"pivot_root",                      /* 217 */
+	"mincore",                         /* 218 */
+	"madvise1",                        /* 219 */
+	"getdents64",                      /* 220 */
+	"fcntl64",                         /* 221 */

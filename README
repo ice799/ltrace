@@ -2,7 +2,7 @@
 
                        A Dynamic Library Tracer
 
-         Copyright 1997-1999 Juan Cespedes <cespedes@debian.org>
+         Copyright 1997-2001 Juan Cespedes <cespedes@debian.org>
 
 
 Contents
@@ -25,6 +25,7 @@ people have contributed significantly to this project:
 * Pat Beirne <pbeirne@home.com> (ARM port)
 * Roman Hodek <Roman.Hodek@informatik.uni-erlangen.de> (m68k port)
 * Morten Eriksen <mortene@sim.no> (misc fixes)
+* Silvio Cesare <silvio@big.net.au> (ELF hacking)
 
 1. Introduction
 ---------------
@@ -37,7 +38,7 @@ At the moment, it's only available as a Debian package.  Please let
 me know if you distribute it any other way.
 
 You may find it at:
- * ftp://ftp.debian.org/debian/dists/unstable/main/source/utils/ltrace_*
+ * ftp://ftp.debian.org/debian/pool/main/l/ltrace/
 
 Alternatively, you may find it in any Debian mirror.  For more info,
 see ftp://ftp.debian.org/debian/README.mirrors

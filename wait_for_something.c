@@ -3,6 +3,7 @@
 #endif
 
 #define	_GNU_SOURCE	1
+#include <stdlib.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <errno.h>
@@ -73,7 +74,6 @@ struct event * wait_for_something(void)
 		case 2:	event.thing = LT_EV_SYSRET;
 			event.e_un.sysnum = tmp;
 			return &event;
-		default:
 	}
 	if (WIFEXITED(status)) {
 		event.thing = LT_EV_EXIT;

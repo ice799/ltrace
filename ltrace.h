@@ -9,6 +9,8 @@
 /* BREAKPOINT_LENGTH is defined in "sysdep.h" */
 #include "sysdep.h"
 
+#define MAX_LIBRARY	30
+
 extern char * command;
 
 extern int exiting;		/* =1 if we have to exit ASAP */
