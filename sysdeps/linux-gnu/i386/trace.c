@@ -22,19 +22,18 @@
  */
 int syscall_p(struct process * proc, int status, int * sysnum)
 {
-	int depth;
+	static int syscall_active = 0;
 
 	if (WIFSTOPPED(status) && WSTOPSIG(status)==SIGTRAP) {
 		*sysnum = ptrace(PTRACE_PEEKUSER, proc->pid, 4*ORIG_EAX, 0);
+
+		if (proc->callstack_depth > 0 &&
+				proc->callstack[proc->callstack_depth-1].is_syscall) {
+			return 2;
+		}
+
 		if (*sysnum>=0) {
-			depth = proc->callstack_depth;
-			if (depth>0 &&
-					proc->callstack[depth-1].is_syscall &&
-					proc->callstack[depth-1].c_un.syscall==*sysnum) {
-				return 2;
-			} else {
-				return 1;
-			}
+			return 1;
 		}
 	}
 	return 0;

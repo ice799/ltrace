@@ -1,3 +1,14 @@
+ltrace (0.3.14) unstable; urgency=low
+
+  * Assume a syscall is always immediatly followed by a sysret
+    in i386 (fixes bug which prevented ltrace to work properly
+    in any program using signals); I will have to rethink all
+    this and fix it correctly or port it to non-i386 archs
+  * Fixed -n option: now it is done in output.c (this still has
+    problems when tracing more than one process at a time)
+
+ -- Juan Cespedes <cespedes@debian.org>  Sat,  7 Jul 2001 20:56:42 +0200
+
 ltrace (0.3.13) unstable; urgency=low
 
   * Fixed "ltrace -i", broken since version 0.3.11
