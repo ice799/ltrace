@@ -7,10 +7,11 @@ all:
 	@echo
 
 clean:
-	make -C src clean
-	make -C test clean
+	make -C src/libtrace clean
+	make -C src/ltrace clean
+	make -C src/test clean
 	rm -f *.o
 
 dist:
 	make clean
-	( cd .. ; tar zcvf libtrace-`date +%y%m%d`.tgz libtrace )
+	( cd .. ; tar zcvf ltrace-`date +%y%m%d`.tgz ltrace )
