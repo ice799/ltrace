@@ -19,17 +19,7 @@ set -e
 
 ACLOCAL=${ACLOCAL:-aclocal}
 AUTOHEADER=${AUTOHEADER:-autoheader}
-AUTOMAKE=${AUTOMAKE:-automake}
 AUTOCONF=${AUTOCONF:-autoconf}
-
-if $AUTOMAKE --version | grep -q 1.4
-	then
-	echo ""
-	echo "Automake 1.4 not supported. please set \$AUTOMAKE"
-	echo "to point to a newer automake, or upgrade."
-	echo ""
-	exit 1
-fi
 
 if test -n "$1"; then
 	echo "autogen.sh doesn't take any options" >&2
@@ -39,4 +29,3 @@ fi
 run "$ACLOCAL"
 run "$AUTOHEADER"
 run "$AUTOCONF"
-run "$AUTOMAKE --foreign --add-missing --copy"
