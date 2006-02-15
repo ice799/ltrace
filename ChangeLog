@@ -1,4 +1,15 @@
+2006-02-16 Bernd Zeimetz <bernd@zeimetz.de>
+
+	* ltrace.1: reference reportbug
+
+2006-02-16 Colin S. Miller <csmiller@iname.com>
+
+	* ltrace.1: fix debug typo
+
+2006-02-16  Andrew Stribblehill <ads@debian.org>
+
+	* etc/ltrace.conf: fix putenv typo
+
 2006-02-16  Ian Wienand <ianw@ieee.org>
 
 	* README: update
-
