@@ -1,0 +1,74 @@
+#! /usr/bin/make -f 
+#
+# Copyright (C) 1997-2004 Juan Cespedes <cespedes@debian.org>
+#
+
+.PHONY:		binary binary-indep binary-arch clean
+
+CFLAGS		=	-Wall -g
+INSTALL		=	install
+INSTALL_FILE	=	$(INSTALL) -p    -o root -g root  -m  644
+INSTALL_PROGRAM	=	$(INSTALL) -p    -o root -g root  -m  755
+INSTALL_SCRIPT	=	$(INSTALL) -p    -o root -g root  -m  755
+INSTALL_DIR	=	$(INSTALL) -p -d -o root -g root  -m  755
+
+ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
+CFLAGS +=      -O0
+else
+CFLAGS +=      -O2
+endif
+ifeq (,$(findstring nostrip,$(DEB_BUILD_OPTIONS)))
+INSTALL_PROGRAM        +=      -s
+endif
+
+build:		Makefile config.h
+		$(checkdir)
+		$(MAKE) CFLAGS="${CFLAGS}"
+		touch build
+
+Makefile config.h:	configure Makefile.in config.h.in
+		$(checkdir)
+		./configure --prefix=/usr --mandir=/usr/share/man --sysconfdir=/etc
+
+configure:	configure.ac
+		$(checkdir)
+		autoconf
+
+config.h.in:	configure.ac
+		$(checkdir)
+		$(RM) config.h.in
+		autoheader
+
+binary:		binary-arch binary-indep
+
+binary-indep:
+
+binary-arch:	build
+		$(checkdir)
+		test root = "`whoami`" || exit 1
+		$(RM) -rf debian/tmp
+
+		$(INSTALL_DIR) debian/tmp/DEBIAN
+		cp debian/conffiles debian/tmp/DEBIAN
+		$(MAKE) install DESTDIR=`pwd`/debian/tmp docdir=/usr/share/doc/ltrace INSTALL_PROGRAM="${INSTALL_PROGRAM}"
+		$(RM) debian/tmp/usr/share/doc/ltrace/COPYING
+		$(RM) debian/tmp/usr/share/doc/ltrace/ChangeLog
+		cp -p debian/changelog debian/tmp/usr/share/doc/ltrace/changelog.Debian
+		gzip -9f debian/tmp/usr/share/doc/ltrace/README debian/tmp/usr/share/doc/ltrace/changelog.Debian
+		cp -p debian/copyright debian/tmp/usr/share/doc/ltrace
+		gzip -9f debian/tmp/usr/share/man/man1/*
+		dpkg-shlibdeps debian/tmp/usr/bin/ltrace
+		dpkg-gencontrol -isp
+		chown -R root.root debian/tmp
+		chmod -R u=rwX,go=rX debian/tmp
+		dpkg --build debian/tmp ..
+
+clean:		configure config.h.in
+		$(checkdir)
+		$(RM) build debian/files debian/substvars
+		-$(MAKE) distclean
+		$(RM) -r debian/tmp
+
+define checkdir
+		test -f ltrace.c -a -f debian/rules
+endef

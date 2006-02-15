@@ -1,0 +1,23 @@
+Source: ltrace
+Section: utils
+Priority: optional
+Maintainer: Juan Cespedes <cespedes@debian.org>
+Standards-Version: 3.6.1
+Build-Depends: binutils-dev, dpatch, libelfg0-dev
+
+Package: ltrace
+Architecture: i386 arm m68k s390 powerpc sparc alpha amd64
+Depends: ${shlibs:Depends}
+Description: Tracks runtime library calls in dynamically linked programs
+ ltrace is a debugging program which runs a specified command until it
+ exits.  While the command is executing, ltrace intercepts and records
+ the dynamic library calls which are called by
+ the executed process and the signals received by that process.
+ It can also intercept and print the system calls executed by the program.
+ .
+ The program to be traced need not be recompiled for this, so you can
+ use it on binaries for which you don't have the source handy.
+ .
+ You should install ltrace if you need a sysadmin tool for tracking the
+ execution of processes.
+
