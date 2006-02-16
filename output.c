@@ -179,19 +179,19 @@ output_left(enum tof type, struct process * proc, char * function_name) {
 	if (!func) {
 		int i;
 		for(i=0; i<4; i++) {
-			current_column += display_arg(type, proc, i, ARGTYPE_UNKNOWN);
+			current_column += display_arg(type, proc, i, 0);
 			current_column += fprintf(output, ", ");
 		}
-		current_column += display_arg(type, proc, 4, ARGTYPE_UNKNOWN);
+		current_column += display_arg(type, proc, 4, 0);
 		return;
 	} else {
 		int i;
 		for(i=0; i< func->num_params - func->params_right - 1; i++) {
-			current_column += display_arg(type, proc, i, func->arg_types[i]);
+			current_column += display_arg(type, proc, i, &func->arg_types[i]);
 			current_column += fprintf(output, ", ");
 		}
 		if (func->num_params>func->params_right) {
-			current_column += display_arg(type, proc, i, func->arg_types[i]);
+			current_column += display_arg(type, proc, i, &func->arg_types[i]);
 			if (func->params_right) {
 				current_column += fprintf(output, ", ");
 			}
@@ -255,23 +255,23 @@ output_right(enum tof type, struct process * proc, char * function_name) {
 		current_column += fprintf(output, ") ");
 		tabto(opt_a-1);
 		fprintf(output, "= ");
-		display_arg(type, proc, -1, ARGTYPE_UNKNOWN);
+		display_arg(type, proc, -1, 0);
 	} else {
 		int i;
 		for(i=func->num_params-func->params_right; i<func->num_params-1; i++) {
-			current_column += display_arg(type, proc, i, func->arg_types[i]);
+			current_column += display_arg(type, proc, i, &func->arg_types[i]);
 			current_column += fprintf(output, ", ");
 		}
 		if (func->params_right) {
-			current_column += display_arg(type, proc, i, func->arg_types[i]);
+			current_column += display_arg(type, proc, i, &func->arg_types[i]);
 		}
 		current_column += fprintf(output, ") ");
 			tabto(opt_a-1);
 			fprintf(output, "= ");
-		if (func->return_type == ARGTYPE_VOID) {
+		if (func->return_type.at == ARGTYPE_VOID) {
 			fprintf(output, "<void>");
 		} else {
-			display_arg(type, proc, -1, func->return_type);
+			display_arg(type, proc, -1, &func->return_type);
 		}
 	}
 	if (opt_T) {

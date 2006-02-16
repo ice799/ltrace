@@ -1,3 +1,10 @@
+2006-02-16  Richard Kettlewell <rjk@nchiper.com>
+
+	* display_args.c: update to handle variable length strings arguments
+	* ltrace.h: likewise
+	* output.c: likewise
+	* read_config_file.c: likewise
+
 2006-02-16 Bernd Zeimetz <bernd@zeimetz.de>
 
 	* ltrace.1: reference reportbug

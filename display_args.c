@@ -17,11 +17,13 @@ static int display_unknown(enum tof type, struct process * proc, int arg_num);
 static int display_format(enum tof type, struct process * proc, int arg_num);
 
 int
-display_arg(enum tof type, struct process * proc, int arg_num, enum arg_type at) {
+display_arg(enum tof type, struct process * proc, int arg_num, const struct complete_arg_type *at) {
 	int tmp;
 	long arg;
 
-	switch(at) {
+	if(!at)
+		return display_unknown(type, proc, arg_num);
+	switch(at->at) {
 		case ARGTYPE_VOID:
 			return 0;
 		case ARGTYPE_INT:
@@ -50,18 +52,8 @@ display_arg(enum tof type, struct process * proc, int arg_num, enum arg_type at)
 			return display_format(type, proc, arg_num);
 		case ARGTYPE_STRING:
 			return display_string(type, proc, arg_num);
-		case ARGTYPE_STRING0:
-			return display_stringN(0, type, proc, arg_num);
-		case ARGTYPE_STRING1:
-			return display_stringN(1, type, proc, arg_num);
-		case ARGTYPE_STRING2:
-			return display_stringN(2, type, proc, arg_num);
-		case ARGTYPE_STRING3:
-			return display_stringN(3, type, proc, arg_num);
-		case ARGTYPE_STRING4:
-			return display_stringN(4, type, proc, arg_num);
-		case ARGTYPE_STRING5:
-			return display_stringN(5, type, proc, arg_num);
+		case ARGTYPE_STRINGN:
+		        return display_stringN(at->argno, type, proc, arg_num);
 		case ARGTYPE_UNKNOWN:
 		default:
 			return display_unknown(type, proc, arg_num);

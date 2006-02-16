@@ -41,28 +41,34 @@ static struct list_of_pt_t {
 	{ "file",   ARGTYPE_FILE },
 	{ "format", ARGTYPE_FORMAT },
 	{ "string", ARGTYPE_STRING },
-	{ "string0",ARGTYPE_STRING0 },
-	{ "string1",ARGTYPE_STRING1 },
-	{ "string2",ARGTYPE_STRING2 },
-	{ "string3",ARGTYPE_STRING3 },
-	{ "string4",ARGTYPE_STRING4 },
-	{ "string5",ARGTYPE_STRING5 },
 	{ NULL,     ARGTYPE_UNKNOWN }		/* Must finish with NULL */
 };
 
-static enum arg_type
+static struct complete_arg_type
 str2type(char ** str) {
 	struct list_of_pt_t * tmp = &list_of_pt[0];
+	struct complete_arg_type pt;
+
+ 	if (!strncmp(*str, "string", 6)
+	    && isdigit((unsigned char)(*str)[6]))
+	{
+		pt.at = ARGTYPE_STRINGN;
+		pt.argno = atoi(*str + 6);
+		*str += strspn(*str, "string0123456789");
+		return pt;
+ 	}
 
 	while(tmp->name) {
 		if (!strncmp(*str, tmp->name, strlen(tmp->name))
 			&& index(" ,)#", *(*str+strlen(tmp->name)))) {
 				*str += strlen(tmp->name);
-				return tmp->pt;
+				pt.at = tmp->pt;
+				return pt;
 		}
 		tmp++;
 	}
-	return ARGTYPE_UNKNOWN;
+	pt.at = ARGTYPE_UNKNOWN;
+	return pt;
 }
 
 static void
@@ -113,7 +119,7 @@ process_line (char * buf) {
 	debug(3, "Reading line %d of `%s'", line_no, filename);
 	eat_spaces(&str);
 	fun.return_type = str2type(&str);
-	if (fun.return_type==ARGTYPE_UNKNOWN) {
+	if (fun.return_type.at==ARGTYPE_UNKNOWN) {
 		debug(3, " Skipping line %d", line_no);
 		return NULL;
 	}
@@ -141,7 +147,7 @@ process_line (char * buf) {
 			fun.params_right++;
 		}
 		fun.arg_types[i] = str2type(&str);
-		if (fun.return_type==ARGTYPE_UNKNOWN) {
+		if (fun.return_type.at==ARGTYPE_UNKNOWN) {
 			output_line(0, "Syntax error in `%s', line %d", filename, line_no);
 			return NULL;
 		}
