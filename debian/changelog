@@ -1,3 +1,14 @@
+ltrace (0.3.37-2) unstable; urgency=low
+
+  * Convert to use CDBS
+  * Use CDBS to build control; you need to run
+  DEB_AUTO_UPDATE_DEBIAN_CONROL=yes ./debian/rules clean
+  to make the control file if you checkout from CVS
+  * Remove autoconf from build-deps, fix up upstream dist target so we don't
+    need it.
+
+ -- Ian Wienand <ianw@ieee.org>  Thu, 16 Feb 2006 22:56:14 +1100
+
 ltrace (0.3.37-1) unstable; urgency=low
 
   [ Ian Wienand ]

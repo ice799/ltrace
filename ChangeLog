@@ -1,6 +1,7 @@
 2006-02-16  Ian Wienand  <ianw@ieee.org>
 
-	* Makefile.in: install documentation into share/doc
+	* Makefile.in: install documentation into share/doc, make dist
+	target export latest version from CVS.
 
 2006-02-16  Rajeev V. Pillai <rajeevvp@yahoo.com>
 

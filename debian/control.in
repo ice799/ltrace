@@ -4,7 +4,7 @@ Priority: optional
 Maintainer: Juan Cespedes <cespedes@debian.org>
 Uploaders: Ian Wienand <ianw@ieee.org>
 Standards-Version: 3.6.1
-Build-Depends: binutils-dev, dpatch, libelfg0-dev
+Build-Depends: @cdbs@, binutils-dev, dpatch, libelfg0-dev
 
 Package: ltrace
 Architecture: i386 arm m68k s390 powerpc sparc alpha amd64
