@@ -6,6 +6,8 @@ ltrace (0.3.37.1) unstable; urgency=low
   * Closes: #339348 -- fix putenv typo in ltrace.conf
   * Closes: #257903 -- incorporate variable length args patch
   * Closes: #282051 -- demange names when -c used with -C
+  * Closes: #352389 -- pass build flags through to Makefile
+  * Closes: #155571 -- add note in man page about dlopened libraries
   * See "upstream" ChangeLog for other changes (mostly warning fixes)
   * Update README to point to Alioth home: http://ltrace.alioth.debian.org
 

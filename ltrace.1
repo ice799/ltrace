@@ -1,14 +1,14 @@
 .\" Copyright (c) 1997-2004 Juan Cespedes <cespedes@debian.org>
 .\" This file is covered by the GNU GPL
-.TH ltrace 1 
-.SH NAME
+.TH "ltrace" "1" "" "" ""
+.SH "NAME"
 ltrace \- A library call tracer
 
-.SH SYNOPSIS
+.SH "SYNOPSIS"
 .B ltrace
-.I "[-CdfhiLrStttV] [-a column] [-e expr] [-l filename] [-n nr] [-o filename] [-p pid] ... [-s strsize] [-u username] [--align=column] [--debug] [--demangle] [--help] [--indent=nr] [--library=filename] [--output=filename] [--version] [command [arg ...]]"
+.I "[\-CdfhiLrStttV] [\-a column] [\-e expr] [\-l filename] [\-n nr] [\-o filename] [\-p pid] ... [\-s strsize] [\-u username] [\-\-align=column] [\-\-debug] [\-\-demangle] [\-\-help] [\-\-indent=nr] [\-\-library=filename] [\-\-output=filename] [\-\-version] [command [arg ...]]"
 
-.SH DESCRIPTION
+.SH "DESCRIPTION"
 .B ltrace
 is a program that simply runs the specified
 .I command
@@ -16,146 +16,148 @@ until it exits.  It intercepts and records the dynamic library calls
 which are called by the executed process and the signals which are
 received by that process.
 It can also intercept and print the system calls executed by the program.
-.PP
+.PP 
 Its use is very similar to
 .BR strace(1) .
 
-.SH OPTIONS
-.TP
+.SH "OPTIONS"
+.TP 
 .I \-a, \-\-align column
 Align return values in a secific column (default column is 5/8 of screen width).
-.TP
+.TP 
 .I \-c
 Count time and calls for each library call and report a summary on program exit.
-.TP
+.TP 
 .I \-C, \-\-demangle
-Decode (demangle) low-level symbol names into user-level names.
+Decode (demangle) low\-level symbol names into user\-level names.
 Besides removing any initial underscore prepended by the system,
 this makes C++ function names readable.
-.TP
+.TP 
 .I \-d, \-\-debug
 Increase the debugging level.
 Use more (ie.
 .I \-dd
 ) for greater debugging information.
-.TP
+.TP 
 .I \-e expr
 A qualifying expression which modifies which events to trace.
 The format of the expression is:
-.br
+.br 
 [!]value1[,value2]...
-.br
+.br 
 where the values are the functions to trace.  Using an exclamation
 mark negates the set of values.  For example
 .I \-e printf
 means to trace only the printf library call.  By contrast,
 .I \-e !printf
 means to trace every library call except printf.
-.IP
+.IP 
 Note that some shells use the exclamation point for history
 expansion; even inside quoted arguments.  If so, you must escape
 the exclamation point with a backslash.
-.TP
+.TP 
 .I \-f
 Trace child processes as they are created by
 currently  traced processes as a result of the fork(2)
 or clone(2) system calls.
 The new process is attached as soon as its pid is known.
-.TP
+.TP 
 .I \-h, \-\-help
 Show a summary of the options to ltrace and exit.
-.TP
+.TP 
 .I \-i
 Print the instruction pointer at the time of the library call.
-.TP
+.TP 
 .I \-l, \-\-library filename
 Display only the symbols included in the library
 .I filename.
 Up to 20 library names can be specified with several instances
 of this option.
-.TP
+.TP 
 .I \-L
 DON'T display library calls (use it with the
 .I \-S
 option).
-.TP
+.TP 
 .I \-n, \-\-indent nr
 Indent trace output by
 .I nr
 number of spaces for each new nested call. Using this option makes
 the program flow visualization easy to follow.
-.TP
+.TP 
 .I \-o, \-\-output filename
 Write the trace output to the file
 .I filename
 rather than to stderr.
-.TP
+.TP 
 .I \-p pid
 Attach to the process with the process ID
 .I pid
 and begin tracing.
-.TP
+.TP 
 .I \-r
 Print a relative timestamp with each line of the trace.
 This records the time difference between the beginning of
 successive lines.
-.TP
+.TP 
 .I \-s strsize
 Specify the maximum string size to print (the default is 32).
-.TP
+.TP 
 .I \-S
 Display system calls as well as library calls
-.TP
+.TP 
 .I \-t
 Prefix each line of the trace with the time of day.
-.TP
+.TP 
 .I \-tt
 If given twice, the time printed will include the microseconds.
-.TP
+.TP 
 .I \-ttt
 If given thrice, the time printed will include the microseconds and
 the leading portion will be printed as the number of seconds since the
 epoch.
-.TP
+.TP 
 .I \-T
 Show  the  time  spent inside each call. This records the time difference
 between the beginning and the end of each call.
-.TP
+.TP 
 .I \-u username
 Run command with the userid, groupid and supplementary groups of
-.IR username .
+.I R username .
 This option is only useful when running as root and enables the
 correct execution of setuid and/or setgid binaries.
-.TP
+.TP 
 .I \-V, \-\-version
 Show the version number of ltrace and exit.
 
-.SH BUGS
+.SH "BUGS"
 It has most of the bugs stated in
 .BR strace(1) .
-.LP
-Manual page and documentation are not very up-to-date.
-.LP
-Option -f sometimes fails to trace some children.
-.LP
+.LP 
+Manual page and documentation are not very up\-to\-date.
+.LP 
+Option \-f sometimes fails to trace some children.
+.LP 
 It only works on Linux and in a small subset of architectures.
-.LP
+.LP 
 Only ELF32 binaries are supported.
-.PP
+.LP 
+Calls to dlopen()ed libraries will not be traced
+.PP 
 If you would like to report a bug, send a notice to the author, or use the
 .BR reportbug(1)
 program if you are under the Debian GNU/Linux distribution.
 
-.SH FILES
-.TP
+.SH "FILES"
+.TP 
 .I /etc/ltrace.conf
 System configuration file
-.TP
+.TP 
 .I ~/.ltrace.conf
 Personal config file, overrides
 .I /etc/ltrace.conf
 
-.SH AUTHOR
+.SH "AUTHOR"
 Juan Cespedes <cespedes@debian.org>
 
 .SH "SEE ALSO"

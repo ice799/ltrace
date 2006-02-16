@@ -1,3 +1,7 @@
+2006-02-16  Rajeev V. Pillai <rajeevvp@yahoo.com>
+
+	* Makefile.in: pass through CPP and LD FLAGS
+
 2006-02-16  Ian Wienand  <ianw@ieee.org>
 
 	* read_config_file.c: initialise pt stack argument to stop warning
@@ -29,3 +33,4 @@
 	* Makefile.in: remove obsolete -I- for -iquote, add TAGS target
 	* debug.c, debug.h: __PRETTY_FUNCTION__ is const; change specifier
 	to stop warnings.
+	* ltrace.1: add a note about not tracing dlopen()ed libraries
