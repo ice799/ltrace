@@ -1,5 +1,6 @@
-ltrace (0.3.37.1) unstable; urgency=low
+ltrace (0.3.37-1) unstable; urgency=low
 
+  [ Ian Wienand ]
   * Non-maintainer upload
   * Start a "friendly takeover" from Juan
   * Closes: #127503,#280608 -- update man page typos
@@ -11,6 +12,10 @@ ltrace (0.3.37.1) unstable; urgency=low
   * See "upstream" ChangeLog for other changes (mostly warning fixes)
   * Update README to point to Alioth home: http://ltrace.alioth.debian.org
 
+  [ Christoph Berg ]
+  * Create non-native package.
+  * Add autoconf to build-deps
+  
  -- Ian Wienand <ianw@ieee.org>  Thu, 16 Feb 2006 11:51:32 +1100
 
 ltrace (0.3.36-2) unstable; urgency=low

@@ -1,3 +1,7 @@
+2006-02-16  Ian Wienand  <ianw@ieee.org>
+
+	* Makefile.in: install documentation into share/doc
+
 2006-02-16  Rajeev V. Pillai <rajeevvp@yahoo.com>
 
 	* Makefile.in: pass through CPP and LD FLAGS
