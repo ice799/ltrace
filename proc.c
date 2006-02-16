@@ -12,9 +12,9 @@
 #include "options.h"
 #include "elf.h"
 
-struct process *
-open_program(char * filename) {
-	struct process * proc;
+struct process *open_program(char *filename)
+{
+	struct process *proc;
 	proc = malloc(sizeof(struct process));
 	if (!proc) {
 		perror("malloc");
@@ -35,13 +35,14 @@ open_program(char * filename) {
 	return proc;
 }
 
-void
-open_pid(pid_t pid, int verbose) {
-	struct process * proc;
-	char * filename;
+void open_pid(pid_t pid, int verbose)
+{
+	struct process *proc;
+	char *filename;
 
-	if (trace_pid(pid)<0) {
-		fprintf(stderr, "Cannot attach to pid %u: %s\n", pid, strerror(errno));
+	if (trace_pid(pid) < 0) {
+		fprintf(stderr, "Cannot attach to pid %u: %s\n", pid,
+			strerror(errno));
 		return;
 	}
 
@@ -50,7 +51,8 @@ open_pid(pid_t pid, int verbose) {
 #if 0
 	if (!filename) {
 		if (verbose) {
-			fprintf(stderr, "Cannot trace pid %u: %s\n", pid, strerror(errno));
+			fprintf(stderr, "Cannot trace pid %u: %s\n", pid,
+				strerror(errno));
 		}
 		return;
 	}

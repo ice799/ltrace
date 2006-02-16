@@ -63,6 +63,9 @@ install:	ltrace
 
 dummy:
 
-.PHONY:		all clean distclean dist install dummy
+TAGS:	
+	find -name '*.c' -o -name '*.h' | xargs etags -a
+
+.PHONY:		all clean distclean dist install dummy TAGS
 
 .EXPORT_ALL_VARIABLES:

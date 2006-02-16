@@ -16,19 +16,19 @@
 
 /*****************************************************************************/
 
-static struct dict * d = NULL;
+static struct dict *d = NULL;
 
-static void
-my_demangle_dict_clear(void) {
+static void my_demangle_dict_clear(void)
+{
 	/* FIXME TODO XXX: I should also free all (key,value) pairs */
 	dict_clear(d);
 }
 
-const char *
-my_demangle(const char * function_name) {
-	const char * tmp, * fn_copy;
+const char *my_demangle(const char *function_name)
+{
+	const char *tmp, *fn_copy;
 #if !defined HAVE_LIBIBERTY && defined HAVE_LIBSUPC__
-	extern char *__cxa_demangle (const char *, char *, size_t *, int *);
+	extern char *__cxa_demangle(const char *, char *, size_t *, int *);
 	int status = 0;
 #endif
 
@@ -36,7 +36,7 @@ my_demangle(const char * function_name) {
 		d = dict_init(dict_key2hash_string, dict_key_cmp_string);
 		atexit(my_demangle_dict_clear);
 	}
- 
+
 	tmp = dict_find_entry(d, (void *)function_name);
 	if (!tmp) {
 		fn_copy = strdup(function_name);
@@ -45,8 +45,10 @@ my_demangle(const char * function_name) {
 #elif defined HAVE_LIBSUPC__
 		tmp = __cxa_demangle(function_name, NULL, NULL, &status);
 #endif
-		if (!tmp) tmp = fn_copy;
-		if (tmp) dict_enter(d, (void *)fn_copy, (void *)tmp);
+		if (!tmp)
+			tmp = fn_copy;
+		if (tmp)
+			dict_enter(d, (void *)fn_copy, (void *)tmp);
 	}
 	return tmp;
 }

@@ -1,6 +1,12 @@
+2006-02-16  Ian Wienand  <ianw@ieee.org>
+
+	* read_config_file.c: initialise pt stack argument to stop warning
+	* summary.c: make show_summary() obey -C for demangaling function names
+
 2006-02-16  Richard Kettlewell <rjk@nchiper.com>
 
-	* display_args.c: update to handle variable length strings arguments
+	* display_args.c: update to handle variable length strings
+	arguments
 	* ltrace.h: likewise
 	* output.c: likewise
 	* read_config_file.c: likewise
@@ -20,7 +26,6 @@
 2006-02-16  Ian Wienand <ianw@ieee.org>
 
 	* README: update
-	* Makefile.in: remove obsolete -I- for -iquote
+	* Makefile.in: remove obsolete -I- for -iquote, add TAGS target
 	* debug.c, debug.h: __PRETTY_FUNCTION__ is const; change specifier
 	to stop warnings.
-	* read_config_file.c: initialise pt stack argument to stop warning

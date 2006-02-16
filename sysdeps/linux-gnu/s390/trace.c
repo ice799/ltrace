@@ -28,23 +28,24 @@
 # define PTRACE_POKEUSER PTRACE_POKEUSR
 #endif
 
-void
-get_arch_dep(struct process * proc) {
+void get_arch_dep(struct process *proc)
+{
 }
 
 /* Returns 1 if syscall, 2 if sysret, 0 otherwise.
  */
-int
-syscall_p(struct process * proc, int status, int * sysnum) {
+int syscall_p(struct process *proc, int status, int *sysnum)
+{
 	long pswa;
 	long svcinst;
 	long svcno;
 	long svcop;
 
-	if (WIFSTOPPED(status) && WSTOPSIG(status)==SIGTRAP) {
+	if (WIFSTOPPED(status) && WSTOPSIG(status) == SIGTRAP) {
 
 		pswa = ptrace(PTRACE_PEEKUSER, proc->pid, PT_PSWADDR, 0);
-		svcinst = ptrace(PTRACE_PEEKTEXT, proc->pid, (char *)(pswa-4),0);
+		svcinst =
+		    ptrace(PTRACE_PEEKTEXT, proc->pid, (char *)(pswa - 4), 0);
 		svcop = (svcinst >> 8) & 0xFF;
 		svcno = svcinst & 0xFF;
 
@@ -57,16 +58,16 @@ syscall_p(struct process * proc, int status, int * sysnum) {
 			/* Breakpoint was hit... */
 			return 0;
 		}
-		if (svcop == 10 && *sysnum>=0) {
+		if (svcop == 10 && *sysnum >= 0) {
 			/* System call was encountered... */
 			if (proc->callstack_depth > 0 &&
-					proc->callstack[proc->callstack_depth-1].is_syscall) {
+			    proc->callstack[proc->callstack_depth -
+					    1].is_syscall) {
 				return 2;
 			} else {
 				return 1;
 			}
-		}
-		else {
+		} else {
 			/* Unknown trap was encountered... */
 			return 0;
 		}
@@ -75,22 +76,27 @@ syscall_p(struct process * proc, int status, int * sysnum) {
 	return 0;
 }
 
-long
-gimme_arg(enum tof type, struct process * proc, int arg_num) {
-	switch(arg_num) {
-		case -1: /* return value */
-			return ptrace(PTRACE_PEEKUSER, proc->pid, PT_GPR2, 0);
-		case 0: return ptrace(PTRACE_PEEKUSER, proc->pid, PT_ORIGGPR2, 0);
-		case 1: return ptrace(PTRACE_PEEKUSER, proc->pid, PT_GPR3, 0);
-		case 2: return ptrace(PTRACE_PEEKUSER, proc->pid, PT_GPR4, 0);
-		case 3: return ptrace(PTRACE_PEEKUSER, proc->pid, PT_GPR5, 0);
-		case 4: return ptrace(PTRACE_PEEKUSER, proc->pid, PT_GPR6, 0);
-		default:
-				fprintf(stderr, "gimme_arg called with wrong arguments\n");
-				exit(2);
+long gimme_arg(enum tof type, struct process *proc, int arg_num)
+{
+	switch (arg_num) {
+	case -1:		/* return value */
+		return ptrace(PTRACE_PEEKUSER, proc->pid, PT_GPR2, 0);
+	case 0:
+		return ptrace(PTRACE_PEEKUSER, proc->pid, PT_ORIGGPR2, 0);
+	case 1:
+		return ptrace(PTRACE_PEEKUSER, proc->pid, PT_GPR3, 0);
+	case 2:
+		return ptrace(PTRACE_PEEKUSER, proc->pid, PT_GPR4, 0);
+	case 3:
+		return ptrace(PTRACE_PEEKUSER, proc->pid, PT_GPR5, 0);
+	case 4:
+		return ptrace(PTRACE_PEEKUSER, proc->pid, PT_GPR6, 0);
+	default:
+		fprintf(stderr, "gimme_arg called with wrong arguments\n");
+		exit(2);
 	}
 }
 
-void
-save_register_args(enum tof type, struct process * proc) {
+void save_register_args(enum tof type, struct process *proc)
+{
 }
