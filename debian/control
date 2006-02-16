@@ -2,6 +2,7 @@ Source: ltrace
 Section: utils
 Priority: optional
 Maintainer: Juan Cespedes <cespedes@debian.org>
+Uploaders: Ian Wienand <ianw@ieee.org>
 Standards-Version: 3.6.1
 Build-Depends: binutils-dev, dpatch, libelfg0-dev
 

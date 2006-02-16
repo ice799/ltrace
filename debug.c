@@ -6,7 +6,7 @@
 #include "output.h"
 
 void
-debug_(int level, char *file, int line, char *func, char *fmt, ...) {
+debug_(int level, char *file, int line, const char *func, char *fmt, ...) {
 	char buf[1024];
 	va_list args;
 

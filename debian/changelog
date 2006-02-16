@@ -1,3 +1,15 @@
+ltrace (0.3.37.1) unstable; urgency=low
+
+  * Non-maintainer upload
+  * Start a "friendly takeover" from Juan
+  * Closes: #127503,#280608 -- update man page typos
+  * Closes: #339348 -- fix putenv typo in ltrace.conf
+  * Closes: #257903 -- incorporate variable length args patch
+  * See "upstream" ChangeLog for other changes (mostly warning fixes)
+  * Update README to point to Alioth home: http://ltrace.alioth.debian.org
+
+ -- Ian Wienand <ianw@ieee.org>  Thu, 16 Feb 2006 11:51:32 +1100
+
 ltrace (0.3.36-2) unstable; urgency=low
 
   * Corrected path for Debian changelog

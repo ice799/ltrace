@@ -14,7 +14,7 @@ mandir		= @mandir@
 docdir		= $(prefix)/doc/ltrace
 
 CC		=	@CC@
-CPPFLAGS	=	-I$(TOPDIR) -I$(TOPDIR)/sysdeps/$(OS) -I- @DEFS@ -DSYSCONFDIR=\"$(sysconfdir)\"
+CPPFLAGS	=	-iquote $(TOPDIR) -I$(TOPDIR)/sysdeps/$(OS) @DEFS@ -DSYSCONFDIR=\"$(sysconfdir)\"
 CFLAGS		=	-Wall @CFLAGS@
 LDFLAGS		=
 LIBS		=	@LIBS@

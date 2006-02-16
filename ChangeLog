@@ -20,3 +20,7 @@
 2006-02-16  Ian Wienand <ianw@ieee.org>
 
 	* README: update
+	* Makefile.in: remove obsolete -I- for -iquote
+	* debug.c, debug.h: __PRETTY_FUNCTION__ is const; change specifier
+	to stop warnings.
+	* read_config_file.c: initialise pt stack argument to stop warning

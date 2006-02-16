@@ -47,7 +47,7 @@ static struct list_of_pt_t {
 static struct complete_arg_type
 str2type(char ** str) {
 	struct list_of_pt_t * tmp = &list_of_pt[0];
-	struct complete_arg_type pt;
+	struct complete_arg_type pt = {0,0};
 
  	if (!strncmp(*str, "string", 6)
 	    && isdigit((unsigned char)(*str)[6]))
