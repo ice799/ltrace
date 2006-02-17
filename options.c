@@ -2,10 +2,6 @@
 #include "config.h"
 #endif
 
-#ifndef VERSION
-# define VERSION "0.3.32"
-#endif
-
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -303,8 +299,8 @@ char **process_options(int argc, char **argv)
 			opt_u = optarg;
 			break;
 		case 'V':
-			printf("ltrace version " VERSION ".\n"
-			       "Copyright (C) 1997-2004 Juan Cespedes <cespedes@debian.org>.\n"
+			printf("ltrace version " PACKAGE_VERSION ".\n"
+			       "Copyright (C) 1997-2006 Juan Cespedes <cespedes@debian.org>.\n"
 			       "This is free software; see the GNU General Public Licence\n"
 			       "version 2 or later for copying conditions.  There is NO warranty.\n");
 			exit(0);

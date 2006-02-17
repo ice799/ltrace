@@ -31,6 +31,7 @@ people have contributed significantly to this project:
 * Jakub Jelinek <jakub@redhat.com> (SPARC port, support for libelf, many fixes)
 * Jakub Bogusz <qboosh@pld-linux.org> (alpha port)
 * SuSE (amd64 port)
+* Ian Wienand <ianw@gelato.unsw.edu.au> (ia64 port)
 
 1. Introduction
 ---------------

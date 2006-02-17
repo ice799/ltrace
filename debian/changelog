@@ -1,3 +1,9 @@
+ltrace (0.3.38-1) unstable; urgency=low
+
+  * Closes: 306862 -- Add IA64 support
+
+ -- Ian Wienand <ianw@ieee.org>  Fri, 17 Feb 2006 11:17:46 +1100
+
 ltrace (0.3.37-2) unstable; urgency=low
 
   * Convert to use CDBS

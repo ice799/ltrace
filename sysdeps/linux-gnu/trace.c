@@ -26,6 +26,9 @@ int fork_p(int sysnum)
 #if defined(__NR_vfork)
 	    || (sysnum == __NR_vfork)
 #endif
+#if defined(__NR_clone2)
+	    || (sysnum == __NR_clone2)
+#endif
 	    ;
 }
 
@@ -78,12 +81,15 @@ void continue_after_breakpoint(struct process *proc, struct breakpoint *sbp)
 {
 	if (sbp->enabled)
 		disable_breakpoint(proc->pid, sbp);
+
 	set_instruction_pointer(proc, sbp->addr);
+
 	if (sbp->enabled == 0) {
 		continue_process(proc->pid);
 	} else {
 		proc->breakpoint_being_enabled = sbp;
-#ifdef __sparc__
+#ifdef __sparc__ || defined __ia64__
+		/* we don't want to single step here */
 		continue_process(proc->pid);
 #else
 		ptrace(PTRACE_SINGLESTEP, proc->pid, 0, 0);

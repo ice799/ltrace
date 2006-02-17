@@ -1,5 +1,5 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT(ltrace.c)
+AC_INIT(ltrace.c, 0.3.38)
 AC_CONFIG_HEADER(config.h)
 AC_PREREQ(2.50)
 

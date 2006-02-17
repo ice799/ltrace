@@ -3,12 +3,20 @@
 #endif
 
 #include <sys/ptrace.h>
+#include <string.h>
 #include "arch.h"
 #include "options.h"
 #include "output.h"
 
 static unsigned char break_insn[] = BREAKPOINT_VALUE;
 
+#ifdef ARCH_HAVE_ENABLE_BREAKPOINT
+extern void arch_enable_breakpoint(pid_t, struct breakpoint*);
+void enable_breakpoint(pid_t pid, struct breakpoint *sbp)
+{
+ 	arch_enable_breakpoint(pid, sbp);
+}
+#else
 void enable_breakpoint(pid_t pid, struct breakpoint *sbp)
 {
 	int i, j;
@@ -32,7 +40,15 @@ void enable_breakpoint(pid_t pid, struct breakpoint *sbp)
 		ptrace(PTRACE_POKETEXT, pid, sbp->addr + i * sizeof(long), a);
 	}
 }
+#endif /* ARCH_HAVE_ENABLE_BREAKPOINT */
 
+#ifdef ARCH_HAVE_DISABLE_BREAKPOINT
+extern void arch_disable_breakpoint(pid_t, const struct breakpoint * sbp);
+void
+disable_breakpoint(pid_t pid, const struct breakpoint * sbp) {
+	arch_disable_breakpoint(pid, sbp);
+}
+#else
 void disable_breakpoint(pid_t pid, const struct breakpoint *sbp)
 {
 	int i, j;
@@ -55,3 +71,4 @@ void disable_breakpoint(pid_t pid, const struct breakpoint *sbp)
 		ptrace(PTRACE_POKETEXT, pid, sbp->addr + i * sizeof(long), a);
 	}
 }
+#endif /* ARCH_HAVE_DISABLE_BREAKPOINT */

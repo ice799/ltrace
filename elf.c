@@ -178,7 +178,10 @@ static void do_init_elf(struct ltelf *lte, const char *filename)
 		    if ((shdr.sh_type == SHT_PROGBITS
 			 || shdr.sh_type == SHT_NOBITS)
 			&& strcmp(name, ".plt") == 0)
+		    {
 			lte->plt_addr = shdr.sh_addr;
+			lte->plt_size = shdr.sh_size;
+		    }
 	}
 
 	if (lte->dynsym == NULL || lte->dynstr == NULL)

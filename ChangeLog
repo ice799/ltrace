@@ -1,3 +1,23 @@
+2006-02-17  Ian Wienand  <ianw@ieee.org>
+
+	* sysdeps/linux-gnu/ia64/arch.h: add ia64 support
+	* sysdeps/linux-gnu/ia64/breakpoint.c: add
+	* sysdeps/linux-gnu/ia64/Makefile: add
+	* sysdeps/linux-gnu/ia64/plt.c: add
+	* sysdeps/linux-gnu/ia64/ptrace.h: add
+	* sysdeps/linux-gnu/ia64/regs.c: add
+	* sysdeps/linux-gnu/ia64/signalent.h: add
+	* sysdeps/linux-gnu/ia64/syscallent.h: add
+	* sysdeps/linux-gnu/ia64/trace.c: add
+	* elf.h: add extra field for PLT size
+	* elf.c: put in PLT size
+	* sysdeps/linux-gnu/breakpoint.c: add arch breakpoint override
+	* sysdeps/linux-gnu/trace.c: don't single step after breakpoin for
+	ia64
+
+	* configure.ac: add version to AC_INIT, bump version to 0.3.38
+	* options.c: use PACKAGE_VERSION
+
 2006-02-16  Ian Wienand  <ianw@ieee.org>
 
 	* Makefile.in: install documentation into share/doc, make dist

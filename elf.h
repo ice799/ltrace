@@ -15,6 +15,7 @@ struct ltelf
   size_t dynsym_count;
   const char *dynstr;
   GElf_Addr plt_addr;
+  size_t plt_size;
   Elf_Data *relplt;
   size_t relplt_count;
   Elf32_Word *hash;
