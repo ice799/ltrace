@@ -11,12 +11,12 @@ prefix		= @prefix@
 sysconfdir	= @sysconfdir@
 bindir		= $(prefix)/bin
 mandir		= @mandir@
-docdir		= $(prefix)/doc/ltrace
+docdir		= $(prefix)/share/doc/ltrace
 
 CC		=	@CC@
 CFLAGS		=	-Wall @CFLAGS@
 CPPFLAGS	=	@iquote@$(TOPDIR) @iquote@$(TOPDIR)/sysdeps/$(OS) @iquoteend@ @DEFS@ -DSYSCONFDIR=\"$(sysconfdir)\" @CPPFLAGS@
-LDFLAGS		=
+LDFLAGS		=	@LDFLAGS@
 LIBS		=	@LIBS@
 
 INSTALL		=	@INSTALL@
@@ -29,6 +29,8 @@ OBJ	=	ltrace.o options.o elf.o output.o read_config_file.o	\
 		execute_program.o wait_for_something.o process_event.o	\
 		display_args.o breakpoints.o proc.o demangle.o dict.o \
 		debug.o summary.o
+
+VERSION	=	@PACKAGE_VERSION@
 
 all:		ltrace
 
@@ -51,7 +53,17 @@ realclean:	distclean
 		$(RM) configure config.h.in
 
 dist:		clean
-		( cd .. ; tar zcvf ltrace-`date +%y%m%d`.tgz ltrace )
+		(rm -rf dist ; mkdir dist ; cd dist ; \
+		svn export ../ ltrace-$(VERSION); \
+		cd ltrace-$(VERSION); \
+                ./autogen.sh; \
+                rm autogen.sh; \
+                cd ..; \
+                tar cfz ltrace-$(VERSION).tar.gz ./ltrace-$(VERSION); \
+                mv ltrace-$(VERSION).tar.gz ../; \
+                cd ..; \
+                rm -rf dist; \
+                echo "ALL DONE!" )
 
 install:	ltrace
 		$(INSTALL_DIR) $(DESTDIR)$(bindir) $(DESTDIR)$(docdir) $(DESTDIR)$(mandir)/man1
