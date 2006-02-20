@@ -1,6 +1,6 @@
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.57)
-AC_INIT(ltrace,0.3.36,[Juan Cespedes <cespedes@debian.org>])
+AC_INIT(ltrace,0.4,[ltrace-devel <ltrace-devel@alioth.debian.org>])
 AC_CONFIG_SRCDIR(ltrace.c)
 AC_CONFIG_HEADER(config.h)
 
