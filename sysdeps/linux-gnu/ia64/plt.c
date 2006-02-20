@@ -4,7 +4,7 @@
 #include "debug.h"
 
 /* A bundle is 128 bits */
-#define BUNDLE_SIZE 16 
+#define BUNDLE_SIZE 16
 
 /* 
 
@@ -24,24 +24,25 @@
 
 */
 
-GElf_Addr
-arch_plt_sym_val (struct ltelf *lte, size_t ndx, GElf_Rela *rela)
+GElf_Addr arch_plt_sym_val(struct ltelf *lte, size_t ndx, GElf_Rela * rela)
 {
 	/* Find number of entires by removing header and special
 	 * entry, dividing total size by three, since each PLT entry
 	 * will have 3 bundles (1 for inital entry and two for the PLT
 	 * code). */
-	int entries = (lte->plt_size - 4*BUNDLE_SIZE) / (3*BUNDLE_SIZE);
+	int entries = (lte->plt_size - 4 * BUNDLE_SIZE) / (3 * BUNDLE_SIZE);
 
 	/* Now the point we want to break on is the PLT entry after
 	 * all the header stuff */
-	unsigned long addr = lte->plt_addr + (4*BUNDLE_SIZE) + (BUNDLE_SIZE*entries) +  (2*ndx*BUNDLE_SIZE);
+	unsigned long addr =
+	    lte->plt_addr + (4 * BUNDLE_SIZE) + (BUNDLE_SIZE * entries) +
+	    (2 * ndx * BUNDLE_SIZE);
 	debug(3, "Found PLT %d entry at %lx\n", ndx, addr);
 
 	return addr;
 }
 
-void * plt2addr(struct process *proc, void ** plt)
+void *plt2addr(struct process *proc, void **plt)
 {
-  return (void *) plt;
+	return (void *)plt;
 }

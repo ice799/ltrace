@@ -1,2 +1,1 @@
-extern void read_config_file(char*);
-
+extern void read_config_file(char *);

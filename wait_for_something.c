@@ -18,10 +18,10 @@ static struct event event;
 
 /* This should also update `current_process' */
 
-static struct process * pid2proc(int pid);
+static struct process *pid2proc(int pid);
 
-struct event *
-wait_for_something(void) {
+struct event *wait_for_something(void)
+{
 	pid_t pid;
 	int status;
 	int tmp;
@@ -31,11 +31,11 @@ wait_for_something(void) {
 		exit(0);
 	}
 	pid = wait(&status);
-	if (pid==-1) {
-		if (errno==ECHILD) {
+	if (pid == -1) {
+		if (errno == ECHILD) {
 			debug(1, "No more children");
 			exit(0);
-		} else if (errno==EINTR) {
+		} else if (errno == EINTR) {
 			debug(1, "wait received EINTR ?");
 			event.thing = LT_EV_NONE;
 			return &event;
@@ -59,15 +59,18 @@ wait_for_something(void) {
 		return &event;
 	}
 	if (opt_i) {
-		event.proc->instruction_pointer = get_instruction_pointer(event.proc);
+		event.proc->instruction_pointer =
+		    get_instruction_pointer(event.proc);
 	}
-	switch(syscall_p(event.proc, status, &tmp)) {
-		case 1:	event.thing = LT_EV_SYSCALL;
-			event.e_un.sysnum = tmp;
-			return &event;
-		case 2:	event.thing = LT_EV_SYSRET;
-			event.e_un.sysnum = tmp;
-			return &event;
+	switch (syscall_p(event.proc, status, &tmp)) {
+	case 1:
+		event.thing = LT_EV_SYSCALL;
+		event.e_un.sysnum = tmp;
+		return &event;
+	case 2:
+		event.thing = LT_EV_SYSRET;
+		event.e_un.sysnum = tmp;
+		return &event;
 	}
 	if (WIFEXITED(status)) {
 		event.thing = LT_EV_EXIT;
@@ -91,18 +94,20 @@ wait_for_something(void) {
 	}
 	event.thing = LT_EV_BREAKPOINT;
 	if (!event.proc->instruction_pointer) {
-		event.proc->instruction_pointer = get_instruction_pointer(event.proc);
+		event.proc->instruction_pointer =
+		    get_instruction_pointer(event.proc);
 	}
-	event.e_un.brk_addr = event.proc->instruction_pointer - DECR_PC_AFTER_BREAK;
+	event.e_un.brk_addr =
+	    event.proc->instruction_pointer - DECR_PC_AFTER_BREAK;
 	return &event;
 }
 
-static struct process *
-pid2proc(pid_t pid) {
-	struct process * tmp;
+static struct process *pid2proc(pid_t pid)
+{
+	struct process *tmp;
 
 	tmp = list_of_processes;
-	while(tmp) {
+	while (tmp) {
 		if (pid == tmp->pid) {
 			return tmp;
 		}

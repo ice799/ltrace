@@ -1,6 +1,7 @@
 #include <features.h>
 
-void debug_(int level, const char *file, int line, const char *func, const char *fmt, ...);
+void debug_(int level, const char *file, int line, const char *func,
+	    const char *fmt, ...);
 
 int xwrite(const char *, size_t);
 int xwrites(const char *);
@@ -10,7 +11,6 @@ int xwritec(char);
 int xwritecr(void);
 int xwritedump(void *, long, int);
 int xinfdump(long, void *, int);
-
 
 # define debug(level, expr...) debug_(level, __FILE__, __LINE__, DEBUG_FUNCTION, expr)
 

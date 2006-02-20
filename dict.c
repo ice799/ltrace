@@ -13,26 +13,27 @@
 
 struct dict_entry {
 	unsigned int hash;
-	void * key;
-	void * value;
-	struct dict_entry * next;
+	void *key;
+	void *value;
+	struct dict_entry *next;
 };
 
 /* #define DICTTABLESIZE 97 */
-#define DICTTABLESIZE 997 /* Semi-randomly selected prime number. */
+#define DICTTABLESIZE 997	/* Semi-randomly selected prime number. */
 /* #define DICTTABLESIZE 9973 */
 /* #define DICTTABLESIZE 99991 */
 /* #define DICTTABLESIZE 999983 */
 
 struct dict {
-	struct dict_entry * buckets[DICTTABLESIZE];
-	unsigned int (*key2hash)(void *);
-	int (*key_cmp)(void *, void *);
+	struct dict_entry *buckets[DICTTABLESIZE];
+	unsigned int (*key2hash) (void *);
+	int (*key_cmp) (void *, void *);
 };
 
-struct dict *
-dict_init(unsigned int (*key2hash)(void *), int (*key_cmp)(void *, void *)) {
-	struct dict * d;
+struct dict *dict_init(unsigned int (*key2hash) (void *),
+		       int (*key_cmp) (void *, void *))
+{
+	struct dict *d;
 	int i;
 
 	d = malloc(sizeof(struct dict));
@@ -40,7 +41,7 @@ dict_init(unsigned int (*key2hash)(void *), int (*key_cmp)(void *, void *)) {
 		perror("malloc()");
 		exit(1);
 	}
-	for (i = 0; i < DICTTABLESIZE; i++) { /* better use memset()? */
+	for (i = 0; i < DICTTABLESIZE; i++) {	/* better use memset()? */
 		d->buckets[i] = NULL;
 	}
 	d->key2hash = key2hash;
@@ -48,10 +49,10 @@ dict_init(unsigned int (*key2hash)(void *), int (*key_cmp)(void *, void *)) {
 	return d;
 }
 
-void
-dict_clear(struct dict * d) {
+void dict_clear(struct dict *d)
+{
 	int i;
-	struct dict_entry * entry, * nextentry;
+	struct dict_entry *entry, *nextentry;
 
 	assert(d);
 	for (i = 0; i < DICTTABLESIZE; i++) {
@@ -64,9 +65,9 @@ dict_clear(struct dict * d) {
 	free(d);
 }
 
-int
-dict_enter(struct dict * d, void * key, void * value) {
-	struct dict_entry * entry, * newentry;
+int dict_enter(struct dict *d, void *key, void *value)
+{
+	struct dict_entry *entry, *newentry;
 	unsigned int hash = d->key2hash(key);
 	unsigned int bucketpos = hash % DICTTABLESIZE;
 
@@ -77,26 +78,29 @@ dict_enter(struct dict * d, void * key, void * value) {
 		exit(1);
 	}
 
-	newentry->hash  = hash;
-	newentry->key   = key;
+	newentry->hash = hash;
+	newentry->key = key;
 	newentry->value = value;
-	newentry->next  = NULL;
+	newentry->next = NULL;
 
 	entry = d->buckets[bucketpos];
-	while (entry && entry->next) entry = entry->next;
+	while (entry && entry->next)
+		entry = entry->next;
 
-	if (entry) entry->next = newentry;
-	else d->buckets[bucketpos] = newentry;
+	if (entry)
+		entry->next = newentry;
+	else
+		d->buckets[bucketpos] = newentry;
 
 	debug(3, "new dict entry at %p[%d]: (%p,%p)", d, bucketpos, key, value);
 	return 0;
 }
 
-void *
-dict_find_entry(struct dict * d, void * key) {
+void *dict_find_entry(struct dict *d, void *key)
+{
 	unsigned int hash = d->key2hash(key);
 	unsigned int bucketpos = hash % DICTTABLESIZE;
-	struct dict_entry * entry;
+	struct dict_entry *entry;
 
 	assert(d);
 	for (entry = d->buckets[bucketpos]; entry; entry = entry->next) {
@@ -111,14 +115,16 @@ dict_find_entry(struct dict * d, void * key) {
 }
 
 void
-dict_apply_to_all(struct dict * d, void (*func)(void *key, void *value, void *data), void *data) {
+dict_apply_to_all(struct dict *d,
+		  void (*func) (void *key, void *value, void *data), void *data)
+{
 	int i;
 
 	if (!d) {
 		return;
 	}
 	for (i = 0; i < DICTTABLESIZE; i++) {
-		struct dict_entry * entry = d->buckets[i];
+		struct dict_entry *entry = d->buckets[i];
 		while (entry) {
 			func(entry->key, entry->value, data);
 			entry = entry->next;
@@ -128,35 +134,35 @@ dict_apply_to_all(struct dict * d, void (*func)(void *key, void *value, void *da
 
 /*****************************************************************************/
 
-unsigned int
-dict_key2hash_string(void * key) {
-	const char * s = (const char *)key;
+unsigned int dict_key2hash_string(void *key)
+{
+	const char *s = (const char *)key;
 	unsigned int total = 0, shift = 0;
 
 	assert(key);
 	while (*s) {
 		total = total ^ ((*s) << shift);
 		shift += 5;
-		if (shift > 24) shift -= 24;
+		if (shift > 24)
+			shift -= 24;
 		s++;
 	}
 	return total;
 }
 
-int
-dict_key_cmp_string(void * key1, void * key2) {
+int dict_key_cmp_string(void *key1, void *key2)
+{
 	assert(key1);
 	assert(key2);
 	return strcmp((const char *)key1, (const char *)key2);
 }
 
-unsigned int
-dict_key2hash_int(void * key) {
+unsigned int dict_key2hash_int(void *key)
+{
 	return (unsigned long)key;
 }
 
-int
-dict_key_cmp_int(void * key1, void * key2) {
+int dict_key_cmp_int(void *key1, void *key2)
+{
 	return key1 - key2;
 }
-

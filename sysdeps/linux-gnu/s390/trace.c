@@ -29,8 +29,8 @@
 # define PTRACE_POKEUSER PTRACE_POKEUSR
 #endif
 
-void
-get_arch_dep(struct process * proc) {
+void get_arch_dep(struct process *proc)
+{
 #ifdef __s390x__
 	unsigned long psw;
 
@@ -44,22 +44,24 @@ get_arch_dep(struct process * proc) {
 		proc->personality = 1;
 	}
 
-	proc->arch_ptr = (void *) 1;
+	proc->arch_ptr = (void *)1;
 #endif
 }
 
 /* Returns 1 if syscall, 2 if sysret, 0 otherwise.
  */
-int
-syscall_p(struct process * proc, int status, int * sysnum) {
+int syscall_p(struct process *proc, int status, int *sysnum)
+{
 	long pc, opcode, offset_reg, scno, tmp;
 	void *svc_addr;
-	int gpr_offset[16] = {PT_GPR0,  PT_GPR1,  PT_ORIGGPR2, PT_GPR3,
-			      PT_GPR4,  PT_GPR5,  PT_GPR6,     PT_GPR7,
-			      PT_GPR8,  PT_GPR9,  PT_GPR10,    PT_GPR11,
-			      PT_GPR12, PT_GPR13, PT_GPR14,    PT_GPR15};
+	int gpr_offset[16] = { PT_GPR0, PT_GPR1, PT_ORIGGPR2, PT_GPR3,
+		PT_GPR4, PT_GPR5, PT_GPR6, PT_GPR7,
+		PT_GPR8, PT_GPR9, PT_GPR10, PT_GPR11,
+		PT_GPR12, PT_GPR13, PT_GPR14, PT_GPR15
+	};
 
-	if (WIFSTOPPED(status) && WSTOPSIG(status)==(SIGTRAP | proc->tracesysgood)) {
+	if (WIFSTOPPED(status)
+	    && WSTOPSIG(status) == (SIGTRAP | proc->tracesysgood)) {
 
 		/*
 		 * If we have PTRACE_O_TRACESYSGOOD and we have the new style
@@ -72,9 +74,12 @@ syscall_p(struct process * proc, int status, int * sysnum) {
 		if (proc->tracesysgood) {
 			/* System call was encountered... */
 			if (proc->callstack_depth > 0 &&
-			    proc->callstack[proc->callstack_depth-1].is_syscall) {
+			    proc->callstack[proc->callstack_depth -
+					    1].is_syscall) {
 				/* syscall exit */
-				*sysnum = proc->callstack[proc->callstack_depth-1].c_un.syscall;
+				*sysnum =
+				    proc->callstack[proc->callstack_depth -
+						    1].c_un.syscall;
 				return 2;
 			} else {
 				/* syscall enter */
@@ -82,7 +87,7 @@ syscall_p(struct process * proc, int status, int * sysnum) {
 					return 1;
 			}
 		}
-		
+
 		/*
 		 * At least one of the two requirements mentioned above is not
 		 * met. Therefore the fun part starts here:
@@ -96,19 +101,17 @@ syscall_p(struct process * proc, int status, int * sysnum) {
 
 		pc = ptrace(PTRACE_PEEKUSER, proc->pid, PT_PSWADDR, 0);
 		opcode = ptrace(PTRACE_PEEKTEXT, proc->pid,
-				(char *)(pc-sizeof(long)),0);
+				(char *)(pc - sizeof(long)), 0);
 
 		if ((opcode & 0xffff) == 0x0001) {
 			/* Breakpoint */
 			return 0;
-		}
-		else if ((opcode & 0xff00) == 0x0a00) {
+		} else if ((opcode & 0xff00) == 0x0a00) {
 			/* SVC opcode */
 			scno = opcode & 0xff;
-		}
-		else if ((opcode & 0xff000000) == 0x44000000) {
+		} else if ((opcode & 0xff000000) == 0x44000000) {
 			/* Instruction decoding of EXECUTE... */
-			svc_addr = (void *) (opcode & 0xfff);
+			svc_addr = (void *)(opcode & 0xfff);
 
 			offset_reg = (opcode & 0x000f0000) >> 16;
 			if (offset_reg)
@@ -136,8 +139,7 @@ syscall_p(struct process * proc, int status, int * sysnum) {
 					     gpr_offset[offset_reg], 0);
 
 			scno = (scno | tmp) & 0xff;
-		}
-		else {
+		} else {
 			/* No opcode related to syscall handling */
 			return 0;
 		}
@@ -149,7 +151,7 @@ syscall_p(struct process * proc, int status, int * sysnum) {
 
 		/* System call was encountered... */
 		if (proc->callstack_depth > 0 &&
-		    proc->callstack[proc->callstack_depth-1].is_syscall) {
+		    proc->callstack[proc->callstack_depth - 1].is_syscall) {
 			return 2;
 		} else {
 			return 1;
@@ -159,27 +161,32 @@ syscall_p(struct process * proc, int status, int * sysnum) {
 	return 0;
 }
 
-long
-gimme_arg(enum tof type, struct process * proc, int arg_num) {
+long gimme_arg(enum tof type, struct process *proc, int arg_num)
+{
 	long ret;
 
-	switch(arg_num) {
-		case -1: /* return value */
-			ret = ptrace(PTRACE_PEEKUSER, proc->pid, PT_GPR2, 0);
-			break;
-		case 0: ret = ptrace(PTRACE_PEEKUSER, proc->pid, PT_ORIGGPR2, 0);
-			break;
-		case 1: ret = ptrace(PTRACE_PEEKUSER, proc->pid, PT_GPR3, 0);
-			break;
-		case 2: ret = ptrace(PTRACE_PEEKUSER, proc->pid, PT_GPR4, 0);
-			break;
-		case 3: ret = ptrace(PTRACE_PEEKUSER, proc->pid, PT_GPR5, 0);
-			break;
-		case 4: ret = ptrace(PTRACE_PEEKUSER, proc->pid, PT_GPR6, 0);
-			break;
-		default:
-				fprintf(stderr, "gimme_arg called with wrong arguments\n");
-				exit(2);
+	switch (arg_num) {
+	case -1:		/* return value */
+		ret = ptrace(PTRACE_PEEKUSER, proc->pid, PT_GPR2, 0);
+		break;
+	case 0:
+		ret = ptrace(PTRACE_PEEKUSER, proc->pid, PT_ORIGGPR2, 0);
+		break;
+	case 1:
+		ret = ptrace(PTRACE_PEEKUSER, proc->pid, PT_GPR3, 0);
+		break;
+	case 2:
+		ret = ptrace(PTRACE_PEEKUSER, proc->pid, PT_GPR4, 0);
+		break;
+	case 3:
+		ret = ptrace(PTRACE_PEEKUSER, proc->pid, PT_GPR5, 0);
+		break;
+	case 4:
+		ret = ptrace(PTRACE_PEEKUSER, proc->pid, PT_GPR6, 0);
+		break;
+	default:
+		fprintf(stderr, "gimme_arg called with wrong arguments\n");
+		exit(2);
 	}
 #ifdef __s390x__
 	if (proc->mask_32bit)
@@ -188,6 +195,6 @@ gimme_arg(enum tof type, struct process * proc, int arg_num) {
 	return ret;
 }
 
-void
-save_register_args(enum tof type, struct process * proc) {
+void save_register_args(enum tof type, struct process *proc)
+{
 }
