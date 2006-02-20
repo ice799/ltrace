@@ -36,7 +36,7 @@ this makes C++ function names readable.
 .I \-d, \-\-debug
 Increase the debugging level.
 Use more (ie.
-.I \=dd
+.I \-dd
 ) for greater debugging information.
 .TP
 .I \-e expr
@@ -153,6 +153,8 @@ Option -f sometimes fails to trace some children.
 It only works on Linux and in a small subset of architectures.
 .LP
 Only ELF32 binaries are supported.
+.LP
+Calls to dlopen()ed libraries will not be traced.
 .PP
 If you like to report a bug, send a notice to the author, or use the
 .BR bug(1)
