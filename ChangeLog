@@ -1,3 +1,10 @@
+2006-02-21  Ian Wienand  <ianw@ieee.org>
+
+	* lots!: Rebase from RedHat 0.3.36-4.2 package.  Forward port most
+	of the below changes that weren't already there.  Bump version to
+	0.4.  All changes from this point on should be reflected in this
+	file.
+
 2006-02-17  Ian Wienand  <ianw@ieee.org>
 
 	* sysdeps/linux-gnu/ia64/arch.h: add ia64 support
@@ -12,7 +19,7 @@
 	* elf.h: add extra field for PLT size
 	* elf.c: put in PLT size
 	* sysdeps/linux-gnu/breakpoint.c: add arch breakpoint override
-	* sysdeps/linux-gnu/trace.c: don't single step after breakpoin for
+	* sysdeps/linux-gnu/trace.c: don't single step after breakpoint for
 	ia64
 
 	* configure.ac: add version to AC_INIT, bump version to 0.3.38
@@ -21,7 +28,7 @@
 2006-02-16  Ian Wienand  <ianw@ieee.org>
 
 	* Makefile.in: install documentation into share/doc, make dist
-	target export latest version from CVS.
+	target from SVN export.
 
 2006-02-16  Rajeev V. Pillai <rajeevvp@yahoo.com>
 
@@ -31,14 +38,6 @@
 
 	* read_config_file.c: initialise pt stack argument to stop warning
 	* summary.c: make show_summary() obey -C for demangaling function names
-
-2006-02-16  Richard Kettlewell <rjk@nchiper.com>
-
-	* display_args.c: update to handle variable length strings
-	arguments
-	* ltrace.h: likewise
-	* output.c: likewise
-	* read_config_file.c: likewise
 
 2006-02-16 Bernd Zeimetz <bernd@zeimetz.de>
 
