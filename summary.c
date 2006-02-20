@@ -1,8 +1,17 @@
+#if HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/time.h>
 
 #include "ltrace.h"
+#include "options.h"
+
+#ifdef USE_DEMANAGE
+#include "demangle.h"
+#endif
 
 static int num_entries = 0;
 static struct entry_st {
@@ -73,7 +82,8 @@ void show_summary(void)
 		       (unsigned long int)((p / 10) % 100),
 		       (int)entries[i].tv.tv_sec, (int)entries[i].tv.tv_usec,
 		       (unsigned long int)(c / entries[i].count),
-		       entries[i].count, entries[i].name);
+		       entries[i].count,
+		       opt_C ? my_demange(entries[i].name) : entries[i].name);
 	}
 	printf
 	    ("------ ----------- ----------- --------- --------------------\n");
