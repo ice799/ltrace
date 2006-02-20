@@ -4,3 +4,6 @@
 
 #define LT_ELFCLASS	ELFCLASS32
 #define LT_ELF_MACHINE	EM_ARM
+
+#define PLTs_INIT_BY_HERE NULL
+#define E_ENTRY_NAME    "_start"

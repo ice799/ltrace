@@ -25,6 +25,7 @@ struct breakpoint {
 	void * addr;
 	unsigned char orig_value[BREAKPOINT_LENGTH];
 	int enabled;
+	struct library_symbol * libsym;
 };
 
 enum arg_type {
@@ -40,12 +41,12 @@ enum arg_type {
 	ARGTYPE_FILE,
 	ARGTYPE_FORMAT,     /* printf-like format */
 	ARGTYPE_STRING,
-	ARGTYPE_STRINGN,
-};
-
-struct complete_arg_type {
-	enum arg_type at;
-	int argno;		/* for STRINGN */
+	ARGTYPE_STRING0,    /* stringN: string up to (arg N) bytes */
+	ARGTYPE_STRING1,
+	ARGTYPE_STRING2,
+	ARGTYPE_STRING3,
+	ARGTYPE_STRING4,
+	ARGTYPE_STRING5
 };
 
 enum tof {
@@ -58,20 +59,25 @@ enum tof {
 
 struct function {
 	const char * name;
-	struct complete_arg_type return_type;
+	enum arg_type return_type;
 	int num_params;
-	struct complete_arg_type arg_types[MAX_ARGS];
+	enum arg_type arg_types[MAX_ARGS];
 	int params_right;
 	struct function * next;
 };
 
 extern struct function * list_of_functions;
+extern char * PLTs_initialized_by_here;
 
 struct library_symbol {
-	char * name;
-	void * enter_addr;
+        char * name;
+        void * enter_addr;
+        struct breakpoint *brkpnt;
+        char   needs_init;
+        char   static_plt2addr;
+        char   is_weak;
 
-	struct library_symbol * next;
+        struct library_symbol * next;
 };
 
 struct callstack_element {
@@ -91,6 +97,9 @@ struct process {
 	pid_t pid;
 	struct dict * breakpoints;
 	int breakpoints_enabled;	/* -1:not enabled yet, 0:disabled, 1:enabled */
+	int mask_32bit;			/* 1 if 64-bit ltrace is tracing 32-bit process.  */
+	int personality;
+	int tracesysgood;		/* signal indicating a PTRACE_SYSCALL trap */
 
 	int callstack_depth;
 	struct callstack_element callstack[MAX_CALLDEPTH];
@@ -102,6 +111,8 @@ struct process {
 	void * return_addr;
 	struct breakpoint * breakpoint_being_enabled;
 	void * arch_ptr;
+	short e_machine;
+        short need_to_reinitialize_breakpoints;
 
 	/* output: */
 	enum tof type_being_displayed;
@@ -142,20 +153,23 @@ extern void * instruction_pointer;
 extern struct event * wait_for_something(void);
 extern void process_event(struct event * event);
 extern void execute_program(struct process *, char **);
-extern int display_arg(enum tof type, struct process * proc, int arg_num, const struct complete_arg_type *at);
+extern int display_arg(enum tof type, struct process * proc, int arg_num, enum arg_type at);
 extern struct breakpoint * address2bpstruct(struct process * proc, void * addr);
 extern void breakpoints_init(struct process * proc);
-extern void insert_breakpoint(struct process * proc, void * addr);
+extern void insert_breakpoint(struct process * proc, void * addr, struct library_symbol * libsym);
 extern void delete_breakpoint(struct process * proc, void * addr);
 extern void enable_all_breakpoints(struct process * proc);
 extern void disable_all_breakpoints(struct process * proc);
-extern struct process * open_program(char * filename);
+extern void reinitialize_breakpoints (struct process *);
+
+extern struct process * open_program(char * filename, pid_t pid);
 extern void open_pid(pid_t pid, int verbose);
 extern void show_summary(void);
 
 
 /* Arch-dependent stuff: */
 extern char * pid2name(pid_t pid);
+extern void trace_set_options(struct process * proc, pid_t pid);
 extern void trace_me(void);
 extern int trace_pid(pid_t pid);
 extern void untrace_pid(pid_t pid);
@@ -166,8 +180,8 @@ extern void * get_stack_pointer(struct process * proc);
 extern void * get_return_addr(struct process * proc, void * stack_pointer);
 extern void enable_breakpoint(pid_t pid, struct breakpoint * sbp);
 extern void disable_breakpoint(pid_t pid, const struct breakpoint * sbp);
-extern int fork_p(int sysnum);
-extern int exec_p(int sysnum);
+extern int fork_p(struct process * proc, int sysnum);
+extern int exec_p(struct process * proc, int sysnum);
 extern int syscall_p(struct process * proc, int status, int * sysnum);
 extern void continue_process(pid_t pid);
 extern void continue_after_signal(pid_t pid, int signum);
@@ -177,6 +191,8 @@ extern long gimme_arg(enum tof type, struct process * proc, int arg_num);
 extern void save_register_args(enum tof type, struct process * proc);
 extern int umovestr(struct process * proc, void * addr, int len, void * laddr);
 extern int ffcheck(void *maddr);
+extern void * plt2addr(struct process *, void **);
+
 #if 0	/* not yet */
 extern int umoven(struct process * proc, void * addr, int len, void * laddr);
 #endif

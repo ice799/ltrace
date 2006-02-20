@@ -1257,3 +1257,24 @@
 	"clock_nanosleep",                 /* 1256 */
 	"fstatfs64",                       /* 1257 */
 	"statfs64",                        /* 1258 */
+	"mbind",                           /* 1259 */
+	"get_mempolicy",                   /* 1260 */
+	"set_mempolicy",                   /* 1261 */
+	"mq_open",                         /* 1262 */
+	"mq_unlink",                       /* 1263 */
+	"mq_timedsend",                    /* 1264 */
+	"mq_timedreceive",                 /* 1265 */
+	"mq_notify",                       /* 1266 */
+	"mq_getsetattr",                   /* 1267 */
+	"kexec_load",                      /* 1268 */
+	"vserver",                         /* 1269 */
+	"waitid",                          /* 1270 */
+	"add_key",                         /* 1271 */
+	"request_key",                     /* 1272 */
+	"keyctl",                          /* 1273 */
+	"ioprio_set",                      /* 1274 */
+	"ioprio_get",                      /* 1275 */
+	"set_zone_reclaim",                /* 1276 */
+	"inotify_init",                    /* 1277 */
+	"inotify_add_watch",               /* 1278 */
+	"inotify_rm_watch",                /* 1279 */

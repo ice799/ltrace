@@ -17,8 +17,8 @@
 #include "debug.h"
 #include "sysdep.h"
 
-static void change_uid(struct process *proc)
-{
+static void
+change_uid(struct process * proc) {
 	uid_t run_uid, run_euid;
 	gid_t run_gid, run_egid;
 
@@ -26,8 +26,7 @@ static void change_uid(struct process *proc)
 		struct passwd *pent;
 
 		if (getuid() != 0 || geteuid() != 0) {
-			fprintf(stderr,
-				"you must be root to use the -u option\n");
+			fprintf(stderr, "you must be root to use the -u option\n");
 			exit(1);
 		}
 		if ((pent = getpwnam(opt_u)) == NULL) {
@@ -69,22 +68,21 @@ static void change_uid(struct process *proc)
 	}
 }
 
-void execute_program(struct process *sp, char **argv)
-{
+void
+execute_program(struct process * sp, char **argv) {
 	pid_t pid;
 
 	debug(1, "Executing `%s'...", sp->filename);
 
 	pid = fork();
-	if (pid < 0) {
+	if (pid<0) {
 		perror("ltrace: fork");
 		exit(1);
 	} else if (!pid) {	/* child */
 		change_uid(sp);
 		trace_me();
 		execvp(sp->filename, argv);
-		fprintf(stderr, "Can't execute `%s': %s\n", sp->filename,
-			strerror(errno));
+		fprintf(stderr, "Can't execute `%s': %s\n", sp->filename, strerror(errno));
 		exit(1);
 	}
 

@@ -4,14 +4,15 @@
 ** Other routines are in ../trace.c and need to be combined
 ** at link time with this code.
 **
-** S/390 version
-** Copyright (C) 2001 IBM Poughkeepsie, IBM Corporation
+** Copyright (C) 2001,2005 IBM Corp.
 */
 
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
 
+#include <errno.h>
+#include <stdlib.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <signal.h>
@@ -28,75 +29,165 @@
 # define PTRACE_POKEUSER PTRACE_POKEUSR
 #endif
 
-void get_arch_dep(struct process *proc)
-{
+void
+get_arch_dep(struct process * proc) {
+#ifdef __s390x__
+	unsigned long psw;
+
+	if (proc->arch_ptr)
+		return;
+
+	psw = ptrace(PTRACE_PEEKUSER, proc->pid, PT_PSWMASK, 0);
+
+	if ((psw & 0x000000180000000) == 0x000000080000000) {
+		proc->mask_32bit = 1;
+		proc->personality = 1;
+	}
+
+	proc->arch_ptr = (void *) 1;
+#endif
 }
 
 /* Returns 1 if syscall, 2 if sysret, 0 otherwise.
  */
-int syscall_p(struct process *proc, int status, int *sysnum)
-{
-	long pswa;
-	long svcinst;
-	long svcno;
-	long svcop;
+int
+syscall_p(struct process * proc, int status, int * sysnum) {
+	long pc, opcode, offset_reg, scno, tmp;
+	void *svc_addr;
+	int gpr_offset[16] = {PT_GPR0,  PT_GPR1,  PT_ORIGGPR2, PT_GPR3,
+			      PT_GPR4,  PT_GPR5,  PT_GPR6,     PT_GPR7,
+			      PT_GPR8,  PT_GPR9,  PT_GPR10,    PT_GPR11,
+			      PT_GPR12, PT_GPR13, PT_GPR14,    PT_GPR15};
 
-	if (WIFSTOPPED(status) && WSTOPSIG(status) == SIGTRAP) {
+	if (WIFSTOPPED(status) && WSTOPSIG(status)==(SIGTRAP | proc->tracesysgood)) {
 
-		pswa = ptrace(PTRACE_PEEKUSER, proc->pid, PT_PSWADDR, 0);
-		svcinst =
-		    ptrace(PTRACE_PEEKTEXT, proc->pid, (char *)(pswa - 4), 0);
-		svcop = (svcinst >> 8) & 0xFF;
-		svcno = svcinst & 0xFF;
+		/*
+		 * If we have PTRACE_O_TRACESYSGOOD and we have the new style
+		 * of passing the system call number to user space via PT_GPR2
+		 * then the task is quite easy.
+		 */
 
-		*sysnum = svcno;
+		*sysnum = ptrace(PTRACE_PEEKUSER, proc->pid, PT_GPR2, 0);
 
-		if (*sysnum == -1) {
-			return 0;
-		}
-		if (svcop == 0 && svcno == 1) {
-			/* Breakpoint was hit... */
-			return 0;
-		}
-		if (svcop == 10 && *sysnum >= 0) {
+		if (proc->tracesysgood) {
 			/* System call was encountered... */
 			if (proc->callstack_depth > 0 &&
-			    proc->callstack[proc->callstack_depth -
-					    1].is_syscall) {
+			    proc->callstack[proc->callstack_depth-1].is_syscall) {
+				/* syscall exit */
+				*sysnum = proc->callstack[proc->callstack_depth-1].c_un.syscall;
 				return 2;
 			} else {
-				return 1;
+				/* syscall enter */
+				if (*sysnum != -ENOSYS)
+					return 1;
 			}
-		} else {
-			/* Unknown trap was encountered... */
+		}
+		
+		/*
+		 * At least one of the two requirements mentioned above is not
+		 * met. Therefore the fun part starts here:
+		 * We try to do some instruction decoding without even knowing
+		 * the instruction code length of the last instruction executed.
+		 * Needs to be done to get the system call number or to decide
+		 * if we reached a breakpoint or even checking for a completely
+		 * unrelated instruction.
+		 * Just a heuristic that most of the time appears to work...
+		 */
+
+		pc = ptrace(PTRACE_PEEKUSER, proc->pid, PT_PSWADDR, 0);
+		opcode = ptrace(PTRACE_PEEKTEXT, proc->pid,
+				(char *)(pc-sizeof(long)),0);
+
+		if ((opcode & 0xffff) == 0x0001) {
+			/* Breakpoint */
 			return 0;
+		}
+		else if ((opcode & 0xff00) == 0x0a00) {
+			/* SVC opcode */
+			scno = opcode & 0xff;
+		}
+		else if ((opcode & 0xff000000) == 0x44000000) {
+			/* Instruction decoding of EXECUTE... */
+			svc_addr = (void *) (opcode & 0xfff);
+
+			offset_reg = (opcode & 0x000f0000) >> 16;
+			if (offset_reg)
+				svc_addr += ptrace(PTRACE_PEEKUSER, proc->pid,
+						   gpr_offset[offset_reg], 0);
+
+			offset_reg = (opcode & 0x0000f000) >> 12;
+			if (offset_reg)
+				svc_addr += ptrace(PTRACE_PEEKUSER, proc->pid,
+						   gpr_offset[offset_reg], 0);
+
+			scno = ptrace(PTRACE_PEEKTEXT, proc->pid, svc_addr, 0);
+#ifdef __s390x__
+			scno >>= 48;
+#else
+			scno >>= 16;
+#endif
+			if ((scno & 0xff00) != 0x0a000)
+				return 0;
+
+			tmp = 0;
+			offset_reg = (opcode & 0x00f00000) >> 20;
+			if (offset_reg)
+				tmp = ptrace(PTRACE_PEEKUSER, proc->pid,
+					     gpr_offset[offset_reg], 0);
+
+			scno = (scno | tmp) & 0xff;
+		}
+		else {
+			/* No opcode related to syscall handling */
+			return 0;
+		}
+
+		if (scno == 0)
+			scno = ptrace(PTRACE_PEEKUSER, proc->pid, PT_GPR1, 0);
+
+		*sysnum = scno;
+
+		/* System call was encountered... */
+		if (proc->callstack_depth > 0 &&
+		    proc->callstack[proc->callstack_depth-1].is_syscall) {
+			return 2;
+		} else {
+			return 1;
 		}
 	}
 	/* Unknown status... */
 	return 0;
 }
 
-long gimme_arg(enum tof type, struct process *proc, int arg_num)
-{
-	switch (arg_num) {
-	case -1:		/* return value */
-		return ptrace(PTRACE_PEEKUSER, proc->pid, PT_GPR2, 0);
-	case 0:
-		return ptrace(PTRACE_PEEKUSER, proc->pid, PT_ORIGGPR2, 0);
-	case 1:
-		return ptrace(PTRACE_PEEKUSER, proc->pid, PT_GPR3, 0);
-	case 2:
-		return ptrace(PTRACE_PEEKUSER, proc->pid, PT_GPR4, 0);
-	case 3:
-		return ptrace(PTRACE_PEEKUSER, proc->pid, PT_GPR5, 0);
-	case 4:
-		return ptrace(PTRACE_PEEKUSER, proc->pid, PT_GPR6, 0);
-	default:
-		fprintf(stderr, "gimme_arg called with wrong arguments\n");
-		exit(2);
+long
+gimme_arg(enum tof type, struct process * proc, int arg_num) {
+	long ret;
+
+	switch(arg_num) {
+		case -1: /* return value */
+			ret = ptrace(PTRACE_PEEKUSER, proc->pid, PT_GPR2, 0);
+			break;
+		case 0: ret = ptrace(PTRACE_PEEKUSER, proc->pid, PT_ORIGGPR2, 0);
+			break;
+		case 1: ret = ptrace(PTRACE_PEEKUSER, proc->pid, PT_GPR3, 0);
+			break;
+		case 2: ret = ptrace(PTRACE_PEEKUSER, proc->pid, PT_GPR4, 0);
+			break;
+		case 3: ret = ptrace(PTRACE_PEEKUSER, proc->pid, PT_GPR5, 0);
+			break;
+		case 4: ret = ptrace(PTRACE_PEEKUSER, proc->pid, PT_GPR6, 0);
+			break;
+		default:
+				fprintf(stderr, "gimme_arg called with wrong arguments\n");
+				exit(2);
 	}
+#ifdef __s390x__
+	if (proc->mask_32bit)
+		ret &= 0xffffffff;
+#endif
+	return ret;
 }
 
-void save_register_args(enum tof type, struct process *proc)
-{
+void
+save_register_args(enum tof type, struct process * proc) {
 }

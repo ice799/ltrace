@@ -1,7 +1,8 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT(ltrace.c, 0.3.38)
+AC_PREREQ(2.57)
+AC_INIT(ltrace,0.3.36,[Juan Cespedes <cespedes@debian.org>])
+AC_CONFIG_SRCDIR(ltrace.c)
 AC_CONFIG_HEADER(config.h)
-AC_PREREQ(2.50)
 
 dnl Check host system type
 AC_CANONICAL_HOST
@@ -40,19 +41,33 @@ dnl   AC_FUNC_VPRINTF
 dnl   AC_CHECK_FUNCS(gettimeofday strdup strerror strspn)
 AC_CHECK_FUNCS(getopt getopt_long)
 
-AC_CHECK_HEADER(gelf.h,,[
-  if test -f /usr/include/elfutils/gelf.h; then
-    CPPFLAGS="$CPPFLAGS -I /usr/include/elfutils"
-  elif test -f /usr/local/include/elfutils/gelf.h; then
-    CPPFLAGS="$CPPFLAGS -I /usr/local/include/elfutils"
-  elif test -f /usr/include/libelf/gelf.h; then
-    CPPFLAGS="$CPPFLAGS -I /usr/include/libelf"
-  elif test -f /usr/local/include/libelf/gelf.h; then
-    CPPFLAGS="$CPPFLAGS -I /usr/local/include/libelf"
-  else
-    AC_MSG_ERROR(gelf.h not found)
-  fi])
+for path in /usr/include/elfutils /usr/local/include/elfutils \
+	    /usr/include/libelf /usr/local/include/libelf; do
+	if test -f ${path}/gelf.h; then
+		CPPFLAGS="$CPPFLAGS -I ${path}"
+	fi
+done
+
+AC_CHECK_HEADER(gelf.h,,AC_MSG_ERROR([***** gelf.h not found *****]))
+		 
 AC_CHECK_LIB(elf,gelf_getdyn)
+
+ac_cv_have_iquote=no
+AC_MSG_CHECKING(compiler accepts -iquote dir)
+save_CPPFLAGS="$CPPFLAGS"
+CPPFLAGS="$CPPFLAGS -iquote ."
+AC_TRY_COMPILE(,,[ac_cv_have_iquote=yes])
+CPPFLAGS="$save_CPPFLAGS"
+AC_MSG_RESULT($ac_cv_have_iquote)
+if test $ac_cv_have_iquote = yes; then
+  iquote="-iquote "
+  iquoteend=""
+else
+  iquote="-I "
+  iquoteend="-I-"
+fi
+AC_SUBST(iquote)
+AC_SUBST(iquoteend)
 
 ac_cv_have_elf_c_read_mmap=no
 AC_MSG_CHECKING(elf_begin accepts ELF_C_READ_MMAP)

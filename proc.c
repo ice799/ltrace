@@ -12,37 +12,31 @@
 #include "options.h"
 #include "elf.h"
 
-struct process *open_program(char *filename)
-{
-	struct process *proc;
-	proc = malloc(sizeof(struct process));
+struct process *
+open_program(char * filename, pid_t pid) {
+	struct process * proc;
+	proc = calloc(sizeof(struct process), 1);
 	if (!proc) {
 		perror("malloc");
 		exit(1);
 	}
-	memset(proc, 0, sizeof(struct process));
 	proc->filename = filename;
-	proc->pid = 0;
-	proc->breakpoints = NULL;
 	proc->breakpoints_enabled = -1;
-	proc->callstack_depth = 0;
-	proc->breakpoint_being_enabled = NULL;
+	if (pid) { proc->pid = pid; }
 	breakpoints_init(proc);
-	proc->next = NULL;
 
 	proc->next = list_of_processes;
 	list_of_processes = proc;
 	return proc;
 }
 
-void open_pid(pid_t pid, int verbose)
-{
-	struct process *proc;
-	char *filename;
+void
+open_pid(pid_t pid, int verbose) {
+	struct process * proc;
+	char * filename;
 
-	if (trace_pid(pid) < 0) {
-		fprintf(stderr, "Cannot attach to pid %u: %s\n", pid,
-			strerror(errno));
+	if (trace_pid(pid)<0) {
+		fprintf(stderr, "Cannot attach to pid %u: %s\n", pid, strerror(errno));
 		return;
 	}
 
@@ -51,13 +45,12 @@ void open_pid(pid_t pid, int verbose)
 #if 0
 	if (!filename) {
 		if (verbose) {
-			fprintf(stderr, "Cannot trace pid %u: %s\n", pid,
-				strerror(errno));
+			fprintf(stderr, "Cannot trace pid %u: %s\n", pid, strerror(errno));
 		}
 		return;
 	}
 #endif
 
-	proc = open_program(filename);
-	proc->pid = pid;
+	proc = open_program(filename, pid);
+	proc->breakpoints_enabled = 1;
 }

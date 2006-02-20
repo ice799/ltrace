@@ -40,3 +40,8 @@ arch_plt_sym_val (struct ltelf *lte, size_t ndx, GElf_Rela *rela)
 
 	return addr;
 }
+
+void * plt2addr(struct process *proc, void ** plt)
+{
+  return (void *) plt;
+}

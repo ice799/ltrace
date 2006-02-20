@@ -37,8 +37,7 @@ union bundle_t {
 int
 syscall_p(struct process * proc, int status, int * sysnum) {
 
-	if (WIFSTOPPED(status) && WSTOPSIG(status) == SIGTRAP) 
-	{
+	if (WIFSTOPPED(status) && WSTOPSIG(status) == (SIGTRAP | proc->tracesysgood)) {
 		unsigned long slot = (ptrace (PTRACE_PEEKUSER, proc->pid, PT_CR_IPSR, 0) >> 41) & 0x3;
 		unsigned long ip = ptrace(PTRACE_PEEKUSER, proc->pid, PT_CR_IIP, 0);
 

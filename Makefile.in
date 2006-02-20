@@ -2,8 +2,6 @@
 # ltrace's Makefile.in
 #
 
-VERSION		:= 0.3.37
-
 #OS		:= $(shell uname -s)
 OS		:= @HOST_OS@
 
@@ -13,12 +11,12 @@ prefix		= @prefix@
 sysconfdir	= @sysconfdir@
 bindir		= $(prefix)/bin
 mandir		= @mandir@
-docdir		= $(prefix)/share/doc/ltrace
+docdir		= $(prefix)/doc/ltrace
 
 CC		=	@CC@
-CPPFLAGS	=	-iquote $(TOPDIR) -I$(TOPDIR)/sysdeps/$(OS) @CPPFLAGS@ @DEFS@ -DSYSCONFDIR=\"$(sysconfdir)\"
 CFLAGS		=	-Wall @CFLAGS@
-LDFLAGS		=	@LDFLAGS@
+CPPFLAGS	=	@iquote@$(TOPDIR) @iquote@$(TOPDIR)/sysdeps/$(OS) @iquoteend@ @DEFS@ -DSYSCONFDIR=\"$(sysconfdir)\" @CPPFLAGS@
+LDFLAGS		=
 LIBS		=	@LIBS@
 
 INSTALL		=	@INSTALL@
@@ -31,9 +29,6 @@ OBJ	=	ltrace.o options.o elf.o output.o read_config_file.o	\
 		execute_program.o wait_for_something.o process_event.o	\
 		display_args.o breakpoints.o proc.o demangle.o dict.o \
 		debug.o summary.o
-
-DIST_DIR 	=	 $(shell basename `pwd`)
-
 
 all:		ltrace
 
@@ -55,22 +50,8 @@ distclean:	clean
 realclean:	distclean
 		$(RM) configure config.h.in
 
-# This goes to the debian CVS server to export the latest version and put it in a tarball.
-# It does NOT make a dist of your current directory
 dist:		clean
-		( rm -rf dist ; mkdir dist ; cd dist \
-		cvs -d:pserver:anonymous@cvs.alioth.debian.org:/cvsroot/ltrace login; \
-		cvs -d:pserver:anonymous@cvs.alioth.debian.org:/cvsroot/ltrace export -d ltrace-$(VERSION) -D tomorrow ltrace; \
-		cd ltrace-$(VERSION); \
-		rm -rf debian; \
-		./autogen.sh; \
-		rm autogen.sh; \
-		cd ..; \
-		tar cfz ltrace-$(VERSION).tar.gz ./ltrace-$(VERSION); \
-		mv ltrace-$(VERSION).tar.gz ../; \
-		cd ..; \
-		rm -rf dist; \
-		echo "ALL DONE!" )
+		( cd .. ; tar zcvf ltrace-`date +%y%m%d`.tgz ltrace )
 
 install:	ltrace
 		$(INSTALL_DIR) $(DESTDIR)$(bindir) $(DESTDIR)$(docdir) $(DESTDIR)$(mandir)/man1
@@ -82,9 +63,6 @@ install:	ltrace
 
 dummy:
 
-TAGS:	
-	find -name '*.c' -o -name '*.h' | xargs etags -a
-
-.PHONY:		all clean distclean dist install dummy TAGS
+.PHONY:		all clean distclean dist install dummy
 
 .EXPORT_ALL_VARIABLES:

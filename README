@@ -2,7 +2,7 @@
 
                        A Dynamic Library Tracer
 
-         Copyright 1997-2006 Juan Cespedes <cespedes@debian.org>
+         Copyright 1997-2005 Juan Cespedes <cespedes@debian.org>
 
 
 Contents
@@ -31,7 +31,7 @@ people have contributed significantly to this project:
 * Jakub Jelinek <jakub@redhat.com> (SPARC port, support for libelf, many fixes)
 * Jakub Bogusz <qboosh@pld-linux.org> (alpha port)
 * SuSE (amd64 port)
-* Ian Wienand <ianw@gelato.unsw.edu.au> (ia64 port)
+* Ian Wienand <ianw@gelato.unsw.edu.au> (IA64 port)
 
 1. Introduction
 ---------------
@@ -49,10 +49,6 @@ You may find it at:
 Alternatively, you may find it in any Debian mirror.  For more info,
 see ftp://ftp.debian.org/debian/README.mirrors
 
-You can also retreive the source via CVS, see
-
-http://ltrace.alioth.debian.org
-
 3. How does it work
 -------------------
 Using software breakpoints, just like gdb.
@@ -68,13 +64,14 @@ It is part of at least Debian GNU/Linux, RedHat, SuSE and Mandrake.
 5. Bugs
 -------
 Too many to list here :).  If you like to submit a bug report, or a
-feature request, plase do that against the Debian `ltrace' package
+feature request, either do that against the Debian `ltrace' package,
+or mail ``Juan Cespedes <cespedes@debian.org>''.
 
 This file is very incomplete and out-of-date.
 
 6. License
 ----------
-    Copyright (C) 1997-2006 Juan Cespedes <cespedes@debian.org>
+    Copyright (C) 1997-2005 Juan Cespedes <cespedes@debian.org>
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by

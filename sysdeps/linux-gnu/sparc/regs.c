@@ -6,32 +6,32 @@
 #include "ptrace.h"
 #include "ltrace.h"
 
-void *get_instruction_pointer(struct process *proc)
-{
-	proc_archdep *a = (proc_archdep *) (proc->arch_ptr);
+void *
+get_instruction_pointer(struct process * proc) {
+	proc_archdep *a = (proc_archdep *)(proc->arch_ptr);
 	if (a->valid)
 		return (void *)a->regs.r_pc;
 	return (void *)-1;
 }
 
-void set_instruction_pointer(struct process *proc, void *addr)
-{
-	proc_archdep *a = (proc_archdep *) (proc->arch_ptr);
+void
+set_instruction_pointer(struct process * proc, void * addr) {
+	proc_archdep *a = (proc_archdep *)(proc->arch_ptr);
 	if (a->valid)
 		a->regs.r_pc = (long)addr;
 }
 
-void *get_stack_pointer(struct process *proc)
-{
-	proc_archdep *a = (proc_archdep *) (proc->arch_ptr);
+void *
+get_stack_pointer(struct process * proc) {
+	proc_archdep *a = (proc_archdep *)(proc->arch_ptr);
 	if (a->valid)
 		return (void *)a->regs.r_o6;
 	return (void *)-1;
 }
 
-void *get_return_addr(struct process *proc, void *stack_pointer)
-{
-	proc_archdep *a = (proc_archdep *) (proc->arch_ptr);
+void *
+get_return_addr(struct process * proc, void * stack_pointer) {
+	proc_archdep *a = (proc_archdep *)(proc->arch_ptr);
 	unsigned int t;
 	if (!a->valid)
 		return (void *)-1;

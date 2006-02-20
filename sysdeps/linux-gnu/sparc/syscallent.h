@@ -149,12 +149,12 @@
 	"pciconfig_read",		/* 148 */
 	"pciconfig_write",		/* 149 */
 	"getsockname",			/* 150 */
-	"151",				/* 151 */
-	"152",				/* 152 */
+	"inotify_init",			/* 151 */
+	"inotify_add_watch",		/* 152 */
 	"poll",				/* 153 */
 	"getdents64",			/* 154 */
 	"fcntl64",			/* 155 */
-	"156",				/* 156 */
+	"inotify_rm_watch",		/* 156 */
 	"statfs",			/* 157 */
 	"fstatfs",			/* 158 */
 	"umount",			/* 159 */
@@ -194,7 +194,7 @@
 	"epoll_create",			/* 193 */
 	"epoll_ctl",			/* 194 */
 	"epoll_wait",			/* 195 */
-	"196",				/* 196 */
+	"ioprio_set",			/* 196 */
 	"getppid",			/* 197 */
 	"sigaction",			/* 198 */
 	"sgetmask",			/* 199 */
@@ -216,7 +216,7 @@
 	"ipc",				/* 215 */
 	"sigreturn",			/* 216 */
 	"clone",			/* 217 */
-	"218",				/* 218 */
+	"ioprio_get",			/* 218 */
 	"adjtimex",			/* 219 */
 	"sigprocmask",			/* 220 */
 	"create_module",		/* 221 */
@@ -278,3 +278,7 @@
 	"mq_notify",			/* 277 */
 	"mq_getsetattr",		/* 278 */
 	"waitid",			/* 279 */
+	"setaltroot",			/* 280 */
+	"add_key",			/* 281 */
+	"request_key",			/* 282 */
+	"keyctl",			/* 283 */

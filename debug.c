@@ -5,8 +5,8 @@
 #include "options.h"
 #include "output.h"
 
-void debug_(int level, char *file, int line, const char *func, char *fmt, ...)
-{
+void
+debug_(int level, const char *file, int line, const char *func, const char *fmt, ...) {
 	char buf[1024];
 	va_list args;
 
@@ -18,4 +18,139 @@ void debug_(int level, char *file, int line, const char *func, char *fmt, ...)
 	va_end(args);
 
 	output_line(NULL, "DEBUG: %s:%d: %s(): %s", file, line, func, buf);
+}
+
+// The following section provides a way to print things, like hex dumps,
+// with out using buffered output.  This was written by Steve Munroe of IBM.
+
+#include <stdio.h>
+#include <errno.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include <sys/ptrace.h>
+
+int xwrite(const char *string, size_t len)
+{
+        int rc = 0;
+        rc = write (1, string, len);
+        return rc;
+}
+
+int xwrites(const char *string)
+{
+        size_t  len = 0;
+        int     rc = 0;
+        const char      *tstring = string;
+
+        while (*tstring++ != '\0')
+        {
+                len++;
+        }
+
+        if (len >0)
+        {
+                rc = xwrite( string, len );
+        }
+
+        return rc;
+}
+
+int xwritehexi(int i)
+{
+        int rc = 0;
+        char text[9];
+        int j;
+        unsigned int temp = (unsigned int)i;
+
+        for ( j = 7; j >= 0; j--)
+        {
+                char c;
+                c = (char)((temp & 0x0f ) + '0');
+                if ( c > '9' )
+                {
+                        c = (char)(c + ('a' - '9' - 1));
+                }
+                text[j] = c;
+                temp = temp>>4;
+        }
+
+        rc = write (1, text, 8);
+        return rc;
+}
+
+int xwritehexl(long i)
+{
+        int rc = 0;
+        char text[17];
+        int j;
+        unsigned long temp = (unsigned long)i;
+
+        for ( j = 15; j >= 0; j--)
+        {
+                char c;
+                c = (char)((temp & 0x0f ) + '0');
+                if ( c > '9' )
+                {
+                        c = (char)(c + ('a' - '9' - 1));
+                }
+                text[j] = c;
+                temp = temp>>4;
+        }
+
+        rc = write (1, text, 16);
+        return rc;
+}
+
+int xwritec(char c)
+{
+        char temp = c;
+        char *text = &temp;
+        int rc = 0;
+        rc = write (1, text, 1);
+        return rc;
+}
+
+int xwritecr(void)
+{
+        return xwritec('\n');
+}
+
+int xwritedump(void *ptr, long addr, int len)
+{
+        int rc = 0;
+        long *tprt = (long*)ptr;
+        int i;
+
+        for ( i = 0; i < len ; i+=8 )
+        {
+                xwritehexl( addr);
+                xwritec('-');
+                xwritec('>');
+                xwritehexl( *tprt++);
+                xwritecr();
+                addr += sizeof(long);
+        }
+
+        return rc;
+}
+
+int xinfdump(long pid, void *ptr, int len)
+{
+        int rc;
+        int i;
+        long wrdcnt = len / sizeof(long) + 1;
+        long *infwords = malloc(wrdcnt*sizeof(long));
+        long addr = (long)ptr;
+
+        addr = ((addr + sizeof(long) - 1) / sizeof(long)) * sizeof(long);
+
+        for (i=0; i<wrdcnt; ++i) {
+                infwords[i] = ptrace(PTRACE_PEEKTEXT, pid, addr);
+                addr += sizeof(long);
+        }
+
+        rc = xwritedump(infwords, (long)ptr, len);
+
+        free(infwords);
+        return rc;
 }

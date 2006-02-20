@@ -283,3 +283,12 @@
 	"mq_getsetattr",                   /* 282 */
 	"kexec_load",			   /* 283 */
 	"waitid",			   /* 284 */
+	"285",				   /* 285 */
+	"add_key",			   /* 286 */
+	"request_key",			   /* 287 */
+	"keyctl",			   /* 288 */
+	"ioprio_set",			   /* 289 */
+	"ioprio_get",			   /* 290 */
+	"inotify_init",			   /* 291 */
+	"inotify_add_watch",		   /* 292 */
+	"inotify_rm_watch",		   /* 293 */

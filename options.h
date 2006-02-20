@@ -36,4 +36,6 @@ extern struct opt_p_t * opt_p;	/* attach to process with a given pid */
 extern struct opt_e_t * opt_e;	/* list of function names to display */
 extern int opt_e_enable;	/* 0 if '!' is used, 1 otherwise */
 
+extern struct opt_e_t * opt_x;  /* list of functions to break at */
+
 extern char ** process_options(int argc, char **argv);

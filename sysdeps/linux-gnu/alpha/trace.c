@@ -25,51 +25,45 @@ void get_arch_dep(struct process *proc)
 
 /* Returns 1 if syscall, 2 if sysret, 0 otherwise.
  */
-int syscall_p(struct process *proc, int status, int *sysnum)
-{
-	if (WIFSTOPPED(status) && WSTOPSIG(status) == SIGTRAP) {
-		char *ip = get_instruction_pointer(proc) - 4;
+int
+syscall_p(struct process * proc, int status, int * sysnum) {
+	if (WIFSTOPPED(status) && WSTOPSIG(status)==(SIGTRAP | proc->tracesysgood)) {
+		char *ip=get_instruction_pointer(proc) - 4;
 		long x = ptrace(PTRACE_PEEKTEXT, proc->pid, ip, 0);
 		debug(2, "instr: %016lx", x);
-		if ((x & 0xffffffff) != 0x00000083)
+		if((x & 0xffffffff) != 0x00000083)
 			return 0;
-		*sysnum =
-		    ptrace(PTRACE_PEEKUSER, proc->pid, 0 /* REG_R0 */ , 0);
-		if (proc->callstack_depth > 0
-		    && proc->callstack[proc->callstack_depth - 1].is_syscall) {
+		*sysnum = ptrace(PTRACE_PEEKUSER, proc->pid, 0 /* REG_R0 */, 0);
+		if (proc->callstack_depth > 0 && proc->callstack[proc->callstack_depth-1].is_syscall) {
 			return 2;
 		}
-		if (*sysnum >= 0 && *sysnum < 500) {
+		if (*sysnum>=0 && *sysnum<500) {
 			return 1;
 		}
 	}
 	return 0;
 }
 
-long gimme_arg(enum tof type, struct process *proc, int arg_num)
-{
-	if (arg_num == -1) {	/* return value */
-		return ptrace(PTRACE_PEEKUSER, proc->pid, 0 /* REG_R0 */ , 0);
+long
+gimme_arg(enum tof type, struct process * proc, int arg_num) {
+	if (arg_num==-1) {		/* return value */
+		return ptrace(PTRACE_PEEKUSER, proc->pid, 0 /* REG_R0 */, 0);
 	}
 
-	if (type == LT_TOF_FUNCTION || type == LT_TOF_FUNCTIONR) {
-		if (arg_num <= 5)
-			return ptrace(PTRACE_PEEKUSER, proc->pid,
-				      arg_num + 16 /* REG_A0 */ , 0);
+	if (type==LT_TOF_FUNCTION || type==LT_TOF_FUNCTIONR) {
+		if(arg_num <= 5)
+			return ptrace(PTRACE_PEEKUSER, proc->pid, arg_num + 16 /* REG_A0 */, 0);
 		else
-			return ptrace(PTRACE_PEEKTEXT, proc->pid,
-				      proc->stack_pointer + 8 * (arg_num - 6),
-				      0);
-	} else if (type == LT_TOF_SYSCALL || type == LT_TOF_SYSCALLR) {
-		return ptrace(PTRACE_PEEKUSER, proc->pid,
-			      arg_num + 16 /* REG_A0 */ , 0);
+			return ptrace(PTRACE_PEEKTEXT, proc->pid, proc->stack_pointer+8*(arg_num-6), 0);
+	} else if (type==LT_TOF_SYSCALL || type==LT_TOF_SYSCALLR) {
+		return ptrace(PTRACE_PEEKUSER, proc->pid, arg_num + 16 /* REG_A0 */, 0);
 	} else {
 		fprintf(stderr, "gimme_arg called with wrong arguments\n");
 		exit(1);
 	}
 	return 0;
 }
-
-void save_register_args(enum tof type, struct process *proc)
+  
+void save_register_args(enum tof type, struct process * proc)
 {
 }

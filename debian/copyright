@@ -13,7 +13,7 @@ s390 port: Copyright (C) 2001 IBM Poughkeepsie, IBM Cororation <slate@us.ibm.com
 ELF hacking: Copyright (C) 1999 Silvio Cesare <silvio@big.net.au>
 PowerPC port: Copyright (C) 2001-2002 Anton Blanchard <anton@samba.org>
 SPARC port: Copyright (C) 1999 Jakub Jelinek <jakub@redhat.com>
-IA64 port: Copyright (C) 2006 Ian Wienand <ianw@gelato.unsw.edu.au>
+
 
 Autoconf stuff: Copyright 1992-1996 Free Software Foundation, Inc.
 install-sh: Copyright 1991 by the Massachusetts Institute of Technology
