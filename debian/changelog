@@ -5,7 +5,7 @@ ltrace (0.4-1) unstable; urgency=low
   * Add s390x support
   * This removes the patch from #257903 as it seems unnecessary now.
 
- -- Ian Wienand <ianw@gelato.unsw.edu.au>  Tue, 21 Feb 2006 09:23:09 +1100
+ -- Ian Wienand <ianw@ieee.org>  Tue, 21 Feb 2006 09:23:09 +1100
 
 ltrace (0.3.38-1) unstable; urgency=low
 
