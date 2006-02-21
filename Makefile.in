@@ -53,7 +53,8 @@ realclean:	distclean
 		$(RM) configure config.h.in
 
 dist:		clean
-		(rm -rf dist ; mkdir dist ; cd dist ; \
+		(if [ ! -d .svn ]; then echo "Sorry, can't make dist if not  a SVN checkout"; exit 1; fi ; \
+		rm -rf dist ; mkdir dist ; cd dist ; \
 		svn export ../ ltrace-$(VERSION); \
 		cd ltrace-$(VERSION); \
                 ./autogen.sh; \
@@ -63,7 +64,7 @@ dist:		clean
                 mv ltrace-$(VERSION).tar.gz ../; \
                 cd ..; \
                 rm -rf dist; \
-                echo "ALL DONE!" )
+                echo "complete: ltrace-$(VERSION).tar.gz" )
 
 install:	ltrace
 		$(INSTALL_DIR) $(DESTDIR)$(bindir) $(DESTDIR)$(docdir) $(DESTDIR)$(mandir)/man1
