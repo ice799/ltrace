@@ -3,7 +3,7 @@ Section: utils
 Priority: optional
 Maintainer: Juan Cespedes <cespedes@debian.org>
 Uploaders: Ian Wienand <ianw@ieee.org>
-Standards-Version: 3.6.2
+Standards-Version: 3.6.2.2
 Build-Depends: @cdbs@, binutils-dev, dpatch, libelfg0-dev
 
 Package: ltrace
