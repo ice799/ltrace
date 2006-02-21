@@ -1,5 +1,9 @@
 2006-02-21  Ian Wienand  <ianw@ieee.org>
 
+	* README: update to point to Alioth list
+
+2006-02-21  Ian Wienand  <ianw@ieee.org>
+
 	* lots!: Rebase from RedHat 0.3.36-4.2 package.  Forward port most
 	of the below changes that weren't already there.  Bump version to
 	0.4.  All changes from this point on should be reflected in this

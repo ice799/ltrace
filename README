@@ -2,7 +2,7 @@
 
                        A Dynamic Library Tracer
 
-         Copyright 1997-2005 Juan Cespedes <cespedes@debian.org>
+         Copyright 1997-2006 Juan Cespedes <cespedes@debian.org>
 
 
 Contents
@@ -40,14 +40,8 @@ calls instead of system calls.
 
 2. Where can I find it
 ----------------------
-At the moment, it's only available as a Debian package.  Please let
-me know if you distribute it any other way.
 
-You may find it at:
- * ftp://ftp.debian.org/debian/pool/main/l/ltrace/
-
-Alternatively, you may find it in any Debian mirror.  For more info,
-see ftp://ftp.debian.org/debian/README.mirrors
+http://ltrace.alioth.debian.org
 
 3. How does it work
 -------------------
@@ -55,9 +49,9 @@ Using software breakpoints, just like gdb.
 
 4. Where does it work
 ---------------------
-At the time of writting, it works only with ELF32 executables. It only
-works in Linux, and it only works on some architectures (i386, m68k,
-S/390, ARM, PowerPC, amd64, SPARC and alpha processors).
+
+It works with ELF based Linux systems running on i386, m68k, S/390,
+ARM, PowerPC, PowerPC64, IA64, AMD64, SPARC and Alpha processors.
 
 It is part of at least Debian GNU/Linux, RedHat, SuSE and Mandrake.
 
@@ -65,13 +59,13 @@ It is part of at least Debian GNU/Linux, RedHat, SuSE and Mandrake.
 -------
 Too many to list here :).  If you like to submit a bug report, or a
 feature request, either do that against the Debian `ltrace' package,
-or mail ``Juan Cespedes <cespedes@debian.org>''.
+or mail ltrace-devel@lists.alioth.debian.org.
 
 This file is very incomplete and out-of-date.
 
 6. License
 ----------
-    Copyright (C) 1997-2005 Juan Cespedes <cespedes@debian.org>
+    Copyright (C) 1997-2006 Juan Cespedes <cespedes@debian.org>
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
