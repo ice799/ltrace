@@ -83,7 +83,7 @@ void show_summary(void)
 		       (int)entries[i].tv.tv_sec, (int)entries[i].tv.tv_usec,
 		       (unsigned long int)(c / entries[i].count),
 		       entries[i].count,
-		       opt_C ? my_demange(entries[i].name) : entries[i].name);
+		       opt_C ? my_demangle(entries[i].name) : entries[i].name);
 	}
 	printf
 	    ("------ ----------- ----------- --------- --------------------\n");
