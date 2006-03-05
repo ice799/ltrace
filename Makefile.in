@@ -42,12 +42,12 @@ sysdeps/sysdep.o: dummy
 
 clean:
 		$(MAKE) -C sysdeps/$(OS) clean
-		rm ltrace $(OBJ)
-		rm *~ *.bak a.out core KK
+		rm -f ltrace $(OBJ)
+		rm -f *~ *.bak a.out core KK
 
 distclean:	clean
-		rm autogen.sh config.cache config.status config.log config.h Makefile configure.scan
-		rm -r autom4te.cache
+		rm -f autogen.sh config.cache config.status config.log config.h Makefile configure.scan
+		rm -rf autom4te.cache
 
 realclean:	distclean
 		rm configure config.h.in
@@ -59,12 +59,12 @@ dist:		clean
 		cd ltrace-$(VERSION); \
                 ./autogen.sh; \
                 rm autogen.sh; \
-		rm -r autom4te.cache; \
+		rm -rf autom4te.cache; \
                 cd ..; \
                 tar cfz ltrace-$(VERSION).tar.gz ./ltrace-$(VERSION); \
                 mv ltrace-$(VERSION).tar.gz ../; \
                 cd ..; \
-                rm -r dist; \
+                rm -rf dist; \
                 echo "complete: ltrace-$(VERSION).tar.gz" )
 
 install:	ltrace
