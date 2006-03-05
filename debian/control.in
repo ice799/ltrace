@@ -7,7 +7,7 @@ Standards-Version: 3.6.2.2
 Build-Depends: @cdbs@, binutils-dev, dpatch, libelfg0-dev
 
 Package: ltrace
-Architecture: i386 arm m68k s390 powerpc sparc alpha amd64 ia64
+Architecture: i386 arm m68k s390 powerpc sparc alpha amd64 ia64 ppc64
 Depends: ${shlibs:Depends}
 Description: Tracks runtime library calls in dynamically linked programs
  ltrace is a debugging program which runs a specified command until it
