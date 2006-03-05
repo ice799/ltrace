@@ -2,7 +2,7 @@ ltrace (0.4-1) unstable; urgency=low
 
   * Rebase code from Redhat patches, now everything lives in SVN
   * Closes: #297483,#315889,#318009 -- add PowerPC64 support
-  * Add s390x support
+  * Add s390x, ppc64 support
   * This removes the patch from #257903 as it seems unnecessary now.
 
  -- Ian Wienand <ianw@ieee.org>  Tue, 21 Feb 2006 09:23:09 +1100
