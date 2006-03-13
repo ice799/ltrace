@@ -51,7 +51,7 @@ struct opt_e_t *opt_e = NULL;
 int opt_e_enable = 1;
 
 /* List of global function names given to -x: */
-struct opt_e_t *opt_x = NULL;
+struct opt_x_t *opt_x = NULL;
 
 /* Set a break on the routine named here in order to re-initialize breakpoints
    after all the PLTs have been initialzed */
@@ -323,7 +323,7 @@ char **process_options(int argc, char **argv)
 
 		case 'x':
 			{
-				struct opt_e_t *p = opt_x;
+				struct opt_x_t *p = opt_x;
 
 				/* First, check for duplicate. */
 				while (p && strcmp(p->name, optarg)) {
@@ -334,12 +334,13 @@ char **process_options(int argc, char **argv)
 				}
 
 				/* If not duplicate, add to list. */
-				p = malloc(sizeof(struct opt_e_t));
+				p = malloc(sizeof(struct opt_x_t));
 				if (!p) {
 					perror("ltrace: malloc");
 					exit(1);
 				}
 				p->name = optarg;
+				p->found = 0;
 				p->next = opt_x;
 				opt_x = p;
 				break;

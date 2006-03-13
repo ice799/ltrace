@@ -351,9 +351,10 @@ struct library_symbol *read_elf(struct process *proc)
 	struct library_symbol *library_symbols = NULL;
 	struct ltelf lte[MAX_LIBRARY + 1];
 	size_t i;
-	struct opt_e_t *xptr;
+	struct opt_x_t *xptr;
 	struct library_symbol **lib_tail = NULL;
-	struct opt_e_t *main_cheat;
+	struct opt_x_t *main_cheat;
+	int exit_out = 0;
 
 	elf_version(EV_CURRENT);
 
@@ -440,22 +441,24 @@ struct library_symbol *read_elf(struct process *proc)
 				add_library_symbol(elf_plt2addr
 						   (lte, (void *)addr), name,
 						   lib_tail, 1, 0);
+				xptr->found = 1;
 				break;
 			}
 	}
 	for (xptr = opt_x; xptr; xptr = xptr->next)
-		if (xptr->name) {
-			if (strcmp(xptr->name, E_ENTRY_NAME) == 0)
-				add_library_symbol(elf_plt2addr
-						   (lte,
-						    (void *)lte->ehdr.e_entry),
-						   "_start", lib_tail, 1, 0);
-			else
-				fprintf(stderr,
-					"Warning: Couldn't get symbol \"%s\" "
-					"from \"%s\" or it's a duplicate",
-					xptr->name, proc->filename);
+		if ( ! xptr->found) {
+			char *badthing = "WARNING";
+			if (E_ENTRY_NAME && strcmp(xptr->name, E_ENTRY_NAME)) {
+				badthing = "ERROR";
+				exit_out = 1;
+			}
+			fprintf (stderr,
+				 "%s: Couldn't find symbol \"%s\" in file \"%s\"\n",
+			badthing, xptr->name, proc->filename);
 		}
+	if (exit_out) {
+		exit (1);
+	}
 
 	for (i = 0; i < library_num + 1; ++i)
 		do_close_elf(&lte[i]);
