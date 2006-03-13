@@ -84,4 +84,7 @@ dnl are built without LFS.  It is important that LFS setting
 dnl of libelf and ltrace matches.
 AC_SYS_LARGEFILE
 fi
-AC_OUTPUT(Makefile)
+AC_OUTPUT(Makefile testsuite/Makefile \
+	  testsuite/ltrace.main/Makefile testsuite/ltrace.minor/Makefile \
+	  testsuite/ltrace.torture/Makefile )
+

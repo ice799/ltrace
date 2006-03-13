@@ -1,0 +1,42 @@
+# This file was written by Yao Qi <qiyao@cn.ibm.com>.
+
+set testfile "print-instruction-pointer"
+set srcfile ${testfile}.c
+set binfile ${testfile}
+
+
+verbose "compiling source file now....."
+# Build the shared libraries this test case needs.
+if { [ltrace_compile "${srcdir}/${subdir}/${srcfile}" "${srcdir}/${subdir}/${binfile}" executable {debug} ] != "" } {
+     send_user "Testcase compile failed, so all tests in this file will automatically fail.\n"
+}
+
+# set options for ltrace.
+ltrace_options "-i"
+# Run PUT for ltarce.
+set exec_output [ltrace_runtest $srcdir/$subdir $srcdir/$subdir/$binfile]
+
+# Check the output of this program.
+verbose "ltrace runtest output: $exec_output\n"
+if [regexp {ELF from incompatible architecture} $exec_output] {
+	fail "32-bit ltrace can not perform on 64-bit PUTs and rebuild ltrace in 64 bit mode!"
+	return 
+} elseif [ regexp {Couldn't get .hash data} $exec_output ] {
+	fail "Couldn't get .hash data!"
+	return
+}
+
+# Get the addrss by objdump and sed.
+catch "exec sh -c {objdump -d $srcdir/$subdir/$binfile | sed -n '/^\[0-9a-fA-F\]\[0-9a-fA-F\]* <main>/,/^\[0-9a-fA-F\]\[0-9a-fA-F\]* </p'| grep -A 1 'call\\|bl' }" output
+#verbose "output=$output"
+catch "exec sh -c {echo \"$output\" | sed -n '2p'| awk -F' ' '{print \$1}'|awk -F: '{print \$1}'}" addr1
+catch "exec sh -c {echo \"$output\" | sed -n '5p'| awk -F' ' '{print \$1}'|awk -F: '{print \$1}'}" addr2
+
+verbose "addr1 = $addr1"
+verbose "addr2 = $addr2"
+# Verify the output by checking numbers of print in main.ltrace.
+set pattern "$addr1.*printf"
+ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern 1
+
+set pattern "$addr2.*printf"
+ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern 1

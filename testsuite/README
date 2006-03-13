@@ -1,0 +1,244 @@
+                     README for ltrace testsuite
+              18, October, 2005 by Yao Qi  <qiyao@cn.ibm.com>
+
+This is the README file for ltrace testsuite.
+
+Quick Overview
+==============
+
+   This testsuite is based on the dejagnu framework, which is again 
+dependent on Expect and Tcl.  So all these three package (tcl, expect
+and dejagnu) should be installed on your system before running these 
+tests.
+
+   After unpacking file ltrace-0.3.36.tar.gz:
+
+	tar -zxvfm ltrace-0.3.36.tar.gz
+
+   you'll find a directory named ltrace-0.3.36, which contains:
+
+ debian etc testsuite sysdeps
+
+you can first build this package, then run the testsuite in the 
+following steps:
+
+	1 cd ltrace-0.3.36
+
+	2 Confiugre ltrace for 32-bit mode or 64-bit mode.
+	./configure
+	 OR CC='gcc -m64' ./configure
+
+	3 Build ltace
+	make
+
+	4 Run all the test in default mode.
+	make check
+
+	The default is to test the ltrace just built, using the default
+compiler options.  You can control this by adding a symbol to 'make check':
+
+	To test the shipped ltrace tool (as opposed to the just built by "make")
+
+	   --tool_exec=/usr/bin/ltrace
+
+	To change compiler switches for the target test cases
+
+	   CFLAGS_FOR_TARGET=-m64
+
+    	To change the target compiler (instead of shipped gcc)
+
+           CC_FOR_TARGET=/opt/gcc-4.0/bin/gcc
+
+
+	You can run all the tests in different mode respectively as follows,
+ 
+	(1) ./run-my-tests.sh -m32
+	OR make check
+
+	(test ltrace in build tree and compile test cases in 32-bit mode)
+
+	(2) ./run-my-tests.sh -m64
+	OR make check RUNTESTFLAGS="CFLAGS_FOR_TARGET=-m64"
+
+	(test ltrace in build tree and compile test cases in 64-bit mode)
+
+	(3) ./run-my-tests.sh -m32 /usr/bin/ltrace
+	OR make check RUNTESTFLAGS="--tool_exec=/usr/bin/ltrace"
+
+	(test shipped ltrace and compile test cases in 32-bit mode)
+
+	(4) ./run-my-tests.sh -m64 /usr/bin/ltrace
+	OR make check RUNTESTFLAGS="--tool_exec=/usr/bin/ltrace CFLAGS_FOR_TARGET=-m64"
+
+	(run shipped ltrace and compile test cases in 64-bit mode)
+
+	(5) cd testsuite; make test
+
+	(run ltrace in build tree and compile test cases same as ltrace itself)
+
+
+	(6) make check RUNTESTFLAGS="--tool_exec=/usr/bin/ltrace CFLAGS_FOR_TARGET=-m64 CC_FOR_TARGET=/opt/gcc-4.0/bin/gcc"
+
+	(run shipped ltrace and compile test cases in 64 bit mode by /opt/gcc-4.0/bin/gcc)
+Ltrace Testsuite
+================
+
+   This testsuite for ltrace is a DejaGNU based testsuite that can 
+either be used to test your newly built ltrace, or for regression 
+testing a ltrace with local modifications.
+
+   Running the testsuite requires the prior installation of DejaGNU.
+The directory ftp://sources.redhat.com/pub/dejagnu/ will contain a 
+recent snapshot.  Once DejaGNU is installed or built and add the 
+location of runtest into $PATH, you can run the tests in one of the 
+four ways it mentioned in Quick Overview.  The DejaGNU framework could
+be built in following steps:
+
+    1 Uppack these three packages.
+    tar zxvf dejagnu-1.4.4.tar.gz
+    tar zxvf tcl8.4.9-src.tar.gz
+    tar zxvf expect-5.43.0.tar.gz
+
+    2 Build them and install.
+    cd dejagnu-1.4.4
+    ./configure
+    make
+    make install
+    cd ..
+
+    cd tcl8.4.9/unix
+    ./configure
+    make
+    make install
+    cd ..
+
+    cd expect-5.43
+    ./configure
+    make
+    make install
+    cd .. 
+
+   See the DejaGNU documentation and dejagnu-1.4.4/README for further 
+details.
+
+
+Componets in ltrace testsuite
+=============================
+
+   This testsuite include all the source code you need for ltrace
+test in a single directory, which is "ltrace-0.3.36/testsuite".
+This directory includes the following files and sub-directories:
+
+`config/unix.exp`
+   configuration file for dejagnu-based test.
+
+`lib/ltrace.exp`
+   some basic functions used in all the test cases.
+
+`ltrace.main/`
+   some basic tests for major fetures of ltrace.
+
+   (1) ltrace.main/main.exp does tests on tracing a function 
+implemented in a shared library.
+
+   (2) ltrace.main/main-internal.exp does tests on tracing a function
+implemented in main executable.
+
+   (3) ltrace.main/signals.exp do test on tracing user-defined signals
+sent by program to itself.
+
+   (4) ltrace.main/system_calls.exp do test on tracing all the system 
+calls in program.
+
+`ltrace.minor/`
+   some tests for minor fetures of ltrace.
+   
+   (1) ltrace.minor/attach-process.exp do test on attching a process.
+
+   (2) ltrace.minor/count-record.exp do test on counting time and 
+calls.
+
+   (3) ltrace.minor/demangle.exp do test on demangling the C++ symbols.
+
+   (4) ltrace.minor/time-record-T.exp do test on showing the time spent
+inside each call.
+
+   (5) ltrace.minor/time-record-tt.exp
+   (6) ltrace.minor/time-record-ttt.exp  do test on printing absolute 
+timestamps in different format.
+
+   (7) ltrace.minor/trace-clone.exp do test on following clone to child
+process.
+
+   (8) ltrace.minor/trace-fork.exp do test on following fork to child
+process.
+
+`ltrace.torture/`
+   some tests in extreme condations.
+
+   (1) ltrace.torture/signals.exp do test on tracing flooded signals
+send to program itself.
+	
+Trouble shootings
+=================
+
+   (1) Running ltrace with -u option requires the superuser privilege. 
+You must make sure you are root or have already got root's password.
+
+   (2) Check the *.ltrace files in each ltrace.* directories if there are
+some FAILs in the output.  They are informative. 
+
+    (3) Add --verbose option in RUNTESTFLAGS when 'make check' if you want
+to see more details of these tests.
+
+Test case extension
+===================
+
+   Current testsuite is quite basic.  The framework of testsuite is 
+extendable and scalealbe, so you can add new testcases into it easily.
+I will describe how to do that in different ways.
+
+   (1) Add new test case in an existed testcase directory.
+
+    It is simple.  Just add a foo.exp script and a relevant foo.c if 
+necessary.  The dejagnu framework can run that script automatically when 
+you run "make check".  The executable and object file would be generate 
+in the test, please add them in 'clean' entry in Makefile.in to ensure
+that they could be cleaned up automatically when run 'make clean'.
+
+   (2) Add new test case in a new testcase directory.
+
+   It is a little complicated.  Fisrt create a new directory in 
+testsuite/ with the same pattern as others, for example ltrace.bar, 
+and then create a Makefile.in, an Expect script foo.exp, and relative 
+foo.c if necessary.  Then modify the configure.ac in ltrace-0.3.36/, 
+and add "testsuite/ltrace.bar/Makefile" into macro AC_OUTPUT,
+testsuite/ltrace.bar/Makefile will be generated when you configure 
+this package.
+
+   Adding Makefile.in in the new directroy is just to remove 
+intermediate files and log files automatically later, such as foo.ltrace,
+object files and executables.  For example, if you want to remove A.ltrace,
+B.ltrace, A and B at the time of cleanup, you can write Makefile.in 
+like this:
+
+   clean:
+        -rm -f A B
+        -rm -f *.o
+        -rm -f *.ltrace
+   distclean: clean
+        -rm -f Makefile
+
+   At last add the new directory 'ltrace.bar' into the macro SUBDIRS 
+in testsuite/Makefile.in.
+
+   Rerun the autoconf and ./configure in ./ltrace-0.3.36, the Makefile 
+will be updated.
+
+
+
+^L
+(this is for editing this file with GNU emacs)
+Local Variables:
+mode: text
+End:

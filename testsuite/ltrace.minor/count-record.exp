@@ -1,0 +1,77 @@
+# This file was written by Yao Qi <qiyao@cn.ibm.com>.
+
+set testfile "count-record"
+set srcfile ${testfile}.c
+set binfile ${testfile}
+
+verbose "compiling source file now....."
+# Build the shared libraries this test case needs.
+if  { [ ltrace_compile "${srcdir}/${subdir}/${testfile}.c" "${srcdir}/${subdir}/${binfile}" executable {debug} ] != "" } {
+     send_user "Testcase compile failed, so all tests in this file will automatically fail.\n"
+}
+
+# set options for ltrace.
+ltrace_options "-c"
+
+# Run PUT for ltarce.
+set exec_output [ltrace_runtest $srcdir/$subdir $srcdir/$subdir/$binfile]
+
+# Check the output of this program.
+verbose "ltrace runtest output: $exec_output\n"
+if [regexp {ELF from incompatible architecture} $exec_output] {
+	fail "32-bit ltrace can not perform on 64-bit PUTs and rebuild ltrace in 64 bit mode!"
+	return
+} elseif [ regexp {Couldn't get .hash data} $exec_output ] {
+	fail "Couldn't get .hash data!"
+	return
+}
+
+
+ltrace_saveoutput $exec_output $srcdir/$subdir/$binfile.ltrace
+
+#
+#  This is a sample output and Verify the forth and fifth column.
+#
+#  13.31    0.001051        1051         1 rmdir
+#  12.81    0.001012        1012         1 fopen
+#  10.32    0.000815         407         2 remove
+#   9.56    0.000755         755         1 mkdir
+#   7.86    0.000621         621         1 fseek
+#   6.86    0.000542         542         1 fwrite
+#   6.60    0.000521         521         1 fclose
+#   6.03    0.000476         476         1 rename
+#   5.61    0.000443         443         1 symlink
+#   5.05    0.000399         399         1 chdir
+#   4.80    0.000379         379         1 access
+#   4.00    0.000316         316         1 __xstat
+#   3.81    0.000301         301         1 getcwd
+#   3.39    0.000268         268         1 fread
+#
+
+set pattern "\'1 rmdir\'"
+ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern
+set pattern "\'1 fopen\'"
+ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern
+set pattern "\'2 remove\'"
+ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern
+set pattern "\'1 mkdir\'"
+ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern
+set pattern "\'1 fseek\'"
+ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern
+set pattern "\'1 fwrite\'"
+ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern
+set pattern "\'1 fclose\'"
+ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern
+set pattern "\'1 rename\'"
+ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern
+set pattern "\'1 symlink\'"
+ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern
+set pattern "\'1 chdir\'"
+ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern
+set pattern "\'1 access\'"
+ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern
+set pattern "\'1 getcwd\'"
+ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern
+set pattern "\'1 fread\'"
+ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern
+

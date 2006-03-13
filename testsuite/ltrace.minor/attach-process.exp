@@ -1,0 +1,38 @@
+# This file was written by Yao Qi <qiyao@cn.ibm.com>.
+
+set testfile "attach-process"
+set srcfile ${testfile}.c
+set binfile ${testfile}
+
+verbose "compiling source file now....."
+# Build the shared libraries this test case needs.
+if  { [ ltrace_compile "${srcdir}/${subdir}/${testfile}.c" "${srcdir}/${subdir}/${binfile}" executable {debug} ] != "" } {
+     send_user "Testcase compile failed, so all tests in this file will automatically fail.\n"
+}
+
+# Run the program and get PID of it.
+catch "exec $srcdir/$subdir/$binfile &" output
+
+# get PID from ps output.
+regexp {([0-9]+)} $output match PID
+verbose "PID = $PID"
+
+# Run PUT for ltarce.
+global LTRACE
+catch "exec $LTRACE -S -p $PID -o ${srcdir}/${subdir}/${testfile}.ltrace" exec_output
+
+# Check the output of this program.
+verbose "ltrace runtest output: $exec_output\n"
+if [regexp {ELF from incompatible architecture} $exec_output] {
+	fail "32-bit ltrace can not perform on 64-bit PUTs and rebuild ltrace in 64 bit mode!"
+     	return
+} elseif [ regexp {Couldn't get .hash data} $exec_output ] {
+	fail "Couldn't get .hash data!"
+	return
+}
+
+# Verify the output in attach-process.ltrace by checking the number 
+# of sleep.
+set pattern "sleep"
+ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern 1
+

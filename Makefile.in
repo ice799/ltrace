@@ -40,7 +40,11 @@ ltrace:		sysdeps/sysdep.o $(OBJ)
 sysdeps/sysdep.o: dummy
 		$(MAKE) -C sysdeps/$(OS)
 
-clean:
+clean-deja:
+		$(RM) testrun.log testrun.sum
+		cd testsuite; make clean
+
+clean:		clean-deja
 		$(MAKE) -C sysdeps/$(OS) clean
 		rm -f ltrace $(OBJ)
 		rm -f *~ *.bak a.out core KK
@@ -48,6 +52,7 @@ clean:
 distclean:	clean
 		rm -f autogen.sh config.cache config.status config.log config.h Makefile configure.scan
 		rm -rf autom4te.cache
+		cd testsuite; make distclean
 
 realclean:	distclean
 		rm configure config.h.in
@@ -74,6 +79,9 @@ install:	ltrace
 		$(INSTALL_FILE) etc/ltrace.conf $(DESTDIR)$(sysconfdir)
 		$(INSTALL_FILE) COPYING README TODO BUGS ChangeLog $(DESTDIR)$(docdir)
 		$(INSTALL_FILE) ltrace.1 $(DESTDIR)$(mandir)/man1
+
+check:
+		cd testsuite; $(MAKE) check
 
 dummy:
 

@@ -1,0 +1,39 @@
+# This file was written by Yao Qi <qiyao@cn.ibm.com>.
+
+set testfile "signals"
+set srcfile ${testfile}.c
+set binfile ${testfile}
+
+
+verbose "compiling source file now....."
+# Build the shared libraries this test case needs.
+if  { [ ltrace_compile "${srcdir}/${subdir}/${testfile}.c" "${srcdir}/${subdir}/${binfile}" executable {debug} ] != "" } {
+     send_user "Testcase compile failed, so all tests in this file will automatically fail\n."
+}
+
+# set options for ltrace.
+ltrace_options "-L"
+
+# Run PUT for ltarce.
+set exec_output [ltrace_runtest $srcdir/$subdir $srcdir/$subdir/$binfile]
+
+# Check the output of this program.
+verbose "ltrace runtest output: $exec_output\n"
+if [regexp {ELF from incompatible architecture} $exec_output] {
+	fail "32-bit ltrace can not perform on 64-bit PUTs and rebuild ltrace in 64 bit mode!"
+     	return
+} elseif [ regexp {Couldn't get .hash data} $exec_output ] {
+	fail "Couldn't get .hash data!"
+	return
+}
+
+# Extract LOOP from source file.
+set fd [ open $srcdir/$subdir/$srcfile r]
+while { [gets $fd line] >= 0 } {
+	 regexp {define LOOP.*([0-9]+)} $line match count
+}
+close $fd
+
+# Verify the output of ltrace by checking the number of SIGUSR1 in signal.ltrace
+set pattern "SIGUSR1"
+ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern $count

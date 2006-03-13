@@ -1,0 +1,277 @@
+# This file was written by Yao Qi. (qiyao@cn.ibm.com)
+
+# Generic ltrace test subroutines that should work for any target.  If these
+# need to be modified for any target, it can be done with a variable
+# or by passing arguments.
+
+
+global LTRACE
+if [info exists TOOL_EXECUTABLE] {
+	set LTRACE $TOOL_EXECUTABLE
+} else {
+	set LTRACE $objdir/../ltrace
+}
+
+global LTRACE_OPTIONS
+set LTRACE_OPTIONS "";
+
+# ltrace_compile SOURCE DEST TYPE OPTIONS 
+#
+# Compile PUT(program under test) by native compiler.   ltrace_compile runs 
+# the right compiler, and TCL captures the output, and I evaluate the output.
+#
+# SOURCE is the name of program under test, with full directory.
+# DEST is the name of output of compilation, with full directory.
+# TYPE is an enum-like variable to affect the format or result of compiler
+#   output.  Values:
+#   executable   if output is an executable.
+#   object       if output is an object.
+# OPTIONS is option to compiler in this compilation.
+proc ltrace_compile {source dest type options} {
+    global LTRACE_TESTCASE_OPTIONS;
+    
+  # Add platform-specific options if a shared library was specified using
+  # "shlib=librarypath" in OPTIONS.
+  set new_options ""
+  set shlib_found 0
+
+  foreach opt $options {
+      if [regexp {^shlib=(.*)} $opt dummy_var shlib_name] {
+	  if [test_compiler_info "xlc*"] {
+	      # IBM xlc compiler doesn't accept shared library named other
+	      # than .so: use "-Wl," to bypass this
+	      lappend source "-Wl,$shlib_name"
+	  } else {
+	      lappend source $shlib_name
+	  }
+	  
+	  if {$shlib_found == 0} {
+	      set shlib_found 1
+	      
+	      if { ([test_compiler_info "gcc-*"]&& ([istarget "powerpc*-*-aix*"]|| [istarget "rs6000*-*-aix*"] ))} {
+		  lappend options "additional_flags=-L${objdir}/${subdir}"
+	      } elseif { [istarget "mips-sgi-irix*"] } {
+		  lappend options "additional_flags=-rpath ${objdir}/${subdir}"
+	      }
+	  }
+	  
+      } else {
+	  lappend new_options $opt
+      }
+  }
+    #end of for loop
+    set options $new_options
+    # dump some information for debug purpose.
+    verbose "options are $options"
+    verbose "source is $source $dest $type $options"
+    
+    set result [target_compile $source $dest $type $options];
+    verbose "result is $result"
+    regsub "\[\r\n\]*$" "$result" "" result;
+    regsub "^\[\r\n\]*" "$result" "" result;
+    if { $result != "" && [lsearch $options quiet] == -1} {
+	clone_output "compile failed for ltrace test, $result"
+    }
+    return $result;
+}
+
+proc get_compiler_info {binfile args} {
+    # For compiler.c and compiler.cc
+    global srcdir
+
+    # I am going to play with the log to keep noise out.
+    global outdir
+    global tool
+
+    # These come from compiler.c or compiler.cc
+    global compiler_info
+
+    # Legacy global data symbols.
+    #global gcc_compiled
+
+    # Choose which file to preprocess.
+    set ifile "${srcdir}/lib/compiler.c"
+    if { [llength $args] > 0 && [lindex $args 0] == "c++" } {
+	    set ifile "${srcdir}/lib/compiler.cc"
+    }
+
+    # Run $ifile through the right preprocessor.
+    # Toggle ltrace.log to keep the compiler output out of the log.
+    #log_file
+    set cppout [ ltrace_compile "${ifile}" "" preprocess [list "$args" quiet] ]
+    #log_file -a "$outdir/$tool.log" 
+
+    # Eval the output.
+    set unknown 0
+    foreach cppline [ split "$cppout" "\n" ] {
+	    if { [ regexp "^#" "$cppline" ] } {
+	      # line marker
+	    } elseif { [ regexp "^\[\n\r\t \]*$" "$cppline" ] } {
+	      # blank line
+	    } elseif { [ regexp "^\[\n\r\t \]*set\[\n\r\t \]" "$cppline" ] } {
+	    # eval this line
+	      verbose "get_compiler_info: $cppline" 2
+	      eval "$cppline"
+	  } else {
+	    # unknown line
+	    verbose "get_compiler_info: $cppline"
+	    set unknown 1
+	  }
+      }
+
+    # Reset to unknown compiler if any diagnostics happened.
+    if { $unknown } {
+	    set compiler_info "unknown"
+    }
+  return 0
+}
+
+proc test_compiler_info { {compiler ""} } {
+    global compiler_info
+    verbose "compiler_info=$compiler_info"
+     # if no arg, return the compiler_info string
+
+     if [string match "" $compiler] {
+         if [info exists compiler_info] {
+             return $compiler_info
+         } else {
+             perror "No compiler info found."
+         }
+     }
+
+    return [string match $compiler $compiler_info]
+}
+
+proc ltrace_compile_shlib {sources dest options} {
+    set obj_options $options
+    verbose "+++++++ [test_compiler_info]" 
+    switch -glob [test_compiler_info] {
+	"xlc-*" {
+	    lappend obj_options "additional_flags=-qpic"
+	}
+	"gcc-*" {
+	    if { !([istarget "powerpc*-*-aix*"]
+		   || [istarget "rs6000*-*-aix*"]) } {
+                lappend obj_options "additional_flags=-fpic"
+	    }
+          }
+  "xlc++-*" {
+      lappend obj_options "additional_flags=-qpic"
+  }
+
+	default {
+	    fail "Bad compiler!"
+            }
+    }
+    
+    set outdir [file dirname $dest]
+    set objects ""
+    foreach source $sources {
+	set sourcebase [file tail $source]
+       if {[ltrace_compile $source "${outdir}/${sourcebase}.o" object $obj_options] != ""} {
+           return -1
+       }
+	lappend objects ${outdir}/${sourcebase}.o
+    }
+
+    set link_options $options
+    if { [test_compiler_info "xlc-*"] || [test_compiler_info "xlc++-*"]} {
+	lappend link_options "additional_flags=-qmkshrobj"
+    } else {
+	lappend link_options "additional_flags=-shared"
+    }
+    if {[ltrace_compile "${objects}" "${dest}" executable $link_options] != ""} {
+	return -1
+    }
+}
+
+#
+# ltrace_options OPTIONS_LIST
+# Pass ltrace commandline options.
+# 
+proc ltrace_options { args } {
+	
+	global LTRACE_OPTIONS
+	set LTRACE_OPTIONS $args
+}
+
+#
+# ltrace_runtest LD_LIBRARY_PATH BIN FILE
+# Trace the execution of BIN and return result.
+#
+# BIN is program-under-test.
+# LD_LIBRARY_PATH is the env for program-under-test to run.
+# FILE is to save the output from ltrace with default name $BIN.ltrace.
+# Retrun output from ltrace.
+#
+proc ltrace_runtest { args } {
+
+	global LTRACE
+	global LTRACE_OPTIONS
+
+	verbose "LTRACE = $LTRACE"
+	
+	set LD_LIBRARY_PATH_ [lindex $args 0]
+	set BIN [lindex $args 1]
+
+	# specify the output file, the default one is $BIN.ltrace
+	if [llength $args]==3 then {
+		set file [lindex $args 2]
+	} else {
+		set file $BIN.ltrace
+	}
+	# append this option to LTRACE_OPTIONS.
+	lappend LTRACE_OPTIONS "-o"
+	lappend LTRACE_OPTIONS "$file"
+	verbose "LTRACE_OPTIONS = $LTRACE_OPTIONS"
+	#ltrace the PUT.
+	catch "exec sh -c {export LD_LIBRARY_PATH=$LD_LIBRARY_PATH_; $LTRACE $LTRACE_OPTIONS $BIN;exit}" output
+	
+	# return output from ltrace.
+	return $output
+}
+
+#
+# ltrace_saveoutput OUTPUT FILE
+# Save OUTPUT from ltrace to file FILE.
+# OUTPUT is output from ltrace or return value of ltrace_runtest.
+# FILE is file save output.
+#
+proc ltrace_saveoutput { args } {
+	
+	set output [lindex $args 0]
+	set file [lindex $args 1]
+
+	set fd [open $file w]
+     	puts $fd $output
+	close $fd
+}
+
+
+#
+# ltrace_verify_output FILE_TO_SEARCH PATTERN MAX_LINE
+# Verify the ltrace output by comparing the number of PATTERN in 
+# FILE_TO_SEARCH with INSTANCE_NO.  Do not specify INSTANCE_NO if
+# instance number is ignored in this test.
+# Reutrn:
+#      0 = number of PATTERN in FILE_TO_SEARCH inqual to INSTANCE_NO.
+#      1 = number of PATTERN in FILE_TO_SEARCH qual to INSTANCE_NO.
+#
+proc ltrace_verify_output { file_to_search pattern {instance_no 0}} {
+
+	# compute the number of PATTERN in FILE_TO_SEARCH by grep and wc.
+	catch "exec sh -c {grep $pattern $file_to_search | wc -l ;exit}" output
+	verbose "output = $output"
+	
+	if { $instance_no == 0 } then {
+		if { $output == 0 } then {
+			fail "Fail to find $pattern in $file_to_search"
+		} else {
+			pass "$pattern in $file_to_search"
+		}
+	} elseif { $output >= $instance_no } then {
+		pass "$pattern in $file_to_search for $output times"
+	} else {
+		fail "$pattern in $file_to_search for $output times ,should be $instance_no"
+	}
+}

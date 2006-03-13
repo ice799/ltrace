@@ -1,3 +1,56 @@
+2006-03=13  Paul Gilliam <pgilliam@us.ibm.com>
+
+	* Makefile.in: Add targets to support testsuite, including 'check'.
+	* confiure.ac: Add testsuite Makefile's to AC_OUTPUT.
+	* testsuite: Add dejagnu base testsuite.
+	* testsuite/config/: Add
+	* testsuite/config/unix.exp: Add
+	* testsuite/lib/: Add
+	* testsuite/lib/compiler.c: Add
+	* testsuite/lib/compiler.cc: Add
+	* testsuite/lib/ltrace.exp: Add
+	* testsuite/ltrace.main/: Add
+	* testsuite/ltrace.main/main.c: Add
+	* testsuite/ltrace.main/main.exp: Add
+	* testsuite/ltrace.main/main-internal-1.c: Add
+	* testsuite/ltrace.main/main-internal.c: Add
+	* testsuite/ltrace.main/main-internal.exp: Add
+	* testsuite/ltrace.main/main-lib.c: Add
+	* testsuite/ltrace.main/Makefile.in: Add
+	* testsuite/ltrace.main/signals.c: Add
+	* testsuite/ltrace.main/signals.exp: Add
+	* testsuite/ltrace.main/system_calls.c: Add
+	* testsuite/ltrace.main/system_calls.exp: Add
+	* testsuite/ltrace.minor/: Add
+	* testsuite/ltrace.minor/attach-process.c: Add
+	* testsuite/ltrace.minor/attach-process.exp: Add
+	* testsuite/ltrace.minor/count-record.c: Add
+	* testsuite/ltrace.minor/count-record.exp: Add
+	* testsuite/ltrace.minor/demangle.cpp: Add
+	* testsuite/ltrace.minor/demangle.exp: Add
+	* testsuite/ltrace.minor/demangle.h: Add
+	* testsuite/ltrace.minor/demangle-lib.cpp: Add
+	* testsuite/ltrace.minor/Makefile.in: Add
+	* testsuite/ltrace.minor/print-instruction-pointer.c: Add
+	* testsuite/ltrace.minor/print-instruction-pointer.exp: Add
+	* testsuite/ltrace.minor/time-record.c: Add
+	* testsuite/ltrace.minor/time-record-T.exp: Add
+	* testsuite/ltrace.minor/time-record-tt.exp: Add
+	* testsuite/ltrace.minor/time-record-ttt.exp: Add
+	* testsuite/ltrace.minor/trace-clone.c: Add
+	* testsuite/ltrace.minor/trace-clone.exp: Add
+	* testsuite/ltrace.minor/trace-fork.c: Add
+	* testsuite/ltrace.minor/trace-fork.exp: Add
+	* testsuite/ltrace.torture/: Add
+	* testsuite/ltrace.torture/Makefile.in: Add
+	* testsuite/ltrace.torture/signals.c: Add
+	* testsuite/ltrace.torture/signals.exp: Add
+	* testsuite/Makefile.in: Add
+	* testsuite/README: Add
+	* testsuite/run-my-tests.sh: Add
+	* testsuite/so_test1/: Add
+	* testsuite/so_test2/: Add
+
 2006-03-13  Paul Gilliam <pgilliam@us.ibm.com>
 
 	* options.h: New structure for opt_x list elements, now with 'found'.
