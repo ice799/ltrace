@@ -1,3 +1,9 @@
+2006-03-13  Paul Gilliam <pgilliam@us.ibm.com>
+
+	* options.h: New structure for opt_x list elements, now with 'found'.
+	* options.c: Use new opt_x_t structure, initializing 'found' to 0.
+	* elf.c: Use new 'found' field for better error checking.
+
 2006-03-06  Ian Wienand  <ianw@ieee.org>
 
 	* Makefile.in: remove unneeded dirs from make dist; use rm
