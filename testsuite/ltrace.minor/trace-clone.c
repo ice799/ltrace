@@ -16,12 +16,18 @@ int child ()
 
 typedef int (* myfunc)();
 
+#define STACK_SIZE 1024
+
 int main ()
 {
   pid_t pid;
-  static char stack[1024];
-  
-  if ((pid = clone((myfunc)&child, stack,CLONE_FS, NULL )) < 0)
+  static char stack[STACK_SIZE];
+#ifdef __ia64__
+  pid = __clone2((myfunc)&child, stack, STACK_SIZE, CLONE_FS, NULL);
+#else
+  pid = clone((myfunc)&child, stack,CLONE_FS, NULL );
+#endif
+  if (pid < 0)
     {
       perror("clone called failed");
       exit (1);
