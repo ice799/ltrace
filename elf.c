@@ -402,7 +402,7 @@ struct library_symbol *read_elf(struct process *proc)
 
 	if (proc->need_to_reinitialize_breakpoints) {
 		/* Add "PLTs_initialized_by_here" to opt_x list, if not already there. */
-		main_cheat = (struct opt_e_t *)malloc(sizeof(struct opt_e_t));
+		main_cheat = (struct opt_x_t *)malloc(sizeof(struct opt_x_t));
 		if (main_cheat == NULL)
 			error(EXIT_FAILURE, 0, "Couldn allocate memory");
 		main_cheat->next = opt_x;
