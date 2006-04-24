@@ -132,7 +132,8 @@ Some architectures need to know where to set a breakpoint that will be hit
 after the dynamic linker has run.  If this flag is used, then the breakpoint
 is set at
 .IR extern ,
-which must be an external function.  By default, 'main' is used.
+which must be an external function.  By default, '_start' is used.
+NOTE: this flag is only available on the architectures that need it.
 .TP
 .I \-x extern
 Trace the external function

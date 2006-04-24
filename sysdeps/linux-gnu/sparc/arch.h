@@ -6,6 +6,3 @@
 #define LT_ELF_MACHINE  EM_SPARC
 #define LT_ELFCLASS2    ELFCLASS32
 #define LT_ELF_MACHINE2	EM_SPARC32PLUS
-
-#define PLTs_INIT_BY_HERE NULL
-#define E_ENTRY_NAME    "_start"

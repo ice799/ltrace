@@ -7,6 +7,3 @@
 
 #define LT_ELFCLASS   ELFCLASS64
 #define LT_ELF_MACHINE EM_IA_64
-
-#define PLTs_INIT_BY_HERE NULL
-#define E_ENTRY_NAME	"_start"

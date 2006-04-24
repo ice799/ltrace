@@ -25,7 +25,9 @@ static void add_library_symbol(GElf_Addr addr, const char *name,
 static int in_load_libraries(const char *name, struct ltelf *lte);
 static GElf_Addr elf_plt2addr(struct ltelf *ltc, void *addr);
 
+#ifdef PLT_REINITALISATION_BP
 extern char *PLTs_initialized_by_here;
+#endif
 
 static void do_init_elf(struct ltelf *lte, const char *filename)
 {
@@ -387,8 +389,10 @@ struct library_symbol *read_elf(struct process *proc)
 			      "Couldn't get relocation from \"%s\"",
 			      proc->filename);
 
+#ifdef PLT_REINITALISATION_BP
 		if (!sym.st_value && PLTs_initialized_by_here)
 			proc->need_to_reinitialize_breakpoints = 1;
+#endif
 
 		name = lte->dynstr + sym.st_name;
 		if (in_load_libraries(name, lte)) {
@@ -400,12 +404,15 @@ struct library_symbol *read_elf(struct process *proc)
 		}
 	}
 
+#ifdef PLT_REINITALISATION_BP
 	if (proc->need_to_reinitialize_breakpoints) {
-		/* Add "PLTs_initialized_by_here" to opt_x list, if not already there. */
+		/* Add "PLTs_initialized_by_here" to opt_x list, if not
+                   already there. */
 		main_cheat = (struct opt_x_t *)malloc(sizeof(struct opt_x_t));
 		if (main_cheat == NULL)
 			error(EXIT_FAILURE, 0, "Couldn allocate memory");
 		main_cheat->next = opt_x;
+		main_cheat->found = 0;
 		main_cheat->name = PLTs_initialized_by_here;
 
 		for (xptr = opt_x; xptr; xptr = xptr->next)
@@ -418,6 +425,7 @@ struct library_symbol *read_elf(struct process *proc)
 		if (main_cheat)
 			opt_x = main_cheat;
 	}
+#endif
 
 	for (i = 0; i < lte->symtab_count; ++i) {
 		GElf_Sym sym;
@@ -448,13 +456,28 @@ struct library_symbol *read_elf(struct process *proc)
 	for (xptr = opt_x; xptr; xptr = xptr->next)
 		if ( ! xptr->found) {
 			char *badthing = "WARNING";
-			if (E_ENTRY_NAME && strcmp(xptr->name, E_ENTRY_NAME)) {
+#ifdef PLT_REINITALISATION_BP
+			if (strcmp(xptr->name, PLTs_initialized_by_here) == 0) {
+				if (lte->ehdr.e_entry) {
+					add_library_symbol (
+						elf_plt2addr (lte, (void*)(long)
+							lte->ehdr.e_entry),
+						PLTs_initialized_by_here,
+						lib_tail, 1, 0);
+					fprintf (stderr, "WARNING: Using e_ent"
+						 "ry from elf header (%p) for "
+						 "address of \"%s\"\n", (void*)
+						 (long) lte->ehdr.e_entry,
+						 PLTs_initialized_by_here);
+					continue;
+				}
 				badthing = "ERROR";
 				exit_out = 1;
 			}
+#endif
 			fprintf (stderr,
-				 "%s: Couldn't find symbol \"%s\" in file \"%s\"\n",
-			badthing, xptr->name, proc->filename);
+				 "%s: Couldn't find symbol \"%s\" in file \"%s"
+			         "\"\n", badthing, xptr->name, proc->filename);
 		}
 	if (exit_out) {
 		exit (1);

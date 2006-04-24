@@ -1,3 +1,24 @@
+ 2006-04-24  Paul Gilliam <pgilliam@us.ibm.com>
+
+	* elf.c: Use PLT_REINITALISATION_BP for those architectures that need
+	to re-initialize breakpoints after the dynamic linker has run.  Also,
+	use value of "e_entry" for address of PLT_REINITALISATION_BP if the
+	 target program has been stripped.
+	* ltrace.1: Note that fact that "-X" is only available on architectures
+	that need it.
+	* options.c: Use PLT_REINITALISATION_BP for those architectures that
+	need to re-initialize breakpoints after the dynamic linker has run.
+	* process_event.c: ditto.
+	* sysdeps/linux-gnu/ppc/arch.h: This is the only such architecture.
+	* sysdeps/linux-gnu/arm/arch.h: Delete use of PLT_REINITALISATION_BP.
+	* sysdeps/linux-gnu/m68k/arch.h: ditto.
+	* sysdeps/linux-gnu/alpha/arch.h: ditto.
+	* sysdeps/linux-gnu/i386/arch.h: ditto.
+	* sysdeps/linux-gnu/x86_64/arch.h: ditto.
+	* sysdeps/linux-gnu/s390/arch.h: ditto.
+	* sysdeps/linux-gnu/ia64/arch.h: ditto.
+	* sysdeps/linux-gnu/sparc/arch.h: ditto.
+
 2006-04-24  Paul Gilliam <pgilliam@us.ibm.com>
 
 	* elf.c: Adds some casts to keep a more picky version of GCC happy.

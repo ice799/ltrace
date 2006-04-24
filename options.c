@@ -53,9 +53,11 @@ int opt_e_enable = 1;
 /* List of global function names given to -x: */
 struct opt_x_t *opt_x = NULL;
 
+#ifdef PLT_REINITALISATION_BP
 /* Set a break on the routine named here in order to re-initialize breakpoints
    after all the PLTs have been initialzed */
-char *PLTs_initialized_by_here = PLTs_INIT_BY_HERE;
+char *PLTs_initialized_by_here = PLT_REINITALISATION_BP;
+#endif
 
 static void usage(void)
 {
@@ -120,8 +122,10 @@ static void usage(void)
 		"  -V                  output version information and exit.\n"
 # endif
 		"  -x NAME             treat the global NAME like a library subroutine.\n"
+#ifdef PLT_REINITALISATION_BP
 		"  -X NAME             same as -x; and PLT's will be initialized by here.\n"
-		"\nReport bugs to Juan Cespedes <cespedes@debian.org>\n",
+#endif
+		"\nReport bugs to ltrace-devel@lists.alioth.debian.org\n",
 		progname);
 #endif
 }
@@ -318,7 +322,12 @@ char **process_options(int argc, char **argv)
 			       "version 2 or later for copying conditions.  There is NO warranty.\n");
 			exit(0);
 		case 'X':
+#ifdef PLT_REINITALISATION_BP
 			PLTs_initialized_by_here = optarg;
+#else
+			fprintf(stderr, "WANRING: \"-X\" not used for this "
+				"architecture: assuming you meant \"-x\"\n");
+#endif
 			/* Fall Thru */
 
 		case 'x':

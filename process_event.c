@@ -332,11 +332,12 @@ static void process_breakpoint(struct event *event)
 		    get_return_addr(event->proc, event->proc->stack_pointer);
 		output_left(LT_TOF_FUNCTION, event->proc, sbp->libsym->name);
 		callstack_push_symfunc(event->proc, sbp->libsym);
-		if (PLTs_initialized_by_here
-		    && event->proc->need_to_reinitialize_breakpoints
+#ifdef PLT_REINITALISATION_BP
+		if (event->proc->need_to_reinitialize_breakpoints
 		    && (strcmp(sbp->libsym->name, PLTs_initialized_by_here) ==
 			0))
 			reinitialize_breakpoints(event->proc);
+#endif
 
 		continue_after_breakpoint(event->proc, sbp);
 		return;
