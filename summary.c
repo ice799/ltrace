@@ -9,7 +9,7 @@
 #include "ltrace.h"
 #include "options.h"
 
-#ifdef USE_DEMANAGE
+#ifdef USE_DEMANGLE
 #include "demangle.h"
 #endif
 

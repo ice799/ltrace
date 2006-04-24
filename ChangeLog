@@ -1,3 +1,7 @@
+2006-04-24  Paul Gilliam <pgilliam@us.ibm.com>
+
+	* summery.c: Correct a typo prevented the inclusion of "demangle.h".
+
 2006-03-16  Ian Wienand  <ianw@gelato.unsw.edu.au>
 
 	* testsuite/ltrace.minor/trace-clone.c: use __clone2() for IA64
