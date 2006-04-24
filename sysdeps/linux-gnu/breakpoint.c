@@ -20,7 +20,7 @@ void enable_breakpoint(pid_t pid, struct breakpoint *sbp)
 #else
 void enable_breakpoint(pid_t pid, struct breakpoint *sbp)
 {
-	int i, j;
+	unsigned int i, j;
 
 	debug(1, "enable_breakpoint(%d,%p)", pid, sbp->addr);
 
@@ -50,7 +50,7 @@ void disable_breakpoint(pid_t pid, const struct breakpoint *sbp)
 #else
 void disable_breakpoint(pid_t pid, const struct breakpoint *sbp)
 {
-	int i, j;
+	unsigned int i, j;
 
 	if (opt_d > 1) {
 		output_line(0, "disable_breakpoint(%d,%p)", pid, sbp->addr);

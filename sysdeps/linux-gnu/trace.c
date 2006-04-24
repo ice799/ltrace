@@ -50,7 +50,7 @@ static int fork_exec_syscalls[][5] = {
  */
 int fork_p(struct process *proc, int sysnum)
 {
-	int i;
+	unsigned int i;
 	if (proc->personality
 	    >= sizeof fork_exec_syscalls / sizeof(fork_exec_syscalls[0]))
 		return 0;
@@ -163,7 +163,7 @@ int umovestr(struct process *proc, void *addr, int len, void *laddr)
 	while (offset < len) {
 		a.a = ptrace(PTRACE_PEEKTEXT, proc->pid, addr + offset, 0);
 		for (i = 0; i < sizeof(long); i++) {
-			if (a.c[i] && offset + i < len) {
+			if (a.c[i] && offset + (signed)i < len) {
 				*(char *)(laddr + offset + i) = a.c[i];
 			} else {
 				*(char *)(laddr + offset + i) = '\0';

@@ -1,5 +1,12 @@
 2006-04-24  Paul Gilliam <pgilliam@us.ibm.com>
 
+	* elf.c: Adds some casts to keep a more picky version of GCC happy.
+	* sysdeps/linux-gnu/trace.c: ditto.
+	* sysdeps/linux-gnu/breakpoint.c: ditto.
+	* ltrace.h: ditto.
+
+2006-04-24  Paul Gilliam <pgilliam@us.ibm.com>
+
 	* summery.c: Correct a typo prevented the inclusion of "demangle.h".
 
 2006-03-16  Ian Wienand  <ianw@gelato.unsw.edu.au>

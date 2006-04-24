@@ -213,7 +213,7 @@ static void do_init_elf(struct ltelf *lte, const char *filename)
 				lte->plt_addr = shdr.sh_addr;
 				lte->plt_size = shdr.sh_size;
 			} else if (strcmp(name, ".opd") == 0) {
-				lte->opd_addr = (GElf_Addr *) shdr.sh_addr;
+				lte->opd_addr = (GElf_Addr *) (long) shdr.sh_addr;
 				lte->opd_size = shdr.sh_size;
 				lte->opd = elf_rawdata(scn, NULL);
 			}
@@ -300,7 +300,7 @@ static int in_load_libraries(const char *name, struct ltelf *lte)
 	if (!library_num)
 		return 1;
 
-	hash = elf_hash(name);
+	hash = elf_hash((const unsigned char *)name);
 	for (i = 1; i <= library_num; ++i) {
 		Elf32_Word nbuckets, symndx;
 		Elf32_Word *buckets, *chain;
@@ -335,7 +335,7 @@ static GElf_Addr elf_plt2addr(struct ltelf *lte, void *addr)
 	GElf_Addr ret_val;
 
 	if (!lte->opd)
-		return (GElf_Addr) addr;
+		return (GElf_Addr) (long) addr;
 
 	base = (long)lte->opd->d_buf;
 	offset = (long)addr - (long)lte->opd_addr;
@@ -439,8 +439,8 @@ struct library_symbol *read_elf(struct process *proc)
 				/* FIXME: Should be able to use &library_symbols as above.  But
 				   when you do, none of the real library symbols cause breaks. */
 				add_library_symbol(elf_plt2addr
-						   (lte, (void *)addr), name,
-						   lib_tail, 1, 0);
+						   (lte, (void *) (long) addr),
+						   name, lib_tail, 1, 0);
 				xptr->found = 1;
 				break;
 			}
