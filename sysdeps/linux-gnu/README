@@ -6,6 +6,8 @@
   It can be done automatically with "mksignalent" for all the
   architectures. (linux-2.2.12)
 
+* s390 uses mksyscallent_s390, rather than mksyscallent
+
 * NOTE: This does not currently work for cross-compilers; Maybe
   I should guess the architecture using `gcc -print-libgcc-file-name'
   instead of `uname -m' (or even better, use the value returned by autoconf)

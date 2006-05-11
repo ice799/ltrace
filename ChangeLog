@@ -1,4 +1,10 @@
- 2006-04-24  Paul Gilliam <pgilliam@us.ibm.com>
+2006-05-11  Heiko Carstens <heiko.carstens@de.ibm.com>
+
+	* sysdeps/linux-gnu/mksyscallent_s390: add
+	* sysdeps/linux-gnu/s390/syscalls31.h: update to 2.6.16
+	* sysdeps/linux-gnu/s390/syscalls64.h: ditto
+
+2006-04-24  Paul Gilliam <pgilliam@us.ibm.com>
 
 	* elf.c: Use PLT_REINITALISATION_BP for those architectures that need
 	to re-initialize breakpoints after the dynamic linker has run.  Also,

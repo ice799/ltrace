@@ -1,0 +1,38 @@
+#!/usr/bin/perl
+#
+# Generate syscall table for s390/s390x
+#
+# Use this on arch/s390/kernel/syscall.s after removing the first few
+# nonsyscall lines.
+#
+# cat syscall.s | mksyscallent_s390 > syscalls31.h
+# cat syscall.s | mksyscallent_s390 -x > syscalls64.h
+#
+
+use Getopt::Std;
+use integer;
+getopts('x');
+$i = 0;
+$s390x = 0;
+$opt_x and $s390x = 1;
+
+while (<>) {
+	chomp;
+
+	if ($s390x==1) {
+		   s/^SYSCALL\([^,]*,//;
+	} else {
+	           s/^SYSCALL\(//;
+	}
+
+	s/,.*//;
+	s/^sys_//;
+	s/^s390[x]*_//;
+	s/_glue$//;
+	s/^ni_syscall.*/$i/i;
+	$len = 32 - length();
+	$tab = $len / 8;
+	$space = $len % 8;
+	print "    \"$_\"," ," " x $space , "\t" x $tab, " \/* $i \*\/\n";
+	$i++;
+}
