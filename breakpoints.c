@@ -92,8 +92,7 @@ void enable_all_breakpoints(struct process *proc)
 		 */
 		if (opt_L) {
 			a = ptrace(PTRACE_PEEKTEXT, proc->pid,
-				   plt2addr(proc,
-					    proc->list_of_symbols->enter_addr),
+				   sym2addr(proc, proc->list_of_symbols),
 				   0);
 			if (a == 0x0)
 				return;
@@ -169,11 +168,7 @@ void breakpoints_init(struct process *proc)
 	sym = proc->list_of_symbols;
 	while (sym) {
 		/* proc->pid==0 delays enabling. */
-		if (sym->static_plt2addr) {
-			insert_breakpoint(proc, sym->enter_addr, sym);
-		} else {
-			insert_breakpoint(proc, plt2addr(proc, sym->enter_addr), sym);	/* proc->pid==0 delays enabling. */
-		}
+		insert_breakpoint(proc, sym2addr(proc, sym), sym);
 		sym = sym->next;
 	}
 	proc->callstack_depth = 0;
@@ -186,7 +181,7 @@ void reinitialize_breakpoints(struct process *proc)
 
 	while (sym) {
 		if (sym->needs_init) {
-			insert_breakpoint(proc, plt2addr(proc, sym->enter_addr),
+			insert_breakpoint(proc, sym2addr(proc, sym),
 					  sym);
 			if (sym->needs_init && !sym->is_weak) {
 				fprintf(stderr,

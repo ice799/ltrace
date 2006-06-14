@@ -24,7 +24,7 @@ extern struct timeval current_time_spent;
 
 struct dict *dict_opt_c = NULL;
 
-static pid_t current_pid = 0;
+static struct process *current_proc = 0;
 static int current_depth = 0;
 static int current_column = 0;
 
@@ -134,10 +134,14 @@ void output_line(struct process *proc, char *fmt, ...)
 	if (opt_c) {
 		return;
 	}
-	if (current_pid) {
-		fprintf(output, " <unfinished ...>\n");
+	if (current_proc) {
+		if (current_proc->callstack[current_depth].return_addr) {
+			fprintf(output, " <unfinished ...>\n");
+		} else {
+			fprintf(output, " <no return ...>\n");
+		}
 	}
-	current_pid = 0;
+	current_proc = 0;
 	if (!fmt) {
 		return;
 	}
@@ -164,12 +168,12 @@ void output_left(enum tof type, struct process *proc, char *function_name)
 	if (opt_c) {
 		return;
 	}
-	if (current_pid) {
+	if (current_proc) {
 		fprintf(output, " <unfinished ...>\n");
-		current_pid = 0;
+		current_proc = 0;
 		current_column = 0;
 	}
-	current_pid = proc->pid;
+	current_proc = proc;
 	current_depth = proc->callstack_depth;
 	proc->type_being_displayed = type;
 	begin_of_line(type, proc);
@@ -248,12 +252,12 @@ void output_right(enum tof type, struct process *proc, char *function_name)
 //                              current_time_spent.tv_sec, (int)current_time_spent.tv_usec);
 		return;
 	}
-	if (current_pid && (current_pid != proc->pid ||
+	if (current_proc && (current_proc != proc ||
 			    current_depth != proc->callstack_depth)) {
 		fprintf(output, " <unfinished ...>\n");
-		current_pid = 0;
+		current_proc = 0;
 	}
-	if (current_pid != proc->pid) {
+	if (current_proc != proc) {
 		begin_of_line(type, proc);
 #ifdef USE_DEMANGLE
 		current_column +=
@@ -297,6 +301,6 @@ void output_right(enum tof type, struct process *proc, char *function_name)
 			(int)current_time_spent.tv_usec);
 	}
 	fprintf(output, "\n");
-	current_pid = 0;
+	current_proc = 0;
 	current_column = 0;
 }

@@ -1,3 +1,27 @@
+2006-06-14  Ian Wienand  <ianw@gelato.unsw.edu.au>
+
+	* configure.ac: Bump version to 0.5 for Paull Gillam's PPC64
+	non-exec PLT patch (as merged below).
+	* breakpoints.c: merge
+	* elf.c: merge
+	* elf.h: merge
+	* ltrace.h: merge
+	* output.c: merge
+	* process_event.c: merge
+	* sysdeps/linux/gnu/alpha/plt.c: merge
+	* sysdeps/linux-gnu/arm/plt.c: merge
+	* sysdeps/linux-gnu/breakpoint.c: merge
+	* sysdeps/linux-gnu/i386/plt.c: merge
+	* sysdeps/linux-gnu/ia64/plt.c: merge
+	* sysdeps/linux-gnu/m68k/plt.c: merge
+	* sysdeps/linux-gnu/ppc/arch.h: merge
+	* sysdeps/linux-gnu/ppc/arch.h.rej: merge
+	* sysdeps/linux-gnu/ppc/plt.c: merge
+	* sysdeps/linux-gnu/s390/plt.c: merge
+	* sysdeps/linux-gnu/sparc/plt.c: merge
+	* sysdeps/linux-gnu/x86_64/plt.c: merge
+
+
 2006-05-11  Heiko Carstens <heiko.carstens@de.ibm.com>
 
 	* sysdeps/linux-gnu/mksyscallent_s390: add

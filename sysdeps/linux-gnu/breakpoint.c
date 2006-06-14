@@ -33,7 +33,7 @@ void enable_breakpoint(pid_t pid, struct breakpoint *sbp)
 		     && i * sizeof(long) + j < BREAKPOINT_LENGTH; j++) {
 			unsigned char *bytes = (unsigned char *)&a;
 
-			sbp->orig_value[i * sizeof(long) + j] = bytes[+j];
+			sbp->orig_value[i * sizeof(long) + j] = bytes[j];
 			bytes[j] = break_insn[i * sizeof(long) + j];
 		}
 		ptrace(PTRACE_POKETEXT, pid, sbp->addr + i * sizeof(long), a);
@@ -52,9 +52,7 @@ void disable_breakpoint(pid_t pid, const struct breakpoint *sbp)
 {
 	unsigned int i, j;
 
-	if (opt_d > 1) {
-		output_line(0, "disable_breakpoint(%d,%p)", pid, sbp->addr);
-	}
+	debug(2, "disable_breakpoint(%d,%p)", pid, sbp->addr);
 
 	for (i = 0; i < 1 + ((BREAKPOINT_LENGTH - 1) / sizeof(long)); i++) {
 		long a =

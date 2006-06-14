@@ -21,9 +21,9 @@ static void do_init_elf(struct ltelf *lte, const char *filename);
 static void do_close_elf(struct ltelf *lte);
 static void add_library_symbol(GElf_Addr addr, const char *name,
 			       struct library_symbol **library_symbolspp,
-			       int use_elf_plt2addr, int is_weak);
+			       enum toplt type_of_plt, int is_weak);
 static int in_load_libraries(const char *name, struct ltelf *lte);
-static GElf_Addr elf_plt2addr(struct ltelf *ltc, void *addr);
+static GElf_Addr opd2addr(struct ltelf *ltc, void *addr);
 
 #ifdef PLT_REINITALISATION_BP
 extern char *PLTs_initialized_by_here;
@@ -194,7 +194,7 @@ static void do_init_elf(struct ltelf *lte, const char *filename)
 					error(EXIT_FAILURE, 0,
 					      "Couldn't convert .hash section from \"%s\"",
 					      filename);
-				lte->hash_malloced = 1;
+				lte->lte_flags |= LTE_HASH_MALLOCED;
 				dst = lte->hash;
 				src = (Elf32_Word *) data->d_buf;
 				if ((data->d_type == ELF_T_WORD
@@ -214,6 +214,9 @@ static void do_init_elf(struct ltelf *lte, const char *filename)
 			if (strcmp(name, ".plt") == 0) {
 				lte->plt_addr = shdr.sh_addr;
 				lte->plt_size = shdr.sh_size;
+				if (shdr.sh_flags & SHF_EXECINSTR) {
+					lte->lte_flags |= LTE_PLT_EXECUTABLE;
+				}
 			} else if (strcmp(name, ".opd") == 0) {
 				lte->opd_addr = (GElf_Addr *) (long) shdr.sh_addr;
 				lte->opd_size = shdr.sh_size;
@@ -265,7 +268,7 @@ static void do_init_elf(struct ltelf *lte, const char *filename)
 
 static void do_close_elf(struct ltelf *lte)
 {
-	if (lte->hash_malloced)
+	if (lte->lte_flags & LTE_HASH_MALLOCED)
 		free((char *)lte->hash);
 	elf_end(lte->elf);
 	close(lte->fd);
@@ -274,7 +277,7 @@ static void do_close_elf(struct ltelf *lte)
 static void
 add_library_symbol(GElf_Addr addr, const char *name,
 		   struct library_symbol **library_symbolspp,
-		   int use_elf_plt2addr, int is_weak)
+		   enum toplt type_of_plt, int is_weak)
 {
 	struct library_symbol *s;
 	s = malloc(sizeof(struct library_symbol) + strlen(name) + 1);
@@ -283,7 +286,7 @@ add_library_symbol(GElf_Addr addr, const char *name,
 
 	s->needs_init = 1;
 	s->is_weak = is_weak;
-	s->static_plt2addr = use_elf_plt2addr;
+	s->plt_type = type_of_plt;
 	s->next = *library_symbolspp;
 	s->enter_addr = (void *)(uintptr_t) addr;
 	s->brkpnt = NULL;
@@ -330,7 +333,7 @@ static int in_load_libraries(const char *name, struct ltelf *lte)
 	return 0;
 }
 
-static GElf_Addr elf_plt2addr(struct ltelf *lte, void *addr)
+static GElf_Addr opd2addr(struct ltelf *lte, void *addr)
 {
 	long base;
 	long offset;
@@ -397,7 +400,9 @@ struct library_symbol *read_elf(struct process *proc)
 		name = lte->dynstr + sym.st_name;
 		if (in_load_libraries(name, lte)) {
 			addr = arch_plt_sym_val(lte, i, &rela);
-			add_library_symbol(addr, name, &library_symbols, 0,
+			add_library_symbol(addr, name, &library_symbols,
+					   (PLTS_ARE_EXECUTABLE(lte)
+					   ?  LS_TOPLT_EXEC : LS_TOPLT_POINT),
 					   ELF64_ST_BIND(sym.st_info) != 0);
 			if (!lib_tail)
 				lib_tail = &(library_symbols->next);
@@ -446,9 +451,8 @@ struct library_symbol *read_elf(struct process *proc)
 			if (xptr->name && strcmp(xptr->name, name) == 0) {
 				/* FIXME: Should be able to use &library_symbols as above.  But
 				   when you do, none of the real library symbols cause breaks. */
-				add_library_symbol(elf_plt2addr
-						   (lte, (void *) (long) addr),
-						   name, lib_tail, 1, 0);
+				add_library_symbol(opd2addr(lte, (void*)addr),
+						   name, lib_tail, LS_TOPLT_NONE, 0);
 				xptr->found = 1;
 				break;
 			}

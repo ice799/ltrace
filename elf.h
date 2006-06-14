@@ -24,8 +24,13 @@ struct ltelf {
 	GElf_Addr *opd_addr;
 	size_t opd_size;
 	Elf32_Word *hash;
-	int hash_malloced;
+	int lte_flags;
 };
+
+#define LTE_HASH_MALLOCED 1
+#define LTE_PLT_EXECUTABLE 2
+
+#define PLTS_ARE_EXECUTABLE(lte) ((lte->lte_flags & LTE_PLT_EXECUTABLE) != 0)
 
 extern int library_num;
 extern char *library[MAX_LIBRARY];

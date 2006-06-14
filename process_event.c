@@ -260,10 +260,23 @@ static void process_sysret(struct event *event)
 static void process_breakpoint(struct event *event)
 {
 	int i, j;
-	struct breakpoint *sbp;
+	struct breakpoint *sbp, *nxtbp;
 
 	debug(2, "event: breakpoint (%p)", event->e_un.brk_addr);
-	if (event->proc->breakpoint_being_enabled) {
+	if ((sbp = event->proc->breakpoint_being_enabled) != 0) {
+#ifdef __powerpc__
+		char nop_inst[] = PPC_NOP;
+                if (memcmp(sbp->orig_value, nop_inst, PPC_NOP_LENGTH) == 0) {
+                	nxtbp = address2bpstruct(event->proc,
+                                                 event->e_un.brk_addr +
+                                                 	PPC_NOP_LENGTH);
+			if (nxtbp != 0) {
+				enable_breakpoint(event->proc->pid, sbp);
+				continue_after_breakpoint(event->proc, nxtbp);
+				return;
+			}
+		}
+#endif
 		/* Reinsert breakpoint */
 		continue_enabling_breakpoint(event->proc->pid,
 					     event->proc->
@@ -284,9 +297,9 @@ static void process_breakpoint(struct event *event)
 			unsigned long a;
 			struct library_symbol *libsym =
 			    event->proc->callstack[i].c_un.libfunc;
-			void *addr = plt2addr(event->proc, libsym->enter_addr);
+			void *addr = sym2addr(event->proc, libsym);
 
-			if (event->proc->e_machine == EM_PPC) {
+			if (libsym->plt_type != LS_TOPLT_POINT) {
 				unsigned char break_insn[] = BREAKPOINT_VALUE;
 
 				sbp = address2bpstruct(event->proc, addr);
@@ -294,7 +307,7 @@ static void process_breakpoint(struct event *event)
 				a = ptrace(PTRACE_PEEKTEXT, event->proc->pid,
 					   addr);
 
-				if (memcmp(&a, break_insn, 4)) {
+				if (memcmp(&a, break_insn, BREAKPOINT_LENGTH)) {
 					sbp->enabled--;
 					insert_breakpoint(event->proc, addr,
 							  libsym);
@@ -302,9 +315,10 @@ static void process_breakpoint(struct event *event)
 			} else {
 				sbp = libsym->brkpnt;
 				assert(sbp);
-				if (addr != sbp->addr)
+				if (addr != sbp->addr) {
 					insert_breakpoint(event->proc, addr,
 							  libsym);
+				}
 			}
 #endif
 			for (j = event->proc->callstack_depth - 1; j > i; j--) {
@@ -386,7 +400,9 @@ callstack_push_symfunc(struct process *proc, struct library_symbol *sym)
 	elem->c_un.libfunc = sym;
 
 	elem->return_addr = proc->return_addr;
-	insert_breakpoint(proc, elem->return_addr, 0);
+        if (elem->return_addr) {
+		insert_breakpoint(proc, elem->return_addr, 0);
+	}
 
 	proc->callstack_depth++;
 	if (opt_T || opt_c) {
@@ -401,7 +417,7 @@ static void callstack_pop(struct process *proc)
 	assert(proc->callstack_depth > 0);
 
 	elem = &proc->callstack[proc->callstack_depth - 1];
-	if (!elem->is_syscall) {
+	if (!elem->is_syscall && elem->return_addr) {
 		delete_breakpoint(proc, elem->return_addr);
 	}
 	proc->callstack_depth--;

@@ -66,6 +66,13 @@ struct function {
 	struct function *next;
 };
 
+enum toplt {
+	LS_TOPLT_NONE = 0,	/* PLT not used for this symbol. */
+	LS_TOPLT_EXEC,		/* PLT for this symbol is executable. */
+	LS_TOPLT_POINT		/* PLT for this symbol is a non-executable. */
+};
+
+
 extern struct function *list_of_functions;
 extern char *PLTs_initialized_by_here;
 
@@ -74,9 +81,8 @@ struct library_symbol {
 	void *enter_addr;
 	struct breakpoint *brkpnt;
 	char needs_init;
-	char static_plt2addr;
+	enum toplt plt_type;
 	char is_weak;
-
 	struct library_symbol *next;
 };
 
@@ -193,7 +199,7 @@ extern long gimme_arg(enum tof type, struct process *proc, int arg_num);
 extern void save_register_args(enum tof type, struct process *proc);
 extern int umovestr(struct process *proc, void *addr, int len, void *laddr);
 extern int ffcheck(void *maddr);
-extern void *plt2addr(struct process *, void **);
+extern void *sym2addr(struct process *, struct library_symbol *);
 
 #if 0				/* not yet */
 extern int umoven(struct process *proc, void *addr, int len, void *laddr);
