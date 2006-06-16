@@ -7,7 +7,7 @@
 * Update list of syscalls automatically?
 * Improve documentation
 * Improve -e option
-* Improce -l option
+* Improve -l option
 * Improve C++ name demangling
 * Display different argument types:
   + how to display execl...?
