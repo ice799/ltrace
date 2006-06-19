@@ -302,3 +302,9 @@
     "pselect6",			 /* 301 */
     "ppoll",   			 /* 302 */
     "unshare", 			 /* 303 */
+    "set_robust_list", 		 /* 304 */
+    "get_robust_list", 		 /* 305 */
+    "splice",  			 /* 306 */
+    "sync_file_range", 		 /* 307 */
+    "tee",     			 /* 308 */
+    "vmsplice",			 /* 309 */

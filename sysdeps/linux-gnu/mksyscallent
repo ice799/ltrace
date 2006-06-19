@@ -2,19 +2,21 @@
 
 # hack expression to generate arch/syscallent.h from <asm/unistd.h>
 # It reads from stdin and writes to stdout
-# Currently (linux-2.2.3), it works OK on i386,m68k,arm
-# It does NOT work in mips
+# It should work OK on i386,m68k,arm,ia64
+# It does NOT work in mips, s390
 # It is untested in other architectures
 
 BEGIN {
 	max=0;
-	FS="[ \t\n()\+]+";
+	FS="[ \t\n()+]+";
 }
 
 {
-#	printf("/%s/%s/%s/%s/\n", $1, $2, $3, $4);
+	#debug
+	#printf("/%s/%s/%s/%s/\n", $1, $2, $3, $4);
 	if (($1 ~ /^#define$/) && ($2 ~ /^__NR_/)) {
-		if (($3>=0) && ($3<=1000)) {
+	        #ia64 syscalls are > 1000 (lower for x86 compat)
+		if (($3>=0) && ($3<=2000)) {
 			SYSCALL[$3]=substr($2,6);
 			if ($3 > max) {
 				max=$3;

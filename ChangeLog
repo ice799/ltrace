@@ -1,3 +1,20 @@
+2006-06-19  Ian Wienand  <ianw@ieee.org>
+
+	* sysdeps/linux-gnu/mksyscallent: update, fix for ia64
+	* sysdeps/linux-gnu/i386/syscallent.h: regenerate to 2.6.17
+	* sysdeps/linux-gnu/i386/signalent.h: likewise
+	* sysdeps/linux-gnu/arm/syscallent.h: likewise
+	* sysdeps/linux-gnu/arm/signalent.h: likewise
+	* sysdeps/linux-gnu/m68k/syscallent.h: likewise
+	* sysdeps/linux-gnu/m68k/signalent.h: likewise
+	* sysdeps/linux-gnu/ia64/syscallent.h: likewise
+	* sysdeps/linux-gnu/ia64/signalent.h: likewise
+
+2006-06-19  Heiko Carstens <heiko.carstens@de.ibm.com>
+
+	* sysdeps/linux-gnu/s390/syscalls31.h: update to 2.6.17
+	* sysdeps/linux-gnu/s390/syscalls64.h: ditto
+
 2006-06-16  Justin Pryzby <justinpryzby@users.sourceforge.net>
 
 	* ltrace.1: spelling fix
@@ -13,7 +30,7 @@
 	* ltrace.h: merge
 	* output.c: merge
 	* process_event.c: merge
-	* sysdeps/linux/gnu/alpha/plt.c: merge
+	* sysdeps/linux-gnu/alpha/plt.c: merge
 	* sysdeps/linux-gnu/arm/plt.c: merge
 	* sysdeps/linux-gnu/breakpoint.c: merge
 	* sysdeps/linux-gnu/i386/plt.c: merge
