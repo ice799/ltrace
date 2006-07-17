@@ -1,3 +1,7 @@
+2006-07-18  Justin Pryzby <justinpryzby@users.sourceforge.net>
+
+	* ltrace.1: make demagle clearer
+
 2006-07-16  Steve Fink  <sphink@gmail.com>
 
 	* options.c: implement -F flag for alternate config file(s)
