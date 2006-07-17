@@ -62,6 +62,12 @@ currently  traced processes as a result of the fork(2)
 or clone(2) system calls.
 The new process is attached as soon as its pid is known.
 .TP
+.I \-F
+Load an alternate config file. Normally, /etc/ltrace.conf and
+~/.ltrace.conf will be read (the latter only if it exists).
+Use this option to load the given file or files instead of
+those two default files.
+.TP
 .I \-h, \-\-help
 Show a summary of the options to ltrace and exit.
 .TP

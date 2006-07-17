@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <pwd.h>
 #include <string.h>
 #include <errno.h>
 #include <sys/param.h>
@@ -17,10 +18,6 @@
 #include "read_config_file.h"
 #include "options.h"
 #include "debug.h"
-
-#ifndef SYSCONFDIR
-#define SYSCONFDIR "/etc"
-#endif
 
 char *command = NULL;
 struct process *list_of_processes = NULL;
@@ -98,7 +95,6 @@ static void guess_cols(void)
 int main(int argc, char **argv)
 {
 	struct opt_p_t *opt_p_tmp;
-	char *home;
 
 	atexit(normal_exit);
 	signal(SIGINT, signal_exit);	/* Detach processes when interrupted */
@@ -106,17 +102,24 @@ int main(int argc, char **argv)
 
 	guess_cols();
 	argv = process_options(argc, argv);
-	read_config_file(SYSCONFDIR "/ltrace.conf");
-	home = getenv("HOME");
-	if (home) {
+        while (opt_F) {
+	    /* If filename begins with ~, expand it to the user's home */
+	    /* directory. This does not correctly handle ~yoda, but that */
+	    /* isn't as bad as it seems because the shell will normally */
+	    /* be doing the expansion for us; only the hardcoded */
+	    /* ~/.ltrace.conf should ever use this code. */
+	    if (opt_F->filename[0] == '~') {
 		char path[PATH_MAX];
-		if (strlen(home) > PATH_MAX - 15) {
-			fprintf(stderr, "Error: $HOME too long\n");
-			exit(1);
-		}
-		strcpy(path, getenv("HOME"));
-		strcat(path, "/.ltrace.conf");
+		char *home_dir = getpwuid(geteuid())->pw_dir;
+		strncpy(path, home_dir, PATH_MAX - 1);
+		path[PATH_MAX - 1] = '\0';
+		strncat(path, opt_F->filename + 1,
+			PATH_MAX - strlen(path) - 1);
 		read_config_file(path);
+	    } else {
+		read_config_file(opt_F->filename);
+	    }
+	    opt_F = opt_F->next;
 	}
 	if (opt_e) {
 		struct opt_e_t *tmp = opt_e;

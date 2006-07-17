@@ -21,6 +21,13 @@
 #include "options.h"
 #include "defs.h"
 
+#ifndef SYSCONFDIR
+#define SYSCONFDIR "/etc"
+#endif
+
+#define SYSTEM_CONFIG_FILE SYSCONFDIR "/trace.conf"
+#define USER_CONFIG_FILE "~/.ltrace.conf"
+
 #define MAX_LIBRARY		30
 char *library[MAX_LIBRARY];
 int library_num = 0;
@@ -52,6 +59,9 @@ int opt_e_enable = 1;
 
 /* List of global function names given to -x: */
 struct opt_x_t *opt_x = NULL;
+
+/* List of filenames give to option -F: */
+struct opt_F_t *opt_F = NULL;	/* alternate configuration file(s) */
 
 #ifdef PLT_REINITALISATION_BP
 /* Set a break on the routine named here in order to re-initialize breakpoints
@@ -87,6 +97,12 @@ static void usage(void)
 # endif
 		"  -e expr             modify which events to trace.\n"
 		"  -f                  follow forks.\n"
+# if HAVE_GETOPT_LONG
+                "  -F, --config=FILE   load alternate configuration file\n"
+# else
+                "  -F FILE             load alternate configuration file\n"
+# endif
+                "                      (can be repeated).\n"
 # if HAVE_GETOPT_LONG
 		"  -h, --help          display this help and exit.\n"
 # else
@@ -174,6 +190,7 @@ char **process_options(int argc, char **argv)
 		int option_index = 0;
 		static struct option long_options[] = {
 			{"align", 1, 0, 'a'},
+                        {"config", 1, 0, 'F'},
 			{"debug", 0, 0, 'd'},
 # ifdef USE_DEMANGLE
 			{"demangle", 0, 0, 'C'},
@@ -189,14 +206,14 @@ char **process_options(int argc, char **argv)
 # ifdef USE_DEMANGLE
 				"C"
 # endif
-				"a:e:l:n:o:p:s:u:x:X:", long_options,
+				"a:e:F:l:n:o:p:s:u:x:X:", long_options,
 				&option_index);
 #else
 		c = getopt(argc, argv, "+cdfhiLrStTV"
 # ifdef USE_DEMANGLE
 			   "C"
 # endif
-			   "a:e:l:n:o:p:s:u:x:X:");
+			   "a:e:F:l:n:o:p:s:u:x:X:");
 #endif
 		if (c == -1) {
 			break;
@@ -252,6 +269,18 @@ char **process_options(int argc, char **argv)
 		case 'f':
 			opt_f = 1;
 			break;
+                case 'F':
+                	{
+                          struct opt_F_t *tmp = malloc(sizeof(struct opt_F_t));
+                          if (!tmp) {
+                            perror("ltrace: malloc");
+                            exit(1);
+                          }
+                          tmp->filename = strdup(optarg);
+                          tmp->next = opt_F;
+                          opt_F = tmp;
+                          break;
+                        }
 		case 'h':
 			usage();
 			exit(0);
@@ -370,6 +399,29 @@ char **process_options(int argc, char **argv)
 	argc -= optind;
 	argv += optind;
 #endif
+
+        if (!opt_F) {
+	    opt_F = malloc(sizeof(struct opt_F_t));
+	    opt_F->next = malloc(sizeof(struct opt_F_t));
+	    opt_F->next->next = NULL;
+	    opt_F->filename = USER_CONFIG_FILE;
+	    opt_F->next->filename = SYSTEM_CONFIG_FILE;
+        }
+	/* Reverse the config file list since it was built by
+	 * prepending, and it would make more sense to process the
+	 * files in the order they were given. Probably it would make
+	 * more sense to keep a tail pointer instead? */
+	{
+	    struct opt_F_t *egg = NULL;
+	    struct opt_F_t *chicken;
+	    while (opt_F) {
+		chicken = opt_F->next;
+		opt_F->next = egg;
+		egg = opt_F;
+		opt_F = chicken;
+	    }
+	    opt_F = egg;
+	}
 
 	if (!opt_p && argc < 1) {
 		fprintf(stderr, "%s: too few arguments\n", progname);
