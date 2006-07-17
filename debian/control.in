@@ -1,8 +1,8 @@
 Source: ltrace
 Section: utils
 Priority: optional
-Maintainer: Juan Cespedes <cespedes@debian.org>
-Uploaders: Ian Wienand <ianw@ieee.org>
+Maintainer: Ian Wienand <ianw@debian.org>
+Uploaders: Juan Cespedes <cespedes@debian.org>
 Standards-Version: 3.6.2.2
 Build-Depends: @cdbs@, binutils-dev, dpatch, libelfg0-dev
 

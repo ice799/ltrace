@@ -1,9 +1,12 @@
 ltrace (0.5-1) unstable; urgency=low
 
   * New upstream
-  * Closes: #372928: spelling fixes
+  * Closes: #372928, #372928: spelling fixes
+  * Change maintainer to ianw@debian.org, so I get bug reports
+  * Change Juan to an uploader
+  * Acknowledge 0.3.35.1 NMU, thanks Andrew Pollock
 
- -- Ian Wienand <ianw@ieee.org>  Fri, 16 Jun 2006 11:15:45 +1000
+ -- Ian Wienand <ianw@debian.org>  Fri, 16 Jun 2006 11:15:45 +1000
 
 ltrace (0.4-1) unstable; urgency=low
 
