@@ -1,3 +1,7 @@
+2006-07-18  Petr Machata  <pmachata@redhat.com>
+
+	* options.c: don't hardcode version number
+
 2006-07-18  Justin Pryzby <justinpryzby@users.sourceforge.net>
 
 	* ltrace.1: make demagle clearer

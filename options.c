@@ -2,10 +2,6 @@
 #include "config.h"
 #endif
 
-#ifndef PACKAGE_VERSION
-# define PACKAGE_VERSION "0.3.32"
-#endif
-
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
