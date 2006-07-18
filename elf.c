@@ -475,7 +475,7 @@ struct library_symbol *read_elf(struct process *proc)
 			add_library_symbol(addr, name, &library_symbols,
 					   (PLTS_ARE_EXECUTABLE(lte)
 					   ?  LS_TOPLT_EXEC : LS_TOPLT_POINT),
-					   ELF64_ST_BIND(sym.st_info) != 0);
+					   ELF64_ST_BIND(sym.st_info) == STB_WEAK);
 			if (!lib_tail)
 				lib_tail = &(library_symbols->next);
 		}
@@ -487,7 +487,7 @@ struct library_symbol *read_elf(struct process *proc)
                    already there. */
 		main_cheat = (struct opt_x_t *)malloc(sizeof(struct opt_x_t));
 		if (main_cheat == NULL)
-			error(EXIT_FAILURE, 0, "Couldn allocate memory");
+			error(EXIT_FAILURE, 0, "Couldn't allocate memory");
 		main_cheat->next = opt_x;
 		main_cheat->found = 0;
 		main_cheat->name = PLTs_initialized_by_here;
@@ -536,7 +536,7 @@ struct library_symbol *read_elf(struct process *proc)
 			if (strcmp(xptr->name, PLTs_initialized_by_here) == 0) {
 				if (lte->ehdr.e_entry) {
 					add_library_symbol (
-						elf_plt2addr (lte, (void*)(long)
+						opd2addr (lte, (void*)(long)
 							lte->ehdr.e_entry),
 						PLTs_initialized_by_here,
 						lib_tail, 1, 0);

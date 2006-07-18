@@ -1,5 +1,12 @@
 2006-07-18  Petr Machata <pmachata@redhat.com>
 
+	* elf.c: replace nonexistant elf_plt2addr with opd2addr, fix
+	typo, and fix WEAK symbol detection
+	* sysdeps/linux-gnu/ppc/arch.h: define breakpoint instruction,
+	its length, etc., also on ppc32
+
+2006-07-18  Petr Machata <pmachata@redhat.com>
+
 	* elf.c: support .gnu.hash ELF entry
 	* elf.h: likewise
 
