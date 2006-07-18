@@ -169,6 +169,8 @@ static void do_init_elf(struct ltelf *lte, const char *filename)
 			Elf_Data *data;
 			size_t j;
 
+			lte->hash_type = SHT_HASH;
+
 			data = elf_getdata(scn, NULL);
 			if (data == NULL || elf_getdata(scn, data) != NULL
 			    || data->d_off || data->d_size != shdr.sh_size)
@@ -209,6 +211,30 @@ static void do_init_elf(struct ltelf *lte, const char *filename)
 				error(EXIT_FAILURE, 0,
 				      "Unknown .hash sh_entsize in \"%s\"",
 				      filename);
+#ifdef SHT_GNU_HASH
+		} else if (shdr.sh_type == SHT_GNU_HASH
+			   && lte->hash == NULL) {
+			Elf_Data *data;
+			size_t j;
+
+			lte->hash_type = SHT_GNU_HASH;
+
+			if (shdr.sh_entsize != 0
+			    && shdr.sh_entsize != 4) {
+				error(EXIT_FAILURE, 0,
+				      ".gnu.hash sh_entsize in \"%s\" should be 4, but is %d",
+				      filename, shdr.sh_entsize);
+			}
+
+			data = elf_getdata(scn, NULL);
+			if (data == NULL || elf_getdata(scn, data) != NULL
+			    || data->d_off || data->d_size != shdr.sh_size)
+				error(EXIT_FAILURE, 0,
+				      "Couldn't get .gnu.hash data from \"%s\"",
+				      filename);
+
+			lte->hash = (Elf32_Word *) data->d_buf;
+#endif
 		} else if (shdr.sh_type == SHT_PROGBITS
 			   || shdr.sh_type == SHT_NOBITS) {
 			if (strcmp(name, ".plt") == 0) {
@@ -301,33 +327,79 @@ static int in_load_libraries(const char *name, struct ltelf *lte)
 {
 	size_t i;
 	unsigned long hash;
+#ifdef SHT_GNU_HASH
+	unsigned long gnu_hash;
+#endif
 
 	if (!library_num)
 		return 1;
 
 	hash = elf_hash((const unsigned char *)name);
+#ifdef SHT_GNU_HASH
+	gnu_hash = elf_gnu_hash((const unsigned char *)name);
+#endif
 	for (i = 1; i <= library_num; ++i) {
-		Elf32_Word nbuckets, symndx;
-		Elf32_Word *buckets, *chain;
-
 		if (lte[i].hash == NULL)
 			continue;
 
-		nbuckets = lte[i].hash[0];
-		buckets = &lte[i].hash[2];
-		chain = &lte[i].hash[2 + nbuckets];
-		for (symndx = buckets[hash % nbuckets];
-		     symndx != STN_UNDEF; symndx = chain[symndx]) {
-			GElf_Sym sym;
+#ifdef SHT_GNU_HASH
+		if (lte[i].hash_type == SHT_GNU_HASH) {
+			Elf32_Word * hashbase = lte[i].hash;
+			Elf32_Word nbuckets = *hashbase++;
+			Elf32_Word symbias = *hashbase++;
+			Elf32_Word bitmask_nwords = *hashbase++;
+			Elf32_Word bitmask_idxbits = bitmask_nwords - 1;
+			Elf32_Word shift = *hashbase++;
+			Elf32_Word * buckets;
+			Elf32_Word * chain_zero;
+			Elf32_Word bucket;
 
-			if (gelf_getsym(lte[i].dynsym, symndx, &sym) == NULL)
-				error(EXIT_FAILURE, 0,
-				      "Couldn't get symbol from .dynsym");
+			hashbase += lte[i].ehdr.e_ident[EI_CLASS] * bitmask_nwords;
+			buckets = hashbase;
+			hashbase += nbuckets;
+			chain_zero = hashbase - symbias;
+			bucket = buckets[gnu_hash % nbuckets];
 
-			if (sym.st_value != 0
-			    && sym.st_shndx != SHN_UNDEF
-			    && strcmp(name, lte[i].dynstr + sym.st_name) == 0)
-				return 1;
+			if (bucket != 0) {
+				const Elf32_Word *hasharr = &chain_zero[bucket];
+				do
+					if ((*hasharr & ~1u) == (gnu_hash & ~1u)) {
+						int symidx = hasharr - chain_zero;
+						GElf_Sym sym;
+
+						if (gelf_getsym(lte[i].dynsym, symidx, &sym) == NULL)
+							error(EXIT_FAILURE, 0,
+							      "Couldn't get symbol from .dynsym");
+
+						if (sym.st_value != 0
+						    && sym.st_shndx != SHN_UNDEF
+						    && strcmp(name, lte[i].dynstr + sym.st_name) == 0)
+							return 1;
+					}
+				while ((*hasharr++ & 1u) == 0);
+			}
+		} else
+#endif
+		{
+			Elf32_Word nbuckets, symndx;
+			Elf32_Word *buckets, *chain;
+			nbuckets = lte[i].hash[0];
+			buckets = &lte[i].hash[2];
+			chain = &lte[i].hash[2 + nbuckets];
+
+			for (symndx = buckets[hash % nbuckets];
+			     symndx != STN_UNDEF; symndx = chain[symndx]) {
+				GElf_Sym sym;
+
+				if (gelf_getsym(lte[i].dynsym, symndx, &sym) == NULL)
+					error(EXIT_FAILURE, 0,
+					      "Couldn't get symbol from .dynsym");
+
+				if (sym.st_value != 0
+				    && sym.st_shndx != SHN_UNDEF
+				    && strcmp(name, lte[i].dynstr + sym.st_name) == 0)
+					return 1;
+			}
 		}
 	}
 	return 0;

@@ -24,6 +24,7 @@ struct ltelf {
 	GElf_Addr *opd_addr;
 	size_t opd_size;
 	Elf32_Word *hash;
+	int hash_type;
 	int lte_flags;
 };
 
