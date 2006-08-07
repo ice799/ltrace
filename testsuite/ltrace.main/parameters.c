@@ -19,6 +19,9 @@ int func_strlen(char*);
 void func_strfixed(char*);
 void func_ppp(int***);
 void func_stringp(char**);
+void func_short(short, short);
+void func_ushort(unsigned short, unsigned short);
+void func_float(float, float);
 
 typedef enum {
   RED,
@@ -59,4 +62,10 @@ main ()
   func_stringp(&s);
 
   func_enum(BLUE);
+
+  func_short(-8, -9);
+  func_ushort(33, 34);
+  func_float(3.4, -3.4);
+
+  return 0;
 }

@@ -52,3 +52,11 @@ set pattern "func_stringp(\\\"Dude\\\")"
 ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern 1
 set pattern "func_enum(BLUE)"
 ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern 1
+set pattern "func_short(-8, -9)"
+ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern 1
+set pattern "func_ushort(33, 34)"
+ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern 1
+set pattern "func_float(3.40*, -3.40*)"
+ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern 1
+set pattern "exited (status 0)"
+ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern 1

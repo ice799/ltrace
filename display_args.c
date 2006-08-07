@@ -91,6 +91,15 @@ int display_value(enum tof type, struct process *proc,
 		tmp += display_char(value == -1 ? value : (char) value);
 		tmp += fprintf(output, "'");
 		return tmp;
+	case ARGTYPE_SHORT:
+		return fprintf(output, "%hd", (short) value);
+	case ARGTYPE_USHORT:
+		return fprintf(output, "%hu", (unsigned short) value);
+	case ARGTYPE_FLOAT: {
+		union { long l; float f; } cvt;
+		cvt.l = value;
+		return fprintf(output, "%f", cvt.f);
+	}
 	case ARGTYPE_ADDR:
 		if (!value)
 			return fprintf(output, "NULL");

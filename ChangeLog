@@ -4,6 +4,14 @@
 	testsuite/ltrace.main/parameters-lib.c,
 	testsuite/ltrace.main/parameters.c,
 	testsuite/ltrace.main/parameters.conf,
+	testsuite/ltrace.main/parameters.exp: short, ushort and float types
+
+2006-08-07  Steve Fink <sphink@gmail.com>
+
+	* display_args.c, etc/ltrace.conf, ltrace.h, read_config_file.c,
+	testsuite/ltrace.main/parameters-lib.c,
+	testsuite/ltrace.main/parameters.c,
+	testsuite/ltrace.main/parameters.conf,
 	testsuite/ltrace.main/parameters.exp: implement enumerated parameters
 
 2006-08-07  Steve Fink <sphink@gmail.com>

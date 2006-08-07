@@ -29,6 +29,9 @@ static struct list_of_pt_t {
 	"ulong", ARGTYPE_ULONG}, {
 	"octal", ARGTYPE_OCTAL}, {
 	"char", ARGTYPE_CHAR}, {
+	"short", ARGTYPE_SHORT}, {
+	"ushort", ARGTYPE_USHORT}, {
+	"float", ARGTYPE_FLOAT}, {
 	"addr", ARGTYPE_ADDR}, {
 	"file", ARGTYPE_FILE}, {
 	"format", ARGTYPE_FORMAT}, {
@@ -46,6 +49,9 @@ static arg_type_info arg_type_singletons[] = {
 	{ ARGTYPE_ULONG },
 	{ ARGTYPE_OCTAL },
 	{ ARGTYPE_CHAR },
+	{ ARGTYPE_SHORT },
+	{ ARGTYPE_USHORT },
+	{ ARGTYPE_FLOAT },
 	{ ARGTYPE_ADDR },
 	{ ARGTYPE_FILE },
 	{ ARGTYPE_FORMAT },
