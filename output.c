@@ -164,6 +164,9 @@ static void tabto(int col)
 void output_left(enum tof type, struct process *proc, char *function_name)
 {
 	struct function *func;
+	static arg_type_info *arg_unknown = NULL;
+	if (arg_unknown == NULL)
+	    arg_unknown = lookup_singleton(ARGTYPE_UNKNOWN);
 
 	if (opt_c) {
 		return;
@@ -190,21 +193,21 @@ void output_left(enum tof type, struct process *proc, char *function_name)
 		int i;
 		for (i = 0; i < 4; i++) {
 			current_column +=
-			    display_arg(type, proc, i, ARGTYPE_UNKNOWN);
+			    display_arg(type, proc, i, arg_unknown);
 			current_column += fprintf(output, ", ");
 		}
-		current_column += display_arg(type, proc, 4, ARGTYPE_UNKNOWN);
+		current_column += display_arg(type, proc, 4, arg_unknown);
 		return;
 	} else {
 		int i;
 		for (i = 0; i < func->num_params - func->params_right - 1; i++) {
 			current_column +=
-			    display_arg(type, proc, i, func->arg_types[i]);
+			    display_arg(type, proc, i, func->arg_info[i]);
 			current_column += fprintf(output, ", ");
 		}
 		if (func->num_params > func->params_right) {
 			current_column +=
-			    display_arg(type, proc, i, func->arg_types[i]);
+			    display_arg(type, proc, i, func->arg_info[i]);
 			if (func->params_right) {
 				current_column += fprintf(output, ", ");
 			}
@@ -218,6 +221,9 @@ void output_left(enum tof type, struct process *proc, char *function_name)
 void output_right(enum tof type, struct process *proc, char *function_name)
 {
 	struct function *func = name2func(function_name);
+	static arg_type_info *arg_unknown = NULL;
+	if (arg_unknown == NULL)
+	    arg_unknown = lookup_singleton(ARGTYPE_UNKNOWN);
 
 	if (opt_c) {
 		struct opt_c_struct *st;
@@ -273,26 +279,26 @@ void output_right(enum tof type, struct process *proc, char *function_name)
 		current_column += fprintf(output, ") ");
 		tabto(opt_a - 1);
 		fprintf(output, "= ");
-		display_arg(type, proc, -1, ARGTYPE_UNKNOWN);
+		display_arg(type, proc, -1, arg_unknown);
 	} else {
 		int i;
 		for (i = func->num_params - func->params_right;
 		     i < func->num_params - 1; i++) {
 			current_column +=
-			    display_arg(type, proc, i, func->arg_types[i]);
+			    display_arg(type, proc, i, func->arg_info[i]);
 			current_column += fprintf(output, ", ");
 		}
 		if (func->params_right) {
 			current_column +=
-			    display_arg(type, proc, i, func->arg_types[i]);
+			    display_arg(type, proc, i, func->arg_info[i]);
 		}
 		current_column += fprintf(output, ") ");
 		tabto(opt_a - 1);
 		fprintf(output, "= ");
-		if (func->return_type == ARGTYPE_VOID) {
+		if (func->return_info->type == ARGTYPE_VOID) {
 			fprintf(output, "<void>");
 		} else {
-			display_arg(type, proc, -1, func->return_type);
+			display_arg(type, proc, -1, func->return_info);
 		}
 	}
 	if (opt_T) {

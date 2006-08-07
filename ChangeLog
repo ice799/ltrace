@@ -1,3 +1,9 @@
+2006-08-07  Steve Fink <sphink@gmail.com>
+
+	* ltrace.h, output.c, read_config_file.c : use arg_type_info in
+	place of arg_type in order to eventually be able to record
+	properties along with types.
+
 2006-07-20  Steve Fink <sphink@gmail.com>
 
 	* testsuite/lib/ltrace.exp: better quoting and error detection for

@@ -41,13 +41,25 @@ enum arg_type {
 	ARGTYPE_FILE,
 	ARGTYPE_FORMAT,		/* printf-like format */
 	ARGTYPE_STRING,
-	ARGTYPE_STRING0,	/* stringN: string up to (arg N) bytes */
-	ARGTYPE_STRING1,
-	ARGTYPE_STRING2,
-	ARGTYPE_STRING3,
-	ARGTYPE_STRING4,
-	ARGTYPE_STRING5
+	ARGTYPE_STRING_N,	/* stringN: string up to (arg N) bytes */
+        ARGTYPE_STRING0,
+        ARGTYPE_STRING1,
+        ARGTYPE_STRING2,
+        ARGTYPE_STRING3,
+        ARGTYPE_STRING4,
+        ARGTYPE_STRING5,
+        ARGTYPE_COUNT		/* number of ARGTYPE_* values */
 };
+
+typedef struct arg_type_info_t {
+    enum arg_type type;
+    union {
+	// ARGTYPE_STRING_N
+	struct {
+	    int size_spec;
+	} string_n_info;
+    } u;
+} arg_type_info;
 
 enum tof {
 	LT_TOF_NONE = 0,
@@ -59,9 +71,9 @@ enum tof {
 
 struct function {
 	const char *name;
-	enum arg_type return_type;
+	arg_type_info *return_info;
 	int num_params;
-	enum arg_type arg_types[MAX_ARGS];
+	arg_type_info *arg_info[MAX_ARGS];
 	int params_right;
 	struct function *next;
 };
@@ -160,7 +172,7 @@ extern struct event *wait_for_something(void);
 extern void process_event(struct event *event);
 extern void execute_program(struct process *, char **);
 extern int display_arg(enum tof type, struct process *proc, int arg_num,
-		       enum arg_type at);
+		       arg_type_info *info);
 extern struct breakpoint *address2bpstruct(struct process *proc, void *addr);
 extern void breakpoints_init(struct process *proc);
 extern void insert_breakpoint(struct process *proc, void *addr,
@@ -173,6 +185,7 @@ extern void reinitialize_breakpoints(struct process *);
 extern struct process *open_program(char *filename, pid_t pid);
 extern void open_pid(pid_t pid, int verbose);
 extern void show_summary(void);
+extern arg_type_info *lookup_singleton(enum arg_type at);
 
 /* Arch-dependent stuff: */
 extern char *pid2name(pid_t pid);
