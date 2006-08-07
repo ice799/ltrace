@@ -15,27 +15,35 @@ static int display_char(int what);
 static int display_string(enum tof type, struct process *proc,
 			  void* addr, size_t maxlen);
 static int display_value(enum tof type, struct process *proc,
-			 long value, arg_type_info *info);
+			 long value, arg_type_info *info,
+			 void *st, arg_type_info* st_info);
 static int display_unknown(enum tof type, struct process *proc, long value);
 static int display_format(enum tof type, struct process *proc, int arg_num);
 
 static int string_maxlength = INT_MAX;
 static int array_maxlength = INT_MAX;
 
-static long get_length(enum tof type, struct process *proc, int len_spec)
+static long get_length(enum tof type, struct process *proc, int len_spec,
+		       void *st, arg_type_info* st_info)
 {
+    long len;
     if (len_spec > 0)
 	return len_spec;
+    if (type == LT_TOF_STRUCT) {
+	umovelong(proc, st + st_info->u.struct_info.offset[-len_spec-1], &len);
+	return len;
+    }
     return gimme_arg(type, proc, -len_spec - 1);
 }
 
 static int display_ptrto(enum tof type, struct process *proc, long item,
-			 arg_type_info * info)
+			 arg_type_info * info,
+			 void *st, arg_type_info* st_info)
 {
     arg_type_info temp;
     temp.type = ARGTYPE_POINTER;
     temp.u.ptr_info.info = info;
-    return display_value(type, proc, item, &temp);
+    return display_value(type, proc, item, &temp, st, st_info);
 }
 
 /*
@@ -47,7 +55,8 @@ static int display_ptrto(enum tof type, struct process *proc, long item,
  * pointer to that region of memory.
  */
 static int display_arrayptr(enum tof type, struct process *proc,
-			    void *addr, arg_type_info * info)
+			    void *addr, arg_type_info * info,
+			    void *st, arg_type_info* st_info)
 {
     int len = 0;
     int i;
@@ -56,7 +65,8 @@ static int display_arrayptr(enum tof type, struct process *proc,
     if (addr == NULL)
 	return fprintf(output, "NULL");
 
-    array_len = get_length(type, proc, info->u.array_info.len_spec);
+    array_len = get_length(type, proc, info->u.array_info.len_spec,
+			   st, st_info);
     len += fprintf(output, "[ ");
     for (i = 0; i < opt_A && i < array_maxlength && i < array_len; i++) {
 	arg_type_info *elt_type = info->u.array_info.elt_type;
@@ -66,7 +76,7 @@ static int display_arrayptr(enum tof type, struct process *proc,
 	if (opt_d)
 	    len += fprintf(output, "%p=", addr);
 	len +=
-	    display_ptrto(type, proc, (long) addr, elt_type);
+	    display_ptrto(type, proc, (long) addr, elt_type, st, st_info);
 	addr += elt_size;
     }
     if (i < array_len)
@@ -75,21 +85,57 @@ static int display_arrayptr(enum tof type, struct process *proc,
     return len;
 }
  
+/* addr - A pointer to the beginning of the memory region occupied by
+ *        the struct (aka a pointer to the struct)
+ */
+static int display_structptr(enum tof type, struct process *proc,
+			     void *addr, arg_type_info * info)
+{
+    int i;
+    arg_type_info *field;
+    int len = 0;
+
+    if (addr == NULL)
+	return fprintf(output, "NULL");
+
+    len += fprintf(output, "{ ");
+    for (i = 0; (field = info->u.struct_info.fields[i]) != NULL; i++) {
+	if (i != 0)
+	    len += fprintf(output, ", ");
+	if (opt_d)
+	    len +=
+		fprintf(output, "%p=",
+			addr + info->u.struct_info.offset[i]);
+	len +=
+	    display_ptrto(LT_TOF_STRUCT, proc,
+			  (long) addr + info->u.struct_info.offset[i],
+			  field, addr, info);
+    }
+    len += fprintf(output, " }");
+
+    return len;
+}
+
 static int display_pointer(enum tof type, struct process *proc, long value,
-			   arg_type_info * info)
+			   arg_type_info * info,
+			   void *st, arg_type_info* st_info)
 {
     long pointed_to;
     arg_type_info *inner = info->u.ptr_info.info;
 
     if (inner->type == ARGTYPE_ARRAY) {
-	return display_arrayptr(type, proc, (void*) value, inner);
+	return display_arrayptr(type, proc, (void*) value, inner,
+				st, st_info);
+    } else if (inner->type == ARGTYPE_STRUCT) {
+	return display_structptr(type, proc, (void *) value, inner);
     } else {
 	if (value == 0)
 	    return fprintf(output, "NULL");
 	else if (umovelong(proc, (void *) value, &pointed_to) < 0)
 	    return fprintf(output, "?");
 	else
-	    return display_value(type, proc, pointed_to, inner);
+	    return display_value(type, proc, pointed_to, inner,
+				 st, st_info);
     }
 }
 
@@ -110,9 +156,15 @@ static int display_enum(enum tof type, struct process *proc,
    proc - information about the traced process
    value - the value to display
    info - the description of the type to display
+   st - if the current value is a struct member, the address of the struct
+   st_info - type of the above struct
+
+   Those last two parameters are used for structs containing arrays or
+   strings whose length is given by another structure element.
 */
 int display_value(enum tof type, struct process *proc,
-                  long value, arg_type_info *info)
+                  long value, arg_type_info *info,
+		  void *st, arg_type_info* st_info)
 {
 	int tmp;
 
@@ -165,13 +217,16 @@ int display_value(enum tof type, struct process *proc,
 	case ARGTYPE_STRING_N:
 		return display_string(type, proc, (void*) value,
 				      get_length(type, proc,
-						 info->u.string_n_info.size_spec));
+						 info->u.string_n_info.size_spec, st, st_info));
 	case ARGTYPE_ARRAY:
 		return fprintf(output, "<array without address>");
         case ARGTYPE_ENUM:
 		return display_enum(type, proc, info, value);
+	case ARGTYPE_STRUCT:
+		return fprintf(output, "<struct without address>");
 	case ARGTYPE_POINTER:
-		return display_pointer(type, proc, value, info);
+		return display_pointer(type, proc, value, info,
+				       st, st_info);
  	case ARGTYPE_UNKNOWN:
 	default:
 		return display_unknown(type, proc, value);
@@ -189,7 +244,7 @@ int display_arg(enum tof type, struct process *proc, int arg_num,
 	return display_format(type, proc, arg_num);
     } else {
 	arg = gimme_arg(type, proc, arg_num);
-	return display_value(type, proc, arg, info);
+	return display_value(type, proc, arg, info, NULL, NULL);
     }
 }
 

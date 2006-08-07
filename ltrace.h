@@ -47,6 +47,7 @@ enum arg_type {
 	ARGTYPE_STRING_N,	/* String of known maxlen */
         ARGTYPE_ARRAY,		/* Series of values in memory */
         ARGTYPE_ENUM,		/* Enumeration */
+        ARGTYPE_STRUCT,		/* Structure of values */
         ARGTYPE_IGNORE,		/* Leave parameter blank */
         ARGTYPE_POINTER,	/* Pointer to some other type */
         ARGTYPE_COUNT		/* number of ARGTYPE_* values */
@@ -74,6 +75,14 @@ typedef struct arg_type_info_t {
 	    int size_spec;
 	} string_n_info;
 
+	// ARGTYPE_STRUCT
+	struct {
+	    struct arg_type_info_t **fields;	// NULL-terminated
+	    size_t *gap;
+	    size_t *offset;
+	    size_t size;
+	} struct_info;
+
 	// ARGTYPE_POINTER
 	struct {
 	    struct arg_type_info_t *info;
@@ -86,7 +95,8 @@ enum tof {
 	LT_TOF_FUNCTION,	/* A real library function */
 	LT_TOF_FUNCTIONR,	/* Return from a real library function */
 	LT_TOF_SYSCALL,		/* A syscall */
-	LT_TOF_SYSCALLR		/* Return from a syscall */
+	LT_TOF_SYSCALLR,	/* Return from a syscall */
+        LT_TOF_STRUCT		/* Not a function; read args from struct */
 };
 
 struct function {

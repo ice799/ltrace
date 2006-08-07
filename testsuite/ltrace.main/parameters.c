@@ -24,6 +24,7 @@ void func_ushort(unsigned short, unsigned short);
 void func_float(float, float);
 void func_arrayi(int*, int);
 void func_arrayf(float*, int);
+void func_struct(void*);
 
 typedef enum {
   RED,
@@ -85,6 +86,38 @@ main ()
     af[x] = 10.1 + x;
   func_arrayf(af, 8);
   func_arrayf(af, 2);
+
+  {
+    struct {
+      int simple;
+      int alen;
+      int slen;
+      struct { int a; int b; }* array;
+      struct { int a; int b; } seq[3];
+      char* str;
+    } x;
+
+    x.simple = 89;
+
+    x.alen = 2;
+    x.array = malloc(800);
+    x.array[0].a = 1;
+    x.array[0].b = 10;
+    x.array[1].a = 3;
+    x.array[1].b = 30;
+
+    x.seq[0].a = 4;
+    x.seq[0].b = 40;
+    x.seq[1].a = 5;
+    x.seq[1].b = 50;
+    x.seq[2].a = 6;
+    x.seq[2].b = 60;
+
+    x.slen = 3;
+    x.str = "123junk";
+
+    func_struct(&x);
+  }
 
   return 0;
 }

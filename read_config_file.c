@@ -19,6 +19,8 @@ static arg_type_info *parse_type(char **str);
 
 struct function *list_of_functions = NULL;
 
+/* Map of strings to type names. These do not need to be in any
+ * particular order */
 static struct list_of_pt_t {
 	char *name;
 	enum arg_type pt;
@@ -39,11 +41,15 @@ static struct list_of_pt_t {
 	"format", ARGTYPE_FORMAT}, {
 	"string", ARGTYPE_STRING}, {
 	"array", ARGTYPE_ARRAY}, {
+	"struct", ARGTYPE_STRUCT}, {
 	"enum", ARGTYPE_ENUM}, {
 	"ignore", ARGTYPE_IGNORE}, {
 	NULL, ARGTYPE_UNKNOWN}	/* Must finish with NULL */
 };
 
+/* Array of singleton objects for each of the types. The order in this
+ * array must exactly match the list of enumerated values in
+ * ltrace.h */
 static arg_type_info arg_type_singletons[] = {
 	{ ARGTYPE_VOID },
 	{ ARGTYPE_INT },
@@ -62,6 +68,7 @@ static arg_type_info arg_type_singletons[] = {
 	{ ARGTYPE_STRING_N },
 	{ ARGTYPE_ARRAY },
 	{ ARGTYPE_ENUM },
+	{ ARGTYPE_STRUCT },
 	{ ARGTYPE_IGNORE },
 	{ ARGTYPE_POINTER },
 	{ ARGTYPE_UNKNOWN }
@@ -166,6 +173,7 @@ static int simple_type(enum arg_type at)
     case ARGTYPE_STRING_N:
     case ARGTYPE_ARRAY:
     case ARGTYPE_ENUM:
+    case ARGTYPE_STRUCT:
 	return 0;
 
     default:
@@ -178,8 +186,8 @@ static int parse_int(char **str)
     char *end;
     long n = strtol(*str, &end, 0);
     if (end == *str) {
-	output_line(0, "Syntax error in `%s', line %d: Bad number",
-		    filename, line_no);
+	output_line(0, "Syntax error in `%s', line %d: Bad number (%s)",
+		    filename, line_no, *str);
 	error_count++;
 	return 0;
     }
@@ -207,6 +215,9 @@ static int parse_argnum(char **str)
     int n = 0;
 
     if (strncmp(*str, "arg", 3) == 0) {
+	(*str) += 3;
+	multiplier = -1;
+    } else if (strncmp(*str, "elt", 3) == 0) {
 	(*str) += 3;
 	multiplier = -1;
     } else if (strncmp(*str, "retval", 6) == 0) {
@@ -289,6 +300,8 @@ static size_t arg_sizeof(arg_type_info * arg)
 	return sizeof(float);
     } else if (arg->type == ARGTYPE_ENUM) {
 	return sizeof(int);
+    } else if (arg->type == ARGTYPE_STRUCT) {
+	return arg->u.struct_info.size;
     } else if (arg->type == ARGTYPE_ARRAY) {
 	if (arg->u.array_info.len_spec > 0)
 	    return arg->u.array_info.len_spec * arg->u.array_info.elt_size;
@@ -297,6 +310,63 @@ static size_t arg_sizeof(arg_type_info * arg)
     } else {
 	return sizeof(int);
     }
+}
+
+/* I'm sure this isn't completely correct, but just try to get most of
+ * them right for now. */
+#undef alignof
+#define alignof(field,st) ((size_t) ((char*) &st.field - (char*) &st))
+static void align_struct(arg_type_info* info)
+{
+    struct {
+	char c;
+	int i;
+    } ci;
+    struct {
+	struct {
+	    char c;
+	} s;
+	int i;
+    } cis;
+
+    size_t int_alignment = alignof(i, ci);
+    size_t whole_struct_alignment = alignof(i, cis);
+
+    size_t offset;
+    size_t gap;
+    int i;
+
+    if (info->u.struct_info.size != 0)
+	return;			// Already done
+
+    // The gap array isn't actually needed anymore, because the
+    // offset can be used for everything.
+
+    // 1. Add internal padding
+    offset = 0;
+    for (i = 0; info->u.struct_info.fields[i] != NULL; i++) {
+	arg_type_info *field = info->u.struct_info.fields[i];
+	info->u.struct_info.offset[i] = offset;
+	offset += arg_sizeof(field);
+
+	if (offset % int_alignment != 0) {
+	    gap = int_alignment - offset % int_alignment;
+	    info->u.struct_info.gap[i] = gap;
+	    offset += gap;
+	}
+    }
+
+    // 2. Add padding at end of entire struct
+    for (i = 0; info->u.struct_info.fields[i] != NULL; i++);
+    if (i == 0)
+	return;
+    if (offset % whole_struct_alignment != 0) {
+	gap = whole_struct_alignment - offset % whole_struct_alignment;
+	info->u.struct_info.gap[i - 1] = gap;
+	offset += gap;
+    }
+
+    info->u.struct_info.size = offset;
 }
 
 static arg_type_info *parse_nonpointer_type(char **str)
@@ -431,6 +501,46 @@ static arg_type_info *parse_nonpointer_type(char **str)
 	    eat_spaces(str);
 	    (*str)++;		// Skip past closing ]
 	    return info;
+
+	// Syntax: struct ( type,type,type,... )
+    case ARGTYPE_STRUCT:{
+	    int field_num = 0;
+	    (*str)++;		// Get past open paren
+	    info->u.struct_info.fields =
+		malloc((MAX_ARGS + 1) * sizeof(void *));
+	    info->u.struct_info.gap =
+		malloc((MAX_ARGS + 1) * sizeof(size_t));
+	    info->u.struct_info.offset =
+		malloc((MAX_ARGS + 1) * sizeof(size_t));
+	    info->u.struct_info.size = 0;
+	    eat_spaces(str); // Empty arg list with whitespace inside
+	    while (**str && **str != ')') {
+		if (field_num == MAX_ARGS) {
+		    output_line(0,
+				"Error in `%s', line %d: Too many structure elements",
+				filename, line_no);
+		    error_count++;
+		    return NULL;
+		}
+		eat_spaces(str);
+		if (field_num != 0) {
+		    (*str)++;	// Get past comma
+		    eat_spaces(str);
+		}
+		info->u.struct_info.gap[field_num] = 0;
+		if ((info->u.struct_info.fields[field_num++] =
+		     parse_type(str)) == NULL)
+		    return NULL;
+
+		// Must trim trailing spaces so the check for
+		// the closing paren is simple
+		eat_spaces(str);
+	    }
+	    (*str)++;		// Get past closing paren
+	    info->u.struct_info.fields[field_num] = NULL;
+	    align_struct(info);
+	    return info;
+	}
 
 	default:
 		output_line(0, "Syntax error in `%s', line %d: Unknown type encountered",

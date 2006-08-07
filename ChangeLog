@@ -1,5 +1,17 @@
 2006-08-07  Steve Fink <sphink@gmail.com>
 
+	* display_args.c, etc/ltrace.conf, ltrace.h, read_config_file.c,
+	testsuite/ltrace.main/parameters-lib.c,
+	testsuite/ltrace.main/parameters.c,
+	testsuite/ltrace.main/parameters.conf,
+	testsuite/ltrace.main/parameters.exp: Allow parameters to be
+	pointers to structs, which themselves can contain
+	(nearly) any other type, including other structs or pointers to
+	structs.
+
+
+2006-08-07  Steve Fink <sphink@gmail.com>
+
 	* defs.h, display_args.c, etc/ltrace.conf, ltrace.1, ltrace.h,
 	options.c, options.h, read_config_file.c,
 	testsuite/ltrace.main/parameters-lib.c,

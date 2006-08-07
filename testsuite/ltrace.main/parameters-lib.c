@@ -79,3 +79,39 @@ void func_arrayf(float* a, int N)
 	printf("%f ", a[i]);
     printf("\n");
 }
+
+struct test_struct {
+    int simple;
+    int alen;
+    int slen;
+    struct { int a; int b; }* array;
+    struct { int a; int b; } seq[3];
+    char* str;
+    char* outer_str;
+};
+
+void func_struct(struct test_struct* x)
+{
+    char buf[100];
+    int i;
+
+    printf("struct: ");
+
+    printf("%d, [", x->simple);
+    for (i = 0; i < x->alen; i++) {
+	printf("%d/%d", x->array[i].a, x->array[i].b);
+	if (i < x->alen - 1)
+	    printf(" ");
+    }
+    printf("] [");
+    for (i = 0; i < 3; i++) {
+	printf("%d/%d", x->seq[i].a, x->seq[i].b);
+	if (i < 2)
+	    printf(" ");
+    }
+    printf("] ");
+
+    strncpy(buf, x->str, x->slen);
+    buf[x->slen] = '\0';
+    printf("%s\n", buf);
+}
