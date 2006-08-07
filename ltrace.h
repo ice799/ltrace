@@ -42,6 +42,7 @@ enum arg_type {
 	ARGTYPE_FORMAT,		/* printf-like format */
 	ARGTYPE_STRING,		/* NUL-terminated string */
 	ARGTYPE_STRING_N,	/* String of known maxlen */
+        ARGTYPE_IGNORE,		/* Leave parameter blank */
         ARGTYPE_COUNT		/* number of ARGTYPE_* values */
 };
 

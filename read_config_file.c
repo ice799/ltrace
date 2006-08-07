@@ -29,6 +29,7 @@ static struct list_of_pt_t {
 	"file", ARGTYPE_FILE}, {
 	"format", ARGTYPE_FORMAT}, {
 	"string", ARGTYPE_STRING}, {
+	"ignore", ARGTYPE_IGNORE}, {
 	NULL, ARGTYPE_UNKNOWN}	/* Must finish with NULL */
 };
 
@@ -45,6 +46,7 @@ static arg_type_info arg_type_singletons[] = {
 	{ ARGTYPE_FORMAT },
 	{ ARGTYPE_STRING },
 	{ ARGTYPE_STRING_N },
+	{ ARGTYPE_IGNORE },
 	{ ARGTYPE_UNKNOWN }
 };
 

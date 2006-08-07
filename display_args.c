@@ -36,6 +36,8 @@ display_arg(enum tof type, struct process *proc,
 	switch (info->type) {
 	case ARGTYPE_VOID:
 		return 0;
+        case ARGTYPE_IGNORE:
+        	return 0; /* Empty gap between commas */
 	case ARGTYPE_INT:
 		return fprintf(output, "%d",
 			       (int)gimme_arg(type, proc, arg_num));
