@@ -11,6 +11,10 @@
 #include "output.h"
 #include "debug.h"
 
+static int line_no;
+static char *filename;
+static int error_count = 0;
+
 struct function *list_of_functions = NULL;
 
 static struct list_of_pt_t {
@@ -29,6 +33,7 @@ static struct list_of_pt_t {
 	"file", ARGTYPE_FILE}, {
 	"format", ARGTYPE_FORMAT}, {
 	"string", ARGTYPE_STRING}, {
+	"enum", ARGTYPE_ENUM}, {
 	"ignore", ARGTYPE_IGNORE}, {
 	NULL, ARGTYPE_UNKNOWN}	/* Must finish with NULL */
 };
@@ -46,6 +51,7 @@ static arg_type_info arg_type_singletons[] = {
 	{ ARGTYPE_FORMAT },
 	{ ARGTYPE_STRING },
 	{ ARGTYPE_STRING_N },
+	{ ARGTYPE_ENUM },
 	{ ARGTYPE_IGNORE },
 	{ ARGTYPE_POINTER },
 	{ ARGTYPE_UNKNOWN }
@@ -79,6 +85,32 @@ static void eat_spaces(char **str)
 	while (**str == ' ') {
 		(*str)++;
 	}
+}
+
+static char *xstrndup(char *str, size_t len)
+{
+    char *ret = (char *) malloc(len + 1);
+    strncpy(ret, str, len);
+    ret[len] = 0;
+    return ret;
+}
+
+static char *parse_ident(char **str)
+{
+    char *ident = *str;
+
+    if (!isalnum(**str) && **str != '_') {
+	output_line(0, "Syntax error in `%s', line %d: Bad identifier",
+		    filename, line_no);
+	error_count++;
+	return NULL;
+    }
+
+    while (**str && (isalnum(**str) || **str == '_')) {
+	++(*str);
+    }
+
+    return xstrndup(ident, *str - ident);
 }
 
 /*
@@ -119,11 +151,16 @@ static char *start_of_arg_sig(char *str)
 */
 static int simple_type(enum arg_type at)
 {
-	return 1;
-}
+    switch (at) {
+    case ARGTYPE_STRING:
+    case ARGTYPE_STRING_N:
+    case ARGTYPE_ENUM:
+	return 0;
 
-static int line_no;
-static char *filename;
+    default:
+	return 1;
+    }
+}
 
 static int parse_int(char **str)
 {
@@ -132,6 +169,7 @@ static int parse_int(char **str)
     if (end == *str) {
 	output_line(0, "Syntax error in `%s', line %d: Bad number",
 		    filename, line_no);
+	error_count++;
 	return 0;
     }
 
@@ -191,6 +229,73 @@ static arg_type_info *parse_nonpointer_type(char **str)
 
 	switch (info->type) {
 
+	// Syntax: enum ( keyname=value,keyname=value,... )
+	case ARGTYPE_ENUM:{
+	    struct enum_opt {
+		char *key;
+		int value;
+		struct enum_opt *next;
+	    };
+	    struct enum_opt *list = NULL;
+	    struct enum_opt *p;
+	    int entries = 0;
+	    int ii;
+
+	    eat_spaces(str);
+	    (*str)++;		// Get past open paren
+	    eat_spaces(str);
+
+	    while (**str && **str != ')') {
+		p = (struct enum_opt *) malloc(sizeof(*p));
+		eat_spaces(str);
+		p->key = parse_ident(str);
+		if (error_count) {
+		    free(p);
+		    return NULL;
+		}
+		eat_spaces(str);
+		if (**str != '=') {
+		    free(p->key);
+		    free(p);
+		    output_line(0,
+				"Syntax error in `%s', line %d: expected '=', got '%c'",
+				filename, line_no, **str);
+		    error_count++;
+		    return NULL;
+		}
+		++(*str);
+		eat_spaces(str);
+		p->value = parse_int(str);
+		p->next = list;
+		list = p;
+		++entries;
+
+		// Skip comma
+		eat_spaces(str);
+		if (**str == ',') {
+		    (*str)++;
+		    eat_spaces(str);
+		}
+	    }
+
+	    info->u.enum_info.entries = entries;
+	    info->u.enum_info.keys =
+		(char **) malloc(entries * sizeof(char *));
+	    info->u.enum_info.values =
+		(int *) malloc(entries * sizeof(int));
+	    for (ii = 0, p = NULL; list; ++ii, list = list->next) {
+		if (p)
+		    free(p);
+		info->u.enum_info.keys[ii] = list->key;
+		info->u.enum_info.values[ii] = list->value;
+		p = list;
+	    }
+	    if (p)
+		free(p);
+
+	    return info;
+	}
+
 	case ARGTYPE_STRING:
 	    if (!isdigit(**str) && **str != '[') {
 		/* Oops, was just a simple string after all */
@@ -217,6 +322,7 @@ static arg_type_info *parse_nonpointer_type(char **str)
 		output_line(0, "Syntax error in `%s', line %d: Unknown type encountered",
 			    filename, line_no);
 		free(info);
+		error_count++;
 		return NULL;
 	}
 }
@@ -258,6 +364,7 @@ static struct function *process_line(char *buf)
 	if (!tmp) {
 		output_line(0, "Syntax error in `%s', line %d", filename,
 			    line_no);
+		error_count++;
 		return NULL;
 	}
 	*tmp = '\0';
@@ -281,6 +388,7 @@ static struct function *process_line(char *buf)
 			output_line(0, "Syntax error in `%s', line %d"
                                     ": unknown argument type",
 				    filename, line_no);
+			error_count++;
 			return NULL;
 		}
 		eat_spaces(&str);
@@ -294,6 +402,7 @@ static struct function *process_line(char *buf)
 				str[strlen(str) - 1] = '\0';
 			output_line(0, "Syntax error in `%s', line %d at ...\"%s\"",
 				    filename, line_no, str);
+			error_count++;
 			return NULL;
 		}
 	}
@@ -318,7 +427,10 @@ void read_config_file(char *file)
 	}
 	line_no = 0;
 	while (fgets(buf, 1024, stream)) {
-		struct function *tmp = process_line(buf);
+		struct function *tmp;
+
+		error_count = 0;
+		tmp = process_line(buf);
 
 		if (tmp) {
 			debug(2, "New function: `%s'", tmp->name);

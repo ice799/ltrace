@@ -36,3 +36,8 @@ void func_stringp(char** sP)
 {
 	printf("%s\n", *sP);
 }
+
+void func_enum(int x)
+{
+	printf("enum: %d\n", x);
+}

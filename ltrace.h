@@ -42,6 +42,7 @@ enum arg_type {
 	ARGTYPE_FORMAT,		/* printf-like format */
 	ARGTYPE_STRING,		/* NUL-terminated string */
 	ARGTYPE_STRING_N,	/* String of known maxlen */
+        ARGTYPE_ENUM,		/* Enumeration */
         ARGTYPE_IGNORE,		/* Leave parameter blank */
         ARGTYPE_POINTER,	/* Pointer to some other type */
         ARGTYPE_COUNT		/* number of ARGTYPE_* values */
@@ -50,6 +51,13 @@ enum arg_type {
 typedef struct arg_type_info_t {
     enum arg_type type;
     union {
+	// ARGTYPE_ENUM
+	struct {
+	    size_t entries;
+	    char **keys;
+	    int *values;
+	} enum_info;
+
 	// ARGTYPE_STRING_N
 	struct {
 	    int size_spec;

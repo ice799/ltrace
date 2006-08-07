@@ -50,3 +50,5 @@ set pattern "func_ppp(80)"
 ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern 1
 set pattern "func_stringp(\\\"Dude\\\")"
 ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern 1
+set pattern "func_enum(BLUE)"
+ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern 1

@@ -42,6 +42,18 @@ static int display_pointer(enum tof type, struct process *proc, long value,
       return display_value(type, proc, pointed_to, inner);
 }
 
+static int display_enum(enum tof type, struct process *proc,
+                        arg_type_info* info, long value)
+{
+    int ii;
+    for (ii = 0; ii < info->u.enum_info.entries; ++ii) {
+	if (info->u.enum_info.values[ii] == value)
+	    return fprintf(output, "%s", info->u.enum_info.keys[ii]);
+    }
+
+    return display_unknown(type, proc, value);
+}
+
 /* Args:
    type - syscall or shared library function or memory
    proc - information about the traced process
@@ -94,6 +106,8 @@ int display_value(enum tof type, struct process *proc,
 		return display_string(type, proc, (void*) value,
 				      get_length(type, proc,
 						 info->u.string_n_info.size_spec));
+        case ARGTYPE_ENUM:
+		return display_enum(type, proc, info, value);
 	case ARGTYPE_POINTER:
 		return display_pointer(type, proc, value, info);
  	case ARGTYPE_UNKNOWN:

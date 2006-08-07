@@ -20,6 +20,15 @@ void func_strfixed(char*);
 void func_ppp(int***);
 void func_stringp(char**);
 
+typedef enum {
+  RED,
+  GREEN,
+  BLUE,
+  CHARTREUSE,
+  PETUNIA
+} color_t;
+void func_enum(color_t);
+
 int 
 main ()
 {
@@ -27,18 +36,27 @@ main ()
   int *xP, **xPP;
   char buf[200];
   char *s;
+
   func_ignore(1, 2, 3);
+
   func_intptr(&x);
+
   func_intptr_ret(&x);
+
   func_strlen(buf);
   printf("%s\n", buf);
+
   func_strfixed(buf);
   printf("%s\n", buf);
+
   x = 80;
   xP = &x;
   xPP = &xP;
   func_ppp(&xPP);
+
   s = (char*) malloc(100);
   strcpy(s, "Dude");
   func_stringp(&s);
+
+  func_enum(BLUE);
 }
