@@ -19,7 +19,7 @@ CLEANFILES = *.log *.sum site.bak setval.tmp site.exp
 
 .SUFFIXES:	
 clean:
-	-rm -f main main-internal system_calls signals 
+	-rm -f main main-internal system_calls signals parameters
 	-rm -f *.o *.so 
 	-rm -f *.ltrace
 	-rm -f $(CLEANFILES)

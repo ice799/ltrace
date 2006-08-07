@@ -1,3 +1,12 @@
+2006-08-07  Steve Fink <sphink@gmail.com>
+
+	* testsuite/ltrace.main/Makefile.in :  update testsuite for
+	new parameters
+	* testsuite/ltrace.main/parameters-lib.c : added
+	* testsuite/ltrace.main/parameters.c : added
+	* testsuite/ltrace.main/parameters.conf : added
+	* testsuite/ltrace.main/parameters.exp : added
+
 2006-08-07  Steve Fink  <sphink@gmail.com>
 
 	* display_args.c, etc/ltrace.conf, ltrace.h, read_config_file.c,
