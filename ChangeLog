@@ -1,3 +1,7 @@
+2006-08-07  Steve Fink  <sphink@gmail.com>
+
+	* ltrace.1: update bug email addr
+
 2006-07-26  Ian Wienand  <ianw@debian.org>
 
 	* elf.c: refactor opd2addr to not pass void* (fix warnings)
