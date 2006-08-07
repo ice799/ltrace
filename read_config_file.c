@@ -15,6 +15,8 @@ static int line_no;
 static char *filename;
 static int error_count = 0;
 
+static arg_type_info *parse_type(char **str);
+
 struct function *list_of_functions = NULL;
 
 static struct list_of_pt_t {
@@ -214,13 +216,82 @@ static int parse_argnum(char **str)
     return n * multiplier;
 }
 
+struct typedef_node_t {
+    char *name;
+    arg_type_info *info;
+    struct typedef_node_t *next;
+} *typedefs = NULL;
+
+static arg_type_info *lookup_typedef(char **str)
+{
+    struct typedef_node_t *node;
+    char *end = *str;
+    while (*end && (isalnum(*end) || *end == '_'))
+	++end;
+    if (end == *str)
+	return NULL;
+
+    for (node = typedefs; node != NULL; node = node->next) {
+	if (strncmp(*str, node->name, end - *str) == 0) {
+	    (*str) += strlen(node->name);
+	    return node->info;
+	}
+    }
+
+    return NULL;
+}
+
+static void parse_typedef(char **str)
+{
+    char *name;
+    arg_type_info *info;
+    struct typedef_node_t *binding;
+
+    (*str) += strlen("typedef");
+    eat_spaces(str);
+
+    // Grab out the name of the type
+    name = parse_ident(str);
+
+    // Skip = sign
+    eat_spaces(str);
+    if (**str != '=') {
+	output_line(0,
+		    "Syntax error in `%s', line %d: expected '=', got '%c'",
+		    filename, line_no, **str);
+	error_count++;
+	return;
+    }
+    (*str)++;
+    eat_spaces(str);
+
+    // Parse the type
+    info = parse_type(str);
+
+    // Insert onto beginning of linked list
+    binding = malloc(sizeof(*binding));
+    binding->name = name;
+    binding->info = info;
+    binding->next = typedefs;
+    typedefs = binding;
+}
+
 static arg_type_info *parse_nonpointer_type(char **str)
 {
 	arg_type_info *simple;
 	arg_type_info *info;
 
+	if (strncmp(*str, "typedef", 7) == 0) {
+	    parse_typedef(str);
+	    return lookup_singleton(ARGTYPE_UNKNOWN);
+	}
+
 	simple = str2type(str);
 	if (simple->type == ARGTYPE_UNKNOWN) {
+	    info = lookup_typedef(str);
+	    if (info)
+		return info;
+	    else
 		return simple;		// UNKNOWN
 	}
 

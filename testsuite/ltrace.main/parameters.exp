@@ -58,5 +58,7 @@ set pattern "func_ushort(33, 34)"
 ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern 1
 set pattern "func_float(3.40*, -3.40*)"
 ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern 1
+set pattern "func_typedef(BLUE)"
+ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern 1
 set pattern "exited (status 0)"
 ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern 1

@@ -31,6 +31,7 @@ typedef enum {
   PETUNIA
 } color_t;
 void func_enum(color_t);
+void func_typedef(color_t);
 
 int 
 main ()
@@ -66,6 +67,8 @@ main ()
   func_short(-8, -9);
   func_ushort(33, 34);
   func_float(3.4, -3.4);
+
+  func_typedef(BLUE);
 
   return 0;
 }

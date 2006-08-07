@@ -56,3 +56,8 @@ void func_float(float f1, float f2)
 {
 	printf("%f %f\n", f1, f2);
 }
+
+void func_typedef(int x)
+{
+	printf("typedef'd enum: %d\n", x);
+}
