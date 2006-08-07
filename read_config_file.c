@@ -29,12 +29,6 @@ static struct list_of_pt_t {
 	"file", ARGTYPE_FILE}, {
 	"format", ARGTYPE_FORMAT}, {
 	"string", ARGTYPE_STRING}, {
-	"string0", ARGTYPE_STRING0}, {
-	"string1", ARGTYPE_STRING1}, {
-	"string2", ARGTYPE_STRING2}, {
-	"string3", ARGTYPE_STRING3}, {
-	"string4", ARGTYPE_STRING4}, {
-	"string5", ARGTYPE_STRING5}, {
 	NULL, ARGTYPE_UNKNOWN}	/* Must finish with NULL */
 };
 
@@ -51,12 +45,6 @@ static arg_type_info arg_type_singletons[] = {
 	{ ARGTYPE_FORMAT },
 	{ ARGTYPE_STRING },
 	{ ARGTYPE_STRING_N },
-	{ ARGTYPE_STRING0 },
-	{ ARGTYPE_STRING1 },
-	{ ARGTYPE_STRING2 },
-	{ ARGTYPE_STRING3 },
-	{ ARGTYPE_STRING4 },
-	{ ARGTYPE_STRING5 },
 	{ ARGTYPE_UNKNOWN }
 };
 
@@ -74,7 +62,7 @@ static arg_type_info *str2type(char **str)
 
 	while (tmp->name) {
 		if (!strncmp(*str, tmp->name, strlen(tmp->name))
-		    && index(" ,)#", *(*str + strlen(tmp->name)))) {
+		    && index(" ,()#;012345[", *(*str + strlen(tmp->name)))) {
 			*str += strlen(tmp->name);
 			return lookup_singleton(tmp->pt);
 		}
@@ -134,6 +122,51 @@ static int simple_type(enum arg_type at)
 static int line_no;
 static char *filename;
 
+static int parse_int(char **str)
+{
+    char *end;
+    long n = strtol(*str, &end, 0);
+    if (end == *str) {
+	output_line(0, "Syntax error in `%s', line %d: Bad number",
+		    filename, line_no);
+	return 0;
+    }
+
+    *str = end;
+    return n;
+}
+
+/*
+ * Input:
+ *  argN   : The value of argument #N, counting from 1 (arg0 = retval)
+ *  eltN   : The value of element #N of the containing structure
+ *  retval : The return value
+ *  0      : Error
+ *  N      : The numeric value N, if N > 0
+ *
+ * Output:
+ * > 0   actual numeric value
+ * = 0   return value
+ * < 0   (arg -n), counting from one
+ */
+static int parse_argnum(char **str)
+{
+    int multiplier = 1;
+    int n = 0;
+
+    if (strncmp(*str, "arg", 3) == 0) {
+	(*str) += 3;
+	multiplier = -1;
+    } else if (strncmp(*str, "retval", 6) == 0) {
+	(*str) += 6;
+	return 0;
+    }
+
+    n = parse_int(str);
+
+    return n * multiplier;
+}
+
 static arg_type_info *parse_type(char **str)
 {
 	arg_type_info *simple;
@@ -144,7 +177,7 @@ static arg_type_info *parse_type(char **str)
 		return simple;		// UNKNOWN
 	}
 
-	if (simple_type(simple->type))
+	if (simple_type(simple->type) && simple->type != ARGTYPE_STRING)
 		return simple;
 
 	info = malloc(sizeof(*info));
@@ -154,6 +187,29 @@ static arg_type_info *parse_type(char **str)
 	   switch statement. */
 
 	switch (info->type) {
+
+	case ARGTYPE_STRING:
+	    if (!isdigit(**str) && **str != '[') {
+		/* Oops, was just a simple string after all */
+		free(info);
+		return simple;
+	    }
+
+	    info->type = ARGTYPE_STRING_N;
+
+	    /* Backwards compatibility for string0, string1, ... */
+	    if (isdigit(**str)) {
+		info->u.string_n_info.size_spec = -parse_int(str);
+		return info;
+	    }
+
+	    (*str)++;		// Skip past opening [
+	    eat_spaces(str);
+	    info->u.string_n_info.size_spec = parse_argnum(str);
+	    eat_spaces(str);
+	    (*str)++;		// Skip past closing ]
+	    return info;
+
 	default:
 		output_line(0, "Syntax error in `%s', line %d: Unknown type encountered",
 			    filename, line_no);
@@ -174,7 +230,9 @@ static struct function *process_line(char *buf)
 	debug(3, "Reading line %d of `%s'", line_no, filename);
 	eat_spaces(&str);
 	fun.return_info = parse_type(&str);
-	if (fun.return_info == NULL) {
+	if (fun.return_info == NULL)
+        	return NULL;
+	if (fun.return_info->type == ARGTYPE_UNKNOWN) {
 		debug(3, " Skipping line %d", line_no);
 		return NULL;
 	}

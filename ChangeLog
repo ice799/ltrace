@@ -1,5 +1,10 @@
 2006-08-07  Steve Fink <sphink@gmail.com>
 
+	* display_args.c, etc/ltrace.conf, ltrace.h, read_config_file.c:
+	implement string[argN] and string[N] parameter descriptors
+
+2006-08-07  Steve Fink <sphink@gmail.com>
+
 	* ltrace.h, output.c, read_config_file.c : use arg_type_info in
 	place of arg_type in order to eventually be able to record
 	properties along with types.

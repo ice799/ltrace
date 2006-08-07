@@ -40,14 +40,8 @@ enum arg_type {
 	ARGTYPE_ADDR,
 	ARGTYPE_FILE,
 	ARGTYPE_FORMAT,		/* printf-like format */
-	ARGTYPE_STRING,
-	ARGTYPE_STRING_N,	/* stringN: string up to (arg N) bytes */
-        ARGTYPE_STRING0,
-        ARGTYPE_STRING1,
-        ARGTYPE_STRING2,
-        ARGTYPE_STRING3,
-        ARGTYPE_STRING4,
-        ARGTYPE_STRING5,
+	ARGTYPE_STRING,		/* NUL-terminated string */
+	ARGTYPE_STRING_N,	/* String of known maxlen */
         ARGTYPE_COUNT		/* number of ARGTYPE_* values */
 };
 

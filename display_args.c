@@ -11,19 +11,29 @@
 #include "options.h"
 
 static int display_char(int what);
-static int display_string(enum tof type, struct process *proc, int arg_num);
-static int display_stringN(int arg2, enum tof type, struct process *proc,
-			   int arg_num);
+static int display_string(enum tof type, struct process *proc,
+			  int arg_num, arg_type_info *info,
+			  size_t maxlen);
 static int display_unknown(enum tof type, struct process *proc, int arg_num);
 static int display_format(enum tof type, struct process *proc, int arg_num);
 
+static int string_maxlength = INT_MAX;
+
+static long get_length(enum tof type, struct process *proc, int len_spec)
+{
+    if (len_spec > 0)
+	return len_spec;
+    return gimme_arg(type, proc, -len_spec - 1);
+}
+
 int
-display_arg(enum tof type, struct process *proc, int arg_num, enum arg_type at)
+display_arg(enum tof type, struct process *proc,
+	    int arg_num, arg_type_info *info)
 {
 	int tmp;
 	long arg;
 
-	switch (at) {
+	switch (info->type) {
 	case ARGTYPE_VOID:
 		return 0;
 	case ARGTYPE_INT:
@@ -62,19 +72,12 @@ display_arg(enum tof type, struct process *proc, int arg_num, enum arg_type at)
 	case ARGTYPE_FORMAT:
 		return display_format(type, proc, arg_num);
 	case ARGTYPE_STRING:
-		return display_string(type, proc, arg_num);
-	case ARGTYPE_STRING0:
-		return display_stringN(0, type, proc, arg_num);
-	case ARGTYPE_STRING1:
-		return display_stringN(1, type, proc, arg_num);
-	case ARGTYPE_STRING2:
-		return display_stringN(2, type, proc, arg_num);
-	case ARGTYPE_STRING3:
-		return display_stringN(3, type, proc, arg_num);
-	case ARGTYPE_STRING4:
-		return display_stringN(4, type, proc, arg_num);
-	case ARGTYPE_STRING5:
-		return display_stringN(5, type, proc, arg_num);
+		return display_string(type, proc, arg_num, info,
+				      string_maxlength);
+	case ARGTYPE_STRING_N:
+		return display_string(type, proc, arg_num, info,
+				      get_length(type, proc,
+						 info->u.string_n_info.size_spec));
 	case ARGTYPE_UNKNOWN:
 	default:
 		return display_unknown(type, proc, arg_num);
@@ -106,11 +109,10 @@ static int display_char(int what)
 	}
 }
 
-static int string_maxlength = INT_MAX;
-
 #define MIN(a,b) (((a)<(b)) ? (a) : (b))
 
-static int display_string(enum tof type, struct process *proc, int arg_num)
+static int display_string(enum tof type, struct process *proc,
+			  int arg_num, arg_type_info *info, size_t maxlength)
 {
 	void *addr;
 	unsigned char *str1;
@@ -122,13 +124,13 @@ static int display_string(enum tof type, struct process *proc, int arg_num)
 		return fprintf(output, "NULL");
 	}
 
-	str1 = malloc(MIN(opt_s, string_maxlength) + 3);
+	str1 = malloc(MIN(opt_s, maxlength) + 3);
 	if (!str1) {
 		return fprintf(output, "???");
 	}
-	umovestr(proc, addr, MIN(opt_s, string_maxlength) + 1, str1);
+	umovestr(proc, addr, MIN(opt_s, maxlength) + 1, str1);
 	len = fprintf(output, "\"");
-	for (i = 0; i < MIN(opt_s, string_maxlength); i++) {
+	for (i = 0; i < MIN(opt_s, maxlength); i++) {
 		if (str1[i]) {
 			len += display_char(str1[i]);
 		} else {
@@ -136,22 +138,11 @@ static int display_string(enum tof type, struct process *proc, int arg_num)
 		}
 	}
 	len += fprintf(output, "\"");
-	if (str1[i] && (opt_s <= string_maxlength)) {
+	if (str1[i] && (opt_s <= maxlength)) {
 		len += fprintf(output, "...");
 	}
 	free(str1);
 	return len;
-}
-
-static int
-display_stringN(int arg2, enum tof type, struct process *proc, int arg_num)
-{
-	int a;
-
-	string_maxlength = gimme_arg(type, proc, arg2 - 1);
-	a = display_string(type, proc, arg_num);
-	string_maxlength = INT_MAX;
-	return a;
 }
 
 static int display_unknown(enum tof type, struct process *proc, int arg_num)
@@ -292,10 +283,13 @@ static int display_format(enum tof type, struct process *proc, int arg_num)
 					len += fprintf(output, "'");
 					break;
 				} else if (c == 's') {
+					arg_type_info *info =
+					    lookup_singleton(ARGTYPE_STRING);
 					len += fprintf(output, ", ");
 					len +=
 					    display_string(type, proc,
-							   ++arg_num);
+							   ++arg_num, info,
+							   string_maxlength);
 					break;
 				} else if (c == 'p' || c == 'n') {
 					len +=
