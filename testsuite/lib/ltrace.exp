@@ -260,10 +260,12 @@ proc ltrace_saveoutput { args } {
 proc ltrace_verify_output { file_to_search pattern {instance_no 0}} {
 
 	# compute the number of PATTERN in FILE_TO_SEARCH by grep and wc.
-	catch "exec sh -c {grep $pattern $file_to_search | wc -l ;exit}" output
+	catch "exec sh -c {grep \"$pattern\" $file_to_search | wc -l ;exit}" output
 	verbose "output = $output"
-	
-	if { $instance_no == 0 } then {
+
+	if [ regexp "syntax error" $output ] then {
+		fail "Invalid regular expression $pattern"
+        } elseif { $instance_no == 0 } then {
 		if { $output == 0 } then {
 			fail "Fail to find $pattern in $file_to_search"
 		} else {

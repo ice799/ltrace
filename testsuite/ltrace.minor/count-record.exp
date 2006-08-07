@@ -48,30 +48,30 @@ ltrace_saveoutput $exec_output $srcdir/$subdir/$binfile.ltrace
 #   3.39    0.000268         268         1 fread
 #
 
-set pattern "\'1 rmdir\'"
+set pattern " 1 rmdir"
 ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern
-set pattern "\'1 fopen\'"
+set pattern " 1 fopen"
 ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern
-set pattern "\'2 remove\'"
+set pattern " 2 remove"
 ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern
-set pattern "\'1 mkdir\'"
+set pattern " 1 mkdir"
 ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern
-set pattern "\'1 fseek\'"
+set pattern " 1 fseek"
 ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern
-set pattern "\'1 fwrite\'"
+set pattern " 1 fwrite"
 ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern
-set pattern "\'1 fclose\'"
+set pattern " 1 fclose"
 ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern
-set pattern "\'1 rename\'"
+set pattern " 1 rename"
 ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern
-set pattern "\'1 symlink\'"
+set pattern " 1 symlink"
 ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern
-set pattern "\'1 chdir\'"
+set pattern " 1 chdir"
 ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern
-set pattern "\'1 access\'"
+set pattern " 1 access"
 ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern
-set pattern "\'1 getcwd\'"
+set pattern " 1 getcwd"
 ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern
-set pattern "\'1 fread\'"
+set pattern " 1 fread"
 ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern
 
