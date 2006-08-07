@@ -23,7 +23,7 @@ static void add_library_symbol(GElf_Addr addr, const char *name,
 			       struct library_symbol **library_symbolspp,
 			       enum toplt type_of_plt, int is_weak);
 static int in_load_libraries(const char *name, struct ltelf *lte);
-static GElf_Addr opd2addr(struct ltelf *ltc, void *addr);
+static GElf_Addr opd2addr(struct ltelf *ltc, GElf_Addr addr);
 
 #ifdef PLT_REINITALISATION_BP
 extern char *PLTs_initialized_by_here;
@@ -405,22 +405,19 @@ static int in_load_libraries(const char *name, struct ltelf *lte)
 	return 0;
 }
 
-static GElf_Addr opd2addr(struct ltelf *lte, void *addr)
+static GElf_Addr opd2addr(struct ltelf *lte, GElf_Addr addr)
 {
-	long base;
-	long offset;
-	GElf_Addr ret_val;
+	unsigned long base, offset;
 
 	if (!lte->opd)
-		return (GElf_Addr) (long) addr;
+		return addr;
 
-	base = (long)lte->opd->d_buf;
-	offset = (long)addr - (long)lte->opd_addr;
+	base = (unsigned long)lte->opd->d_buf;
+	offset = (unsigned long)addr - (unsigned long)lte->opd_addr;
 	if (offset > lte->opd_size)
 		error(EXIT_FAILURE, 0, "static plt not in .opd");
 
-	ret_val = (GElf_Addr) * (long *)(base + offset);
-	return ret_val;
+	return (GElf_Addr)(base + offset);
 }
 
 struct library_symbol *read_elf(struct process *proc)
@@ -430,7 +427,6 @@ struct library_symbol *read_elf(struct process *proc)
 	size_t i;
 	struct opt_x_t *xptr;
 	struct library_symbol **lib_tail = NULL;
-	struct opt_x_t *main_cheat;
 	int exit_out = 0;
 
 	elf_version(EV_CURRENT);
@@ -482,6 +478,8 @@ struct library_symbol *read_elf(struct process *proc)
 	}
 
 #ifdef PLT_REINITALISATION_BP
+	struct opt_x_t *main_cheat;
+
 	if (proc->need_to_reinitialize_breakpoints) {
 		/* Add "PLTs_initialized_by_here" to opt_x list, if not
                    already there. */
@@ -523,7 +521,7 @@ struct library_symbol *read_elf(struct process *proc)
 			if (xptr->name && strcmp(xptr->name, name) == 0) {
 				/* FIXME: Should be able to use &library_symbols as above.  But
 				   when you do, none of the real library symbols cause breaks. */
-				add_library_symbol(opd2addr(lte, (void*)addr),
+				add_library_symbol(opd2addr(lte, addr),
 						   name, lib_tail, LS_TOPLT_NONE, 0);
 				xptr->found = 1;
 				break;
@@ -536,8 +534,7 @@ struct library_symbol *read_elf(struct process *proc)
 			if (strcmp(xptr->name, PLTs_initialized_by_here) == 0) {
 				if (lte->ehdr.e_entry) {
 					add_library_symbol (
-						opd2addr (lte, (void*)(long)
-							lte->ehdr.e_entry),
+						opd2addr (lte, lte->ehdr.e_entry),
 						PLTs_initialized_by_here,
 						lib_tail, 1, 0);
 					fprintf (stderr, "WARNING: Using e_ent"
