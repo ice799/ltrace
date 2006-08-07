@@ -20,6 +20,7 @@ static int display_unknown(enum tof type, struct process *proc, long value);
 static int display_format(enum tof type, struct process *proc, int arg_num);
 
 static int string_maxlength = INT_MAX;
+static int array_maxlength = INT_MAX;
 
 static long get_length(enum tof type, struct process *proc, int len_spec)
 {
@@ -28,18 +29,68 @@ static long get_length(enum tof type, struct process *proc, int len_spec)
     return gimme_arg(type, proc, -len_spec - 1);
 }
 
+static int display_ptrto(enum tof type, struct process *proc, long item,
+			 arg_type_info * info)
+{
+    arg_type_info temp;
+    temp.type = ARGTYPE_POINTER;
+    temp.u.ptr_info.info = info;
+    return display_value(type, proc, item, &temp);
+}
+
+/*
+ * addr - A pointer to the first element of the array
+ *
+ * The function name is used to indicate that we're not actually
+ * looking at an 'array', which is a contiguous region of memory
+ * containing a sequence of elements of some type; instead, we have a
+ * pointer to that region of memory.
+ */
+static int display_arrayptr(enum tof type, struct process *proc,
+			    void *addr, arg_type_info * info)
+{
+    int len = 0;
+    int i;
+    int array_len;
+
+    if (addr == NULL)
+	return fprintf(output, "NULL");
+
+    array_len = get_length(type, proc, info->u.array_info.len_spec);
+    len += fprintf(output, "[ ");
+    for (i = 0; i < opt_A && i < array_maxlength && i < array_len; i++) {
+	arg_type_info *elt_type = info->u.array_info.elt_type;
+	size_t elt_size = info->u.array_info.elt_size;
+	if (i != 0)
+	    len += fprintf(output, ", ");
+	if (opt_d)
+	    len += fprintf(output, "%p=", addr);
+	len +=
+	    display_ptrto(type, proc, (long) addr, elt_type);
+	addr += elt_size;
+    }
+    if (i < array_len)
+	len += fprintf(output, "...");
+    len += fprintf(output, " ]");
+    return len;
+}
+ 
 static int display_pointer(enum tof type, struct process *proc, long value,
 			   arg_type_info * info)
 {
     long pointed_to;
     arg_type_info *inner = info->u.ptr_info.info;
 
-    if (value == 0)
-      return fprintf(output, "NULL");
-    else if (umovelong(proc, (void *) value, &pointed_to) < 0)
-      return fprintf(output, "?");
-    else
-      return display_value(type, proc, pointed_to, inner);
+    if (inner->type == ARGTYPE_ARRAY) {
+	return display_arrayptr(type, proc, (void*) value, inner);
+    } else {
+	if (value == 0)
+	    return fprintf(output, "NULL");
+	else if (umovelong(proc, (void *) value, &pointed_to) < 0)
+	    return fprintf(output, "?");
+	else
+	    return display_value(type, proc, pointed_to, inner);
+    }
 }
 
 static int display_enum(enum tof type, struct process *proc,
@@ -115,6 +166,8 @@ int display_value(enum tof type, struct process *proc,
 		return display_string(type, proc, (void*) value,
 				      get_length(type, proc,
 						 info->u.string_n_info.size_spec));
+	case ARGTYPE_ARRAY:
+		return fprintf(output, "<array without address>");
         case ARGTYPE_ENUM:
 		return display_enum(type, proc, info, value);
 	case ARGTYPE_POINTER:

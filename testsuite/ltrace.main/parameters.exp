@@ -60,5 +60,13 @@ set pattern "func_float(3.40*, -3.40*)"
 ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern 1
 set pattern "func_typedef(BLUE)"
 ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern 1
+set pattern "func_arrayi(. 10, 11, 12, 13\\.\\.\\. ., )"
+ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern 1
+set pattern "func_arrayi(. 10, 11 ., )"
+ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern 1
+set pattern "func_arrayf(. 10.10*, 11.10*, 12.10*, 13.10*\\.\\.\\. ., )"
+ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern 1
+set pattern "func_arrayf(. 10.10*, 11.10* ., )"
+ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern 1
 set pattern "exited (status 0)"
 ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern 1

@@ -22,6 +22,8 @@ void func_stringp(char**);
 void func_short(short, short);
 void func_ushort(unsigned short, unsigned short);
 void func_float(float, float);
+void func_arrayi(int*, int);
+void func_arrayf(float*, int);
 
 typedef enum {
   RED,
@@ -40,6 +42,8 @@ main ()
   int *xP, **xPP;
   char buf[200];
   char *s;
+  int *ai;
+  float *af;
 
   func_ignore(1, 2, 3);
 
@@ -69,6 +73,18 @@ main ()
   func_float(3.4, -3.4);
 
   func_typedef(BLUE);
+
+  ai = (int*) calloc(sizeof(int), 8);
+  for (x = 0; x < 8; x++)
+    ai[x] = 10 + x;
+  func_arrayi(ai, 8);
+  func_arrayi(ai, 2);
+
+  af = (float*) calloc(sizeof(float), 8);
+  for (x = 0; x < 8; x++)
+    af[x] = 10.1 + x;
+  func_arrayf(af, 8);
+  func_arrayf(af, 2);
 
   return 0;
 }

@@ -38,6 +38,7 @@ static struct list_of_pt_t {
 	"file", ARGTYPE_FILE}, {
 	"format", ARGTYPE_FORMAT}, {
 	"string", ARGTYPE_STRING}, {
+	"array", ARGTYPE_ARRAY}, {
 	"enum", ARGTYPE_ENUM}, {
 	"ignore", ARGTYPE_IGNORE}, {
 	NULL, ARGTYPE_UNKNOWN}	/* Must finish with NULL */
@@ -59,6 +60,7 @@ static arg_type_info arg_type_singletons[] = {
 	{ ARGTYPE_FORMAT },
 	{ ARGTYPE_STRING },
 	{ ARGTYPE_STRING_N },
+	{ ARGTYPE_ARRAY },
 	{ ARGTYPE_ENUM },
 	{ ARGTYPE_IGNORE },
 	{ ARGTYPE_POINTER },
@@ -162,6 +164,7 @@ static int simple_type(enum arg_type at)
     switch (at) {
     case ARGTYPE_STRING:
     case ARGTYPE_STRING_N:
+    case ARGTYPE_ARRAY:
     case ARGTYPE_ENUM:
 	return 0;
 
@@ -276,6 +279,26 @@ static void parse_typedef(char **str)
     typedefs = binding;
 }
 
+static size_t arg_sizeof(arg_type_info * arg)
+{
+    if (arg->type == ARGTYPE_CHAR) {
+	return sizeof(char);
+    } else if (arg->type == ARGTYPE_SHORT || arg->type == ARGTYPE_USHORT) {
+	return sizeof(short);
+    } else if (arg->type == ARGTYPE_FLOAT) {
+	return sizeof(float);
+    } else if (arg->type == ARGTYPE_ENUM) {
+	return sizeof(int);
+    } else if (arg->type == ARGTYPE_ARRAY) {
+	if (arg->u.array_info.len_spec > 0)
+	    return arg->u.array_info.len_spec * arg->u.array_info.elt_size;
+	else
+	    return sizeof(void *);
+    } else {
+	return sizeof(int);
+    }
+}
+
 static arg_type_info *parse_nonpointer_type(char **str)
 {
 	arg_type_info *simple;
@@ -306,7 +329,21 @@ static arg_type_info *parse_nonpointer_type(char **str)
 
 	switch (info->type) {
 
-	// Syntax: enum ( keyname=value,keyname=value,... )
+	/* Syntax: array ( type, N|argN ) */
+	case ARGTYPE_ARRAY:
+	    (*str)++;		// Get past open paren
+	    eat_spaces(str);
+	    if ((info->u.array_info.elt_type = parse_type(str)) == NULL)
+		return NULL;
+	    info->u.array_info.elt_size =
+		arg_sizeof(info->u.array_info.elt_type);
+	    (*str)++;		// Get past comma
+	    eat_spaces(str);
+	    info->u.array_info.len_spec = parse_argnum(str);
+	    (*str)++;		// Get past close paren
+	    return info;
+
+	/* Syntax: enum ( keyname=value,keyname=value,... ) */
 	case ARGTYPE_ENUM:{
 	    struct enum_opt {
 		char *key;

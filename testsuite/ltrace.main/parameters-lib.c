@@ -61,3 +61,21 @@ void func_typedef(int x)
 {
 	printf("typedef'd enum: %d\n", x);
 }
+
+void func_arrayi(int* a, int N)
+{
+    int i;
+    printf("array[int]: ");
+    for (i = 0; i < N; i++)
+	printf("%d ", a[i]);
+    printf("\n");
+}
+
+void func_arrayf(float* a, int N)
+{
+    int i;
+    printf("array[float]: ");
+    for (i = 0; i < N; i++)
+	printf("%f ", a[i]);
+    printf("\n");
+}

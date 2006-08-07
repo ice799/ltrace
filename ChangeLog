@@ -1,5 +1,14 @@
 2006-08-07  Steve Fink <sphink@gmail.com>
 
+	* defs.h, display_args.c, etc/ltrace.conf, ltrace.1, ltrace.h,
+	options.c, options.h, read_config_file.c,
+	testsuite/ltrace.main/parameters-lib.c,
+	testsuite/ltrace.main/parameters.c,
+	testsuite/ltrace.main/parameters.conf,
+	testsuite/ltrace.main/parameters.exp: array arguments
+
+2006-08-07  Steve Fink <sphink@gmail.com>
+
 	* etc/ltrace.conf, read_config_file.c,
 	testsuite/ltrace.main/parameters-lib.c,
 	testsuite/ltrace.main/parameters.c,

@@ -7,6 +7,7 @@
 
 extern FILE *output;
 extern int opt_a;		/* default alignment column for results */
+extern int opt_A;		/* default maximum # of array elements printed */
 extern int opt_c;		/* count time, calls, and report a summary on program exit */
 extern int opt_d;		/* debug */
 extern int opt_i;		/* instruction pointer */

@@ -30,6 +30,7 @@ int library_num = 0;
 static char *progname;		/* Program name (`ltrace') */
 FILE *output;
 int opt_a = DEFAULT_ACOLUMN;	/* default alignment column for results */
+int opt_A = DEFAULT_ARRAYLEN;	/* default maximum # array elements to print */
 int opt_c = 0;			/* Count time, calls, and report a summary on program exit */
 int opt_d = 0;			/* debug */
 int opt_i = 0;			/* instruction pointer */
@@ -78,6 +79,7 @@ static void usage(void)
 # else
 		"  -a COLUMN           align return values in a secific column.\n"
 # endif
+                "  -A ARRAYLEN         maximum number of array elements to print.\n"
 		"  -c                  count time and calls, and report a summary on exit.\n"
 # ifdef USE_DEMANGLE
 #  if HAVE_GETOPT_LONG
@@ -202,14 +204,14 @@ char **process_options(int argc, char **argv)
 # ifdef USE_DEMANGLE
 				"C"
 # endif
-				"a:e:F:l:n:o:p:s:u:x:X:", long_options,
+				"a:A:e:F:l:n:o:p:s:u:x:X:", long_options,
 				&option_index);
 #else
 		c = getopt(argc, argv, "+cdfhiLrStTV"
 # ifdef USE_DEMANGLE
 			   "C"
 # endif
-			   "a:e:F:l:n:o:p:s:u:x:X:");
+			   "a:A:e:F:l:n:o:p:s:u:x:X:");
 #endif
 		if (c == -1) {
 			break;
@@ -217,6 +219,9 @@ char **process_options(int argc, char **argv)
 		switch (c) {
 		case 'a':
 			opt_a = atoi(optarg);
+			break;
+                case 'A':
+			opt_A = atoi(optarg);
 			break;
 		case 'c':
 			opt_c++;

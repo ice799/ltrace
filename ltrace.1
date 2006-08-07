@@ -6,7 +6,7 @@ ltrace \- A library call tracer
 
 .SH SYNOPSIS
 .B ltrace
-.I "[-CdfhiLrStttV] [-a column] [-e expr] [-l filename] [-n nr] [-o filename] [-p pid] ... [-s strsize] [-u username] [-X extern] [-x extern] ... [--align=column] [--debug] [--demangle] [--help] [--indent=nr] [--library=filename] [--output=filename] [--version] [command [arg ...]]"
+.I "[-CdfhiLrStttV] [-a column] [-A maxelts] [-e expr] [-l filename] [-n nr] [-o filename] [-p pid] ... [-s strsize] [-u username] [-X extern] [-x extern] ... [--align=column] [--debug] [--demangle] [--help] [--indent=nr] [--library=filename] [--output=filename] [--version] [command [arg ...]]"
 
 .SH DESCRIPTION
 .B ltrace
@@ -24,6 +24,9 @@ Its use is very similar to
 .TP
 .I \-a, \-\-align column
 Align return values in a specific column (default column is 5/8 of screen width).
+.TP
+.I \-A maxelts
+Maximum number of array elements to print before suppressing the rest with an ellipsis ("...")
 .TP
 .I \-c
 Count time and calls for each library call and report a summary on program exit.
