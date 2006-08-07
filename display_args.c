@@ -2,6 +2,7 @@
 #include "config.h"
 #endif
 
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -12,9 +13,10 @@
 
 static int display_char(int what);
 static int display_string(enum tof type, struct process *proc,
-			  int arg_num, arg_type_info *info,
-			  size_t maxlen);
-static int display_unknown(enum tof type, struct process *proc, int arg_num);
+			  void* addr, size_t maxlen);
+static int display_value(enum tof type, struct process *proc,
+			 long value, arg_type_info *info);
+static int display_unknown(enum tof type, struct process *proc, long value);
 static int display_format(enum tof type, struct process *proc, int arg_num);
 
 static int string_maxlength = INT_MAX;
@@ -26,12 +28,30 @@ static long get_length(enum tof type, struct process *proc, int len_spec)
     return gimme_arg(type, proc, -len_spec - 1);
 }
 
-int
-display_arg(enum tof type, struct process *proc,
-	    int arg_num, arg_type_info *info)
+static int display_pointer(enum tof type, struct process *proc, long value,
+			   arg_type_info * info)
+{
+    long pointed_to;
+    arg_type_info *inner = info->u.ptr_info.info;
+
+    if (value == 0)
+      return fprintf(output, "NULL");
+    else if (umovelong(proc, (void *) value, &pointed_to) < 0)
+      return fprintf(output, "?");
+    else
+      return display_value(type, proc, pointed_to, inner);
+}
+
+/* Args:
+   type - syscall or shared library function or memory
+   proc - information about the traced process
+   value - the value to display
+   info - the description of the type to display
+*/
+int display_value(enum tof type, struct process *proc,
+                  long value, arg_type_info *info)
 {
 	int tmp;
-	long arg;
 
 	switch (info->type) {
 	case ARGTYPE_VOID:
@@ -39,52 +59,62 @@ display_arg(enum tof type, struct process *proc,
         case ARGTYPE_IGNORE:
         	return 0; /* Empty gap between commas */
 	case ARGTYPE_INT:
-		return fprintf(output, "%d",
-			       (int)gimme_arg(type, proc, arg_num));
+          return fprintf(output, "%d", (int) value);
 	case ARGTYPE_UINT:
-		return fprintf(output, "%u",
-			       (unsigned)gimme_arg(type, proc, arg_num));
+          return fprintf(output, "%u", (unsigned) value);
 	case ARGTYPE_LONG:
 		if (proc->mask_32bit)
-			return fprintf(output, "%d",
-				       (int)gimme_arg(type, proc, arg_num));
-		return fprintf(output, "%ld", gimme_arg(type, proc, arg_num));
+			return fprintf(output, "%d", (int) value);
+		else
+			return fprintf(output, "%ld", value);
 	case ARGTYPE_ULONG:
 		if (proc->mask_32bit)
-			return fprintf(output, "%u",
-				       (unsigned)gimme_arg(type, proc,
-							   arg_num));
-		return fprintf(output, "%lu",
-			       (unsigned long)gimme_arg(type, proc, arg_num));
+			return fprintf(output, "%u", (unsigned) value);
+		else
+			return fprintf(output, "%lu", (unsigned long) value);
 	case ARGTYPE_OCTAL:
-		return fprintf(output, "0%o",
-			       (unsigned)gimme_arg(type, proc, arg_num));
+		return fprintf(output, "0%o", (unsigned) value);
 	case ARGTYPE_CHAR:
 		tmp = fprintf(output, "'");
-		tmp += display_char((int)gimme_arg(type, proc, arg_num));
+		tmp += display_char(value == -1 ? value : (char) value);
 		tmp += fprintf(output, "'");
 		return tmp;
 	case ARGTYPE_ADDR:
-		arg = gimme_arg(type, proc, arg_num);
-		if (!arg) {
+		if (!value)
 			return fprintf(output, "NULL");
-		} else {
-			return fprintf(output, "%p", (void *)arg);
-		}
+		else
+			return fprintf(output, "0x%08lx", value);
 	case ARGTYPE_FORMAT:
-		return display_format(type, proc, arg_num);
+		fprintf(stderr, "Should never encounter a format anywhere but at the top level (for now?)\n");
+		exit(1);
 	case ARGTYPE_STRING:
-		return display_string(type, proc, arg_num, info,
+		return display_string(type, proc, (void*) value,
 				      string_maxlength);
 	case ARGTYPE_STRING_N:
-		return display_string(type, proc, arg_num, info,
+		return display_string(type, proc, (void*) value,
 				      get_length(type, proc,
 						 info->u.string_n_info.size_spec));
-	case ARGTYPE_UNKNOWN:
+	case ARGTYPE_POINTER:
+		return display_pointer(type, proc, value, info);
+ 	case ARGTYPE_UNKNOWN:
 	default:
-		return display_unknown(type, proc, arg_num);
+		return display_unknown(type, proc, value);
 	}
-	return fprintf(output, "?");
+}
+
+int display_arg(enum tof type, struct process *proc, int arg_num,
+		arg_type_info * info)
+{
+    long arg;
+
+    if (info->type == ARGTYPE_VOID) {
+	return 0;
+    } else if (info->type == ARGTYPE_FORMAT) {
+	return display_format(type, proc, arg_num);
+    } else {
+	arg = gimme_arg(type, proc, arg_num);
+	return display_value(type, proc, arg, info);
+    }
 }
 
 static int display_char(int what)
@@ -103,25 +133,23 @@ static int display_char(int what)
 	case '\\':
 		return fprintf(output, "\\\\");
 	default:
-		if ((what < 32) || (what > 126)) {
-			return fprintf(output, "\\%03o", (unsigned char)what);
-		} else {
+		if (isprint(what)) {
 			return fprintf(output, "%c", what);
+		} else {
+			return fprintf(output, "\\%03o", (unsigned char)what);
 		}
 	}
 }
 
 #define MIN(a,b) (((a)<(b)) ? (a) : (b))
 
-static int display_string(enum tof type, struct process *proc,
-			  int arg_num, arg_type_info *info, size_t maxlength)
+static int display_string(enum tof type, struct process *proc, void *addr,
+			  size_t maxlength)
 {
-	void *addr;
 	unsigned char *str1;
 	int i;
 	int len = 0;
 
-	addr = (void *)gimme_arg(type, proc, arg_num);
 	if (!addr) {
 		return fprintf(output, "NULL");
 	}
@@ -147,21 +175,17 @@ static int display_string(enum tof type, struct process *proc,
 	return len;
 }
 
-static int display_unknown(enum tof type, struct process *proc, int arg_num)
+static int display_unknown(enum tof type, struct process *proc, long value)
 {
-	long tmp;
-
-	tmp = gimme_arg(type, proc, arg_num);
-
 	if (proc->mask_32bit) {
-		if ((int)tmp < 1000000 && (int)tmp > -1000000)
-			return fprintf(output, "%d", (int)tmp);
+		if ((int)value < 1000000 && (int)value > -1000000)
+			return fprintf(output, "%d", (int)value);
 		else
-			return fprintf(output, "%p", (void *)tmp);
-	} else if (tmp < 1000000 && tmp > -1000000) {
-		return fprintf(output, "%ld", tmp);
+			return fprintf(output, "%p", (void *)value);
+	} else if (value < 1000000 && value > -1000000) {
+		return fprintf(output, "%ld", value);
 	} else {
-		return fprintf(output, "%p", (void *)tmp);
+		return fprintf(output, "%p", (void *)value);
 	}
 }
 
@@ -285,12 +309,12 @@ static int display_format(enum tof type, struct process *proc, int arg_num)
 					len += fprintf(output, "'");
 					break;
 				} else if (c == 's') {
-					arg_type_info *info =
-					    lookup_singleton(ARGTYPE_STRING);
 					len += fprintf(output, ", ");
 					len +=
 					    display_string(type, proc,
-							   ++arg_num, info,
+							   (void *)gimme_arg(type,
+									     proc,
+									     ++arg_num),
 							   string_maxlength);
 					break;
 				} else if (c == 'p' || c == 'n') {

@@ -43,6 +43,7 @@ enum arg_type {
 	ARGTYPE_STRING,		/* NUL-terminated string */
 	ARGTYPE_STRING_N,	/* String of known maxlen */
         ARGTYPE_IGNORE,		/* Leave parameter blank */
+        ARGTYPE_POINTER,	/* Pointer to some other type */
         ARGTYPE_COUNT		/* number of ARGTYPE_* values */
 };
 
@@ -53,6 +54,11 @@ typedef struct arg_type_info_t {
 	struct {
 	    int size_spec;
 	} string_n_info;
+
+	// ARGTYPE_POINTER
+	struct {
+	    struct arg_type_info_t *info;
+	} ptr_info;
     } u;
 } arg_type_info;
 
@@ -206,6 +212,7 @@ extern void continue_enabling_breakpoint(pid_t pid, struct breakpoint *sbp);
 extern long gimme_arg(enum tof type, struct process *proc, int arg_num);
 extern void save_register_args(enum tof type, struct process *proc);
 extern int umovestr(struct process *proc, void *addr, int len, void *laddr);
+extern int umovelong(struct process *proc, void *addr, long *result);
 extern int ffcheck(void *maddr);
 extern void *sym2addr(struct process *, struct library_symbol *);
 

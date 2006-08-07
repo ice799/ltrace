@@ -47,6 +47,7 @@ static arg_type_info arg_type_singletons[] = {
 	{ ARGTYPE_STRING },
 	{ ARGTYPE_STRING_N },
 	{ ARGTYPE_IGNORE },
+	{ ARGTYPE_POINTER },
 	{ ARGTYPE_UNKNOWN }
 };
 
@@ -64,7 +65,7 @@ static arg_type_info *str2type(char **str)
 
 	while (tmp->name) {
 		if (!strncmp(*str, tmp->name, strlen(tmp->name))
-		    && index(" ,()#;012345[", *(*str + strlen(tmp->name)))) {
+		    && index(" ,()#*;012345[", *(*str + strlen(tmp->name)))) {
 			*str += strlen(tmp->name);
 			return lookup_singleton(tmp->pt);
 		}
@@ -169,7 +170,7 @@ static int parse_argnum(char **str)
     return n * multiplier;
 }
 
-static arg_type_info *parse_type(char **str)
+static arg_type_info *parse_nonpointer_type(char **str)
 {
 	arg_type_info *simple;
 	arg_type_info *info;
@@ -218,6 +219,19 @@ static arg_type_info *parse_type(char **str)
 		free(info);
 		return NULL;
 	}
+}
+
+static arg_type_info *parse_type(char **str)
+{
+	arg_type_info *info = parse_nonpointer_type(str);
+	while (**str == '*') {
+		arg_type_info *outer = malloc(sizeof(*info));
+		outer->type = ARGTYPE_POINTER;
+		outer->u.ptr_info.info = info;
+		(*str)++;
+		info = outer;
+	}
+	return info;
 }
 
 static struct function *process_line(char *buf)

@@ -24,6 +24,7 @@ void * get_stack_pointer(pid_t pid);
 void * get_return_addr(pid_t pid, void * stack_pointer);
 long gimme_arg(enum tof type, struct process * proc, int arg_num);
 int umovestr(struct process * proc, void * addr, int len, void * laddr);
+int umovelong(struct process * proc, void * addr, long * result);
 char * pid2name(pid_t pid);
 void trace_me(void);
 int trace_pid(pid_t pid);

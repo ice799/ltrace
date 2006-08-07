@@ -151,6 +151,24 @@ void continue_after_breakpoint(struct process *proc, struct breakpoint *sbp)
 	}
 }
 
+/* Read a single long from the process's memory address 'addr' */
+int umovelong(struct process *proc, void *addr, long *result)
+{
+	long pointed_to;
+
+        errno = 0;
+        pointed_to = ptrace(PTRACE_PEEKTEXT, proc->pid, addr, 0);
+        if (pointed_to == -1 && errno)
+          return -errno;
+
+        *result = pointed_to;
+        return 0;
+}
+
+/* Read a series of bytes starting at the process's memory address
+   'addr' and continuing until a NUL ('\0') is seen or 'len' bytes
+   have been read.
+*/
 int umovestr(struct process *proc, void *addr, int len, void *laddr)
 {
 	union {

@@ -1,3 +1,10 @@
+2006-08-07  Steve Fink  <sphink@gmail.com>
+
+	* display_args.c, etc/ltrace.conf, ltrace.h, read_config_file.c,
+	sysdeps/README, sysdeps/linux-gnu-trace.c : switch to passing
+	around values rather than argument numbers that need to be fetched
+	(needed for pointer params)
+
 2006-08-07  Steve Fink <sphink@gmail.com>
 
 	* display_args.c, etc/ltrace.conf, ltrace.h, read_config_file.c:
