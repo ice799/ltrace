@@ -1,3 +1,9 @@
+2006-08-14  Steve Fink <sphink@gmail.com>
+
+	* demangle.c: remove my_demagle_dict_clear(), remove atexit() call
+	for same.  Avoid potential segfault as demangling uses the
+	dictionary.
+
 2006-08-07  Steve Fink <sphink@gmail.com>
 
 	* display_args.c, etc/ltrace.conf, ltrace.h, read_config_file.c,

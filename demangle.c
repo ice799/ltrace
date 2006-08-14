@@ -18,12 +18,6 @@
 
 static struct dict *d = NULL;
 
-static void my_demangle_dict_clear(void)
-{
-	/* FIXME TODO XXX: I should also free all (key,value) pairs */
-	dict_clear(d);
-}
-
 const char *my_demangle(const char *function_name)
 {
 	const char *tmp, *fn_copy;
@@ -32,10 +26,8 @@ const char *my_demangle(const char *function_name)
 	int status = 0;
 #endif
 
-	if (!d) {
+	if (!d)
 		d = dict_init(dict_key2hash_string, dict_key_cmp_string);
-		atexit(my_demangle_dict_clear);
-	}
 
 	tmp = dict_find_entry(d, (void *)function_name);
 	if (!tmp) {
