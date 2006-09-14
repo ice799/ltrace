@@ -20,10 +20,10 @@ LDFLAGS		=	@LDFLAGS@
 LIBS		=	@LIBS@
 
 INSTALL		=	@INSTALL@
-INSTALL_FILE	=	$(INSTALL) -p    -o root -g root  -m  644
-INSTALL_PROGRAM	=	$(INSTALL) -p    -o root -g root  -m  755
-INSTALL_SCRIPT	=	$(INSTALL) -p    -o root -g root  -m  755
-INSTALL_DIR	=	$(INSTALL) -p -d -o root -g root  -m  755
+INSTALL_FILE	=	$(INSTALL) -p    -m  644
+INSTALL_PROGRAM	=	$(INSTALL) -p    -m  755
+INSTALL_SCRIPT	=	$(INSTALL) -p    -m  755
+INSTALL_DIR	=	$(INSTALL) -p -d -m  755
 
 OBJ	=	ltrace.o options.o elf.o output.o read_config_file.o	\
 		execute_program.o wait_for_something.o process_event.o	\
@@ -81,7 +81,7 @@ install:	ltrace
 		$(INSTALL_FILE) ltrace.1 $(DESTDIR)$(mandir)/man1
 
 check:
-		cd testsuite; $(MAKE) check
+		cd testsuite;cat /proc/version;uptime;free -m;$(MAKE) check
 
 dummy:
 

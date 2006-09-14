@@ -1,3 +1,13 @@
+2006-09-15  Olaf Hering <olh@suse.de>
+
+	* Makefile.in : allow installation as non-root user, print out
+	some debugging information before running test suite.
+	* summary.c : allow compilation without USE_DEMANGLE
+	* sysdeps/linux-gnu/ppc/plt.c : fix warning in sym2addr
+	* sysdeps/linux-gnu/ia64/regs.c : fix warning when finding
+	instruction slot
+	* elf.c : fix up error created in 2006-07-26 refactor
+
 2006-08-14  Steve Fink <sphink@gmail.com>
 
 	* demangle.c: remove my_demagle_dict_clear(), remove atexit() call

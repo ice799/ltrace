@@ -12,7 +12,7 @@ GElf_Addr arch_plt_sym_val(struct ltelf *lte, size_t ndx, GElf_Rela * rela)
 
 void *sym2addr(struct process *proc, struct library_symbol *sym)
 {
-	long addr = sym->enter_addr;
+	void *addr = sym->enter_addr;
 	long pt_ret;
 
 	debug(3, 0);

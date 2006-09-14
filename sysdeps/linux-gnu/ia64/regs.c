@@ -25,11 +25,11 @@ void set_instruction_pointer(struct process *proc, void *addr)
 {
 
 	unsigned long newip = (unsigned long)addr;
-	int slot = (int)addr & 0xf;
+	unsigned long slot = (unsigned long)addr & 0xf;
 	unsigned long psr = ptrace(PTRACE_PEEKUSER, proc->pid, PT_CR_IPSR, 0);
 
 	psr &= ~(3UL << 41);
-	psr |= (unsigned long)(slot & 0x3) << 41;
+	psr |= (slot & 0x3) << 41;
 
 	newip &= ~0xfUL;
 

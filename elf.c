@@ -417,7 +417,7 @@ static GElf_Addr opd2addr(struct ltelf *lte, GElf_Addr addr)
 	if (offset > lte->opd_size)
 		error(EXIT_FAILURE, 0, "static plt not in .opd");
 
-	return (GElf_Addr)(base + offset);
+	return *(GElf_Addr*)(base + offset);
 }
 
 struct library_symbol *read_elf(struct process *proc)
