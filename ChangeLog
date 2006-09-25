@@ -1,3 +1,9 @@
+2006-09-25  Olaf Hering <olh@suse.de>
+
+	* elf.c, elf.h : remove confilict with glibc SHT_GNU_HASH, include
+	elf_gnu_hash() directly, remove special casing and fix up output
+	specifier.
+
 2006-09-18    Steve Fink <sphink@gmail.com>
 
 	* display_args.c: store arg_num in arg_type_info

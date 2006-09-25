@@ -211,18 +211,16 @@ static void do_init_elf(struct ltelf *lte, const char *filename)
 				error(EXIT_FAILURE, 0,
 				      "Unknown .hash sh_entsize in \"%s\"",
 				      filename);
-#ifdef SHT_GNU_HASH
 		} else if (shdr.sh_type == SHT_GNU_HASH
 			   && lte->hash == NULL) {
 			Elf_Data *data;
-			size_t j;
 
 			lte->hash_type = SHT_GNU_HASH;
 
 			if (shdr.sh_entsize != 0
 			    && shdr.sh_entsize != 4) {
 				error(EXIT_FAILURE, 0,
-				      ".gnu.hash sh_entsize in \"%s\" should be 4, but is %d",
+				      ".gnu.hash sh_entsize in \"%s\" should be 4, but is %llu",
 				      filename, shdr.sh_entsize);
 			}
 
@@ -234,7 +232,6 @@ static void do_init_elf(struct ltelf *lte, const char *filename)
 				      filename);
 
 			lte->hash = (Elf32_Word *) data->d_buf;
-#endif
 		} else if (shdr.sh_type == SHT_PROGBITS
 			   || shdr.sh_type == SHT_NOBITS) {
 			if (strcmp(name, ".plt") == 0) {
@@ -323,26 +320,32 @@ add_library_symbol(GElf_Addr addr, const char *name,
 	debug(2, "addr: %p, symbol: \"%s\"", (void *)(uintptr_t) addr, name);
 }
 
+/* stolen from elfutils-0.123 */
+static unsigned long elf_gnu_hash(const char *name)
+{
+	unsigned long h = 5381;
+	const unsigned char *string = (const unsigned char *)name;
+	unsigned char c;
+	for (c = *string; c; c = *++string)
+		h = h * 33 + c;
+	return h & 0xffffffff;
+}
+
 static int in_load_libraries(const char *name, struct ltelf *lte)
 {
 	size_t i;
 	unsigned long hash;
-#ifdef SHT_GNU_HASH
 	unsigned long gnu_hash;
-#endif
 
 	if (!library_num)
 		return 1;
 
 	hash = elf_hash((const unsigned char *)name);
-#ifdef SHT_GNU_HASH
-	gnu_hash = elf_gnu_hash((const unsigned char *)name);
-#endif
+	gnu_hash = elf_gnu_hash(name);
 	for (i = 1; i <= library_num; ++i) {
 		if (lte[i].hash == NULL)
 			continue;
 
-#ifdef SHT_GNU_HASH
 		if (lte[i].hash_type == SHT_GNU_HASH) {
 			Elf32_Word * hashbase = lte[i].hash;
 			Elf32_Word nbuckets = *hashbase++;
@@ -378,9 +381,7 @@ static int in_load_libraries(const char *name, struct ltelf *lte)
 					}
 				while ((*hasharr++ & 1u) == 0);
 			}
-		} else
-#endif
-		{
+		} else {
 			Elf32_Word nbuckets, symndx;
 			Elf32_Word *buckets, *chain;
 			nbuckets = lte[i].hash[0];
