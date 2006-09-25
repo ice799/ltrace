@@ -225,8 +225,11 @@ static void process_sysret(struct event *event)
 	}
 	if (fork_p(event->proc, event->e_un.sysnum)) {
 		if (opt_f) {
+			arg_type_info info;
+			info.arg_num = -1; /* Return value */
+			info.type = ARGTYPE_LONG;
 			pid_t child =
-			    gimme_arg(LT_TOF_SYSCALLR, event->proc, -1);
+			    gimme_arg(LT_TOF_SYSCALLR, event->proc, &info);
 			if (child > 0) {
 				open_pid(child, 0);
 			}
@@ -239,7 +242,10 @@ static void process_sysret(struct event *event)
 			     sysname(event->proc, event->e_un.sysnum));
 	}
 	if (exec_p(event->proc, event->e_un.sysnum)) {
-		if (gimme_arg(LT_TOF_SYSCALLR, event->proc, -1) == 0) {
+		arg_type_info info;
+		info.arg_num = -1; /* Return value */
+		info.type = ARGTYPE_LONG;
+		if (gimme_arg(LT_TOF_SYSCALLR, event->proc, &info) == 0) {
 			pid_t saved_pid;
 			event->proc->mask_32bit = 0;
 			event->proc->personality = 0;
@@ -260,11 +266,12 @@ static void process_sysret(struct event *event)
 static void process_breakpoint(struct event *event)
 {
 	int i, j;
-	struct breakpoint *sbp, *nxtbp;
+	struct breakpoint *sbp;
 
 	debug(2, "event: breakpoint (%p)", event->e_un.brk_addr);
 	if ((sbp = event->proc->breakpoint_being_enabled) != 0) {
 #ifdef __powerpc__
+		struct breakpoint *nxtbp;
 		char nop_inst[] = PPC_NOP;
                 if (memcmp(sbp->orig_value, nop_inst, PPC_NOP_LENGTH) == 0) {
                 	nxtbp = address2bpstruct(event->proc,

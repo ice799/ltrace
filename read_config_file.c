@@ -36,6 +36,7 @@ static struct list_of_pt_t {
 	"short", ARGTYPE_SHORT}, {
 	"ushort", ARGTYPE_USHORT}, {
 	"float", ARGTYPE_FLOAT}, {
+	"double", ARGTYPE_DOUBLE}, {
 	"addr", ARGTYPE_ADDR}, {
 	"file", ARGTYPE_FILE}, {
 	"format", ARGTYPE_FORMAT}, {
@@ -47,10 +48,10 @@ static struct list_of_pt_t {
 	NULL, ARGTYPE_UNKNOWN}	/* Must finish with NULL */
 };
 
-/* Array of singleton objects for each of the types. The order in this
+/* Array of prototype objects for each of the types. The order in this
  * array must exactly match the list of enumerated values in
  * ltrace.h */
-static arg_type_info arg_type_singletons[] = {
+static arg_type_info arg_type_prototypes[] = {
 	{ ARGTYPE_VOID },
 	{ ARGTYPE_INT },
 	{ ARGTYPE_UINT },
@@ -61,6 +62,7 @@ static arg_type_info arg_type_singletons[] = {
 	{ ARGTYPE_SHORT },
 	{ ARGTYPE_USHORT },
 	{ ARGTYPE_FLOAT },
+	{ ARGTYPE_DOUBLE },
 	{ ARGTYPE_ADDR },
 	{ ARGTYPE_FILE },
 	{ ARGTYPE_FORMAT },
@@ -74,12 +76,12 @@ static arg_type_info arg_type_singletons[] = {
 	{ ARGTYPE_UNKNOWN }
 };
 
-arg_type_info *lookup_singleton(enum arg_type at)
+arg_type_info *lookup_prototype(enum arg_type at)
 {
 	if (at >= 0 && at <= ARGTYPE_COUNT)
-		return &arg_type_singletons[at];
+		return &arg_type_prototypes[at];
 	else
-		return &arg_type_singletons[ARGTYPE_COUNT]; /* UNKNOWN */
+		return &arg_type_prototypes[ARGTYPE_COUNT]; /* UNKNOWN */
 }
 
 static arg_type_info *str2type(char **str)
@@ -90,11 +92,11 @@ static arg_type_info *str2type(char **str)
 		if (!strncmp(*str, tmp->name, strlen(tmp->name))
 		    && index(" ,()#*;012345[", *(*str + strlen(tmp->name)))) {
 			*str += strlen(tmp->name);
-			return lookup_singleton(tmp->pt);
+			return lookup_prototype(tmp->pt);
 		}
 		tmp++;
 	}
-	return lookup_singleton(ARGTYPE_UNKNOWN);
+	return lookup_prototype(ARGTYPE_UNKNOWN);
 }
 
 static void eat_spaces(char **str)
@@ -160,25 +162,6 @@ static char *start_of_arg_sig(char *str)
 	} while (stacked > 0);
 
 	return (stacked == 0) ? pos : NULL;
-}
-
-/*
-  Decide whether a type needs any additional parameters.
-  For now, we do not parse any nontrivial argument types.
-*/
-static int simple_type(enum arg_type at)
-{
-    switch (at) {
-    case ARGTYPE_STRING:
-    case ARGTYPE_STRING_N:
-    case ARGTYPE_ARRAY:
-    case ARGTYPE_ENUM:
-    case ARGTYPE_STRUCT:
-	return 0;
-
-    default:
-	return 1;
-    }
 }
 
 static int parse_int(char **str)
@@ -298,10 +281,14 @@ static size_t arg_sizeof(arg_type_info * arg)
 	return sizeof(short);
     } else if (arg->type == ARGTYPE_FLOAT) {
 	return sizeof(float);
+    } else if (arg->type == ARGTYPE_DOUBLE) {
+	return sizeof(double);
     } else if (arg->type == ARGTYPE_ENUM) {
 	return sizeof(int);
     } else if (arg->type == ARGTYPE_STRUCT) {
 	return arg->u.struct_info.size;
+    } else if (arg->type == ARGTYPE_POINTER) {
+	return sizeof(void*);
     } else if (arg->type == ARGTYPE_ARRAY) {
 	if (arg->u.array_info.len_spec > 0)
 	    return arg->u.array_info.len_spec * arg->u.array_info.elt_size;
@@ -312,58 +299,84 @@ static size_t arg_sizeof(arg_type_info * arg)
     }
 }
 
-/* I'm sure this isn't completely correct, but just try to get most of
- * them right for now. */
 #undef alignof
 #define alignof(field,st) ((size_t) ((char*) &st.field - (char*) &st))
+static size_t arg_align(arg_type_info * arg)
+{
+    struct { char c; char C; } cC;
+    struct { char c; short s; } cs;
+    struct { char c; int i; } ci;
+    struct { char c; long l; } cl;
+    struct { char c; void* p; } cp;
+    struct { char c; float f; } cf;
+    struct { char c; double d; } cd;
+
+    static size_t char_alignment = alignof(C, cC);
+    static size_t short_alignment = alignof(s, cs);
+    static size_t int_alignment = alignof(i, ci);
+    static size_t long_alignment = alignof(l, cl);
+    static size_t ptr_alignment = alignof(p, cp);
+    static size_t float_alignment = alignof(f, cf);
+    static size_t double_alignment = alignof(d, cd);
+
+    switch (arg->type) {
+    case ARGTYPE_LONG:
+    case ARGTYPE_ULONG:
+	return long_alignment;
+    case ARGTYPE_CHAR:
+	return char_alignment;
+    case ARGTYPE_SHORT:
+    case ARGTYPE_USHORT:
+	return short_alignment;
+    case ARGTYPE_FLOAT:
+	return float_alignment;
+    case ARGTYPE_DOUBLE:
+	return double_alignment;
+    case ARGTYPE_ADDR:
+    case ARGTYPE_FILE:
+    case ARGTYPE_FORMAT:
+    case ARGTYPE_STRING:
+    case ARGTYPE_STRING_N:
+    case ARGTYPE_POINTER:
+	return ptr_alignment;
+
+    case ARGTYPE_ARRAY:
+	return arg_align(&arg->u.array_info.elt_type[0]);
+
+    case ARGTYPE_STRUCT:
+	return arg_align(arg->u.struct_info.fields[0]);
+	
+    default:
+	return int_alignment;
+    }
+}
+
+static size_t align_skip(size_t alignment, size_t offset)
+{
+    if (offset % alignment)
+	return alignment - (offset % alignment);
+    else
+	return 0;
+}
+
+/* I'm sure this isn't completely correct, but just try to get most of
+ * them right for now. */
 static void align_struct(arg_type_info* info)
 {
-    struct {
-	char c;
-	int i;
-    } ci;
-    struct {
-	struct {
-	    char c;
-	} s;
-	int i;
-    } cis;
-
-    size_t int_alignment = alignof(i, ci);
-    size_t whole_struct_alignment = alignof(i, cis);
-
     size_t offset;
-    size_t gap;
     int i;
 
     if (info->u.struct_info.size != 0)
 	return;			// Already done
 
-    // The gap array isn't actually needed anymore, because the
-    // offset can be used for everything.
-
-    // 1. Add internal padding
+    // Compute internal padding due to alignment constraints for
+    // various types.
     offset = 0;
     for (i = 0; info->u.struct_info.fields[i] != NULL; i++) {
 	arg_type_info *field = info->u.struct_info.fields[i];
+	offset += align_skip(arg_align(field), offset);
 	info->u.struct_info.offset[i] = offset;
 	offset += arg_sizeof(field);
-
-	if (offset % int_alignment != 0) {
-	    gap = int_alignment - offset % int_alignment;
-	    info->u.struct_info.gap[i] = gap;
-	    offset += gap;
-	}
-    }
-
-    // 2. Add padding at end of entire struct
-    for (i = 0; info->u.struct_info.fields[i] != NULL; i++);
-    if (i == 0)
-	return;
-    if (offset % whole_struct_alignment != 0) {
-	gap = whole_struct_alignment - offset % whole_struct_alignment;
-	info->u.struct_info.gap[i - 1] = gap;
-	offset += gap;
     }
 
     info->u.struct_info.size = offset;
@@ -376,7 +389,7 @@ static arg_type_info *parse_nonpointer_type(char **str)
 
 	if (strncmp(*str, "typedef", 7) == 0) {
 	    parse_typedef(str);
-	    return lookup_singleton(ARGTYPE_UNKNOWN);
+	    return lookup_prototype(ARGTYPE_UNKNOWN);
 	}
 
 	simple = str2type(str);
@@ -387,9 +400,6 @@ static arg_type_info *parse_nonpointer_type(char **str)
 	    else
 		return simple;		// UNKNOWN
 	}
-
-	if (simple_type(simple->type) && simple->type != ARGTYPE_STRING)
-		return simple;
 
 	info = malloc(sizeof(*info));
 	info->type = simple->type;
@@ -508,8 +518,6 @@ static arg_type_info *parse_nonpointer_type(char **str)
 	    (*str)++;		// Get past open paren
 	    info->u.struct_info.fields =
 		malloc((MAX_ARGS + 1) * sizeof(void *));
-	    info->u.struct_info.gap =
-		malloc((MAX_ARGS + 1) * sizeof(size_t));
 	    info->u.struct_info.offset =
 		malloc((MAX_ARGS + 1) * sizeof(size_t));
 	    info->u.struct_info.size = 0;
@@ -527,7 +535,6 @@ static arg_type_info *parse_nonpointer_type(char **str)
 		    (*str)++;	// Get past comma
 		    eat_spaces(str);
 		}
-		info->u.struct_info.gap[field_num] = 0;
 		if ((info->u.struct_info.fields[field_num++] =
 		     parse_type(str)) == NULL)
 		    return NULL;
@@ -543,11 +550,16 @@ static arg_type_info *parse_nonpointer_type(char **str)
 	}
 
 	default:
-		output_line(0, "Syntax error in `%s', line %d: Unknown type encountered",
-			    filename, line_no);
-		free(info);
-		error_count++;
-		return NULL;
+		if (info->type == ARGTYPE_UNKNOWN) {
+			output_line(0, "Syntax error in `%s', line %d: "
+				    "Unknown type encountered",
+				    filename, line_no);
+			free(info);
+			error_count++;
+			return NULL;
+		} else {
+			return info;
+		}
 	}
 }
 
@@ -571,6 +583,7 @@ static struct function *process_line(char *buf)
 	char *str = buf;
 	char *tmp;
 	int i;
+	int float_num = 0;
 
 	line_no++;
 	debug(3, "Reading line %d of `%s'", line_no, filename);
@@ -582,6 +595,7 @@ static struct function *process_line(char *buf)
 		debug(3, " Skipping line %d", line_no);
 		return NULL;
 	}
+	fun.return_info->arg_num = -1;
 	debug(4, " return_type = %d", fun.return_info->type);
 	eat_spaces(&str);
 	tmp = start_of_arg_sig(str);
@@ -615,6 +629,11 @@ static struct function *process_line(char *buf)
 			error_count++;
 			return NULL;
 		}
+		if (fun.arg_info[i]->type == ARGTYPE_FLOAT)
+			fun.arg_info[i]->u.float_info.float_index = float_num++;
+		else if (fun.arg_info[i]->type == ARGTYPE_DOUBLE)
+			fun.arg_info[i]->u.double_info.float_index = float_num++;
+		fun.arg_info[i]->arg_num = i;
 		eat_spaces(&str);
 		if (*str == ',') {
 			str++;

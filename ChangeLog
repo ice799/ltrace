@@ -1,3 +1,22 @@
+2006-09-18    Steve Fink <sphink@gmail.com>
+
+	* display_args.c: store arg_num in arg_type_info
+	* display_args.c: support 'double' parameters
+	* display_args.c: fix implementation of float,double params for ia64
+	* output.c, process_event.c: store arg_num in arg_type_info
+	* read_config_file.c: support 'double' parameters
+	* read_config_file.c: store arg_num in arg_type_info, and as a result,
+	stop using singleton objects for any of the arg_type_info's.
+	* read_config_file.c: improve support for struct field alignments
+	* read_config_file.c: count floating-point parameters to support ia64
+	float parameter passing
+	* sysdeps/README, sysdeps/linux-gnu/*/trace.c: pass in the full
+	arg_type_info to gimme_arg rather than just the arg_num (necessary
+	for float params on some architectures)
+	* sysdeps/linux-gnu/ia64/trace.c: accommodate register renaming when
+	fetching the parameters of a function after it has returned
+	* sysdeps/linux-gnu/ia64/trace.c: support floating point parameters
+
 2006-09-15  Olaf Hering <olh@suse.de>
 
 	* Makefile.in : allow installation as non-root user, print out

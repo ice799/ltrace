@@ -166,7 +166,7 @@ void output_left(enum tof type, struct process *proc, char *function_name)
 	struct function *func;
 	static arg_type_info *arg_unknown = NULL;
 	if (arg_unknown == NULL)
-	    arg_unknown = lookup_singleton(ARGTYPE_UNKNOWN);
+	    arg_unknown = lookup_prototype(ARGTYPE_UNKNOWN);
 
 	if (opt_c) {
 		return;
@@ -191,23 +191,26 @@ void output_left(enum tof type, struct process *proc, char *function_name)
 	func = name2func(function_name);
 	if (!func) {
 		int i;
+		arg_type_info info = *arg_unknown;
 		for (i = 0; i < 4; i++) {
+			info.arg_num = i;
 			current_column +=
-			    display_arg(type, proc, i, arg_unknown);
+			    display_arg(type, proc, &info);
 			current_column += fprintf(output, ", ");
 		}
-		current_column += display_arg(type, proc, 4, arg_unknown);
+		info.arg_num = 4;
+		current_column += display_arg(type, proc, &info);
 		return;
 	} else {
 		int i;
 		for (i = 0; i < func->num_params - func->params_right - 1; i++) {
 			current_column +=
-			    display_arg(type, proc, i, func->arg_info[i]);
+			    display_arg(type, proc, func->arg_info[i]);
 			current_column += fprintf(output, ", ");
 		}
 		if (func->num_params > func->params_right) {
 			current_column +=
-			    display_arg(type, proc, i, func->arg_info[i]);
+			    display_arg(type, proc, func->arg_info[i]);
 			if (func->params_right) {
 				current_column += fprintf(output, ", ");
 			}
@@ -223,7 +226,7 @@ void output_right(enum tof type, struct process *proc, char *function_name)
 	struct function *func = name2func(function_name);
 	static arg_type_info *arg_unknown = NULL;
 	if (arg_unknown == NULL)
-	    arg_unknown = lookup_singleton(ARGTYPE_UNKNOWN);
+	    arg_unknown = lookup_prototype(ARGTYPE_UNKNOWN);
 
 	if (opt_c) {
 		struct opt_c_struct *st;
@@ -276,21 +279,23 @@ void output_right(enum tof type, struct process *proc, char *function_name)
 	}
 
 	if (!func) {
+		arg_type_info info = *arg_unknown;
 		current_column += fprintf(output, ") ");
 		tabto(opt_a - 1);
 		fprintf(output, "= ");
-		display_arg(type, proc, -1, arg_unknown);
+		info.arg_num = -1;
+		display_arg(type, proc, &info);
 	} else {
 		int i;
 		for (i = func->num_params - func->params_right;
 		     i < func->num_params - 1; i++) {
 			current_column +=
-			    display_arg(type, proc, i, func->arg_info[i]);
+			    display_arg(type, proc, func->arg_info[i]);
 			current_column += fprintf(output, ", ");
 		}
 		if (func->params_right) {
 			current_column +=
-			    display_arg(type, proc, i, func->arg_info[i]);
+			    display_arg(type, proc, func->arg_info[i]);
 		}
 		current_column += fprintf(output, ") ");
 		tabto(opt_a - 1);
@@ -298,7 +303,7 @@ void output_right(enum tof type, struct process *proc, char *function_name)
 		if (func->return_info->type == ARGTYPE_VOID) {
 			fprintf(output, "<void>");
 		} else {
-			display_arg(type, proc, -1, func->return_info);
+			display_arg(type, proc, func->return_info);
 		}
 	}
 	if (opt_T) {

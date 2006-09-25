@@ -27,13 +27,18 @@ static long get_length(enum tof type, struct process *proc, int len_spec,
 		       void *st, arg_type_info* st_info)
 {
     long len;
+    arg_type_info info;
+
     if (len_spec > 0)
 	return len_spec;
     if (type == LT_TOF_STRUCT) {
 	umovelong(proc, st + st_info->u.struct_info.offset[-len_spec-1], &len);
 	return len;
     }
-    return gimme_arg(type, proc, -len_spec - 1);
+
+    info.arg_num = -len_spec - 1;
+    info.type = ARGTYPE_INT;
+    return gimme_arg(type, proc, &info);
 }
 
 static int display_ptrto(enum tof type, struct process *proc, long item,
@@ -199,9 +204,14 @@ int display_value(enum tof type, struct process *proc,
 	case ARGTYPE_USHORT:
 		return fprintf(output, "%hu", (unsigned short) value);
 	case ARGTYPE_FLOAT: {
-		union { long l; float f; } cvt;
+		union { long l; float f; double d; } cvt;
 		cvt.l = value;
 		return fprintf(output, "%f", cvt.f);
+	}
+	case ARGTYPE_DOUBLE: {
+		union { long l; float f; double d; } cvt;
+		cvt.l = value;
+		return fprintf(output, "%lf", cvt.d);
 	}
 	case ARGTYPE_ADDR:
 		if (!value)
@@ -233,17 +243,16 @@ int display_value(enum tof type, struct process *proc,
 	}
 }
 
-int display_arg(enum tof type, struct process *proc, int arg_num,
-		arg_type_info * info)
+int display_arg(enum tof type, struct process *proc, arg_type_info * info)
 {
     long arg;
 
     if (info->type == ARGTYPE_VOID) {
 	return 0;
     } else if (info->type == ARGTYPE_FORMAT) {
-	return display_format(type, proc, arg_num);
+	return display_format(type, proc, info->arg_num);
     } else {
-	arg = gimme_arg(type, proc, arg_num);
+	arg = gimme_arg(type, proc, info);
 	return display_value(type, proc, arg, info, NULL, NULL);
     }
 }
@@ -326,8 +335,11 @@ static int display_format(enum tof type, struct process *proc, int arg_num)
 	unsigned char *str1;
 	int i;
 	int len = 0;
+	arg_type_info info;
 
-	addr = (void *)gimme_arg(type, proc, arg_num);
+	info.arg_num = arg_num;
+	info.type = ARGTYPE_POINTER;
+	addr = (void *)gimme_arg(type, proc, &info);
 	if (!addr) {
 		return fprintf(output, "NULL");
 	}
@@ -370,60 +382,68 @@ static int display_format(enum tof type, struct process *proc, int arg_num)
 						break;
 					}
 				} else if (c == 'd' || c == 'i') {
+					info.arg_num = ++arg_num;
+					info.type = ARGTYPE_LONG;
 					if (!is_long || proc->mask_32bit)
 						len +=
 						    fprintf(output, ", %d",
 							    (int)gimme_arg(type,
 									   proc,
-									   ++arg_num));
+									   &info));
 					else
 						len +=
 						    fprintf(output, ", %ld",
 							    gimme_arg(type,
 								      proc,
-								      ++arg_num));
+								      &info));
 					break;
 				} else if (c == 'u') {
+					info.arg_num = ++arg_num;
+					info.type = ARGTYPE_LONG;
 					if (!is_long || proc->mask_32bit)
 						len +=
 						    fprintf(output, ", %u",
 							    (int)gimme_arg(type,
 									   proc,
-									   ++arg_num));
+									   &info));
 					else
 						len +=
 						    fprintf(output, ", %lu",
 							    gimme_arg(type,
 								      proc,
-								      ++arg_num));
+								      &info));
 					break;
 				} else if (c == 'o') {
+					info.arg_num = ++arg_num;
+					info.type = ARGTYPE_LONG;
 					if (!is_long || proc->mask_32bit)
 						len +=
 						    fprintf(output, ", 0%o",
 							    (int)gimme_arg(type,
 									   proc,
-									   ++arg_num));
+									   &info));
 					else
 						len +=
 						    fprintf(output, ", 0%lo",
 							    gimme_arg(type,
 								      proc,
-								      ++arg_num));
+								      &info));
 					break;
 				} else if (c == 'x' || c == 'X') {
+					info.arg_num = ++arg_num;
+					info.type = ARGTYPE_LONG;
 					if (!is_long || proc->mask_32bit)
 						len +=
 						    fprintf(output, ", %#x",
 							    (int)gimme_arg(type,
 									   proc,
-									   ++arg_num));
+									   &info));
 					else
 						len +=
 						    fprintf(output, ", %#lx",
 							    gimme_arg(type,
 								      proc,
-								      ++arg_num));
+								      &info));
 					break;
 				} else if (strchr("eEfFgGaACS", c)
 					   || (is_long
@@ -432,34 +452,42 @@ static int display_format(enum tof type, struct process *proc, int arg_num)
 					str1[i + 1] = '\0';
 					break;
 				} else if (c == 'c') {
+					info.arg_num = ++arg_num;
+					info.type = ARGTYPE_LONG;
 					len += fprintf(output, ", '");
 					len +=
 					    display_char((int)
 							 gimme_arg(type, proc,
-								   ++arg_num));
+								   &info));
 					len += fprintf(output, "'");
 					break;
 				} else if (c == 's') {
+					info.arg_num = ++arg_num;
+					info.type = ARGTYPE_POINTER;
 					len += fprintf(output, ", ");
 					len +=
 					    display_string(type, proc,
 							   (void *)gimme_arg(type,
 									     proc,
-									     ++arg_num),
+									     &info),
 							   string_maxlength);
 					break;
 				} else if (c == 'p' || c == 'n') {
+					info.arg_num = ++arg_num;
+					info.type = ARGTYPE_POINTER;
 					len +=
 					    fprintf(output, ", %p",
 						    (void *)gimme_arg(type,
 								      proc,
-								      ++arg_num));
+								      &info));
 					break;
 				} else if (c == '*') {
+					info.arg_num = ++arg_num;
+					info.type = ARGTYPE_LONG;
 					len +=
 					    fprintf(output, ", %d",
 						    (int)gimme_arg(type, proc,
-								   ++arg_num));
+								   &info));
 				}
 			}
 		}

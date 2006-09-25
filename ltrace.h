@@ -39,7 +39,8 @@ enum arg_type {
 	ARGTYPE_CHAR,
 	ARGTYPE_SHORT,
 	ARGTYPE_USHORT,
-	ARGTYPE_FLOAT,
+	ARGTYPE_FLOAT,		/* float value, may require index */
+	ARGTYPE_DOUBLE,		/* double value, may require index */
 	ARGTYPE_ADDR,
 	ARGTYPE_FILE,
 	ARGTYPE_FORMAT,		/* printf-like format */
@@ -55,6 +56,7 @@ enum arg_type {
 
 typedef struct arg_type_info_t {
     enum arg_type type;
+    int arg_num;
     union {
 	// ARGTYPE_ENUM
 	struct {
@@ -78,7 +80,6 @@ typedef struct arg_type_info_t {
 	// ARGTYPE_STRUCT
 	struct {
 	    struct arg_type_info_t **fields;	// NULL-terminated
-	    size_t *gap;
 	    size_t *offset;
 	    size_t size;
 	} struct_info;
@@ -87,6 +88,16 @@ typedef struct arg_type_info_t {
 	struct {
 	    struct arg_type_info_t *info;
 	} ptr_info;
+
+        // ARGTYPE_FLOAT
+	struct {
+	    size_t float_index;
+	} float_info;
+
+        // ARGTYPE_DOUBLE
+	struct {
+	    size_t float_index;
+	} double_info;
     } u;
 } arg_type_info;
 
@@ -201,8 +212,7 @@ extern void *instruction_pointer;
 extern struct event *wait_for_something(void);
 extern void process_event(struct event *event);
 extern void execute_program(struct process *, char **);
-extern int display_arg(enum tof type, struct process *proc, int arg_num,
-		       arg_type_info *info);
+extern int display_arg(enum tof type, struct process *proc, arg_type_info *info);
 extern struct breakpoint *address2bpstruct(struct process *proc, void *addr);
 extern void breakpoints_init(struct process *proc);
 extern void insert_breakpoint(struct process *proc, void *addr,
@@ -215,7 +225,7 @@ extern void reinitialize_breakpoints(struct process *);
 extern struct process *open_program(char *filename, pid_t pid);
 extern void open_pid(pid_t pid, int verbose);
 extern void show_summary(void);
-extern arg_type_info *lookup_singleton(enum arg_type at);
+extern arg_type_info *lookup_prototype(enum arg_type at);
 
 /* Arch-dependent stuff: */
 extern char *pid2name(pid_t pid);
@@ -238,7 +248,7 @@ extern void continue_after_signal(pid_t pid, int signum);
 extern void continue_after_breakpoint(struct process *proc,
 				      struct breakpoint *sbp);
 extern void continue_enabling_breakpoint(pid_t pid, struct breakpoint *sbp);
-extern long gimme_arg(enum tof type, struct process *proc, int arg_num);
+extern long gimme_arg(enum tof type, struct process *proc, arg_type_info *);
 extern void save_register_args(enum tof type, struct process *proc);
 extern int umovestr(struct process *proc, void *addr, int len, void *laddr);
 extern int umovelong(struct process *proc, void *addr, long *result);
