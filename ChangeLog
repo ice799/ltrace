@@ -1,3 +1,7 @@
+2006-10-13  Olaf Hering <olh@suse.de>
+
+	* options.c: fix up typo for config file
+
 2006-09-25  Olaf Hering <olh@suse.de>
 
 	* elf.c, elf.h : remove confilict with glibc SHT_GNU_HASH, include

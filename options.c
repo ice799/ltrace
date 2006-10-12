@@ -21,7 +21,7 @@
 #define SYSCONFDIR "/etc"
 #endif
 
-#define SYSTEM_CONFIG_FILE SYSCONFDIR "/trace.conf"
+#define SYSTEM_CONFIG_FILE SYSCONFDIR "/ltrace.conf"
 #define USER_CONFIG_FILE "~/.ltrace.conf"
 
 #define MAX_LIBRARY		30
