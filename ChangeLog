@@ -1,5 +1,10 @@
 2006-11-30  Petr Machata  <pmachata@redhat.com>
 
+	* elf.c (elf_gnu_hash): renamed to private_elf_gnu_hash to avoid
+	conflicts with non-static version from libelf.
+
+2006-11-30  Petr Machata  <pmachata@redhat.com>
+
 	* elf.c (in_load_libraries): removed unused variables
 	bitmask_idxbits and shift.
 	* elf.c (do_init_elf, opd2addr): use ARCH_SUPPORTS_OPD to

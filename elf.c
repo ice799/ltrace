@@ -324,7 +324,7 @@ add_library_symbol(GElf_Addr addr, const char *name,
 }
 
 /* stolen from elfutils-0.123 */
-static unsigned long elf_gnu_hash(const char *name)
+static unsigned long private_elf_gnu_hash(const char *name)
 {
 	unsigned long h = 5381;
 	const unsigned char *string = (const unsigned char *)name;
@@ -344,7 +344,7 @@ static int in_load_libraries(const char *name, struct ltelf *lte)
 		return 1;
 
 	hash = elf_hash((const unsigned char *)name);
-	gnu_hash = elf_gnu_hash(name);
+	gnu_hash = private_elf_gnu_hash(name);
 	for (i = 1; i <= library_num; ++i) {
 		if (lte[i].hash == NULL)
 			continue;
