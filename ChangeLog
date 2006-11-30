@@ -1,3 +1,12 @@
+2006-11-30  Petr Machata  <pmachata@redhat.com>
+
+	* elf.c (in_load_libraries): removed unused variables
+	bitmask_idxbits and shift.
+	* elf.c (do_init_elf, opd2addr): use ARCH_SUPPORTS_OPD to
+	determine whether to load/use .opd section
+	* sysdeps/linux-gnu/*/arch.h: define ARCH_SUPPORTS_OPD accordingly
+	* breakpoints.c (insert_breakpoint): rewrite loop to canonical for
+
 2006-10-13  Olaf Hering <olh@suse.de>
 
 	* options.c: fix up typo for config file

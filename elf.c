@@ -240,11 +240,14 @@ static void do_init_elf(struct ltelf *lte, const char *filename)
 				if (shdr.sh_flags & SHF_EXECINSTR) {
 					lte->lte_flags |= LTE_PLT_EXECUTABLE;
 				}
-			} else if (strcmp(name, ".opd") == 0) {
+			}
+#ifdef ARCH_SUPPORTS_OPD
+			else if (strcmp(name, ".opd") == 0) {
 				lte->opd_addr = (GElf_Addr *) (long) shdr.sh_addr;
 				lte->opd_size = shdr.sh_size;
 				lte->opd = elf_rawdata(scn, NULL);
 			}
+#endif
 		}
 	}
 
@@ -351,13 +354,12 @@ static int in_load_libraries(const char *name, struct ltelf *lte)
 			Elf32_Word nbuckets = *hashbase++;
 			Elf32_Word symbias = *hashbase++;
 			Elf32_Word bitmask_nwords = *hashbase++;
-			Elf32_Word bitmask_idxbits = bitmask_nwords - 1;
-			Elf32_Word shift = *hashbase++;
 			Elf32_Word * buckets;
 			Elf32_Word * chain_zero;
 			Elf32_Word bucket;
 
-			hashbase += lte[i].ehdr.e_ident[EI_CLASS] * bitmask_nwords;
+			// +1 for skipped `shift'
+			hashbase += lte[i].ehdr.e_ident[EI_CLASS] * bitmask_nwords + 1;
 			buckets = hashbase;
 			hashbase += nbuckets;
 			chain_zero = hashbase - symbias;
@@ -408,6 +410,7 @@ static int in_load_libraries(const char *name, struct ltelf *lte)
 
 static GElf_Addr opd2addr(struct ltelf *lte, GElf_Addr addr)
 {
+#ifdef ARCH_SUPPORTS_OPD
 	unsigned long base, offset;
 
 	if (!lte->opd)
@@ -419,6 +422,9 @@ static GElf_Addr opd2addr(struct ltelf *lte, GElf_Addr addr)
 		error(EXIT_FAILURE, 0, "static plt not in .opd");
 
 	return *(GElf_Addr*)(base + offset);
+#else //!ARCH_SUPPORTS_OPD
+	return addr;
+#endif
 }
 
 struct library_symbol *read_elf(struct process *proc)

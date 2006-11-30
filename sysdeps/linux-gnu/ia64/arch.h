@@ -7,3 +7,7 @@
 
 #define LT_ELFCLASS   ELFCLASS64
 #define LT_ELF_MACHINE EM_IA_64
+
+// ia64 actually does use .opd, but we don't need to do the
+// translation manually.
+#undef ARCH_SUPPORTS_OPD

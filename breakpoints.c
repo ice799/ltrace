@@ -28,6 +28,7 @@ insert_breakpoint(struct process *proc, void *addr,
 		  struct library_symbol *libsym)
 {
 	struct breakpoint *sbp;
+	debug(1, "symbol=%s, addr=%p", libsym?libsym->name:"(nil)", addr);
 
 	if (!proc->breakpoints) {
 		proc->breakpoints =
@@ -165,11 +166,9 @@ void breakpoints_init(struct process *proc)
 	} else {
 		proc->list_of_symbols = NULL;
 	}
-	sym = proc->list_of_symbols;
-	while (sym) {
+	for (sym = proc->list_of_symbols; sym; sym = sym->next) {
 		/* proc->pid==0 delays enabling. */
 		insert_breakpoint(proc, sym2addr(proc, sym), sym);
-		sym = sym->next;
 	}
 	proc->callstack_depth = 0;
 	proc->breakpoints_enabled = -1;
