@@ -105,6 +105,34 @@ void enable_all_breakpoints(struct process *proc)
 			dict_apply_to_all(proc->breakpoints, enable_bp_cb,
 					  proc);
 		}
+#ifdef __mips__
+                {
+                    // I'm sure there is a nicer way to do this. We need to
+                    // insert breakpoints _after_ the child has been started.
+                    struct library_symbol *sym;
+                    struct library_symbol *new_sym;
+                    sym=proc->list_of_symbols;
+                    while(sym){
+                        void *addr= sym2addr(proc,sym);
+                        if(!addr){
+                            sym=sym->next;
+                            continue;
+                        }
+                        if(dict_find_entry(proc->breakpoints,addr)){
+                            sym=sym->next;
+                            continue;
+                        }
+                        debug(2,"inserting bp %p %s",addr,sym->name);
+                        new_sym=malloc(sizeof(*new_sym));
+                        memcpy(new_sym,sym,sizeof(*new_sym));
+                        new_sym->next=proc->list_of_symbols;
+                        proc->list_of_symbols=new_sym;
+                        new_sym->brkpnt=0;
+                        insert_breakpoint(proc, addr, new_sym);
+                        sym=sym->next;
+                    }
+                }
+#endif
 	}
 	proc->breakpoints_enabled = 1;
 }

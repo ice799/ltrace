@@ -159,7 +159,33 @@ static void do_init_elf(struct ltelf *lte, const char *filename)
 					error(EXIT_FAILURE, 0,
 					      "Couldn't get .dynamic data from \"%s\"",
 					      filename);
+#ifdef __mips__
+/**
+  MIPS ABI Supplement:
 
+  DT_PLTGOT This member holds the address of the .got section. 
+
+  DT_MIPS_SYMTABNO This member holds the number of entries in the
+  .dynsym section.
+
+  DT_MIPS_LOCAL_GOTNO This member holds the number of local global
+  offset table entries.
+
+  DT_MIPS_GOTSYM This member holds the index of the first dyamic
+  symbol table entry that corresponds to an entry in the gobal offset
+  table.
+
+ */
+                                if(dyn.d_tag==DT_PLTGOT){
+                                    lte->pltgot_addr=dyn.d_un.d_ptr; 
+                                }
+                                if(dyn.d_tag==DT_MIPS_LOCAL_GOTNO){
+                                    lte->mips_local_gotno=dyn.d_un.d_val;
+                                }
+                                if(dyn.d_tag==DT_MIPS_GOTSYM){
+                                    lte->mips_gotsym=dyn.d_un.d_val;
+                                }
+#endif // __mips__
 				if (dyn.d_tag == DT_JMPREL)
 					relplt_addr = dyn.d_un.d_ptr;
 				else if (dyn.d_tag == DT_PLTRELSZ)
@@ -442,7 +468,30 @@ struct library_symbol *read_elf(struct process *proc)
 	proc->e_machine = lte->ehdr.e_machine;
 	for (i = 0; i < library_num; ++i)
 		do_init_elf(&lte[i + 1], library[i]);
-
+#ifdef __mips__
+        // MIPS doesn't use the PLT and the GOT entries get changed
+        // on startup. 
+        proc->need_to_reinitialize_breakpoints = 1;
+        for(i=lte->mips_gotsym; i<lte->dynsym_count;i++){
+            GElf_Sym sym;
+            const char *name;
+            GElf_Addr addr = arch_plt_sym_val(lte, i, 0);
+            if (gelf_getsym(lte->dynsym, i, &sym) == NULL){
+                error(EXIT_FAILURE, 0,
+                      "Couldn't get relocation from \"%s\"",
+                      proc->filename);       
+            }
+            name=lte->dynstr+sym.st_name;
+            if(ELF64_ST_TYPE(sym.st_info) != STT_FUNC){
+                debug(2,"sym %s not a function",name);
+                continue;
+            }
+            add_library_symbol(addr, name, &library_symbols, 0,
+                               ELF64_ST_BIND(sym.st_info) != 0);
+            if (!lib_tail)
+                lib_tail = &(library_symbols->next);
+        }
+#else
 	for (i = 0; i < lte->relplt_count; ++i) {
 		GElf_Rel rel;
 		GElf_Rela rela;
@@ -483,7 +532,7 @@ struct library_symbol *read_elf(struct process *proc)
 				lib_tail = &(library_symbols->next);
 		}
 	}
-
+#endif // !__mips__
 #ifdef PLT_REINITALISATION_BP
 	struct opt_x_t *main_cheat;
 

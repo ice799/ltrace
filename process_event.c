@@ -327,6 +327,23 @@ static void process_breakpoint(struct event *event)
 							  libsym);
 				}
 			}
+#elif defined(__mips__)
+                        void *addr;
+                        void *old_addr;
+                        struct library_symbol *sym= event->proc->callstack[i].c_un.libfunc;
+                        assert(sym && sym->brkpnt);
+                        old_addr=sym->brkpnt->addr;
+                        addr=sym2addr(event->proc,sym);
+                        assert(old_addr !=0 && addr !=0);
+                        if(addr != old_addr){
+                            struct library_symbol *new_sym;
+                            new_sym=malloc(sizeof(*new_sym));
+                            memcpy(new_sym,sym,sizeof(*new_sym));
+                            new_sym->next=event->proc->list_of_symbols;
+                            event->proc->list_of_symbols=new_sym;
+                            new_sym->brkpnt=0;
+                            insert_breakpoint(event->proc, addr, new_sym);
+                        }
 #endif
 			for (j = event->proc->callstack_depth - 1; j > i; j--) {
 				callstack_pop(event->proc);

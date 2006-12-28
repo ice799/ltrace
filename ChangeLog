@@ -1,3 +1,18 @@
+2006-12-28  Eric Vaitl  <evaitl@cisco.com>
+
+	* sysdeps/linux-gnu/mipsel/* Added mipsel support
+	* debug.h Added printf format attribute to debug_
+	* elf.h Added mips relocation data to struct ltelf
+	* elf.c (do_init_elf) Read mips relocation data
+	* elf.c (read_elf) On the mips loop through mips_gotsym 
+	instead of relplt_count.
+	* process_event.c (process_breakpoint) For the mips, 
+	conditionally add a new breakpoint if the address of the 
+	function changes because of lazy relocation. 
+	* breakpoints.c (enable_all_breakpoints) For the mips, 
+	reinsert breakpoints after the child has been started. 
+	
+
 2006-11-30  Petr Machata  <pmachata@redhat.com>
 
 	* elf.c (elf_gnu_hash): renamed to private_elf_gnu_hash to avoid
