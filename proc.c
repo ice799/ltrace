@@ -56,5 +56,6 @@ void open_pid(pid_t pid, int verbose)
 #endif
 
 	proc = open_program(filename, pid);
+	continue_process (pid);
 	proc->breakpoints_enabled = 1;
 }

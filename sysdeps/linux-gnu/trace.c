@@ -4,6 +4,7 @@
 #include <errno.h>
 #include <unistd.h>
 #include <sys/types.h>
+#include <sys/wait.h>
 #include "ptrace.h"
 #include <asm/unistd.h>
 
@@ -87,6 +88,16 @@ int trace_pid(pid_t pid)
 	if (ptrace(PTRACE_ATTACH, pid, 1, 0) < 0) {
 		return -1;
 	}
+
+	/* man ptrace: PTRACE_ATTACH attaches to the process specified
+	   in pid.  The child is sent a SIGSTOP, but will not
+	   necessarily have stopped by the completion of this call;
+	   use wait() to wait for the child to stop. */
+	if (waitpid (pid, NULL, 0) != pid) {
+		perror ("trace_pid: waitpid");
+		exit (1);
+	}
+
 	return 0;
 }
 

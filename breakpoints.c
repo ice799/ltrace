@@ -30,12 +30,6 @@ insert_breakpoint(struct process *proc, void *addr,
 	struct breakpoint *sbp;
 	debug(1, "symbol=%s, addr=%p", libsym?libsym->name:"(nil)", addr);
 
-	if (!proc->breakpoints) {
-		proc->breakpoints =
-		    dict_init(dict_key2hash_int, dict_key_cmp_int);
-		/* atexit(brk_dict_clear); *//* why bother to do this on exit? */
-	}
-
 	if (!addr)
 		return;
 
@@ -169,6 +163,7 @@ void breakpoints_init(struct process *proc)
 		dict_clear(proc->breakpoints);
 		proc->breakpoints = NULL;
 	}
+	proc->breakpoints = dict_init(dict_key2hash_int, dict_key_cmp_int);
 
 	if (opt_L && proc->filename) {
 		proc->list_of_symbols = read_elf(proc);
