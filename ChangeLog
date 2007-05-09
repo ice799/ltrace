@@ -1,3 +1,12 @@
+2007-05-09  Petr Machata  <pmachata@redhat.com>
+
+	* wait_for_something.c (wait_for_something): Interpret SIGILL,
+	SIGEMT and SIGSEGV as valid breakpoint signals, if instruction
+	pointer referes to breakpoint.
+	* testsuite/ltrace.torture/ia64-sigill.s,
+	* testsuite/ltrace.torture/ia64-sigill.exp: Testcase for same.
+	IA64-centric, because the only reproducer is there.
+
 2007-01-19  Petr Machata  <pmachata@redhat.com>
 
 	* sysdeps/linux-gnu/trace.c (trace_pid): wait for child to stop,

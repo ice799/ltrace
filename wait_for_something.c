@@ -25,6 +25,7 @@ struct event *wait_for_something(void)
 	pid_t pid;
 	int status;
 	int tmp;
+	int stop_signal;
 
 	if (!list_of_processes) {
 		debug(1, "No more children");
@@ -86,10 +87,31 @@ struct event *wait_for_something(void)
 		event.thing = LT_EV_UNKNOWN;
 		return &event;
 	}
-	if ((WSTOPSIG(status) != (SIGTRAP | event.proc->tracesysgood)) &&
-	    (WSTOPSIG(status) != SIGTRAP)) {
+
+	stop_signal = WSTOPSIG(status);
+
+	/* On some targets, breakpoints are signalled not using
+	   SIGTRAP, but also with SIGILL, SIGSEGV or SIGEMT.  Check
+	   for these. */
+	if (stop_signal == SIGSEGV
+	    || stop_signal == SIGILL
+#ifdef SIGEMT
+	    || stop_signal == SIGEMT
+#endif
+	    ) {
+		// If we didn't need to know IP so far, get it now.
+		void * addr = opt_i
+		  ? event.proc->instruction_pointer
+		  : (event.proc->instruction_pointer = get_instruction_pointer (event.proc));
+
+		if (address2bpstruct(event.proc, addr))
+			stop_signal = SIGTRAP;
+	}
+
+	if (stop_signal != (SIGTRAP | event.proc->tracesysgood)
+	    && stop_signal != SIGTRAP) {
 		event.thing = LT_EV_SIGNAL;
-		event.e_un.signum = WSTOPSIG(status);
+ 		event.e_un.signum = stop_signal;
 		return &event;
 	}
 	event.thing = LT_EV_BREAKPOINT;
