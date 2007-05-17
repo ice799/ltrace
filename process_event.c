@@ -185,10 +185,7 @@ static void process_syscall(struct event *event)
 		output_left(LT_TOF_SYSCALL, event->proc,
 			    sysname(event->proc, event->e_un.sysnum));
 	}
-	if (fork_p(event->proc, event->e_un.sysnum)
-	    || exec_p(event->proc, event->e_un.sysnum)) {
-		disable_all_breakpoints(event->proc);
-	} else if (event->proc->breakpoints_enabled == 0) {
+	if (event->proc->breakpoints_enabled == 0) {
 		enable_all_breakpoints(event->proc);
 	}
 	callstack_push_syscall(event->proc, event->e_un.sysnum);
@@ -240,25 +237,6 @@ static void process_sysret(struct event *event)
 	if (opt_S) {
 		output_right(LT_TOF_SYSCALLR, event->proc,
 			     sysname(event->proc, event->e_un.sysnum));
-	}
-	if (exec_p(event->proc, event->e_un.sysnum)) {
-		arg_type_info info;
-		info.arg_num = -1; /* Return value */
-		info.type = ARGTYPE_LONG;
-		if (gimme_arg(LT_TOF_SYSCALLR, event->proc, &info) == 0) {
-			pid_t saved_pid;
-			event->proc->mask_32bit = 0;
-			event->proc->personality = 0;
-			/* FIXME: Leak, should have arch_dep_free.
-			   But we are leaking here much more than that.  */
-			event->proc->arch_ptr = NULL;
-			event->proc->filename = pid2name(event->proc->pid);
-			saved_pid = event->proc->pid;
-			event->proc->pid = 0;
-			breakpoints_init(event->proc);
-			event->proc->pid = saved_pid;
-		} else
-			enable_all_breakpoints(event->proc);
 	}
 	continue_process(event->proc->pid);
 }

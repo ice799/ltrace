@@ -242,6 +242,7 @@ extern void enable_breakpoint(pid_t pid, struct breakpoint *sbp);
 extern void disable_breakpoint(pid_t pid, const struct breakpoint *sbp);
 extern int fork_p(struct process *proc, int sysnum);
 extern int exec_p(struct process *proc, int sysnum);
+extern int was_exec(struct process *proc, int status);
 extern int syscall_p(struct process *proc, int status, int *sysnum);
 extern void continue_process(pid_t pid);
 extern void continue_after_signal(pid_t pid, int signum);

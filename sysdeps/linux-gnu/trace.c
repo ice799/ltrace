@@ -11,6 +11,34 @@
 #include "ltrace.h"
 #include "options.h"
 #include "sysdep.h"
+#include "debug.h"
+
+/* If the system headers did not provide the constants, hard-code the normal
+   values.  */
+#ifndef PTRACE_EVENT_FORK
+
+#define PTRACE_OLDSETOPTIONS    21
+#define PTRACE_SETOPTIONS       0x4200
+#define PTRACE_GETEVENTMSG      0x4201
+
+/* options set using PTRACE_SETOPTIONS */
+#define PTRACE_O_TRACESYSGOOD   0x00000001
+#define PTRACE_O_TRACEFORK      0x00000002
+#define PTRACE_O_TRACEVFORK     0x00000004
+#define PTRACE_O_TRACECLONE     0x00000008
+#define PTRACE_O_TRACEEXEC      0x00000010
+#define PTRACE_O_TRACEVFORKDONE 0x00000020
+#define PTRACE_O_TRACEEXIT      0x00000040
+
+/* Wait extended result codes for the above trace options.  */
+#define PTRACE_EVENT_FORK       1
+#define PTRACE_EVENT_VFORK      2
+#define PTRACE_EVENT_CLONE      3
+#define PTRACE_EVENT_EXEC       4
+#define PTRACE_EVENT_VFORK_DONE 5
+#define PTRACE_EVENT_EXIT       6
+
+#endif /* PTRACE_EVENT_FORK */
 
 static int fork_exec_syscalls[][5] = {
 	{
@@ -75,6 +103,39 @@ int exec_p(struct process *proc, int sysnum)
 	return 0;
 }
 
+/* Check that we just hit an exec.
+ */
+int was_exec(struct process *proc, int status)
+{
+	if (!WIFSTOPPED (status))
+		return 0;
+
+	if (WSTOPSIG (status) == SIGTRAP
+	    && (status >> 16) == PTRACE_EVENT_EXEC) {
+		debug (1, "detected exec (PTRACE_EVENT_EXEC)");
+		return 1;
+	}
+
+	if (WSTOPSIG (status) == SIGTRAP
+	    && proc->callstack_depth > 0) {
+		/* Check whether this SIGTRAP is received just after
+		   execve is called for this process.  Ideally we'd
+		   like to check that the exec succeeded, but e.g. on
+		   s390 we have no way of knowing, because return
+		   value is not set to -1 (as it should).  Never mind,
+		   reseting breakpoints for current process doesn't
+		   hurt. */
+		struct callstack_element *elem;
+		elem = &proc->callstack[proc->callstack_depth - 1];
+		if (elem && elem->is_syscall &&  exec_p(proc, elem->c_un.syscall)) {
+			debug (1, "detected exec (callstack)");
+			return 1;
+		}
+	}
+
+	return 0;
+}
+
 void trace_me(void)
 {
 	if (ptrace(PTRACE_TRACEME, 0, 1, 0) < 0) {
@@ -103,19 +164,12 @@ int trace_pid(pid_t pid)
 
 void trace_set_options(struct process *proc, pid_t pid)
 {
-#ifndef PTRACE_SETOPTIONS
-#define PTRACE_SETOPTIONS 0x4200
-#endif
-#ifndef PTRACE_OLDSETOPTIONS
-#define PTRACE_OLDSETOPTIONS 21
-#endif
-#ifndef PTRACE_O_TRACESYSGOOD
-#define PTRACE_O_TRACESYSGOOD 0x00000001
-#endif
 	if (proc->tracesysgood & 0x80)
 		return;
-	if (ptrace(PTRACE_SETOPTIONS, pid, 0, PTRACE_O_TRACESYSGOOD) < 0 &&
-	    ptrace(PTRACE_OLDSETOPTIONS, pid, 0, PTRACE_O_TRACESYSGOOD) < 0) {
+
+	long options = PTRACE_O_TRACESYSGOOD | PTRACE_O_TRACEEXEC;
+	if (ptrace(PTRACE_SETOPTIONS, pid, 0, options) < 0 &&
+	    ptrace(PTRACE_OLDSETOPTIONS, pid, 0, options) < 0) {
 		perror("PTRACE_SETOPTIONS");
 		return;
 	}

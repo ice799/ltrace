@@ -1,3 +1,12 @@
+2007-05-10  Petr Machata  <pmachata@redhat.com>
+
+	* Based on work of Supriya Kannery <supriyak@in.ibm.com>
+	* wait_for_something.c, process_event.c: Tracing across exec.
+	* sysdeps/linux-gnu/trace.c, ltrace.h: New interface was_exec.
+ 	* testsuite/ltrace.minor/trace-exec.c,
+	testsuite/ltrace.minor/trace-exec.exp,
+	testsuite/ltrace.minor/trace-exec1.c: Testcase for same.
+
 2007-05-09  Petr Machata  <pmachata@redhat.com>
 
 	* wait_for_something.c (wait_for_something): Interpret SIGILL,

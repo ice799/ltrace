@@ -158,7 +158,6 @@ void breakpoints_init(struct process *proc)
 	struct library_symbol *sym;
 
 	if (proc->breakpoints) {	/* let's remove that struct */
-		/* TODO FIXME XXX: free() all "struct breakpoint"s */
 		dict_apply_to_all(proc->breakpoints, free_bp_cb, NULL);
 		dict_clear(proc->breakpoints);
 		proc->breakpoints = NULL;
