@@ -185,7 +185,9 @@ static void process_syscall(struct event *event)
 		output_left(LT_TOF_SYSCALL, event->proc,
 			    sysname(event->proc, event->e_un.sysnum));
 	}
-	if (event->proc->breakpoints_enabled == 0) {
+	if (fork_p(event->proc, event->e_un.sysnum)) {
+		disable_all_breakpoints(event->proc);
+	} else if (event->proc->breakpoints_enabled == 0) {
 		enable_all_breakpoints(event->proc);
 	}
 	callstack_push_syscall(event->proc, event->e_un.sysnum);

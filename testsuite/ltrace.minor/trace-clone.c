@@ -11,6 +11,7 @@
 
 int child ()
 {
+  sleep(1);
   return 0;
 }
 

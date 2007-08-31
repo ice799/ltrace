@@ -12,7 +12,6 @@
 #include <string.h>
 #include <stdlib.h>
 
-void func_ignore(int a, int b, int c);
 void func_intptr(int *i);
 void func_intptr_ret(int *i);
 int func_strlen(char*);
@@ -45,8 +44,6 @@ main ()
   char *s;
   int *ai;
   float *af;
-
-  func_ignore(1, 2, 3);
 
   func_intptr(&x);
 

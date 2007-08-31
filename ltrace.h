@@ -46,59 +46,58 @@ enum arg_type {
 	ARGTYPE_FORMAT,		/* printf-like format */
 	ARGTYPE_STRING,		/* NUL-terminated string */
 	ARGTYPE_STRING_N,	/* String of known maxlen */
-        ARGTYPE_ARRAY,		/* Series of values in memory */
-        ARGTYPE_ENUM,		/* Enumeration */
-        ARGTYPE_STRUCT,		/* Structure of values */
-        ARGTYPE_IGNORE,		/* Leave parameter blank */
-        ARGTYPE_POINTER,	/* Pointer to some other type */
-        ARGTYPE_COUNT		/* number of ARGTYPE_* values */
+	ARGTYPE_ARRAY,		/* Series of values in memory */
+	ARGTYPE_ENUM,		/* Enumeration */
+	ARGTYPE_STRUCT,		/* Structure of values */
+	ARGTYPE_POINTER,	/* Pointer to some other type */
+	ARGTYPE_COUNT		/* number of ARGTYPE_* values */
 };
 
 typedef struct arg_type_info_t {
-    enum arg_type type;
-    int arg_num;
-    union {
-	// ARGTYPE_ENUM
-	struct {
-	    size_t entries;
-	    char **keys;
-	    int *values;
-	} enum_info;
+	enum arg_type type;
+	int arg_num;
+	union {
+		// ARGTYPE_ENUM
+		struct {
+			size_t entries;
+			char **keys;
+			int *values;
+		} enum_info;
 
-	// ARGTYPE_ARRAY
-	struct {
-	    struct arg_type_info_t *elt_type;
-	    size_t elt_size;
-	    int len_spec;
-	} array_info;
+		// ARGTYPE_ARRAY
+		struct {
+			struct arg_type_info_t *elt_type;
+			size_t elt_size;
+			int len_spec;
+		} array_info;
 
-	// ARGTYPE_STRING_N
-	struct {
-	    int size_spec;
-	} string_n_info;
+		// ARGTYPE_STRING_N
+		struct {
+			int size_spec;
+		} string_n_info;
 
-	// ARGTYPE_STRUCT
-	struct {
-	    struct arg_type_info_t **fields;	// NULL-terminated
-	    size_t *offset;
-	    size_t size;
-	} struct_info;
+		// ARGTYPE_STRUCT
+		struct {
+			struct arg_type_info_t **fields;	// NULL-terminated
+			size_t *offset;
+			size_t size;
+		} struct_info;
 
-	// ARGTYPE_POINTER
-	struct {
-	    struct arg_type_info_t *info;
-	} ptr_info;
+		// ARGTYPE_POINTER
+		struct {
+			struct arg_type_info_t *info;
+		} ptr_info;
 
-        // ARGTYPE_FLOAT
-	struct {
-	    size_t float_index;
-	} float_info;
+		// ARGTYPE_FLOAT
+		struct {
+			size_t float_index;
+		} float_info;
 
-        // ARGTYPE_DOUBLE
-	struct {
-	    size_t float_index;
-	} double_info;
-    } u;
+		// ARGTYPE_DOUBLE
+		struct {
+			size_t float_index;
+		} double_info;
+	} u;
 } arg_type_info;
 
 enum tof {

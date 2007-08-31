@@ -29,12 +29,12 @@ char *library[MAX_LIBRARY];
 int library_num = 0;
 static char *progname;		/* Program name (`ltrace') */
 FILE *output;
-int opt_a = DEFAULT_ACOLUMN;	/* default alignment column for results */
-int opt_A = DEFAULT_ARRAYLEN;	/* default maximum # array elements to print */
-int opt_c = 0;			/* Count time, calls, and report a summary on program exit */
+int opt_a = DEFAULT_ACOLUMN;	/* alignment column for results */
+int opt_A = DEFAULT_ARRAYLEN;	/* maximum # array elements to print */
+int opt_c = 0;			/* Report a summary on program exit */
 int opt_d = 0;			/* debug */
 int opt_i = 0;			/* instruction pointer */
-int opt_s = DEFAULT_STRLEN;	/* default maximum # of bytes printed in strings */
+int opt_s = DEFAULT_STRLEN;	/* maximum # of bytes printed in strings */
 int opt_S = 0;			/* display syscalls */
 int opt_L = 1;			/* display library calls */
 int opt_f = 0;			/* trace child processes as they are created */
@@ -42,10 +42,11 @@ char *opt_u = NULL;		/* username to run command as */
 int opt_r = 0;			/* print relative timestamp */
 int opt_t = 0;			/* print absolute timestamp */
 #ifdef USE_DEMANGLE
-int opt_C = 0;			/* Demangle low-level symbol names into user-level names */
+int opt_C = 0;			/* Demangle low-level symbol names */
 #endif
-int opt_n = 0;			/* indent trace output according to program flow */
+int opt_n = 0;			/* indent output according to program flow */
 int opt_T = 0;			/* show the time spent inside each call */
+int opt_o = 0;			/* output to a specific file */
 
 /* List of pids given to option -p: */
 struct opt_p_t *opt_p = NULL;	/* attach to process with a given pid */
@@ -79,7 +80,7 @@ static void usage(void)
 # else
 		"  -a COLUMN           align return values in a secific column.\n"
 # endif
-                "  -A ARRAYLEN         maximum number of array elements to print.\n"
+		"  -A ARRAYLEN         maximum number of array elements to print.\n"
 		"  -c                  count time and calls, and report a summary on exit.\n"
 # ifdef USE_DEMANGLE
 #  if HAVE_GETOPT_LONG
@@ -96,11 +97,11 @@ static void usage(void)
 		"  -e expr             modify which events to trace.\n"
 		"  -f                  follow forks.\n"
 # if HAVE_GETOPT_LONG
-                "  -F, --config=FILE   load alternate configuration file\n"
+		"  -F, --config=FILE   load alternate configuration file\n"
 # else
-                "  -F FILE             load alternate configuration file\n"
+		"  -F FILE             load alternate configuration file\n"
 # endif
-                "                      (can be repeated).\n"
+		"                      (can be repeated).\n"
 # if HAVE_GETOPT_LONG
 		"  -h, --help          display this help and exit.\n"
 # else
@@ -188,7 +189,7 @@ char **process_options(int argc, char **argv)
 		int option_index = 0;
 		static struct option long_options[] = {
 			{"align", 1, 0, 'a'},
-                        {"config", 1, 0, 'F'},
+			{"config", 1, 0, 'F'},
 			{"debug", 0, 0, 'd'},
 # ifdef USE_DEMANGLE
 			{"demangle", 0, 0, 'C'},
@@ -209,9 +210,9 @@ char **process_options(int argc, char **argv)
 #else
 		c = getopt(argc, argv, "+cdfhiLrStTV"
 # ifdef USE_DEMANGLE
-			   "C"
+				"C"
 # endif
-			   "a:A:e:F:l:n:o:p:s:u:x:X:");
+				"a:A:e:F:l:n:o:p:s:u:x:X:");
 #endif
 		if (c == -1) {
 			break;
@@ -220,7 +221,7 @@ char **process_options(int argc, char **argv)
 		case 'a':
 			opt_a = atoi(optarg);
 			break;
-                case 'A':
+		case 'A':
 			opt_A = atoi(optarg);
 			break;
 		case 'c':
@@ -270,18 +271,18 @@ char **process_options(int argc, char **argv)
 		case 'f':
 			opt_f = 1;
 			break;
-                case 'F':
-                	{
-                          struct opt_F_t *tmp = malloc(sizeof(struct opt_F_t));
-                          if (!tmp) {
-                            perror("ltrace: malloc");
-                            exit(1);
-                          }
-                          tmp->filename = strdup(optarg);
-                          tmp->next = opt_F;
-                          opt_F = tmp;
-                          break;
-                        }
+		case 'F':
+			{
+				struct opt_F_t *tmp = malloc(sizeof(struct opt_F_t));
+				if (!tmp) {
+					perror("ltrace: malloc");
+					exit(1);
+				}
+				tmp->filename = strdup(optarg);
+				tmp->next = opt_F;
+				opt_F = tmp;
+				break;
+			}
 		case 'h':
 			usage();
 			exit(0);
@@ -304,6 +305,7 @@ char **process_options(int argc, char **argv)
 			opt_n = atoi(optarg);
 			break;
 		case 'o':
+			opt_o++;
 			output = fopen(optarg, "w");
 			if (!output) {
 				fprintf(stderr,
@@ -316,8 +318,7 @@ char **process_options(int argc, char **argv)
 			break;
 		case 'p':
 			{
-				struct opt_p_t *tmp =
-				    malloc(sizeof(struct opt_p_t));
+				struct opt_p_t *tmp = malloc(sizeof(struct opt_p_t));
 				if (!tmp) {
 					perror("ltrace: malloc");
 					exit(1);
@@ -347,15 +348,15 @@ char **process_options(int argc, char **argv)
 			break;
 		case 'V':
 			printf("ltrace version " PACKAGE_VERSION ".\n"
-			       "Copyright (C) 1997-2006 Juan Cespedes <cespedes@debian.org>.\n"
-			       "This is free software; see the GNU General Public Licence\n"
-			       "version 2 or later for copying conditions.  There is NO warranty.\n");
+					"Copyright (C) 1997-2007 Juan Cespedes <cespedes@debian.org>.\n"
+					"This is free software; see the GNU General Public Licence\n"
+					"version 2 or later for copying conditions.  There is NO warranty.\n");
 			exit(0);
 		case 'X':
 #ifdef PLT_REINITALISATION_BP
 			PLTs_initialized_by_here = optarg;
 #else
-			fprintf(stderr, "WANRING: \"-X\" not used for this "
+			fprintf(stderr, "WARNING: \"-X\" not used for this "
 				"architecture: assuming you meant \"-x\"\n");
 #endif
 			/* Fall Thru */
@@ -401,27 +402,27 @@ char **process_options(int argc, char **argv)
 	argv += optind;
 #endif
 
-        if (!opt_F) {
-	    opt_F = malloc(sizeof(struct opt_F_t));
-	    opt_F->next = malloc(sizeof(struct opt_F_t));
-	    opt_F->next->next = NULL;
-	    opt_F->filename = USER_CONFIG_FILE;
-	    opt_F->next->filename = SYSTEM_CONFIG_FILE;
-        }
+	if (!opt_F) {
+		opt_F = malloc(sizeof(struct opt_F_t));
+		opt_F->next = malloc(sizeof(struct opt_F_t));
+		opt_F->next->next = NULL;
+		opt_F->filename = USER_CONFIG_FILE;
+		opt_F->next->filename = SYSTEM_CONFIG_FILE;
+	}
 	/* Reverse the config file list since it was built by
 	 * prepending, and it would make more sense to process the
 	 * files in the order they were given. Probably it would make
 	 * more sense to keep a tail pointer instead? */
 	{
-	    struct opt_F_t *egg = NULL;
-	    struct opt_F_t *chicken;
-	    while (opt_F) {
-		chicken = opt_F->next;
-		opt_F->next = egg;
-		egg = opt_F;
-		opt_F = chicken;
-	    }
-	    opt_F = egg;
+		struct opt_F_t *egg = NULL;
+		struct opt_F_t *chicken;
+		while (opt_F) {
+			chicken = opt_F->next;
+			opt_F->next = egg;
+			egg = opt_F;
+			opt_F = chicken;
+		}
+		opt_F = egg;
 	}
 
 	if (!opt_p && argc < 1) {

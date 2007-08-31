@@ -176,12 +176,10 @@ int display_value(enum tof type, struct process *proc,
 	switch (info->type) {
 	case ARGTYPE_VOID:
 		return 0;
-        case ARGTYPE_IGNORE:
-        	return 0; /* Empty gap between commas */
 	case ARGTYPE_INT:
-          return fprintf(output, "%d", (int) value);
+		return fprintf(output, "%d", (int) value);
 	case ARGTYPE_UINT:
-          return fprintf(output, "%u", (unsigned) value);
+		return fprintf(output, "%u", (unsigned) value);
 	case ARGTYPE_LONG:
 		if (proc->mask_32bit)
 			return fprintf(output, "%d", (int) value);

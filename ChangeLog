@@ -1,3 +1,19 @@
+2007-08-31  Juan Cespedes  <cespedes@debian.org>
+
+	* General: Small fixes (indentation, typos, clean-up of code)
+	* ltrace.c: Close output file on exit
+	* ltrace.c: use getenf("HOME") instead of getpwuid(geteuid())->pw_dir
+	* read_config_file.c, display_args.c: remove "ignore" argtype;
+	  that's what "void" is for
+	* packaging/debian/: misc fixes, sync with version 0.5-2
+	* etc/ltrace.conf: added more system calls
+	* testsuite/ltrace.minor/trace-clone.c: sleep(1) to avoid earlier
+	  termination of process
+	* sysdeps/linux-gnu/trace.c: trace_pid(): reverted Petr's patch
+	  to wait for child to stop, as it stopped following clone()
+	* process_event.c: Disable breakpoints before doing fork() (again!),
+	  to make children work as expected
+
 2007-05-10  Petr Machata  <pmachata@redhat.com>
 
 	* Based on work of Supriya Kannery <supriyak@in.ibm.com>

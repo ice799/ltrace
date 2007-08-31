@@ -1,5 +1,5 @@
 * Option -f sometimes fails to trace some children
 * Manual page is not accurate (config files...)
-* elf.c only supports elf32 binaries
-* netscape sometimes dies with SIGSEGV (is this still true?)
+* Doesn't work with threads
+* Doesn't do inter-library calls (BP is in the executable's PLT)
 * It lacks support for several Linux archs, and many operating systems

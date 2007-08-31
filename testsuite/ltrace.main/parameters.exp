@@ -36,8 +36,6 @@ if [regexp {ELF from incompatible architecture} $exec_output] {
 }
 
 # Verify the output
-set pattern "func_ignore(1, *, *3)"
-ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern 1
 set pattern "func_intptr(17)"
 ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern 1
 set pattern "func_intptr_ret(42)"

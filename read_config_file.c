@@ -44,7 +44,6 @@ static struct list_of_pt_t {
 	"array", ARGTYPE_ARRAY}, {
 	"struct", ARGTYPE_STRUCT}, {
 	"enum", ARGTYPE_ENUM}, {
-	"ignore", ARGTYPE_IGNORE}, {
 	NULL, ARGTYPE_UNKNOWN}	/* Must finish with NULL */
 };
 
@@ -71,7 +70,6 @@ static arg_type_info arg_type_prototypes[] = {
 	{ ARGTYPE_ARRAY },
 	{ ARGTYPE_ENUM },
 	{ ARGTYPE_STRUCT },
-	{ ARGTYPE_IGNORE },
 	{ ARGTYPE_POINTER },
 	{ ARGTYPE_UNKNOWN }
 };
@@ -590,7 +588,7 @@ static struct function *process_line(char *buf)
 	eat_spaces(&str);
 	fun.return_info = parse_type(&str);
 	if (fun.return_info == NULL)
-        	return NULL;
+		return NULL;
 	if (fun.return_info->type == ARGTYPE_UNKNOWN) {
 		debug(3, " Skipping line %d", line_no);
 		return NULL;
@@ -661,13 +659,13 @@ void read_config_file(char *file)
 	char buf[1024];
 
 	filename = file;
-
-	debug(1, "Reading config file `%s'...", filename);
-
 	stream = fopen(filename, "r");
 	if (!stream) {
 		return;
 	}
+
+	debug(1, "Reading config file `%s'...", filename);
+
 	line_no = 0;
 	while (fgets(buf, 1024, stream)) {
 		struct function *tmp;

@@ -1,12 +1,24 @@
+ltrace (0.5-2) unstable; urgency=low
+
+  * Fixed compilation issue in ppc
+
+ -- Juan Cespedes <cespedes@debian.org>  Fri, 31 Aug 2007 13:53:27 +0200
+
 ltrace (0.5-1) unstable; urgency=low
 
-  * New upstream
-  * Closes: #372928, #372928: spelling fixes
-  * Change maintainer to ianw@debian.org, so I get bug reports
-  * Change Juan to an uploader
-  * Acknowledge 0.3.35.1 NMU, thanks Andrew Pollock
+  * New upstream version
+  * Remove some unneeded files in /usr/share/doc (ChangeLog, COPYING...)
+  * Fix several typos (closes: Bug#372928)
+  * Added more system calls to ltrace.conf
 
- -- Ian Wienand <ianw@debian.org>  Fri, 16 Jun 2006 11:15:45 +1000
+ -- Juan Cespedes <cespedes@debian.org>  Thu, 30 Aug 2007 14:54:44 +0200
+
+ltrace (0.4-2) unstable; urgency=low
+
+  * Use fclose() to close the output file when using option '-o'
+    (thanks to GuiJianfeng <jianfenggui@gmail.com>)
+
+ -- Juan Cespedes <cespedes@debian.org>  Tue, 07 Aug 2007 11:49:27 +0200
 
 ltrace (0.4-1) unstable; urgency=low
 

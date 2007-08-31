@@ -17,7 +17,7 @@ catch "exec $srcdir/$subdir/$binfile &" output
 regexp {([0-9]+)} $output match PID
 verbose "PID = $PID"
 
-# Run PUT for ltarce.
+# Run PUT for ltrace.
 global LTRACE
 catch "exec $LTRACE -S -p $PID -o ${srcdir}/${subdir}/${testfile}.ltrace" exec_output
 

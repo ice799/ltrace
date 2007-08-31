@@ -1,10 +1,10 @@
 Source: ltrace
 Section: utils
 Priority: optional
-Maintainer: Ian Wienand <ianw@debian.org>
-Uploaders: Juan Cespedes <cespedes@debian.org>
-Standards-Version: 3.6.2.2
-Build-Depends: @cdbs@, binutils-dev, dpatch, libelfg0-dev
+Maintainer: Juan Cespedes <cespedes@debian.org>
+Uploaders: Ian Wienand <ianw@debian.org>
+Standards-Version: 3.7.2
+Build-Depends: @cdbs@, binutils-dev, libelfg0-dev
 
 Package: ltrace
 Architecture: i386 arm m68k s390 powerpc sparc alpha amd64 ia64 ppc64

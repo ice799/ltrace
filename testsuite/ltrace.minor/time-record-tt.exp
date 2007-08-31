@@ -13,7 +13,7 @@ if  { [ ltrace_compile "${srcdir}/${subdir}/${testfile}.c" "${srcdir}/${subdir}/
 # Set options for ltrace.
 ltrace_options "-tt"
 
-# Run PUT for ltarce.
+# Run PUT for ltrace.
 set exec_output [ltrace_runtest $srcdir/$subdir $srcdir/$subdir/$binfile]
 
 # Check the output of this program.

@@ -4,18 +4,15 @@
   + Read list of undefined symbols in executables
   + Read list of exported symbols in libraries
   + Read debugging info from executables/libraries
-* Update list of syscalls automatically?
+* Automatically update list of syscalls?
 * Improve documentation
-* Improve -e option
+* Improve -e/-x options (regexp?)
 * Improve -l option
 * Improve C++ name demangling
 * Display different argument types:
   + how to display execl...?
   + format+: for scanf()...: display args as pointers, and imply `+' for args
 * Update /etc/ltrace.conf
-* netscape:
-  + Why does it show so many `breakpointed at:' messages?
-    \- Is this still true?
 * More architectures: sparc64...
 * More operating systems (solaris?)
 * Option -I (inter-library calls)

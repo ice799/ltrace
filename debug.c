@@ -31,52 +31,7 @@ debug_(int level, const char *file, int line, const char *func, const char *fmt,
 #include <stdlib.h>
 #include <sys/ptrace.h>
 
-int xwrite(const char *string, size_t len)
-{
-	int rc = 0;
-	rc = write(1, string, len);
-	return rc;
-}
-
-int xwrites(const char *string)
-{
-	size_t len = 0;
-	int rc = 0;
-	const char *tstring = string;
-
-	while (*tstring++ != '\0') {
-		len++;
-	}
-
-	if (len > 0) {
-		rc = xwrite(string, len);
-	}
-
-	return rc;
-}
-
-int xwritehexi(int i)
-{
-	int rc = 0;
-	char text[9];
-	int j;
-	unsigned int temp = (unsigned int)i;
-
-	for (j = 7; j >= 0; j--) {
-		char c;
-		c = (char)((temp & 0x0f) + '0');
-		if (c > '9') {
-			c = (char)(c + ('a' - '9' - 1));
-		}
-		text[j] = c;
-		temp = temp >> 4;
-	}
-
-	rc = write(1, text, 8);
-	return rc;
-}
-
-int xwritehexl(long i)
+static int xwritehexl(long i)
 {
 	int rc = 0;
 	char text[17];
@@ -97,7 +52,7 @@ int xwritehexl(long i)
 	return rc;
 }
 
-int xwritec(char c)
+static int xwritec(char c)
 {
 	char temp = c;
 	char *text = &temp;
@@ -106,12 +61,12 @@ int xwritec(char c)
 	return rc;
 }
 
-int xwritecr(void)
+static int xwritecr(void)
 {
 	return xwritec('\n');
 }
 
-int xwritedump(void *ptr, long addr, int len)
+static int xwritedump(void *ptr, long addr, int len)
 {
 	int rc = 0;
 	long *tprt = (long *)ptr;

@@ -13,7 +13,7 @@ if  { [ ltrace_compile "${srcdir}/${subdir}/${testfile}.c" "${srcdir}/${subdir}/
 global LTRACE
 set exec_output ""
 
-#Run PUT for ltarce.
+#Run PUT for ltrace.
 spawn $LTRACE -f $srcdir/$subdir/$binfile
 set timeout 4
 expect timeout  {
