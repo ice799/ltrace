@@ -111,7 +111,7 @@ struct event *wait_for_something(void)
 	if (stop_signal != (SIGTRAP | event.proc->tracesysgood)
 	    && stop_signal != SIGTRAP) {
 		event.thing = LT_EV_SIGNAL;
- 		event.e_un.signum = stop_signal;
+		event.e_un.signum = stop_signal;
 		return &event;
 	}
 

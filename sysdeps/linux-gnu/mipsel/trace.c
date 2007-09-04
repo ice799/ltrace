@@ -118,7 +118,7 @@ arguments somewhere on the call.
 I'm not doing any floating point support here. 
 
 */
-long gimme_arg(enum tof type, struct process *proc, int arg_num)
+long gimme_arg(enum tof type, struct process *proc, int arg_num, arg_type_info *info)
 {
     long ret;
     debug(2,"type %d arg %d",type,arg_num);

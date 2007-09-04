@@ -225,10 +225,9 @@ static void process_sysret(struct event *event)
 	if (fork_p(event->proc, event->e_un.sysnum)) {
 		if (opt_f) {
 			arg_type_info info;
-			info.arg_num = -1; /* Return value */
 			info.type = ARGTYPE_LONG;
 			pid_t child =
-			    gimme_arg(LT_TOF_SYSCALLR, event->proc, &info);
+			    gimme_arg(LT_TOF_SYSCALLR, event->proc, -1, &info);
 			if (child > 0) {
 				open_pid(child, 0);
 			}
@@ -253,10 +252,10 @@ static void process_breakpoint(struct event *event)
 #ifdef __powerpc__
 		struct breakpoint *nxtbp;
 		char nop_inst[] = PPC_NOP;
-                if (memcmp(sbp->orig_value, nop_inst, PPC_NOP_LENGTH) == 0) {
-                	nxtbp = address2bpstruct(event->proc,
-                                                 event->e_un.brk_addr +
-                                                 	PPC_NOP_LENGTH);
+		if (memcmp(sbp->orig_value, nop_inst, PPC_NOP_LENGTH) == 0) {
+			nxtbp = address2bpstruct(event->proc,
+					event->e_un.brk_addr +
+					PPC_NOP_LENGTH);
 			if (nxtbp != 0) {
 				enable_breakpoint(event->proc->pid, sbp);
 				continue_after_breakpoint(event->proc, nxtbp);
@@ -308,22 +307,22 @@ static void process_breakpoint(struct event *event)
 				}
 			}
 #elif defined(__mips__)
-                        void *addr;
-                        void *old_addr;
-                        struct library_symbol *sym= event->proc->callstack[i].c_un.libfunc;
-                        assert(sym && sym->brkpnt);
-                        old_addr=sym->brkpnt->addr;
-                        addr=sym2addr(event->proc,sym);
-                        assert(old_addr !=0 && addr !=0);
-                        if(addr != old_addr){
-                            struct library_symbol *new_sym;
-                            new_sym=malloc(sizeof(*new_sym));
-                            memcpy(new_sym,sym,sizeof(*new_sym));
-                            new_sym->next=event->proc->list_of_symbols;
-                            event->proc->list_of_symbols=new_sym;
-                            new_sym->brkpnt=0;
-                            insert_breakpoint(event->proc, addr, new_sym);
-                        }
+			void *addr;
+			void *old_addr;
+			struct library_symbol *sym= event->proc->callstack[i].c_un.libfunc;
+			assert(sym && sym->brkpnt);
+			old_addr=sym->brkpnt->addr;
+			addr=sym2addr(event->proc,sym);
+			assert(old_addr !=0 && addr !=0);
+			if(addr != old_addr){
+				struct library_symbol *new_sym;
+				new_sym=malloc(sizeof(*new_sym));
+				memcpy(new_sym,sym,sizeof(*new_sym));
+				new_sym->next=event->proc->list_of_symbols;
+				event->proc->list_of_symbols=new_sym;
+				new_sym->brkpnt=0;
+				insert_breakpoint(event->proc, addr, new_sym);
+			}
 #endif
 			for (j = event->proc->callstack_depth - 1; j > i; j--) {
 				callstack_pop(event->proc);
@@ -404,7 +403,7 @@ callstack_push_symfunc(struct process *proc, struct library_symbol *sym)
 	elem->c_un.libfunc = sym;
 
 	elem->return_addr = proc->return_addr;
-        if (elem->return_addr) {
+	if (elem->return_addr) {
 		insert_breakpoint(proc, elem->return_addr, 0);
 	}
 

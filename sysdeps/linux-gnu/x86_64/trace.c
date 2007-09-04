@@ -86,10 +86,8 @@ gimme_arg32(enum tof type, struct process *proc, int arg_num)
 	exit(1);
 }
 
-long gimme_arg(enum tof type, struct process *proc, arg_type_info *info)
+long gimme_arg(enum tof type, struct process *proc, int arg_num, arg_type_info *info)
 {
-	int arg_num = info->arg_num;
-
 	if (proc->mask_32bit)
 		return (unsigned int)gimme_arg32(type, proc, arg_num);
 

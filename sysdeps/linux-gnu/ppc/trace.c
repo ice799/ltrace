@@ -56,10 +56,8 @@ int syscall_p(struct process *proc, int status, int *sysnum)
 	return 0;
 }
 
-long gimme_arg(enum tof type, struct process *proc, arg_type_info *info)
+long gimme_arg(enum tof type, struct process *proc, int arg_num, arg_type_info *info)
 {
-	int arg_num = info->arg_num;
-
 	if (arg_num == -1) {	/* return value */
 		return ptrace(PTRACE_PEEKUSER, proc->pid, sizeof(long) * PT_R3,
 			      0);

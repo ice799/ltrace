@@ -55,7 +55,6 @@ enum arg_type {
 
 typedef struct arg_type_info_t {
 	enum arg_type type;
-	int arg_num;
 	union {
 		// ARGTYPE_ENUM
 		struct {
@@ -106,7 +105,7 @@ enum tof {
 	LT_TOF_FUNCTIONR,	/* Return from a real library function */
 	LT_TOF_SYSCALL,		/* A syscall */
 	LT_TOF_SYSCALLR,	/* Return from a syscall */
-        LT_TOF_STRUCT		/* Not a function; read args from struct */
+	LT_TOF_STRUCT		/* Not a function; read args from struct */
 };
 
 struct function {
@@ -211,7 +210,7 @@ extern void *instruction_pointer;
 extern struct event *wait_for_something(void);
 extern void process_event(struct event *event);
 extern void execute_program(struct process *, char **);
-extern int display_arg(enum tof type, struct process *proc, arg_type_info *info);
+extern int display_arg(enum tof type, struct process *proc, int arg_num, arg_type_info *info);
 extern struct breakpoint *address2bpstruct(struct process *proc, void *addr);
 extern void breakpoints_init(struct process *proc);
 extern void insert_breakpoint(struct process *proc, void *addr,
@@ -248,7 +247,7 @@ extern void continue_after_signal(pid_t pid, int signum);
 extern void continue_after_breakpoint(struct process *proc,
 				      struct breakpoint *sbp);
 extern void continue_enabling_breakpoint(pid_t pid, struct breakpoint *sbp);
-extern long gimme_arg(enum tof type, struct process *proc, arg_type_info *);
+extern long gimme_arg(enum tof type, struct process *proc, int arg_num, arg_type_info *info);
 extern void save_register_args(enum tof type, struct process *proc);
 extern int umovestr(struct process *proc, void *addr, int len, void *laddr);
 extern int umovelong(struct process *proc, void *addr, long *result);

@@ -118,11 +118,13 @@ int main(int argc, char **argv)
 		if (opt_F->filename[0] == '~') {
 			char path[PATH_MAX];
 			char *home_dir = getenv("HOME");
-			strncpy(path, home_dir, PATH_MAX - 1);
-			path[PATH_MAX - 1] = '\0';
-			strncat(path, opt_F->filename + 1,
-					PATH_MAX - strlen(path) - 1);
-			read_config_file(path);
+			if (home_dir) {
+				strncpy(path, home_dir, PATH_MAX - 1);
+				path[PATH_MAX - 1] = '\0';
+				strncat(path, opt_F->filename + 1,
+						PATH_MAX - strlen(path) - 1);
+				read_config_file(path);
+			}
 		} else {
 			read_config_file(opt_F->filename);
 		}

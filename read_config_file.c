@@ -88,7 +88,7 @@ static arg_type_info *str2type(char **str)
 
 	while (tmp->name) {
 		if (!strncmp(*str, tmp->name, strlen(tmp->name))
-		    && index(" ,()#*;012345[", *(*str + strlen(tmp->name)))) {
+				&& index(" ,()#*;012345[", *(*str + strlen(tmp->name)))) {
 			*str += strlen(tmp->name);
 			return lookup_prototype(tmp->pt);
 		}
@@ -106,28 +106,28 @@ static void eat_spaces(char **str)
 
 static char *xstrndup(char *str, size_t len)
 {
-    char *ret = (char *) malloc(len + 1);
-    strncpy(ret, str, len);
-    ret[len] = 0;
-    return ret;
+	char *ret = (char *) malloc(len + 1);
+	strncpy(ret, str, len);
+	ret[len] = 0;
+	return ret;
 }
 
 static char *parse_ident(char **str)
 {
-    char *ident = *str;
+	char *ident = *str;
 
-    if (!isalnum(**str) && **str != '_') {
-	output_line(0, "Syntax error in `%s', line %d: Bad identifier",
-		    filename, line_no);
-	error_count++;
-	return NULL;
-    }
+	if (!isalnum(**str) && **str != '_') {
+		output_line(0, "Syntax error in `%s', line %d: Bad identifier",
+				filename, line_no);
+		error_count++;
+		return NULL;
+	}
 
-    while (**str && (isalnum(**str) || **str == '_')) {
-	++(*str);
-    }
+	while (**str && (isalnum(**str) || **str == '_')) {
+		++(*str);
+	}
 
-    return xstrndup(ident, *str - ident);
+	return xstrndup(ident, *str - ident);
 }
 
 /*
@@ -164,17 +164,17 @@ static char *start_of_arg_sig(char *str)
 
 static int parse_int(char **str)
 {
-    char *end;
-    long n = strtol(*str, &end, 0);
-    if (end == *str) {
-	output_line(0, "Syntax error in `%s', line %d: Bad number (%s)",
-		    filename, line_no, *str);
-	error_count++;
-	return 0;
-    }
+	char *end;
+	long n = strtol(*str, &end, 0);
+	if (end == *str) {
+		output_line(0, "Syntax error in `%s', line %d: Bad number (%s)",
+				filename, line_no, *str);
+		error_count++;
+		return 0;
+	}
 
-    *str = end;
-    return n;
+	*str = end;
+	return n;
 }
 
 /*
@@ -192,192 +192,192 @@ static int parse_int(char **str)
  */
 static int parse_argnum(char **str)
 {
-    int multiplier = 1;
-    int n = 0;
+	int multiplier = 1;
+	int n = 0;
 
-    if (strncmp(*str, "arg", 3) == 0) {
-	(*str) += 3;
-	multiplier = -1;
-    } else if (strncmp(*str, "elt", 3) == 0) {
-	(*str) += 3;
-	multiplier = -1;
-    } else if (strncmp(*str, "retval", 6) == 0) {
-	(*str) += 6;
-	return 0;
-    }
+	if (strncmp(*str, "arg", 3) == 0) {
+		(*str) += 3;
+		multiplier = -1;
+	} else if (strncmp(*str, "elt", 3) == 0) {
+		(*str) += 3;
+		multiplier = -1;
+	} else if (strncmp(*str, "retval", 6) == 0) {
+		(*str) += 6;
+		return 0;
+	}
 
-    n = parse_int(str);
+	n = parse_int(str);
 
-    return n * multiplier;
+	return n * multiplier;
 }
 
 struct typedef_node_t {
-    char *name;
-    arg_type_info *info;
-    struct typedef_node_t *next;
+	char *name;
+	arg_type_info *info;
+	struct typedef_node_t *next;
 } *typedefs = NULL;
 
 static arg_type_info *lookup_typedef(char **str)
 {
-    struct typedef_node_t *node;
-    char *end = *str;
-    while (*end && (isalnum(*end) || *end == '_'))
-	++end;
-    if (end == *str)
-	return NULL;
+	struct typedef_node_t *node;
+	char *end = *str;
+	while (*end && (isalnum(*end) || *end == '_'))
+		++end;
+	if (end == *str)
+		return NULL;
 
-    for (node = typedefs; node != NULL; node = node->next) {
-	if (strncmp(*str, node->name, end - *str) == 0) {
-	    (*str) += strlen(node->name);
-	    return node->info;
+	for (node = typedefs; node != NULL; node = node->next) {
+		if (strncmp(*str, node->name, end - *str) == 0) {
+			(*str) += strlen(node->name);
+			return node->info;
+		}
 	}
-    }
 
-    return NULL;
+	return NULL;
 }
 
 static void parse_typedef(char **str)
 {
-    char *name;
-    arg_type_info *info;
-    struct typedef_node_t *binding;
+	char *name;
+	arg_type_info *info;
+	struct typedef_node_t *binding;
 
-    (*str) += strlen("typedef");
-    eat_spaces(str);
+	(*str) += strlen("typedef");
+	eat_spaces(str);
 
-    // Grab out the name of the type
-    name = parse_ident(str);
+	// Grab out the name of the type
+	name = parse_ident(str);
 
-    // Skip = sign
-    eat_spaces(str);
-    if (**str != '=') {
-	output_line(0,
-		    "Syntax error in `%s', line %d: expected '=', got '%c'",
-		    filename, line_no, **str);
-	error_count++;
-	return;
-    }
-    (*str)++;
-    eat_spaces(str);
+	// Skip = sign
+	eat_spaces(str);
+	if (**str != '=') {
+		output_line(0,
+				"Syntax error in `%s', line %d: expected '=', got '%c'",
+				filename, line_no, **str);
+		error_count++;
+		return;
+	}
+	(*str)++;
+	eat_spaces(str);
 
-    // Parse the type
-    info = parse_type(str);
+	// Parse the type
+	info = parse_type(str);
 
-    // Insert onto beginning of linked list
-    binding = malloc(sizeof(*binding));
-    binding->name = name;
-    binding->info = info;
-    binding->next = typedefs;
-    typedefs = binding;
+	// Insert onto beginning of linked list
+	binding = malloc(sizeof(*binding));
+	binding->name = name;
+	binding->info = info;
+	binding->next = typedefs;
+	typedefs = binding;
 }
 
 static size_t arg_sizeof(arg_type_info * arg)
 {
-    if (arg->type == ARGTYPE_CHAR) {
-	return sizeof(char);
-    } else if (arg->type == ARGTYPE_SHORT || arg->type == ARGTYPE_USHORT) {
-	return sizeof(short);
-    } else if (arg->type == ARGTYPE_FLOAT) {
-	return sizeof(float);
-    } else if (arg->type == ARGTYPE_DOUBLE) {
-	return sizeof(double);
-    } else if (arg->type == ARGTYPE_ENUM) {
-	return sizeof(int);
-    } else if (arg->type == ARGTYPE_STRUCT) {
-	return arg->u.struct_info.size;
-    } else if (arg->type == ARGTYPE_POINTER) {
-	return sizeof(void*);
-    } else if (arg->type == ARGTYPE_ARRAY) {
-	if (arg->u.array_info.len_spec > 0)
-	    return arg->u.array_info.len_spec * arg->u.array_info.elt_size;
-	else
-	    return sizeof(void *);
-    } else {
-	return sizeof(int);
-    }
+	if (arg->type == ARGTYPE_CHAR) {
+		return sizeof(char);
+	} else if (arg->type == ARGTYPE_SHORT || arg->type == ARGTYPE_USHORT) {
+		return sizeof(short);
+	} else if (arg->type == ARGTYPE_FLOAT) {
+		return sizeof(float);
+	} else if (arg->type == ARGTYPE_DOUBLE) {
+		return sizeof(double);
+	} else if (arg->type == ARGTYPE_ENUM) {
+		return sizeof(int);
+	} else if (arg->type == ARGTYPE_STRUCT) {
+		return arg->u.struct_info.size;
+	} else if (arg->type == ARGTYPE_POINTER) {
+		return sizeof(void*);
+	} else if (arg->type == ARGTYPE_ARRAY) {
+		if (arg->u.array_info.len_spec > 0)
+			return arg->u.array_info.len_spec * arg->u.array_info.elt_size;
+		else
+			return sizeof(void *);
+	} else {
+		return sizeof(int);
+	}
 }
 
 #undef alignof
 #define alignof(field,st) ((size_t) ((char*) &st.field - (char*) &st))
 static size_t arg_align(arg_type_info * arg)
 {
-    struct { char c; char C; } cC;
-    struct { char c; short s; } cs;
-    struct { char c; int i; } ci;
-    struct { char c; long l; } cl;
-    struct { char c; void* p; } cp;
-    struct { char c; float f; } cf;
-    struct { char c; double d; } cd;
+	struct { char c; char C; } cC;
+	struct { char c; short s; } cs;
+	struct { char c; int i; } ci;
+	struct { char c; long l; } cl;
+	struct { char c; void* p; } cp;
+	struct { char c; float f; } cf;
+	struct { char c; double d; } cd;
 
-    static size_t char_alignment = alignof(C, cC);
-    static size_t short_alignment = alignof(s, cs);
-    static size_t int_alignment = alignof(i, ci);
-    static size_t long_alignment = alignof(l, cl);
-    static size_t ptr_alignment = alignof(p, cp);
-    static size_t float_alignment = alignof(f, cf);
-    static size_t double_alignment = alignof(d, cd);
+	static size_t char_alignment = alignof(C, cC);
+	static size_t short_alignment = alignof(s, cs);
+	static size_t int_alignment = alignof(i, ci);
+	static size_t long_alignment = alignof(l, cl);
+	static size_t ptr_alignment = alignof(p, cp);
+	static size_t float_alignment = alignof(f, cf);
+	static size_t double_alignment = alignof(d, cd);
 
-    switch (arg->type) {
-    case ARGTYPE_LONG:
-    case ARGTYPE_ULONG:
-	return long_alignment;
-    case ARGTYPE_CHAR:
-	return char_alignment;
-    case ARGTYPE_SHORT:
-    case ARGTYPE_USHORT:
-	return short_alignment;
-    case ARGTYPE_FLOAT:
-	return float_alignment;
-    case ARGTYPE_DOUBLE:
-	return double_alignment;
-    case ARGTYPE_ADDR:
-    case ARGTYPE_FILE:
-    case ARGTYPE_FORMAT:
-    case ARGTYPE_STRING:
-    case ARGTYPE_STRING_N:
-    case ARGTYPE_POINTER:
-	return ptr_alignment;
+	switch (arg->type) {
+		case ARGTYPE_LONG:
+		case ARGTYPE_ULONG:
+			return long_alignment;
+		case ARGTYPE_CHAR:
+			return char_alignment;
+		case ARGTYPE_SHORT:
+		case ARGTYPE_USHORT:
+			return short_alignment;
+		case ARGTYPE_FLOAT:
+			return float_alignment;
+		case ARGTYPE_DOUBLE:
+			return double_alignment;
+		case ARGTYPE_ADDR:
+		case ARGTYPE_FILE:
+		case ARGTYPE_FORMAT:
+		case ARGTYPE_STRING:
+		case ARGTYPE_STRING_N:
+		case ARGTYPE_POINTER:
+			return ptr_alignment;
 
-    case ARGTYPE_ARRAY:
-	return arg_align(&arg->u.array_info.elt_type[0]);
+		case ARGTYPE_ARRAY:
+			return arg_align(&arg->u.array_info.elt_type[0]);
 
-    case ARGTYPE_STRUCT:
-	return arg_align(arg->u.struct_info.fields[0]);
-	
-    default:
-	return int_alignment;
-    }
+		case ARGTYPE_STRUCT:
+			return arg_align(arg->u.struct_info.fields[0]);
+
+		default:
+			return int_alignment;
+	}
 }
 
 static size_t align_skip(size_t alignment, size_t offset)
 {
-    if (offset % alignment)
-	return alignment - (offset % alignment);
-    else
-	return 0;
+	if (offset % alignment)
+		return alignment - (offset % alignment);
+	else
+		return 0;
 }
 
 /* I'm sure this isn't completely correct, but just try to get most of
  * them right for now. */
 static void align_struct(arg_type_info* info)
 {
-    size_t offset;
-    int i;
+	size_t offset;
+	int i;
 
-    if (info->u.struct_info.size != 0)
-	return;			// Already done
+	if (info->u.struct_info.size != 0)
+		return;			// Already done
 
-    // Compute internal padding due to alignment constraints for
-    // various types.
-    offset = 0;
-    for (i = 0; info->u.struct_info.fields[i] != NULL; i++) {
-	arg_type_info *field = info->u.struct_info.fields[i];
-	offset += align_skip(arg_align(field), offset);
-	info->u.struct_info.offset[i] = offset;
-	offset += arg_sizeof(field);
-    }
+	// Compute internal padding due to alignment constraints for
+	// various types.
+	offset = 0;
+	for (i = 0; info->u.struct_info.fields[i] != NULL; i++) {
+		arg_type_info *field = info->u.struct_info.fields[i];
+		offset += align_skip(arg_align(field), offset);
+		info->u.struct_info.offset[i] = offset;
+		offset += arg_sizeof(field);
+	}
 
-    info->u.struct_info.size = offset;
+	info->u.struct_info.size = offset;
 }
 
 static arg_type_info *parse_nonpointer_type(char **str)
@@ -386,17 +386,17 @@ static arg_type_info *parse_nonpointer_type(char **str)
 	arg_type_info *info;
 
 	if (strncmp(*str, "typedef", 7) == 0) {
-	    parse_typedef(str);
-	    return lookup_prototype(ARGTYPE_UNKNOWN);
+		parse_typedef(str);
+		return lookup_prototype(ARGTYPE_UNKNOWN);
 	}
 
 	simple = str2type(str);
 	if (simple->type == ARGTYPE_UNKNOWN) {
-	    info = lookup_typedef(str);
-	    if (info)
-		return info;
-	    else
-		return simple;		// UNKNOWN
+		info = lookup_typedef(str);
+		if (info)
+			return info;
+		else
+			return simple;		// UNKNOWN
 	}
 
 	info = malloc(sizeof(*info));
@@ -409,149 +409,149 @@ static arg_type_info *parse_nonpointer_type(char **str)
 
 	/* Syntax: array ( type, N|argN ) */
 	case ARGTYPE_ARRAY:
-	    (*str)++;		// Get past open paren
-	    eat_spaces(str);
-	    if ((info->u.array_info.elt_type = parse_type(str)) == NULL)
-		return NULL;
-	    info->u.array_info.elt_size =
-		arg_sizeof(info->u.array_info.elt_type);
-	    (*str)++;		// Get past comma
-	    eat_spaces(str);
-	    info->u.array_info.len_spec = parse_argnum(str);
-	    (*str)++;		// Get past close paren
-	    return info;
+		(*str)++;		// Get past open paren
+		eat_spaces(str);
+		if ((info->u.array_info.elt_type = parse_type(str)) == NULL)
+			return NULL;
+		info->u.array_info.elt_size =
+			arg_sizeof(info->u.array_info.elt_type);
+		(*str)++;		// Get past comma
+		eat_spaces(str);
+		info->u.array_info.len_spec = parse_argnum(str);
+		(*str)++;		// Get past close paren
+		return info;
 
 	/* Syntax: enum ( keyname=value,keyname=value,... ) */
 	case ARGTYPE_ENUM:{
-	    struct enum_opt {
-		char *key;
-		int value;
-		struct enum_opt *next;
-	    };
-	    struct enum_opt *list = NULL;
-	    struct enum_opt *p;
-	    int entries = 0;
-	    int ii;
+		struct enum_opt {
+			char *key;
+			int value;
+			struct enum_opt *next;
+		};
+		struct enum_opt *list = NULL;
+		struct enum_opt *p;
+		int entries = 0;
+		int ii;
 
-	    eat_spaces(str);
-	    (*str)++;		// Get past open paren
-	    eat_spaces(str);
-
-	    while (**str && **str != ')') {
-		p = (struct enum_opt *) malloc(sizeof(*p));
 		eat_spaces(str);
-		p->key = parse_ident(str);
-		if (error_count) {
-		    free(p);
-		    return NULL;
+		(*str)++;		// Get past open paren
+		eat_spaces(str);
+
+		while (**str && **str != ')') {
+			p = (struct enum_opt *) malloc(sizeof(*p));
+			eat_spaces(str);
+			p->key = parse_ident(str);
+			if (error_count) {
+				free(p);
+				return NULL;
+			}
+			eat_spaces(str);
+			if (**str != '=') {
+				free(p->key);
+				free(p);
+				output_line(0,
+						"Syntax error in `%s', line %d: expected '=', got '%c'",
+						filename, line_no, **str);
+				error_count++;
+				return NULL;
+			}
+			++(*str);
+			eat_spaces(str);
+			p->value = parse_int(str);
+			p->next = list;
+			list = p;
+			++entries;
+
+			// Skip comma
+			eat_spaces(str);
+			if (**str == ',') {
+				(*str)++;
+				eat_spaces(str);
+			}
 		}
-		eat_spaces(str);
-		if (**str != '=') {
-		    free(p->key);
-		    free(p);
-		    output_line(0,
-				"Syntax error in `%s', line %d: expected '=', got '%c'",
-				filename, line_no, **str);
-		    error_count++;
-		    return NULL;
-		}
-		++(*str);
-		eat_spaces(str);
-		p->value = parse_int(str);
-		p->next = list;
-		list = p;
-		++entries;
 
-		// Skip comma
-		eat_spaces(str);
-		if (**str == ',') {
-		    (*str)++;
-		    eat_spaces(str);
+		info->u.enum_info.entries = entries;
+		info->u.enum_info.keys =
+			(char **) malloc(entries * sizeof(char *));
+		info->u.enum_info.values =
+			(int *) malloc(entries * sizeof(int));
+		for (ii = 0, p = NULL; list; ++ii, list = list->next) {
+			if (p)
+				free(p);
+			info->u.enum_info.keys[ii] = list->key;
+			info->u.enum_info.values[ii] = list->value;
+			p = list;
 		}
-	    }
-
-	    info->u.enum_info.entries = entries;
-	    info->u.enum_info.keys =
-		(char **) malloc(entries * sizeof(char *));
-	    info->u.enum_info.values =
-		(int *) malloc(entries * sizeof(int));
-	    for (ii = 0, p = NULL; list; ++ii, list = list->next) {
 		if (p)
-		    free(p);
-		info->u.enum_info.keys[ii] = list->key;
-		info->u.enum_info.values[ii] = list->value;
-		p = list;
-	    }
-	    if (p)
-		free(p);
+			free(p);
 
-	    return info;
+		return info;
 	}
 
 	case ARGTYPE_STRING:
-	    if (!isdigit(**str) && **str != '[') {
-		/* Oops, was just a simple string after all */
-		free(info);
-		return simple;
-	    }
+		if (!isdigit(**str) && **str != '[') {
+			/* Oops, was just a simple string after all */
+			free(info);
+			return simple;
+		}
 
-	    info->type = ARGTYPE_STRING_N;
+		info->type = ARGTYPE_STRING_N;
 
-	    /* Backwards compatibility for string0, string1, ... */
-	    if (isdigit(**str)) {
-		info->u.string_n_info.size_spec = -parse_int(str);
+		/* Backwards compatibility for string0, string1, ... */
+		if (isdigit(**str)) {
+			info->u.string_n_info.size_spec = -parse_int(str);
+			return info;
+		}
+
+		(*str)++;		// Skip past opening [
+		eat_spaces(str);
+		info->u.string_n_info.size_spec = parse_argnum(str);
+		eat_spaces(str);
+		(*str)++;		// Skip past closing ]
 		return info;
-	    }
-
-	    (*str)++;		// Skip past opening [
-	    eat_spaces(str);
-	    info->u.string_n_info.size_spec = parse_argnum(str);
-	    eat_spaces(str);
-	    (*str)++;		// Skip past closing ]
-	    return info;
 
 	// Syntax: struct ( type,type,type,... )
-    case ARGTYPE_STRUCT:{
-	    int field_num = 0;
-	    (*str)++;		// Get past open paren
-	    info->u.struct_info.fields =
-		malloc((MAX_ARGS + 1) * sizeof(void *));
-	    info->u.struct_info.offset =
-		malloc((MAX_ARGS + 1) * sizeof(size_t));
-	    info->u.struct_info.size = 0;
-	    eat_spaces(str); // Empty arg list with whitespace inside
-	    while (**str && **str != ')') {
-		if (field_num == MAX_ARGS) {
-		    output_line(0,
-				"Error in `%s', line %d: Too many structure elements",
-				filename, line_no);
-		    error_count++;
-		    return NULL;
-		}
-		eat_spaces(str);
-		if (field_num != 0) {
-		    (*str)++;	// Get past comma
-		    eat_spaces(str);
-		}
-		if ((info->u.struct_info.fields[field_num++] =
-		     parse_type(str)) == NULL)
-		    return NULL;
+	case ARGTYPE_STRUCT:{
+		int field_num = 0;
+		(*str)++;		// Get past open paren
+		info->u.struct_info.fields =
+			malloc((MAX_ARGS + 1) * sizeof(void *));
+		info->u.struct_info.offset =
+			malloc((MAX_ARGS + 1) * sizeof(size_t));
+		info->u.struct_info.size = 0;
+		eat_spaces(str); // Empty arg list with whitespace inside
+		while (**str && **str != ')') {
+			if (field_num == MAX_ARGS) {
+				output_line(0,
+						"Error in `%s', line %d: Too many structure elements",
+						filename, line_no);
+				error_count++;
+				return NULL;
+			}
+			eat_spaces(str);
+			if (field_num != 0) {
+				(*str)++;	// Get past comma
+				eat_spaces(str);
+			}
+			if ((info->u.struct_info.fields[field_num++] =
+						parse_type(str)) == NULL)
+				return NULL;
 
-		// Must trim trailing spaces so the check for
-		// the closing paren is simple
-		eat_spaces(str);
-	    }
-	    (*str)++;		// Get past closing paren
-	    info->u.struct_info.fields[field_num] = NULL;
-	    align_struct(info);
-	    return info;
+			// Must trim trailing spaces so the check for
+			// the closing paren is simple
+			eat_spaces(str);
+		}
+		(*str)++;		// Get past closing paren
+		info->u.struct_info.fields[field_num] = NULL;
+		align_struct(info);
+		return info;
 	}
 
 	default:
 		if (info->type == ARGTYPE_UNKNOWN) {
 			output_line(0, "Syntax error in `%s', line %d: "
-				    "Unknown type encountered",
-				    filename, line_no);
+					"Unknown type encountered",
+					filename, line_no);
 			free(info);
 			error_count++;
 			return NULL;
@@ -593,13 +593,12 @@ static struct function *process_line(char *buf)
 		debug(3, " Skipping line %d", line_no);
 		return NULL;
 	}
-	fun.return_info->arg_num = -1;
 	debug(4, " return_type = %d", fun.return_info->type);
 	eat_spaces(&str);
 	tmp = start_of_arg_sig(str);
 	if (!tmp) {
 		output_line(0, "Syntax error in `%s', line %d", filename,
-			    line_no);
+				line_no);
 		error_count++;
 		return NULL;
 	}
@@ -622,8 +621,8 @@ static struct function *process_line(char *buf)
 		fun.arg_info[i] = parse_type(&str);
 		if (fun.arg_info[i] == NULL) {
 			output_line(0, "Syntax error in `%s', line %d"
-                                    ": unknown argument type",
-				    filename, line_no);
+					": unknown argument type",
+					filename, line_no);
 			error_count++;
 			return NULL;
 		}
@@ -631,7 +630,6 @@ static struct function *process_line(char *buf)
 			fun.arg_info[i]->u.float_info.float_index = float_num++;
 		else if (fun.arg_info[i]->type == ARGTYPE_DOUBLE)
 			fun.arg_info[i]->u.double_info.float_index = float_num++;
-		fun.arg_info[i]->arg_num = i;
 		eat_spaces(&str);
 		if (*str == ',') {
 			str++;
@@ -642,7 +640,7 @@ static struct function *process_line(char *buf)
 			if (str[strlen(str) - 1] == '\n')
 				str[strlen(str) - 1] = '\0';
 			output_line(0, "Syntax error in `%s', line %d at ...\"%s\"",
-				    filename, line_no, str);
+					filename, line_no, str);
 			error_count++;
 			return NULL;
 		}

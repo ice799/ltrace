@@ -27,9 +27,9 @@ struct ltelf {
 	int hash_type;
 	int lte_flags;
 #ifdef __mips__
-        size_t pltgot_addr;
-        size_t mips_local_gotno;
-        size_t mips_gotsym;
+	size_t pltgot_addr;
+	size_t mips_local_gotno;
+	size_t mips_gotsym;
 #endif // __mips__
 };
 
