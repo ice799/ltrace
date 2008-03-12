@@ -250,7 +250,7 @@ extern void continue_enabling_breakpoint(pid_t pid, struct breakpoint *sbp);
 extern long gimme_arg(enum tof type, struct process *proc, int arg_num, arg_type_info *info);
 extern void save_register_args(enum tof type, struct process *proc);
 extern int umovestr(struct process *proc, void *addr, int len, void *laddr);
-extern int umovelong(struct process *proc, void *addr, long *result);
+extern int umovelong (struct process *proc, void *addr, long *result, arg_type_info *info);
 extern int ffcheck(void *maddr);
 extern void *sym2addr(struct process *, struct library_symbol *);
 

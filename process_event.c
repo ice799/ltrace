@@ -248,21 +248,29 @@ static void process_breakpoint(struct event *event)
 	struct breakpoint *sbp;
 
 	debug(2, "event: breakpoint (%p)", event->e_un.brk_addr);
-	if ((sbp = event->proc->breakpoint_being_enabled) != 0) {
+
 #ifdef __powerpc__
-		struct breakpoint *nxtbp;
-		char nop_inst[] = PPC_NOP;
-		if (memcmp(sbp->orig_value, nop_inst, PPC_NOP_LENGTH) == 0) {
-			nxtbp = address2bpstruct(event->proc,
-					event->e_un.brk_addr +
-					PPC_NOP_LENGTH);
-			if (nxtbp != 0) {
-				enable_breakpoint(event->proc->pid, sbp);
-				continue_after_breakpoint(event->proc, nxtbp);
+	/* Need to skip following NOP's to prevent a fake function from being stacked.  */
+	long stub_addr = (long) get_count_register(event->proc);
+	struct breakpoint *stub_bp = NULL;
+	char nop_instruction[] = PPC_NOP;
+
+	stub_bp = address2bpstruct (event->proc, event->e_un.brk_addr);
+
+	if (stub_bp) {
+		unsigned char *bp_instruction = stub_bp->orig_value;
+
+		if (memcmp(bp_instruction, nop_instruction,
+			    PPC_NOP_LENGTH) == 0) {
+			if (stub_addr != (long) event->e_un.brk_addr) {
+				set_instruction_pointer (event->proc, event->e_un.brk_addr + 4);
+				continue_process(event->proc->pid);
 				return;
 			}
 		}
+	}
 #endif
+	if ((sbp = event->proc->breakpoint_being_enabled) != 0) {
 		/* Reinsert breakpoint */
 		continue_enabling_breakpoint(event->proc->pid,
 					     event->proc->

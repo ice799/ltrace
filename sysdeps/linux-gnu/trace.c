@@ -73,6 +73,29 @@ static int fork_exec_syscalls[][5] = {
 #endif
 };
 
+#ifdef ARCH_HAVE_UMOVELONG
+extern int arch_umovelong (struct process *, void *, long *, arg_type_info *);
+int umovelong (struct process *proc, void *addr, long *result, arg_type_info *info)
+{
+	return arch_umovelong (proc, addr, result, info);
+}
+#else
+/* Read a single long from the process's memory address 'addr' */
+int umovelong (struct process *proc, void *addr, long *result, arg_type_info *info)
+{
+	long pointed_to;
+
+	errno = 0;
+	pointed_to = ptrace (PTRACE_PEEKTEXT, proc->pid, addr, 0);
+	if (pointed_to == -1 && errno)
+		return -errno;
+
+	*result = pointed_to;
+	return 0;
+}
+#endif
+
+
 /* Returns 1 if the sysnum may make a new child to be created
  * (ie, with fork() or clone())
  * Returns 0 otherwise.
@@ -205,20 +228,6 @@ void continue_after_breakpoint(struct process *proc, struct breakpoint *sbp)
 		ptrace(PTRACE_SINGLESTEP, proc->pid, 0, 0);
 #endif
 	}
-}
-
-/* Read a single long from the process's memory address 'addr' */
-int umovelong(struct process *proc, void *addr, long *result)
-{
-	long pointed_to;
-
-        errno = 0;
-        pointed_to = ptrace(PTRACE_PEEKTEXT, proc->pid, addr, 0);
-        if (pointed_to == -1 && errno)
-          return -errno;
-
-        *result = pointed_to;
-        return 0;
 }
 
 /* Read a series of bytes starting at the process's memory address

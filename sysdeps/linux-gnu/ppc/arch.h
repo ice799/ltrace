@@ -13,6 +13,9 @@
 
 #define PLT_REINITALISATION_BP    "_start"
 
+/* Start of arch-specific functions.  */
+#define ARCH_HAVE_UMOVELONG
+
 #define PPC_NOP { 0x60, 0x00, 0x00, 0x00 }
 #define PPC_NOP_LENGTH 4
 

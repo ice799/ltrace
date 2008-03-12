@@ -38,3 +38,10 @@ void *get_return_addr(struct process *proc, void *stack_pointer)
 	return (void *)ptrace(PTRACE_PEEKUSER, proc->pid, sizeof(long) * PT_LNK,
 			      0);
 }
+
+/* Grab the value of CTR registers.  */
+void *get_count_register (struct process *proc)
+{
+	return (void *) ptrace (PTRACE_PEEKUSER, proc->pid,
+				sizeof (long) * PT_CTR, 0);
+}

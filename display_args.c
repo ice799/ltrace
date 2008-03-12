@@ -32,7 +32,8 @@ static long get_length(enum tof type, struct process *proc, int len_spec,
 	if (len_spec > 0)
 		return len_spec;
 	if (type == LT_TOF_STRUCT) {
-		umovelong(proc, st + st_info->u.struct_info.offset[-len_spec-1], &len);
+		umovelong (proc, st + st_info->u.struct_info.offset[-len_spec-1],
+			   &len, st_info->u.struct_info.fields[-len_spec-1]);
 		return len;
 	}
 
@@ -135,7 +136,8 @@ static int display_pointer(enum tof type, struct process *proc, long value,
 	} else {
 		if (value == 0)
 			return fprintf(output, "NULL");
-		else if (umovelong(proc, (void *) value, &pointed_to) < 0)
+		else if (umovelong (proc, (void *) value, &pointed_to,
+				    info->u.ptr_info.info) < 0)
 			return fprintf(output, "?");
 		else
 			return display_value(type, proc, pointed_to, inner,
