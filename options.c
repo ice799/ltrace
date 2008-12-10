@@ -348,7 +348,7 @@ char **process_options(int argc, char **argv)
 			break;
 		case 'V':
 			printf("ltrace version " PACKAGE_VERSION ".\n"
-					"Copyright (C) 1997-2007 Juan Cespedes <cespedes@debian.org>.\n"
+					"Copyright (C) 1997-2008 Juan Cespedes <cespedes@debian.org>.\n"
 					"This is free software; see the GNU General Public Licence\n"
 					"version 2 or later for copying conditions.  There is NO warranty.\n");
 			exit(0);
