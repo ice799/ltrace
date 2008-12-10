@@ -1,0 +1,27 @@
+How to build ltrace from source
+-------------------------------
+
+To get the latest version from GIT:
+
+	git clone git://git.debian.org/git/collab-maint/ltrace.git
+
+To create a distribution (ltrace-<version>.tar.gz):
+
+	./mkdist
+
+To compile from repository:
+
+	aclocal
+	autoheader
+	autoconf
+	./configure
+	make
+
+To compile from distribution:
+
+	./configure
+	make
+
+To build debian/control (to create Debian package):
+
+	debian/rules debian/control DEB_AUTO_UPDATE_DEBIAN_CONTROL:=yes

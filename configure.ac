@@ -1,11 +1,14 @@
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.57)
-AC_INIT(ltrace,0.5,[ltrace-devel <ltrace-devel@alioth.debian.org>])
+AC_INIT(ltrace,0.5.1,[ltrace-devel <ltrace-devel@alioth.debian.org>])
 AC_CONFIG_SRCDIR(ltrace.c)
 AC_CONFIG_HEADER(config.h)
 
 dnl Check host system type
 AC_CANONICAL_HOST
+case "$host_os" in
+  linux-gnu*) host_os=linux-gnu
+esac
 HOST_OS="$host_os"
 AC_SUBST(HOST_OS)
 
@@ -49,7 +52,7 @@ for path in /usr/include/elfutils /usr/local/include/elfutils \
 done
 
 AC_CHECK_HEADER(gelf.h,,AC_MSG_ERROR([***** gelf.h not found *****]))
-		 
+
 AC_CHECK_LIB(elf,gelf_getdyn)
 
 ac_cv_have_iquote=no

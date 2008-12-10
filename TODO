@@ -9,11 +9,9 @@
 * Improve -e/-x options (regexp?)
 * Improve -l option
 * Improve C++ name demangling
-* Display different argument types:
-  + how to display execl...?
-  + format+: for scanf()...: display args as pointers, and imply `+' for args
+* Display different argument types
 * Update /etc/ltrace.conf
-* More architectures: sparc64...
+* More architectures, cleaner way to port
 * More operating systems (solaris?)
 * Option -I (inter-library calls)
 * Modify ARGTYPE_STRING[0-5] types so that they not stop displaying chars when '\0' is encountered

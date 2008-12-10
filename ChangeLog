@@ -1,5 +1,9 @@
 2008-12-10  Juan Cespedes <cespedes@debian.org>
 
+	* Release version 0.5.1
+
+2008-12-10  Juan Cespedes <cespedes@debian.org>
+
 	* Patches from Anderson Lizardo and Riku Voipio:
 	  + Add generic support for arm targets
 	  + Save funtion arguments on arm

@@ -1,0 +1,24 @@
+#!/bin/sh -e
+
+# Create ltrace-${version}.tar.gz from a GIT repository
+
+if [ ! -d .git -o ! -f ltrace.c ]
+then
+  echo "This must be called inside a ltrace GIT repository" 1>&2
+  exit 1
+fi
+
+VERSION=$( grep ^AC_INIT configure.ac | awk -F, '{print $2}' )
+
+echo Building ltrace-$VERSION.tar.gz ...
+rm -rf ltrace-$VERSION
+git clone ./ ltrace-$VERSION >/dev/null
+cd ltrace-$VERSION
+aclocal
+autoheader
+autoconf
+cd ..
+GZIP=-9 tar --exclude .git -zcf ltrace-$VERSION.tar.gz ltrace-$VERSION
+rm -rf ltrace-$VERSION
+echo Done.
+

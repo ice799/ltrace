@@ -5,10 +5,6 @@
 #OS		:= $(shell uname -s)
 OS		:= @HOST_OS@
 
-ifeq ($(OS),linux-gnueabi)
-OS = linux-gnu
-endif
-
 TOPDIR		= $(shell pwd)
 
 prefix		= @prefix@
@@ -54,27 +50,12 @@ clean:		clean-deja
 		rm -f *~ *.bak a.out core KK
 
 distclean:	clean
-		rm -f autogen.sh config.cache config.status config.log config.h Makefile configure.scan
+		rm -f config.cache config.status config.log config.h Makefile configure.scan
 		rm -rf autom4te.cache
 		cd testsuite; make distclean
 
 realclean:	distclean
 		rm configure config.h.in
-
-dist:		clean
-		(if [ ! -d .svn ]; then echo "Sorry, can't make dist if not  a SVN checkout"; exit 1; fi ; \
-		rm -rf dist ; mkdir dist ; cd dist ; \
-		svn export ../ ltrace-$(VERSION); \
-		cd ltrace-$(VERSION); \
-                ./autogen.sh; \
-                rm autogen.sh; \
-		rm -rf autom4te.cache; \
-                cd ..; \
-                tar cfz ltrace-$(VERSION).tar.gz ./ltrace-$(VERSION); \
-                mv ltrace-$(VERSION).tar.gz ../; \
-                cd ..; \
-                rm -rf dist; \
-                echo "complete: ltrace-$(VERSION).tar.gz" )
 
 install:	ltrace
 		$(INSTALL_DIR) $(DESTDIR)$(bindir) $(DESTDIR)$(docdir) $(DESTDIR)$(mandir)/man1
