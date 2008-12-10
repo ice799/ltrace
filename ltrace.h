@@ -26,6 +26,9 @@ struct breakpoint {
 	unsigned char orig_value[BREAKPOINT_LENGTH];
 	int enabled;
 	struct library_symbol *libsym;
+#ifdef __arm__
+	int thumb_mode;
+#endif
 };
 
 enum arg_type {
@@ -170,6 +173,9 @@ struct process {
 	void *arch_ptr;
 	short e_machine;
 	short need_to_reinitialize_breakpoints;
+#ifdef __arm__
+	int thumb_mode; /* ARM execution mode: 0: ARM mode, 1: Thumb mode */
+#endif
 
 	/* output: */
 	enum tof type_being_displayed;
@@ -187,12 +193,14 @@ struct event {
 		LT_EV_EXIT_SIGNAL,
 		LT_EV_SYSCALL,
 		LT_EV_SYSRET,
+		LT_EV_ARCH_SYSCALL,
+		LT_EV_ARCH_SYSRET,
 		LT_EV_BREAKPOINT
 	} thing;
 	union {
 		int ret_val;	/* _EV_EXIT */
 		int signum;	/* _EV_SIGNAL, _EV_EXIT_SIGNAL */
-		int sysnum;	/* _EV_SYSCALL, _EV_SYSRET */
+		int sysnum;	/* _EV_SYSCALL, _EV_SYSRET, _EV_ARCH_SYSCALL, _EV_ARCH_SYSRET */
 		void *brk_addr;	/* _EV_BREAKPOINT */
 	} e_un;
 };

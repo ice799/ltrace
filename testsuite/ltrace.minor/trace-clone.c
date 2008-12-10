@@ -26,7 +26,7 @@ int main ()
 #ifdef __ia64__
   pid = __clone2((myfunc)&child, stack, STACK_SIZE, CLONE_FS, NULL);
 #else
-  pid = clone((myfunc)&child, stack,CLONE_FS, NULL );
+  pid = clone((myfunc)&child, stack + STACK_SIZE, CLONE_FS, NULL);
 #endif
   if (pid < 0)
     {

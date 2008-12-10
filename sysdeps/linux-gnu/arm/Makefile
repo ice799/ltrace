@@ -1,4 +1,4 @@
-OBJ	=	trace.o regs.o plt.o
+OBJ	=	trace.o regs.o plt.o breakpoint.o
 
 all:		arch.o
 

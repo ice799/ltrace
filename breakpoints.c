@@ -48,6 +48,10 @@ insert_breakpoint(struct process *proc, void *addr,
 		if (libsym)
 			libsym->brkpnt = sbp;
 	}
+#ifdef __arm__
+	sbp->thumb_mode = proc->thumb_mode;
+	proc->thumb_mode = 0;
+#endif
 	sbp->enabled++;
 	if (sbp->enabled == 1 && proc->pid)
 		enable_breakpoint(proc->pid, sbp);

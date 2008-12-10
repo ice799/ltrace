@@ -24,7 +24,9 @@ static void process_signal(struct event *event);
 static void process_exit(struct event *event);
 static void process_exit_signal(struct event *event);
 static void process_syscall(struct event *event);
+static void process_arch_syscall(struct event *event);
 static void process_sysret(struct event *event);
+static void process_arch_sysret(struct event *event);
 static void process_breakpoint(struct event *event);
 static void remove_proc(struct process *proc);
 
@@ -81,6 +83,24 @@ static char *sysname(struct process *proc, int sysnum)
 	}
 }
 
+static char *arch_sysname(struct process *proc, int sysnum)
+{
+	static char result[128];
+	static char *arch_syscalent[] = {
+#include "arch_syscallent.h"
+	};
+	int nsyscals = sizeof arch_syscalent / sizeof arch_syscalent[0];
+
+	if (sysnum < 0 || sysnum >= nsyscals) {
+		sprintf(result, "ARCH_%d", sysnum);
+		return result;
+	} else {
+		sprintf(result, "ARCH_%s",
+				arch_syscalent[sysnum]);
+		return result;
+	}
+}
+
 void process_event(struct event *event)
 {
 	switch (event->thing) {
@@ -114,6 +134,18 @@ void process_event(struct event *event)
 		      sysname(event->proc, event->e_un.sysnum),
 		      event->e_un.sysnum);
 		process_sysret(event);
+		return;
+	case LT_EV_ARCH_SYSCALL:
+		debug(1, "event: arch_syscall (%s [%d])",
+				arch_sysname(event->proc, event->e_un.sysnum),
+				event->e_un.sysnum);
+		process_arch_syscall(event);
+		return;
+	case LT_EV_ARCH_SYSRET:
+		debug(1, "event: arch_sysret (%s [%d])",
+				arch_sysname(event->proc, event->e_un.sysnum),
+				event->e_un.sysnum);
+		process_arch_sysret(event);
 		return;
 	case LT_EV_BREAKPOINT:
 		debug(1, "event: breakpoint");
@@ -194,6 +226,19 @@ static void process_syscall(struct event *event)
 	continue_process(event->proc->pid);
 }
 
+static void process_arch_syscall(struct event *event)
+{
+	if (opt_S) {
+		output_left(LT_TOF_SYSCALL, event->proc,
+				arch_sysname(event->proc, event->e_un.sysnum));
+	}
+	if (event->proc->breakpoints_enabled == 0) {
+		enable_all_breakpoints(event->proc);
+	}
+	callstack_push_syscall(event->proc, 0xf0000 + event->e_un.sysnum);
+	continue_process(event->proc->pid);
+}
+
 struct timeval current_time_spent;
 
 static void calc_time_spent(struct process *proc)
@@ -238,6 +283,19 @@ static void process_sysret(struct event *event)
 	if (opt_S) {
 		output_right(LT_TOF_SYSCALLR, event->proc,
 			     sysname(event->proc, event->e_un.sysnum));
+	}
+	continue_process(event->proc->pid);
+}
+
+static void process_arch_sysret(struct event *event)
+{
+	if (opt_T || opt_c) {
+		calc_time_spent(event->proc);
+	}
+	callstack_pop(event->proc);
+	if (opt_S) {
+		output_right(LT_TOF_SYSCALLR, event->proc,
+				arch_sysname(event->proc, event->e_un.sysnum));
 	}
 	continue_process(event->proc->pid);
 }

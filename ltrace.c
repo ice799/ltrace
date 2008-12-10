@@ -77,6 +77,7 @@ static void normal_exit(void)
 	}
 	if (opt_o) {
 		fclose(output);
+		opt_o = 0;
 	}
 }
 

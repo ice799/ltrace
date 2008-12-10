@@ -5,7 +5,7 @@ CPPFLAGS	+=	-I$(TOPDIR)/sysdeps/linux-gnu/$(ARCH)
 
 OBJ		=	trace.o proc.o breakpoint.o
 
-all:		sysdep.h signalent.h syscallent.h signalent1.h syscallent1.h ../sysdep.o
+all:		sysdep.h signalent.h syscallent.h arch_syscallent.h signalent1.h syscallent1.h ../sysdep.o
 
 sysdep.h:	$(ARCH)/arch.h
 		cat $(ARCH)/arch.h > sysdep.h
@@ -29,6 +29,13 @@ syscallent1.h:
 			> syscallent1.h; \
 		fi
 
+arch_syscallent.h:
+		if [ -f $(ARCH)/arch_syscallent.h ]; then \
+			cp $(ARCH)/arch_syscallent.h arch_syscallent.h; \
+		else \
+			> arch_syscallent.h; \
+		fi
+
 ../sysdep.o:	os.o $(ARCH)/arch.o
 		$(CC) -nostdlib -r -o ../sysdep.o os.o $(ARCH)/arch.o
 
@@ -40,7 +47,7 @@ $(ARCH)/arch.o:	dummy
 
 clean:
 		$(MAKE) -C $(ARCH) clean
-		rm -f $(OBJ) sysdep.h signalent.h signalent1.h syscallent.h
+		rm -f $(OBJ) sysdep.h signalent.h signalent1.h syscallent.h arch_syscallent.h
 		rm -f syscallent1.h os.o sysdep.o ../sysdep.o
 
 dummy:

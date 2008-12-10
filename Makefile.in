@@ -5,6 +5,10 @@
 #OS		:= $(shell uname -s)
 OS		:= @HOST_OS@
 
+ifeq ($(OS),linux-gnueabi)
+OS = linux-gnu
+endif
+
 TOPDIR		= $(shell pwd)
 
 prefix		= @prefix@

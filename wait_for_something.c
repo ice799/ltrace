@@ -64,14 +64,26 @@ struct event *wait_for_something(void)
 		    get_instruction_pointer(event.proc);
 	}
 	switch (syscall_p(event.proc, status, &tmp)) {
-	case 1:
-		event.thing = LT_EV_SYSCALL;
-		event.e_un.sysnum = tmp;
-		return &event;
-	case 2:
-		event.thing = LT_EV_SYSRET;
-		event.e_un.sysnum = tmp;
-		return &event;
+		case 1:
+			event.thing = LT_EV_SYSCALL;
+			event.e_un.sysnum = tmp;
+			return &event;
+		case 2:
+			event.thing = LT_EV_SYSRET;
+			event.e_un.sysnum = tmp;
+			return &event;
+		case 3:
+			event.thing = LT_EV_ARCH_SYSCALL;
+			event.e_un.sysnum = tmp;
+			return &event;
+		case 4:
+			event.thing = LT_EV_ARCH_SYSRET;
+			event.e_un.sysnum = tmp;
+			return &event;
+		case -1:
+			event.thing = LT_EV_NONE;
+			continue_process(event.proc->pid);
+			return &event;
 	}
 	if (WIFEXITED(status)) {
 		event.thing = LT_EV_EXIT;

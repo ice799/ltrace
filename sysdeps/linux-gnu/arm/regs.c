@@ -39,5 +39,10 @@ void *get_stack_pointer(struct process *proc)
  * a CISC architecture; in our case, we don't need that */
 void *get_return_addr(struct process *proc, void *stack_pointer)
 {
-	return (void *)ptrace(PTRACE_PEEKUSER, proc->pid, off_lr, 0);
+	long addr = ptrace(PTRACE_PEEKUSER, proc->pid, off_lr, 0);
+
+	proc->thumb_mode = addr & 1;
+	if (proc->thumb_mode)
+		addr &= ~1;
+	return (void *)addr;
 }

@@ -19,7 +19,7 @@ CLEANFILES = *.log *.sum site.bak setval.tmp site.exp
 
 .SUFFIXES:	
 clean:
-	-rm -f demangle trace-fork trace-clone 
+	-rm -f demangle trace-fork trace-clone trace-exec trace-exec1
 	-rm -f time-record-tt time-record-ttt time-record-T
 	-rm -f attach-process count-record
 	-rm -f print-instruction-pointer

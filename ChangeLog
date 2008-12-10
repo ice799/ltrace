@@ -1,3 +1,14 @@
+2008-12-10  Juan Cespedes <cespedes@debian.org>
+
+	* Patches from Anderson Lizardo and Riku Voipio:
+	  + Add generic support for arm targets
+	  + Save funtion arguments on arm
+	  + Add thumb instruction support
+	  + Add basic arm/eabi support
+	  + fix exec() testcase cleanup
+	  + fix memory corruption in clone() test
+	  + fix tracing child with "-p" option
+
 2008-02-27  Luis Machado  <luisgpm@br.ibm.com>
 
 	* sysdeps/linux-gnu/ppc/trace.c (arch_umovelong): New function.
