@@ -12,8 +12,8 @@
 #include "options.h"
 #include "elf.h"
 
-struct process *open_program(char *filename, pid_t pid)
-{
+struct process *
+open_program(char *filename, pid_t pid) {
 	struct process *proc;
 	proc = calloc(sizeof(struct process), 1);
 	if (!proc) {
@@ -32,8 +32,8 @@ struct process *open_program(char *filename, pid_t pid)
 	return proc;
 }
 
-void open_pid(pid_t pid, int verbose)
-{
+void
+open_pid(pid_t pid, int verbose) {
 	struct process *proc;
 	char *filename;
 

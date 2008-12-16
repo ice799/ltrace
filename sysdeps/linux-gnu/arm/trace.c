@@ -26,8 +26,8 @@
 #define off_ip 48
 #define off_pc 60
 
-void get_arch_dep(struct process *proc)
-{
+void
+get_arch_dep(struct process *proc) {
 	proc_archdep *a;
 
 	if (!proc->arch_ptr)
@@ -41,8 +41,8 @@ void get_arch_dep(struct process *proc)
  *         3 if arch-specific syscall entry, 4 if arch-specific syscall exit,
  *         -1 on error.
  */
-int syscall_p(struct process *proc, int status, int *sysnum)
-{
+int
+syscall_p(struct process *proc, int status, int *sysnum) {
 	if (WIFSTOPPED(status)
 	    && WSTOPSIG(status) == (SIGTRAP | proc->tracesysgood)) {
 		/* get the user's pc (plus 8) */
@@ -78,8 +78,8 @@ int syscall_p(struct process *proc, int status, int *sysnum)
 	return 0;
 }
 
-long gimme_arg(enum tof type, struct process *proc, int arg_num, arg_type_info *info)
-{
+long
+gimme_arg(enum tof type, struct process *proc, int arg_num, arg_type_info *info) {
 	proc_archdep *a = (proc_archdep *) proc->arch_ptr;
 
 	if (arg_num == -1) {	/* return value */
@@ -121,8 +121,8 @@ long gimme_arg(enum tof type, struct process *proc, int arg_num, arg_type_info *
 	return 0;
 }
 
-void save_register_args(enum tof type, struct process *proc)
-{
+void
+save_register_args(enum tof type, struct process *proc) {
 	proc_archdep *a = (proc_archdep *) proc->arch_ptr;
 	if (a->valid) {
 		if (type == LT_TOF_FUNCTION)

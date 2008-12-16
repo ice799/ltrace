@@ -11,8 +11,8 @@
 #include "output.h"
 #include "debug.h"
 
-static long long extract_bit_field(char *bundle, int from, int len)
-{
+static long long
+extract_bit_field(char *bundle, int from, int len) {
 	long long result = 0LL;
 	int to = from + len;
 	int from_byte = from / 8;
@@ -43,8 +43,8 @@ static long long extract_bit_field(char *bundle, int from, int len)
 }
 
 /* Replace the specified bits in an instruction bundle */
-static void replace_bit_field(char *bundle, long long val, int from, int len)
-{
+static void
+replace_bit_field(char *bundle, long long val, int from, int len) {
 	int to = from + len;
 	int from_byte = from / 8;
 	int to_byte = to / 8;
@@ -89,15 +89,15 @@ static void replace_bit_field(char *bundle, long long val, int from, int len)
 
 /* Return the contents of slot N (for N = 0, 1, or 2) in
    and instruction bundle */
-static long long slotN_contents(char *bundle, int slotnum)
-{
+static long long
+slotN_contents(char *bundle, int slotnum) {
 	return extract_bit_field(bundle, 5 + 41 * slotnum, 41);
 }
 
 /* Store an instruction in an instruction bundle */
 
-static void replace_slotN_contents(char *bundle, long long instr, int slotnum)
-{
+static void
+replace_slotN_contents(char *bundle, long long instr, int slotnum) {
 	replace_bit_field(bundle, instr, 5 + 41 * slotnum, 41);
 }
 
@@ -152,8 +152,8 @@ union bundle_t {
 	unsigned long ubundle[2];
 };
 
-void arch_enable_breakpoint(pid_t pid, struct breakpoint *sbp)
-{
+void
+arch_enable_breakpoint(pid_t pid, struct breakpoint *sbp) {
 
 	unsigned long addr = (unsigned long)sbp->addr;
 	union bundle_t bundle;
@@ -189,8 +189,8 @@ void arch_enable_breakpoint(pid_t pid, struct breakpoint *sbp)
 
 }
 
-void arch_disable_breakpoint(pid_t pid, const struct breakpoint *sbp)
-{
+void
+arch_disable_breakpoint(pid_t pid, const struct breakpoint *sbp) {
 
 	unsigned long addr = (unsigned long)sbp->addr;
 	int slotnum = (int)(addr & 0x0f) & 0x3;

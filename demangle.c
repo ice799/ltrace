@@ -18,8 +18,8 @@
 
 static struct dict *d = NULL;
 
-const char *my_demangle(const char *function_name)
-{
+const char *
+my_demangle(const char *function_name) {
 	const char *tmp, *fn_copy;
 #if !defined HAVE_LIBIBERTY && defined HAVE_LIBSUPC__
 	extern char *__cxa_demangle(const char *, char *, size_t *, int *);

@@ -19,14 +19,14 @@
 # define PTRACE_POKEUSER PTRACE_POKEUSR
 #endif
 
-void get_arch_dep(struct process *proc)
-{
+void
+get_arch_dep(struct process *proc) {
 }
 
 /* Returns 1 if syscall, 2 if sysret, 0 otherwise.
  */
-int syscall_p(struct process *proc, int status, int *sysnum)
-{
+int
+syscall_p(struct process *proc, int status, int *sysnum) {
 	if (WIFSTOPPED(status)
 	    && WSTOPSIG(status) == (SIGTRAP | proc->tracesysgood)) {
 		char *ip = get_instruction_pointer(proc) - 4;
@@ -47,8 +47,8 @@ int syscall_p(struct process *proc, int status, int *sysnum)
 	return 0;
 }
 
-long gimme_arg(enum tof type, struct process *proc, int arg_num, arg_type_info *info)
-{
+long
+gimme_arg(enum tof type, struct process *proc, int arg_num, arg_type_info *info) {
 	if (arg_num == -1) {	/* return value */
 		return ptrace(PTRACE_PEEKUSER, proc->pid, 0 /* REG_R0 */ , 0);
 	}
@@ -71,6 +71,6 @@ long gimme_arg(enum tof type, struct process *proc, int arg_num, arg_type_info *
 	return 0;
 }
 
-void save_register_args(enum tof type, struct process *proc)
-{
+void
+save_register_args(enum tof type, struct process *proc) {
 }

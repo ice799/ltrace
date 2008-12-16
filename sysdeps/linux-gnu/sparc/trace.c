@@ -13,8 +13,8 @@
 extern FILE *output;
 extern int opt_d;
 
-void get_arch_dep(struct process *proc)
-{
+void
+get_arch_dep(struct process *proc) {
 	proc_archdep *a;
 	if (!proc->arch_ptr)
 		proc->arch_ptr = (void *)malloc(sizeof(proc_archdep));
@@ -25,8 +25,8 @@ void get_arch_dep(struct process *proc)
 /* Returns syscall number if `pid' stopped because of a syscall.
  * Returns -1 otherwise
  */
-int syscall_p(struct process *proc, int status, int *sysnum)
-{
+int
+syscall_p(struct process *proc, int status, int *sysnum) {
 	if (WIFSTOPPED(status)
 	    && WSTOPSIG(status) == (SIGTRAP | proc->tracesysgood)) {
 		void *ip = get_instruction_pointer(proc);
@@ -48,8 +48,8 @@ int syscall_p(struct process *proc, int status, int *sysnum)
 	return 0;
 }
 
-long gimme_arg(enum tof type, struct process *proc, int arg_num, arg_type_info *info)
-{
+long
+gimme_arg(enum tof type, struct process *proc, int arg_num, arg_type_info *info) {
 	proc_archdep *a = (proc_archdep *) proc->arch_ptr;
 	if (!a->valid) {
 		fprintf(stderr, "Could not get child registers\n");
@@ -74,8 +74,8 @@ long gimme_arg(enum tof type, struct process *proc, int arg_num, arg_type_info *
 	return 0;
 }
 
-void save_register_args(enum tof type, struct process *proc)
-{
+void
+save_register_args(enum tof type, struct process *proc) {
 	proc_archdep *a = (proc_archdep *) proc->arch_ptr;
 	if (a->valid) {
 		if (type == LT_TOF_FUNCTION)

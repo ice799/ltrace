@@ -18,15 +18,14 @@
 
 /*****************************************************************************/
 
-struct breakpoint *address2bpstruct(struct process *proc, void *addr)
-{
+struct breakpoint *
+address2bpstruct(struct process *proc, void *addr) {
 	return dict_find_entry(proc->breakpoints, addr);
 }
 
 void
 insert_breakpoint(struct process *proc, void *addr,
-		  struct library_symbol *libsym)
-{
+		  struct library_symbol *libsym) {
 	struct breakpoint *sbp;
 	debug(1, "symbol=%s, addr=%p", libsym?libsym->name:"(nil)", addr);
 
@@ -57,8 +56,8 @@ insert_breakpoint(struct process *proc, void *addr,
 		enable_breakpoint(proc->pid, sbp);
 }
 
-void delete_breakpoint(struct process *proc, void *addr)
-{
+void
+delete_breakpoint(struct process *proc, void *addr) {
 	struct breakpoint *sbp = dict_find_entry(proc->breakpoints, addr);
 	assert(sbp);		/* FIXME: remove after debugging has been done. */
 	/* This should only happen on out-of-memory conditions. */
@@ -71,15 +70,15 @@ void delete_breakpoint(struct process *proc, void *addr)
 	assert(sbp->enabled >= 0);
 }
 
-static void enable_bp_cb(void *addr, void *sbp, void *proc)
-{
+static void
+enable_bp_cb(void *addr, void *sbp, void *proc) {
 	if (((struct breakpoint *)sbp)->enabled) {
 		enable_breakpoint(((struct process *)proc)->pid, sbp);
 	}
 }
 
-void enable_all_breakpoints(struct process *proc)
-{
+void
+enable_all_breakpoints(struct process *proc) {
 	if (proc->breakpoints_enabled <= 0) {
 #ifdef __powerpc__
 		unsigned long a;
@@ -135,15 +134,15 @@ void enable_all_breakpoints(struct process *proc)
 	proc->breakpoints_enabled = 1;
 }
 
-static void disable_bp_cb(void *addr, void *sbp, void *proc)
-{
+static void
+disable_bp_cb(void *addr, void *sbp, void *proc) {
 	if (((struct breakpoint *)sbp)->enabled) {
 		disable_breakpoint(((struct process *)proc)->pid, sbp);
 	}
 }
 
-void disable_all_breakpoints(struct process *proc)
-{
+void
+disable_all_breakpoints(struct process *proc) {
 	if (proc->breakpoints_enabled) {
 		debug(1, "Disabling breakpoints for pid %u...", proc->pid);
 		dict_apply_to_all(proc->breakpoints, disable_bp_cb, proc);
@@ -151,14 +150,14 @@ void disable_all_breakpoints(struct process *proc)
 	proc->breakpoints_enabled = 0;
 }
 
-static void free_bp_cb(void *addr, void *sbp, void *data)
-{
+static void
+free_bp_cb(void *addr, void *sbp, void *data) {
 	assert(sbp);
 	free(sbp);
 }
 
-void breakpoints_init(struct process *proc)
-{
+void
+breakpoints_init(struct process *proc) {
 	struct library_symbol *sym;
 
 	if (proc->breakpoints) {	/* let's remove that struct */
@@ -200,8 +199,8 @@ void breakpoints_init(struct process *proc)
 	proc->breakpoints_enabled = -1;
 }
 
-void reinitialize_breakpoints(struct process *proc)
-{
+void
+reinitialize_breakpoints(struct process *proc) {
 	struct library_symbol *sym = proc->list_of_symbols;
 
 	while (sym) {

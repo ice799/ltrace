@@ -30,9 +30,9 @@ struct dict {
 	int (*key_cmp) (void *, void *);
 };
 
-struct dict *dict_init(unsigned int (*key2hash) (void *),
-		       int (*key_cmp) (void *, void *))
-{
+struct dict *
+dict_init(unsigned int (*key2hash) (void *),
+		       int (*key_cmp) (void *, void *)) {
 	struct dict *d;
 	int i;
 
@@ -49,8 +49,8 @@ struct dict *dict_init(unsigned int (*key2hash) (void *),
 	return d;
 }
 
-void dict_clear(struct dict *d)
-{
+void
+dict_clear(struct dict *d) {
 	int i;
 	struct dict_entry *entry, *nextentry;
 
@@ -65,8 +65,8 @@ void dict_clear(struct dict *d)
 	free(d);
 }
 
-int dict_enter(struct dict *d, void *key, void *value)
-{
+int
+dict_enter(struct dict *d, void *key, void *value) {
 	struct dict_entry *entry, *newentry;
 	unsigned int hash = d->key2hash(key);
 	unsigned int bucketpos = hash % DICTTABLESIZE;
@@ -96,8 +96,8 @@ int dict_enter(struct dict *d, void *key, void *value)
 	return 0;
 }
 
-void *dict_find_entry(struct dict *d, void *key)
-{
+void *
+dict_find_entry(struct dict *d, void *key) {
 	unsigned int hash = d->key2hash(key);
 	unsigned int bucketpos = hash % DICTTABLESIZE;
 	struct dict_entry *entry;
@@ -116,8 +116,7 @@ void *dict_find_entry(struct dict *d, void *key)
 
 void
 dict_apply_to_all(struct dict *d,
-		  void (*func) (void *key, void *value, void *data), void *data)
-{
+		  void (*func) (void *key, void *value, void *data), void *data) {
 	int i;
 
 	if (!d) {
@@ -134,8 +133,8 @@ dict_apply_to_all(struct dict *d,
 
 /*****************************************************************************/
 
-unsigned int dict_key2hash_string(void *key)
-{
+unsigned int
+dict_key2hash_string(void *key) {
 	const char *s = (const char *)key;
 	unsigned int total = 0, shift = 0;
 
@@ -150,19 +149,19 @@ unsigned int dict_key2hash_string(void *key)
 	return total;
 }
 
-int dict_key_cmp_string(void *key1, void *key2)
-{
+int
+dict_key_cmp_string(void *key1, void *key2) {
 	assert(key1);
 	assert(key2);
 	return strcmp((const char *)key1, (const char *)key2);
 }
 
-unsigned int dict_key2hash_int(void *key)
-{
+unsigned int
+dict_key2hash_int(void *key) {
 	return (unsigned long)key;
 }
 
-int dict_key_cmp_int(void *key1, void *key2)
-{
+int
+dict_key_cmp_int(void *key1, void *key2) {
 	return key1 - key2;
 }

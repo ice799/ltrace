@@ -23,8 +23,8 @@ struct process *list_of_processes = NULL;
 
 int exiting = 0;		/* =1 if a SIGINT or SIGTERM has been received */
 
-static void signal_alarm(int sig)
-{
+static void
+signal_alarm(int sig) {
 	struct process *tmp = list_of_processes;
 
 	signal(SIGALRM, SIG_DFL);
@@ -47,8 +47,8 @@ static void signal_alarm(int sig)
 	}
 }
 
-static void signal_exit(int sig)
-{
+static void
+signal_exit(int sig) {
 	exiting = 1;
 	debug(1, "Received interrupt signal; exiting...");
 	if (opt_o) {
@@ -69,8 +69,8 @@ static void signal_exit(int sig)
 	alarm(1);
 }
 
-static void normal_exit(void)
-{
+static void
+normal_exit(void) {
 	output_line(0, 0);
 	if (opt_c) {
 		show_summary();
@@ -81,8 +81,8 @@ static void normal_exit(void)
 	}
 }
 
-static void guess_cols(void)
-{
+static void
+guess_cols(void) {
 	struct winsize ws;
 	char *c;
 
@@ -100,8 +100,8 @@ static void guess_cols(void)
 	}
 }
 
-int main(int argc, char **argv)
-{
+int
+main(int argc, char **argv) {
 	struct opt_p_t *opt_p_tmp;
 
 	atexit(normal_exit);

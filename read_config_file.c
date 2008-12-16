@@ -74,16 +74,16 @@ static arg_type_info arg_type_prototypes[] = {
 	{ ARGTYPE_UNKNOWN }
 };
 
-arg_type_info *lookup_prototype(enum arg_type at)
-{
+arg_type_info *
+lookup_prototype(enum arg_type at) {
 	if (at >= 0 && at <= ARGTYPE_COUNT)
 		return &arg_type_prototypes[at];
 	else
 		return &arg_type_prototypes[ARGTYPE_COUNT]; /* UNKNOWN */
 }
 
-static arg_type_info *str2type(char **str)
-{
+static arg_type_info *
+str2type(char **str) {
 	struct list_of_pt_t *tmp = &list_of_pt[0];
 
 	while (tmp->name) {
@@ -97,23 +97,23 @@ static arg_type_info *str2type(char **str)
 	return lookup_prototype(ARGTYPE_UNKNOWN);
 }
 
-static void eat_spaces(char **str)
-{
+static void
+eat_spaces(char **str) {
 	while (**str == ' ') {
 		(*str)++;
 	}
 }
 
-static char *xstrndup(char *str, size_t len)
-{
+static char *
+xstrndup(char *str, size_t len) {
 	char *ret = (char *) malloc(len + 1);
 	strncpy(ret, str, len);
 	ret[len] = 0;
 	return ret;
 }
 
-static char *parse_ident(char **str)
-{
+static char *
+parse_ident(char **str) {
 	char *ident = *str;
 
 	if (!isalnum(**str) && **str != '_') {
@@ -134,8 +134,8 @@ static char *parse_ident(char **str)
   Returns position in string at the left parenthesis which starts the
   function's argument signature. Returns NULL on error.
 */
-static char *start_of_arg_sig(char *str)
-{
+static char *
+start_of_arg_sig(char *str) {
 	char *pos;
 	int stacked = 0;
 
@@ -162,8 +162,8 @@ static char *start_of_arg_sig(char *str)
 	return (stacked == 0) ? pos : NULL;
 }
 
-static int parse_int(char **str)
-{
+static int
+parse_int(char **str) {
 	char *end;
 	long n = strtol(*str, &end, 0);
 	if (end == *str) {
@@ -190,8 +190,8 @@ static int parse_int(char **str)
  * = 0   return value
  * < 0   (arg -n), counting from one
  */
-static int parse_argnum(char **str)
-{
+static int
+parse_argnum(char **str) {
 	int multiplier = 1;
 	int n = 0;
 
@@ -217,8 +217,8 @@ struct typedef_node_t {
 	struct typedef_node_t *next;
 } *typedefs = NULL;
 
-static arg_type_info *lookup_typedef(char **str)
-{
+static arg_type_info *
+lookup_typedef(char **str) {
 	struct typedef_node_t *node;
 	char *end = *str;
 	while (*end && (isalnum(*end) || *end == '_'))
@@ -236,8 +236,8 @@ static arg_type_info *lookup_typedef(char **str)
 	return NULL;
 }
 
-static void parse_typedef(char **str)
-{
+static void
+parse_typedef(char **str) {
 	char *name;
 	arg_type_info *info;
 	struct typedef_node_t *binding;
@@ -271,8 +271,8 @@ static void parse_typedef(char **str)
 	typedefs = binding;
 }
 
-static size_t arg_sizeof(arg_type_info * arg)
-{
+static size_t
+arg_sizeof(arg_type_info * arg) {
 	if (arg->type == ARGTYPE_CHAR) {
 		return sizeof(char);
 	} else if (arg->type == ARGTYPE_SHORT || arg->type == ARGTYPE_USHORT) {
@@ -299,8 +299,8 @@ static size_t arg_sizeof(arg_type_info * arg)
 
 #undef alignof
 #define alignof(field,st) ((size_t) ((char*) &st.field - (char*) &st))
-static size_t arg_align(arg_type_info * arg)
-{
+static size_t
+arg_align(arg_type_info * arg) {
 	struct { char c; char C; } cC;
 	struct { char c; short s; } cs;
 	struct { char c; int i; } ci;
@@ -349,8 +349,8 @@ static size_t arg_align(arg_type_info * arg)
 	}
 }
 
-static size_t align_skip(size_t alignment, size_t offset)
-{
+static size_t
+align_skip(size_t alignment, size_t offset) {
 	if (offset % alignment)
 		return alignment - (offset % alignment);
 	else
@@ -359,8 +359,8 @@ static size_t align_skip(size_t alignment, size_t offset)
 
 /* I'm sure this isn't completely correct, but just try to get most of
  * them right for now. */
-static void align_struct(arg_type_info* info)
-{
+static void
+align_struct(arg_type_info* info) {
 	size_t offset;
 	int i;
 
@@ -380,8 +380,8 @@ static void align_struct(arg_type_info* info)
 	info->u.struct_info.size = offset;
 }
 
-static arg_type_info *parse_nonpointer_type(char **str)
-{
+static arg_type_info *
+parse_nonpointer_type(char **str) {
 	arg_type_info *simple;
 	arg_type_info *info;
 
@@ -561,8 +561,8 @@ static arg_type_info *parse_nonpointer_type(char **str)
 	}
 }
 
-static arg_type_info *parse_type(char **str)
-{
+static arg_type_info *
+parse_type(char **str) {
 	arg_type_info *info = parse_nonpointer_type(str);
 	while (**str == '*') {
 		arg_type_info *outer = malloc(sizeof(*info));
@@ -574,8 +574,8 @@ static arg_type_info *parse_type(char **str)
 	return info;
 }
 
-static struct function *process_line(char *buf)
-{
+static struct function *
+process_line(char *buf) {
 	struct function fun;
 	struct function *fun_p;
 	char *str = buf;
@@ -651,8 +651,8 @@ static struct function *process_line(char *buf)
 	return fun_p;
 }
 
-void read_config_file(char *file)
-{
+void
+read_config_file(char *file) {
 	FILE *stream;
 	char buf[1024];
 

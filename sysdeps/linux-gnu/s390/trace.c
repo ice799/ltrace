@@ -29,8 +29,8 @@
 # define PTRACE_POKEUSER PTRACE_POKEUSR
 #endif
 
-void get_arch_dep(struct process *proc)
-{
+void
+get_arch_dep(struct process *proc) {
 #ifdef __s390x__
 	unsigned long psw;
 
@@ -50,8 +50,8 @@ void get_arch_dep(struct process *proc)
 
 /* Returns 1 if syscall, 2 if sysret, 0 otherwise.
  */
-int syscall_p(struct process *proc, int status, int *sysnum)
-{
+int
+syscall_p(struct process *proc, int status, int *sysnum) {
 	long pc, opcode, offset_reg, scno, tmp;
 	void *svc_addr;
 	int gpr_offset[16] = { PT_GPR0, PT_GPR1, PT_ORIGGPR2, PT_GPR3,
@@ -161,8 +161,8 @@ int syscall_p(struct process *proc, int status, int *sysnum)
 	return 0;
 }
 
-long gimme_arg(enum tof type, struct process *proc, int arg_num, arg_type_info *info)
-{
+long
+gimme_arg(enum tof type, struct process *proc, int arg_num, arg_type_info *info) {
 	long ret;
 
 	switch (arg_num) {
@@ -195,6 +195,6 @@ long gimme_arg(enum tof type, struct process *proc, int arg_num, arg_type_info *
 	return ret;
 }
 
-void save_register_args(enum tof type, struct process *proc)
-{
+void
+save_register_args(enum tof type, struct process *proc) {
 }

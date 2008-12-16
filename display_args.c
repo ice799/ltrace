@@ -23,9 +23,9 @@ static int display_format(enum tof type, struct process *proc, int arg_num);
 static int string_maxlength = INT_MAX;
 static int array_maxlength = INT_MAX;
 
-static long get_length(enum tof type, struct process *proc, int len_spec,
-		       void *st, arg_type_info* st_info)
-{
+static long
+get_length(enum tof type, struct process *proc, int len_spec,
+		       void *st, arg_type_info* st_info) {
 	long len;
 	arg_type_info info;
 
@@ -41,10 +41,10 @@ static long get_length(enum tof type, struct process *proc, int len_spec,
 	return gimme_arg(type, proc, -len_spec-1, &info);
 }
 
-static int display_ptrto(enum tof type, struct process *proc, long item,
+static int
+display_ptrto(enum tof type, struct process *proc, long item,
 			 arg_type_info * info,
-			 void *st, arg_type_info* st_info)
-{
+			 void *st, arg_type_info* st_info) {
 	arg_type_info temp;
 	temp.type = ARGTYPE_POINTER;
 	temp.u.ptr_info.info = info;
@@ -59,10 +59,10 @@ static int display_ptrto(enum tof type, struct process *proc, long item,
  * containing a sequence of elements of some type; instead, we have a
  * pointer to that region of memory.
  */
-static int display_arrayptr(enum tof type, struct process *proc,
+static int
+display_arrayptr(enum tof type, struct process *proc,
 			    void *addr, arg_type_info * info,
-			    void *st, arg_type_info* st_info)
-{
+			    void *st, arg_type_info* st_info) {
 	int len = 0;
 	int i;
 	int array_len;
@@ -93,9 +93,9 @@ static int display_arrayptr(enum tof type, struct process *proc,
 /* addr - A pointer to the beginning of the memory region occupied by
  *        the struct (aka a pointer to the struct)
  */
-static int display_structptr(enum tof type, struct process *proc,
-			     void *addr, arg_type_info * info)
-{
+static int
+display_structptr(enum tof type, struct process *proc,
+			     void *addr, arg_type_info * info) {
 	int i;
 	arg_type_info *field;
 	int len = 0;
@@ -121,10 +121,10 @@ static int display_structptr(enum tof type, struct process *proc,
 	return len;
 }
 
-static int display_pointer(enum tof type, struct process *proc, long value,
+static int
+display_pointer(enum tof type, struct process *proc, long value,
 			   arg_type_info * info,
-			   void *st, arg_type_info* st_info)
-{
+			   void *st, arg_type_info* st_info) {
 	long pointed_to;
 	arg_type_info *inner = info->u.ptr_info.info;
 
@@ -145,9 +145,9 @@ static int display_pointer(enum tof type, struct process *proc, long value,
 	}
 }
 
-static int display_enum(enum tof type, struct process *proc,
-		arg_type_info* info, long value)
-{
+static int
+display_enum(enum tof type, struct process *proc,
+		arg_type_info* info, long value) {
 	int ii;
 	for (ii = 0; ii < info->u.enum_info.entries; ++ii) {
 		if (info->u.enum_info.values[ii] == value)
@@ -168,10 +168,10 @@ static int display_enum(enum tof type, struct process *proc,
    Those last two parameters are used for structs containing arrays or
    strings whose length is given by another structure element.
 */
-int display_value(enum tof type, struct process *proc,
+int
+display_value(enum tof type, struct process *proc,
 		long value, arg_type_info *info,
-		void *st, arg_type_info* st_info)
-{
+		void *st, arg_type_info* st_info) {
 	int tmp;
 
 	switch (info->type) {
@@ -242,8 +242,8 @@ int display_value(enum tof type, struct process *proc,
 	}
 }
 
-int display_arg(enum tof type, struct process *proc, int arg_num, arg_type_info * info)
-{
+int
+display_arg(enum tof type, struct process *proc, int arg_num, arg_type_info * info) {
 	long arg;
 
 	if (info->type == ARGTYPE_VOID) {
@@ -256,8 +256,8 @@ int display_arg(enum tof type, struct process *proc, int arg_num, arg_type_info 
 	}
 }
 
-static int display_char(int what)
-{
+static int
+display_char(int what) {
 	switch (what) {
 	case -1:
 		return fprintf(output, "EOF");
@@ -282,9 +282,9 @@ static int display_char(int what)
 
 #define MIN(a,b) (((a)<(b)) ? (a) : (b))
 
-static int display_string(enum tof type, struct process *proc, void *addr,
-			  size_t maxlength)
-{
+static int
+display_string(enum tof type, struct process *proc, void *addr,
+			  size_t maxlength) {
 	unsigned char *str1;
 	int i;
 	int len = 0;
@@ -314,8 +314,8 @@ static int display_string(enum tof type, struct process *proc, void *addr,
 	return len;
 }
 
-static int display_unknown(enum tof type, struct process *proc, long value)
-{
+static int
+display_unknown(enum tof type, struct process *proc, long value) {
 	if (proc->mask_32bit) {
 		if ((int)value < 1000000 && (int)value > -1000000)
 			return fprintf(output, "%d", (int)value);
@@ -328,8 +328,8 @@ static int display_unknown(enum tof type, struct process *proc, long value)
 	}
 }
 
-static int display_format(enum tof type, struct process *proc, int arg_num)
-{
+static int
+display_format(enum tof type, struct process *proc, int arg_num) {
 	void *addr;
 	unsigned char *str1;
 	int i;

@@ -75,14 +75,14 @@ static int fork_exec_syscalls[][5] = {
 
 #ifdef ARCH_HAVE_UMOVELONG
 extern int arch_umovelong (struct process *, void *, long *, arg_type_info *);
-int umovelong (struct process *proc, void *addr, long *result, arg_type_info *info)
-{
+int
+umovelong (struct process *proc, void *addr, long *result, arg_type_info *info) {
 	return arch_umovelong (proc, addr, result, info);
 }
 #else
 /* Read a single long from the process's memory address 'addr' */
-int umovelong (struct process *proc, void *addr, long *result, arg_type_info *info)
-{
+int
+umovelong (struct process *proc, void *addr, long *result, arg_type_info *info) {
 	long pointed_to;
 
 	errno = 0;
@@ -100,8 +100,8 @@ int umovelong (struct process *proc, void *addr, long *result, arg_type_info *in
  * (ie, with fork() or clone())
  * Returns 0 otherwise.
  */
-int fork_p(struct process *proc, int sysnum)
-{
+int
+fork_p(struct process *proc, int sysnum) {
 	unsigned int i;
 	if (proc->personality
 	    >= sizeof fork_exec_syscalls / sizeof(fork_exec_syscalls[0]))
@@ -114,8 +114,8 @@ int fork_p(struct process *proc, int sysnum)
 
 /* Returns 1 if the sysnum may make the process exec other program
  */
-int exec_p(struct process *proc, int sysnum)
-{
+int
+exec_p(struct process *proc, int sysnum) {
 	int i;
 	if (proc->personality
 	    >= sizeof fork_exec_syscalls / sizeof(fork_exec_syscalls[0]))
@@ -128,8 +128,8 @@ int exec_p(struct process *proc, int sysnum)
 
 /* Check that we just hit an exec.
  */
-int was_exec(struct process *proc, int status)
-{
+int
+was_exec(struct process *proc, int status) {
 	if (!WIFSTOPPED (status))
 		return 0;
 
@@ -159,16 +159,16 @@ int was_exec(struct process *proc, int status)
 	return 0;
 }
 
-void trace_me(void)
-{
+void
+trace_me(void) {
 	if (ptrace(PTRACE_TRACEME, 0, 1, 0) < 0) {
 		perror("PTRACE_TRACEME");
 		exit(1);
 	}
 }
 
-int trace_pid(pid_t pid)
-{
+int
+trace_pid(pid_t pid) {
 	if (ptrace(PTRACE_ATTACH, pid, 1, 0) < 0) {
 		return -1;
 	}
@@ -176,8 +176,8 @@ int trace_pid(pid_t pid)
 	return 0;
 }
 
-void trace_set_options(struct process *proc, pid_t pid)
-{
+void
+trace_set_options(struct process *proc, pid_t pid) {
 	if (proc->tracesysgood & 0x80)
 		return;
 
@@ -190,30 +190,30 @@ void trace_set_options(struct process *proc, pid_t pid)
 	proc->tracesysgood |= 0x80;
 }
 
-void untrace_pid(pid_t pid)
-{
+void
+untrace_pid(pid_t pid) {
 	ptrace(PTRACE_DETACH, pid, 1, 0);
 }
 
-void continue_after_signal(pid_t pid, int signum)
-{
+void
+continue_after_signal(pid_t pid, int signum) {
 	/* We should always trace syscalls to be able to control fork(), clone(), execve()... */
 	ptrace(PTRACE_SYSCALL, pid, 0, signum);
 }
 
-void continue_process(pid_t pid)
-{
+void
+continue_process(pid_t pid) {
 	continue_after_signal(pid, 0);
 }
 
-void continue_enabling_breakpoint(pid_t pid, struct breakpoint *sbp)
-{
+void
+continue_enabling_breakpoint(pid_t pid, struct breakpoint *sbp) {
 	enable_breakpoint(pid, sbp);
 	continue_process(pid);
 }
 
-void continue_after_breakpoint(struct process *proc, struct breakpoint *sbp)
-{
+void
+continue_after_breakpoint(struct process *proc, struct breakpoint *sbp) {
 	if (sbp->enabled)
 		disable_breakpoint(proc->pid, sbp);
 	set_instruction_pointer(proc, sbp->addr);
@@ -234,8 +234,8 @@ void continue_after_breakpoint(struct process *proc, struct breakpoint *sbp)
    'addr' and continuing until a NUL ('\0') is seen or 'len' bytes
    have been read.
 */
-int umovestr(struct process *proc, void *addr, int len, void *laddr)
-{
+int
+umovestr(struct process *proc, void *addr, int len, void *laddr) {
 	union {
 		long a;
 		char c[sizeof(long)];

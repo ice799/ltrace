@@ -28,8 +28,8 @@
    \param proc The process to work on.
    \return The current instruction pointer.
  */
-void *get_instruction_pointer(struct process *proc)
-{
+void *
+get_instruction_pointer(struct process *proc) {
 	return (void *)ptrace(PTRACE_PEEKUSER, proc->pid, off_pc, 0);
 }
 
@@ -42,8 +42,8 @@ void *get_instruction_pointer(struct process *proc)
    \todo Our mips kernel ptrace doesn't support PTRACE_SINGLESTEP, so
    we \c continue_process() after a breakpoint. Check if this is OK.
  */
-void set_instruction_pointer(struct process *proc, void *addr)
-{
+void
+set_instruction_pointer(struct process *proc, void *addr) {
 	ptrace(PTRACE_POKEUSER, proc->pid, off_pc, addr);
 }
 
@@ -51,8 +51,8 @@ void set_instruction_pointer(struct process *proc, void *addr)
    \param proc The process to work on.
    \return The current stack pointer.
  */
-void *get_stack_pointer(struct process *proc)
-{
+void *
+get_stack_pointer(struct process *proc) {
 	return (void *)ptrace(PTRACE_PEEKUSER, proc->pid, off_sp, 0);
 }
 
@@ -66,8 +66,8 @@ void *get_stack_pointer(struct process *proc)
    Mips uses r31 for the return address, so the stack_pointer is
    unused.
  */
-void *get_return_addr(struct process *proc, void *stack_pointer)
-{
+void *
+get_return_addr(struct process *proc, void *stack_pointer) {
 	return (void *)ptrace(PTRACE_PEEKUSER, proc->pid, off_lr, 0);
 }
 /**@}*/

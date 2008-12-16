@@ -35,8 +35,8 @@ static void callstack_push_symfunc(struct process *proc,
 				   struct library_symbol *sym);
 static void callstack_pop(struct process *proc);
 
-static char *shortsignal(struct process *proc, int signum)
-{
+static char *
+shortsignal(struct process *proc, int signum) {
 	static char *signalent0[] = {
 #include "signalent.h"
 	};
@@ -57,8 +57,8 @@ static char *shortsignal(struct process *proc, int signum)
 	}
 }
 
-static char *sysname(struct process *proc, int sysnum)
-{
+static char *
+sysname(struct process *proc, int sysnum) {
 	static char result[128];
 	static char *syscalent0[] = {
 #include "syscallent.h"
@@ -83,8 +83,8 @@ static char *sysname(struct process *proc, int sysnum)
 	}
 }
 
-static char *arch_sysname(struct process *proc, int sysnum)
-{
+static char *
+arch_sysname(struct process *proc, int sysnum) {
 	static char result[128];
 	static char *arch_syscalent[] = {
 #include "arch_syscallent.h"
@@ -101,8 +101,8 @@ static char *arch_sysname(struct process *proc, int sysnum)
 	}
 }
 
-void process_event(struct event *event)
-{
+void
+process_event(struct event *event) {
 	switch (event->thing) {
 	case LT_EV_NONE:
 		debug(1, "event: none");
@@ -157,8 +157,8 @@ void process_event(struct event *event)
 	}
 }
 
-static void process_signal(struct event *event)
-{
+static void
+process_signal(struct event *event) {
 	if (exiting && event->e_un.signum == SIGSTOP) {
 		pid_t pid = event->proc->pid;
 		disable_all_breakpoints(event->proc);
@@ -173,22 +173,22 @@ static void process_signal(struct event *event)
 	continue_after_signal(event->proc->pid, event->e_un.signum);
 }
 
-static void process_exit(struct event *event)
-{
+static void
+process_exit(struct event *event) {
 	output_line(event->proc, "+++ exited (status %d) +++",
 		    event->e_un.ret_val);
 	remove_proc(event->proc);
 }
 
-static void process_exit_signal(struct event *event)
-{
+static void
+process_exit_signal(struct event *event) {
 	output_line(event->proc, "+++ killed by %s +++",
 		    shortsignal(event->proc, event->e_un.signum));
 	remove_proc(event->proc);
 }
 
-static void remove_proc(struct process *proc)
-{
+static void
+remove_proc(struct process *proc) {
 	struct process *tmp, *tmp2;
 
 	debug(1, "Removing pid %u\n", proc->pid);
@@ -211,8 +211,8 @@ static void remove_proc(struct process *proc)
 	}
 }
 
-static void process_syscall(struct event *event)
-{
+static void
+process_syscall(struct event *event) {
 	if (opt_S) {
 		output_left(LT_TOF_SYSCALL, event->proc,
 			    sysname(event->proc, event->e_un.sysnum));
@@ -226,8 +226,8 @@ static void process_syscall(struct event *event)
 	continue_process(event->proc->pid);
 }
 
-static void process_arch_syscall(struct event *event)
-{
+static void
+process_arch_syscall(struct event *event) {
 	if (opt_S) {
 		output_left(LT_TOF_SYSCALL, event->proc,
 				arch_sysname(event->proc, event->e_un.sysnum));
@@ -241,8 +241,8 @@ static void process_arch_syscall(struct event *event)
 
 struct timeval current_time_spent;
 
-static void calc_time_spent(struct process *proc)
-{
+static void
+calc_time_spent(struct process *proc) {
 	struct timeval tv;
 	struct timezone tz;
 	struct timeval diff;
@@ -262,8 +262,8 @@ static void calc_time_spent(struct process *proc)
 	current_time_spent = diff;
 }
 
-static void process_sysret(struct event *event)
-{
+static void
+process_sysret(struct event *event) {
 	if (opt_T || opt_c) {
 		calc_time_spent(event->proc);
 	}
@@ -287,8 +287,8 @@ static void process_sysret(struct event *event)
 	continue_process(event->proc->pid);
 }
 
-static void process_arch_sysret(struct event *event)
-{
+static void
+process_arch_sysret(struct event *event) {
 	if (opt_T || opt_c) {
 		calc_time_spent(event->proc);
 	}
@@ -300,8 +300,8 @@ static void process_arch_sysret(struct event *event)
 	continue_process(event->proc->pid);
 }
 
-static void process_breakpoint(struct event *event)
-{
+static void
+process_breakpoint(struct event *event) {
 	int i, j;
 	struct breakpoint *sbp;
 
@@ -431,8 +431,8 @@ static void process_breakpoint(struct event *event)
 	continue_process(event->proc->pid);
 }
 
-static void callstack_push_syscall(struct process *proc, int sysnum)
-{
+static void
+callstack_push_syscall(struct process *proc, int sysnum) {
 	struct callstack_element *elem;
 
 	/* FIXME: not good -- should use dynamic allocation. 19990703 mortene. */
@@ -454,8 +454,7 @@ static void callstack_push_syscall(struct process *proc, int sysnum)
 }
 
 static void
-callstack_push_symfunc(struct process *proc, struct library_symbol *sym)
-{
+callstack_push_symfunc(struct process *proc, struct library_symbol *sym) {
 	struct callstack_element *elem;
 
 	/* FIXME: not good -- should use dynamic allocation. 19990703 mortene. */
@@ -480,8 +479,8 @@ callstack_push_symfunc(struct process *proc, struct library_symbol *sym)
 	}
 }
 
-static void callstack_pop(struct process *proc)
-{
+static void
+callstack_pop(struct process *proc) {
 	struct callstack_element *elem;
 	assert(proc->callstack_depth > 0);
 

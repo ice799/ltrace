@@ -7,8 +7,7 @@
 
 void
 debug_(int level, const char *file, int line, const char *func,
-		const char *fmt, ...)
-{
+		const char *fmt, ...) {
 	char buf[1024];
 	va_list args;
 
@@ -31,8 +30,8 @@ debug_(int level, const char *file, int line, const char *func,
 #include <stdlib.h>
 #include <sys/ptrace.h>
 
-static int xwritehexl(long i)
-{
+static int
+xwritehexl(long i) {
 	int rc = 0;
 	char text[17];
 	int j;
@@ -52,8 +51,8 @@ static int xwritehexl(long i)
 	return rc;
 }
 
-static int xwritec(char c)
-{
+static int
+xwritec(char c) {
 	char temp = c;
 	char *text = &temp;
 	int rc = 0;
@@ -61,13 +60,13 @@ static int xwritec(char c)
 	return rc;
 }
 
-static int xwritecr(void)
-{
+static int
+xwritecr(void) {
 	return xwritec('\n');
 }
 
-static int xwritedump(void *ptr, long addr, int len)
-{
+static int
+xwritedump(void *ptr, long addr, int len) {
 	int rc = 0;
 	long *tprt = (long *)ptr;
 	int i;
@@ -84,8 +83,8 @@ static int xwritedump(void *ptr, long addr, int len)
 	return rc;
 }
 
-int xinfdump(long pid, void *ptr, int len)
-{
+int
+xinfdump(long pid, void *ptr, int len) {
 	int rc;
 	int i;
 	long wrdcnt = len / sizeof(long) + 1;

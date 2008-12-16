@@ -46,9 +46,8 @@ union cfm_t {
 	unsigned long value;
 };
 
-int syscall_p(struct process *proc, int status, int *sysnum)
-{
-
+int
+syscall_p(struct process *proc, int status, int *sysnum) {
 	if (WIFSTOPPED(status)
 	    && WSTOPSIG(status) == (SIGTRAP | proc->tracesysgood)) {
 		unsigned long slot =
@@ -121,16 +120,15 @@ int syscall_p(struct process *proc, int status, int *sysnum)
    the GPL
    (http://www.gelato.unsw.edu.au/archives/linux-ia64/0104/1405.html) */
 static inline double
-fpreg_to_double (struct ia64_fpreg *fp)
-{
+fpreg_to_double (struct ia64_fpreg *fp) {
   double result;
 
   asm ("ldf.fill %0=%1" : "=f"(result) : "m"(*fp));
   return result;
 }
 
-static long gimme_long_arg(enum tof type, struct process *proc, int arg_num)
-{
+static long
+gimme_long_arg(enum tof type, struct process *proc, int arg_num) {
 	union cfm_t cfm;
 	unsigned long bsp;
 
@@ -181,8 +179,8 @@ static long gimme_long_arg(enum tof type, struct process *proc, int arg_num)
 
 static long float_regs[8] = { PT_F8, PT_F9, PT_F10, PT_F11,
 			      PT_F12, PT_F13, PT_F14, PT_F15 };
-static double gimme_float_arg(enum tof type, struct process *proc, int arg_num)
-{
+static double
+gimme_float_arg(enum tof type, struct process *proc, int arg_num) {
 	union cfm_t cfm;
 	unsigned long bsp;
 	struct ia64_fpreg reg;
@@ -245,8 +243,8 @@ static double gimme_float_arg(enum tof type, struct process *proc, int arg_num)
 	exit(1);
 }
 
-long gimme_arg(enum tof type, struct process *proc, int arg_num, arg_type_info *info)
-{
+long
+gimme_arg(enum tof type, struct process *proc, int arg_num, arg_type_info *info) {
 	union {
 		long l;
 		float f;
@@ -263,10 +261,10 @@ long gimme_arg(enum tof type, struct process *proc, int arg_num, arg_type_info *
 	return cvt.l;
 }
 
-void save_register_args(enum tof type, struct process *proc)
-{
+void
+save_register_args(enum tof type, struct process *proc) {
 }
 
-void get_arch_dep(struct process *proc)
-{
+void
+get_arch_dep(struct process *proc) {
 }

@@ -29,8 +29,8 @@ static GElf_Addr opd2addr(struct ltelf *ltc, GElf_Addr addr);
 extern char *PLTs_initialized_by_here;
 #endif
 
-static void do_init_elf(struct ltelf *lte, const char *filename)
-{
+static void
+do_init_elf(struct ltelf *lte, const char *filename) {
 	int i;
 	GElf_Addr relplt_addr = 0;
 	size_t relplt_size = 0;
@@ -163,7 +163,7 @@ static void do_init_elf(struct ltelf *lte, const char *filename)
 /**
   MIPS ABI Supplement:
 
-  DT_PLTGOT This member holds the address of the .got section. 
+  DT_PLTGOT This member holds the address of the .got section.
 
   DT_MIPS_SYMTABNO This member holds the number of entries in the
   .dynsym section.
@@ -177,7 +177,7 @@ static void do_init_elf(struct ltelf *lte, const char *filename)
 
  */
 				if(dyn.d_tag==DT_PLTGOT){
-					lte->pltgot_addr=dyn.d_un.d_ptr; 
+					lte->pltgot_addr=dyn.d_un.d_ptr;
 				}
 				if(dyn.d_tag==DT_MIPS_LOCAL_GOTNO){
 					lte->mips_local_gotno=dyn.d_un.d_val;
@@ -318,8 +318,8 @@ static void do_init_elf(struct ltelf *lte, const char *filename)
 	}
 }
 
-static void do_close_elf(struct ltelf *lte)
-{
+static void
+do_close_elf(struct ltelf *lte) {
 	if (lte->lte_flags & LTE_HASH_MALLOCED)
 		free((char *)lte->hash);
 	elf_end(lte->elf);
@@ -329,8 +329,7 @@ static void do_close_elf(struct ltelf *lte)
 static void
 add_library_symbol(GElf_Addr addr, const char *name,
 		   struct library_symbol **library_symbolspp,
-		   enum toplt type_of_plt, int is_weak)
-{
+		   enum toplt type_of_plt, int is_weak) {
 	struct library_symbol *s;
 	s = malloc(sizeof(struct library_symbol) + strlen(name) + 1);
 	if (s == NULL)
@@ -350,8 +349,8 @@ add_library_symbol(GElf_Addr addr, const char *name,
 }
 
 /* stolen from elfutils-0.123 */
-static unsigned long private_elf_gnu_hash(const char *name)
-{
+static unsigned long
+private_elf_gnu_hash(const char *name) {
 	unsigned long h = 5381;
 	const unsigned char *string = (const unsigned char *)name;
 	unsigned char c;
@@ -360,8 +359,8 @@ static unsigned long private_elf_gnu_hash(const char *name)
 	return h & 0xffffffff;
 }
 
-static int in_load_libraries(const char *name, struct ltelf *lte)
-{
+static int
+in_load_libraries(const char *name, struct ltelf *lte) {
 	size_t i;
 	unsigned long hash;
 	unsigned long gnu_hash;
@@ -434,8 +433,8 @@ static int in_load_libraries(const char *name, struct ltelf *lte)
 	return 0;
 }
 
-static GElf_Addr opd2addr(struct ltelf *lte, GElf_Addr addr)
-{
+static GElf_Addr
+opd2addr(struct ltelf *lte, GElf_Addr addr) {
 #ifdef ARCH_SUPPORTS_OPD
 	unsigned long base, offset;
 
@@ -453,8 +452,8 @@ static GElf_Addr opd2addr(struct ltelf *lte, GElf_Addr addr)
 #endif
 }
 
-struct library_symbol *read_elf(struct process *proc)
-{
+struct library_symbol *
+read_elf(struct process *proc) {
 	struct library_symbol *library_symbols = NULL;
 	struct ltelf lte[MAX_LIBRARY + 1];
 	size_t i;
@@ -470,7 +469,7 @@ struct library_symbol *read_elf(struct process *proc)
 		do_init_elf(&lte[i + 1], library[i]);
 #ifdef __mips__
 	// MIPS doesn't use the PLT and the GOT entries get changed
-	// on startup. 
+	// on startup.
 	proc->need_to_reinitialize_breakpoints = 1;
 	for(i=lte->mips_gotsym; i<lte->dynsym_count;i++){
 		GElf_Sym sym;
@@ -479,7 +478,7 @@ struct library_symbol *read_elf(struct process *proc)
 		if (gelf_getsym(lte->dynsym, i, &sym) == NULL){
 			error(EXIT_FAILURE, 0,
 					"Couldn't get relocation from \"%s\"",
-					proc->filename);       
+					proc->filename);
 		}
 		name=lte->dynstr+sym.st_name;
 		if(ELF64_ST_TYPE(sym.st_info) != STT_FUNC){

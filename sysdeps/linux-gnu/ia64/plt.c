@@ -24,8 +24,8 @@
 
 */
 
-GElf_Addr arch_plt_sym_val(struct ltelf *lte, size_t ndx, GElf_Rela * rela)
-{
+GElf_Addr
+arch_plt_sym_val(struct ltelf *lte, size_t ndx, GElf_Rela * rela) {
 	/* Find number of entires by removing header and special
 	 * entry, dividing total size by three, since each PLT entry
 	 * will have 3 bundles (1 for inital entry and two for the PLT
@@ -42,7 +42,7 @@ GElf_Addr arch_plt_sym_val(struct ltelf *lte, size_t ndx, GElf_Rela * rela)
 	return addr;
 }
 
-void *sym2addr(struct process *proc, struct library_symbol *sym)
-{
+void *
+sym2addr(struct process *proc, struct library_symbol *sym) {
 	return sym->enter_addr;
 }

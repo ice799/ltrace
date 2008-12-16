@@ -36,9 +36,8 @@
    Most targets just return here. A couple use proc->arch_ptr for a
    private data area.
  */
-void get_arch_dep(struct process *proc)
-{
-
+void
+get_arch_dep(struct process *proc) {
 }
 
 /**
@@ -58,8 +57,8 @@ void get_arch_dep(struct process *proc)
    by a base from the others. On our system, it looks like the base
    for the system calls is 4000.
  */
-int syscall_p(struct process *proc, int status, int *sysnum)
-{
+int
+syscall_p(struct process *proc, int status, int *sysnum) {
 	if (WIFSTOPPED(status)
 	    && WSTOPSIG(status) == (SIGTRAP | proc->tracesysgood)) {
        /* get the user's pc (plus 8) */
@@ -118,8 +117,8 @@ arguments somewhere on the call.
 I'm not doing any floating point support here. 
 
 */
-long gimme_arg(enum tof type, struct process *proc, int arg_num, arg_type_info *info)
-{
+long
+gimme_arg(enum tof type, struct process *proc, int arg_num, arg_type_info *info) {
     long ret;
     debug(2,"type %d arg %d",type,arg_num);
     if (type == LT_TOF_FUNCTION || type == LT_TOF_SYSCALL){
@@ -162,8 +161,8 @@ long gimme_arg(enum tof type, struct process *proc, int arg_num, arg_type_info *
    stash off the arguments on a call so we have them on the return.
    
 */
-void save_register_args(enum tof type, struct process *proc)
-{
+void
+save_register_args(enum tof type, struct process *proc) {
 }
 
 /**@}*/

@@ -20,8 +20,8 @@ static struct event event;
 
 static struct process *pid2proc(int pid);
 
-struct event *wait_for_something(void)
-{
+struct event *
+wait_for_something(void) {
 	pid_t pid;
 	int status;
 	int tmp;
@@ -155,8 +155,8 @@ struct event *wait_for_something(void)
 	return &event;
 }
 
-static struct process *pid2proc(pid_t pid)
-{
+static struct process *
+pid2proc(pid_t pid) {
 	struct process *tmp;
 
 	tmp = list_of_processes;

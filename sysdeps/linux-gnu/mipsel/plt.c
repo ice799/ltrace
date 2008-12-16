@@ -32,8 +32,8 @@
    Called by read_elf when building the symbol table. 
 
  */
-GElf_Addr arch_plt_sym_val(struct ltelf *lte, size_t ndx, GElf_Rela * rela)
-{
+GElf_Addr
+arch_plt_sym_val(struct ltelf *lte, size_t ndx, GElf_Rela * rela) {
     debug(1,"plt_addr %x ndx %#x",lte->pltgot_addr, ndx);
     return 
         lte->pltgot_addr + 
@@ -59,8 +59,8 @@ GElf_Addr arch_plt_sym_val(struct ltelf *lte, size_t ndx, GElf_Rela * rela)
    breakpoint changes I just add a new breakpoint for the new address. 
    
  */
-void *sym2addr(struct process *proc, struct library_symbol *sym)
-{
+void *
+sym2addr(struct process *proc, struct library_symbol *sym) {
     long ret;
     if(!proc->pid){
         return 0;

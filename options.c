@@ -67,8 +67,8 @@ struct opt_F_t *opt_F = NULL;	/* alternate configuration file(s) */
 char *PLTs_initialized_by_here = PLT_REINITALISATION_BP;
 #endif
 
-static void usage(void)
-{
+static void
+usage(void) {
 #if !(HAVE_GETOPT || HAVE_GETOPT_LONG)
 	fprintf(stdout, "Usage: %s [command [arg ...]]\n"
 		"Trace library calls of a given program.\n\n", progname);
@@ -145,8 +145,8 @@ static void usage(void)
 #endif
 }
 
-static char *search_for_command(char *filename)
-{
+static char *
+search_for_command(char *filename) {
 	static char pathname[PATH_MAX];
 	char *path;
 	int m, n;
@@ -177,8 +177,8 @@ static char *search_for_command(char *filename)
 	return filename;
 }
 
-char **process_options(int argc, char **argv)
-{
+char **
+process_options(int argc, char **argv) {
 	progname = argv[0];
 	output = stderr;
 
