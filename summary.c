@@ -68,16 +68,15 @@ void show_summary(void)
 
 	qsort(entries, num_entries, sizeof(*entries), compar);
 
-	printf("%% time     seconds  usecs/call     calls      function\n");
-	printf
-	    ("------ ----------- ----------- --------- --------------------\n");
+	fprintf(output, "%% time     seconds  usecs/call     calls      function\n");
+	fprintf(output, "------ ----------- ----------- --------- --------------------\n");
 	for (i = 0; i < num_entries; i++) {
 		unsigned long long int c;
 		unsigned long long int p;
 		c = 1000000 * (int)entries[i].tv.tv_sec +
 		    (int)entries[i].tv.tv_usec;
 		p = 100000 * c / tot_usecs + 5;
-		printf("%3lu.%02lu %4d.%06d %11lu %9d %s\n",
+		fprintf(output, "%3lu.%02lu %4d.%06d %11lu %9d %s\n",
 		       (unsigned long int)(p / 1000),
 		       (unsigned long int)((p / 10) % 100),
 		       (int)entries[i].tv.tv_sec, (int)entries[i].tv.tv_usec,
@@ -88,8 +87,7 @@ void show_summary(void)
 #endif
 		       entries[i].name);
 	}
-	printf
-	    ("------ ----------- ----------- --------- --------------------\n");
-	printf("100.00 %4lu.%06lu             %9d total\n", tot_usecs / 1000000,
+	fprintf(output, "------ ----------- ----------- --------- --------------------\n");
+	fprintf(output, "100.00 %4lu.%06lu             %9d total\n", tot_usecs / 1000000,
 	       tot_usecs % 1000000, tot_count);
 }

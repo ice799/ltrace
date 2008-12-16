@@ -17,6 +17,7 @@ cd ltrace-$VERSION
 aclocal
 autoheader
 autoconf
+rm -rf autom4te.cache
 cd ..
 GZIP=-9 tar --exclude .git -zcf ltrace-$VERSION.tar.gz ltrace-$VERSION
 rm -rf ltrace-$VERSION

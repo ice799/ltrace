@@ -1,5 +1,11 @@
 2008-12-10  Juan Cespedes <cespedes@debian.org>
 
+	* summary.c: Fix "ltrace -o -c"
+	* mkdist: rm -rf autom4te.cache
+	* debian/control.ini: re-added armel and armeb
+
+2008-12-10  Juan Cespedes <cespedes@debian.org>
+
 	* Release version 0.5.1
 
 2008-12-10  Juan Cespedes <cespedes@debian.org>
