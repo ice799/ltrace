@@ -50,9 +50,9 @@ static void
 signal_exit(int sig) {
 	exiting = 1;
 	debug(1, "Received interrupt signal; exiting...");
-	if (opt_o) {
-		fclose(output);
-		opt_o = 0;
+	if (options.output) {
+		fclose(options.output);
+		options.output = NULL;
 	}
 	signal(SIGINT, SIG_IGN);
 	signal(SIGTERM, SIG_IGN);
@@ -74,9 +74,9 @@ normal_exit(void) {
 	if (opt_c) {
 		show_summary();
 	}
-	if (opt_o) {
-		fclose(output);
-		opt_o = 0;
+	if (options.output) {
+		fclose(options.output);
+		options.output = NULL;
 	}
 }
 

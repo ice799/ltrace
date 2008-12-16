@@ -11,10 +11,11 @@ struct options_t {
 	int syscalls; /* -S: display system calls */
 	int libcalls; /* -L: display library calls */
 	int demangle; /* -C: demangle low-level names into user-level names */
+	int indent;   /* -n: indent trace output according to program flow */
+	FILE *output; /* output to a specific file */
 };
 extern struct options_t options;
 
-extern FILE *output;
 extern int opt_A;		/* default maximum # of array elements printed */
 extern int opt_c;		/* count time, calls, and report a summary on program exit */
 extern int opt_d;		/* debug */
@@ -23,9 +24,7 @@ extern int opt_s;		/* default maximum # of bytes printed in strings */
 extern int opt_f;		/* trace child processes */
 extern int opt_r;		/* print relative timestamp */
 extern int opt_t;		/* print absolute timestamp */
-extern int opt_n;		/* indent trace output according to program flow */
 extern int opt_T;		/* show the time spent inside each call */
-extern int opt_o;		/* output to a specific file */
 
 struct opt_p_t {
 	pid_t pid;

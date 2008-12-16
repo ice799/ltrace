@@ -10,9 +10,6 @@
 #include "ptrace.h"
 #include "ltrace.h"
 
-extern FILE *output;
-extern int opt_d;
-
 void
 get_arch_dep(struct process *proc) {
 	proc_archdep *a;

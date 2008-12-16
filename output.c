@@ -31,7 +31,7 @@ static int current_column = 0;
 static void
 output_indent(struct process *proc) {
 	current_column +=
-	    fprintf(output, "%*s", opt_n * proc->callstack_depth, "");
+	    fprintf(options.output, "%*s", options.indent * proc->callstack_depth, "");
 }
 
 static void
@@ -40,10 +40,10 @@ begin_of_line(enum tof type, struct process *proc) {
 	if (!proc) {
 		return;
 	}
-	if ((output != stderr) && (opt_p || opt_f)) {
-		current_column += fprintf(output, "%u ", proc->pid);
+	if ((options.output != stderr) && (opt_p || opt_f)) {
+		current_column += fprintf(options.output, "%u ", proc->pid);
 	} else if (list_of_processes->next) {
-		current_column += fprintf(output, "[pid %u] ", proc->pid);
+		current_column += fprintf(options.output, "[pid %u] ", proc->pid);
 	}
 	if (opt_r) {
 		struct timeval tv;
@@ -66,7 +66,7 @@ begin_of_line(enum tof type, struct process *proc) {
 		}
 		old_tv.tv_sec = tv.tv_sec;
 		old_tv.tv_usec = tv.tv_usec;
-		current_column += fprintf(output, "%3lu.%06d ",
+		current_column += fprintf(options.output, "%3lu.%06d ",
 					  diff.tv_sec, (int)diff.tv_usec);
 	}
 	if (opt_t) {
@@ -75,31 +75,31 @@ begin_of_line(enum tof type, struct process *proc) {
 
 		gettimeofday(&tv, &tz);
 		if (opt_t > 2) {
-			current_column += fprintf(output, "%lu.%06d ",
+			current_column += fprintf(options.output, "%lu.%06d ",
 						  tv.tv_sec, (int)tv.tv_usec);
 		} else if (opt_t > 1) {
 			struct tm *tmp = localtime(&tv.tv_sec);
 			current_column +=
-			    fprintf(output, "%02d:%02d:%02d.%06d ",
+			    fprintf(options.output, "%02d:%02d:%02d.%06d ",
 				    tmp->tm_hour, tmp->tm_min, tmp->tm_sec,
 				    (int)tv.tv_usec);
 		} else {
 			struct tm *tmp = localtime(&tv.tv_sec);
-			current_column += fprintf(output, "%02d:%02d:%02d ",
+			current_column += fprintf(options.output, "%02d:%02d:%02d ",
 						  tmp->tm_hour, tmp->tm_min,
 						  tmp->tm_sec);
 		}
 	}
 	if (opt_i) {
 		if (type == LT_TOF_FUNCTION || type == LT_TOF_FUNCTIONR) {
-			current_column += fprintf(output, "[%p] ",
+			current_column += fprintf(options.output, "[%p] ",
 						  proc->return_addr);
 		} else {
-			current_column += fprintf(output, "[%p] ",
+			current_column += fprintf(options.output, "[%p] ",
 						  proc->instruction_pointer);
 		}
 	}
-	if (opt_n > 0 && type != LT_TOF_NONE) {
+	if (options.indent > 0 && type != LT_TOF_NONE) {
 		output_indent(proc);
 	}
 }
@@ -136,9 +136,9 @@ output_line(struct process *proc, char *fmt, ...) {
 	}
 	if (current_proc) {
 		if (current_proc->callstack[current_depth].return_addr) {
-			fprintf(output, " <unfinished ...>\n");
+			fprintf(options.output, " <unfinished ...>\n");
 		} else {
-			fprintf(output, " <no return ...>\n");
+			fprintf(options.output, " <no return ...>\n");
 		}
 	}
 	current_proc = 0;
@@ -148,8 +148,8 @@ output_line(struct process *proc, char *fmt, ...) {
 	begin_of_line(LT_TOF_NONE, proc);
 
 	va_start(args, fmt);
-	vfprintf(output, fmt, args);
-	fprintf(output, "\n");
+	vfprintf(options.output, fmt, args);
+	fprintf(options.output, "\n");
 	va_end(args);
 	current_column = 0;
 }
@@ -157,7 +157,7 @@ output_line(struct process *proc, char *fmt, ...) {
 static void
 tabto(int col) {
 	if (current_column < col) {
-		fprintf(output, "%*s", col - current_column, "");
+		fprintf(options.output, "%*s", col - current_column, "");
 	}
 }
 
@@ -172,7 +172,7 @@ output_left(enum tof type, struct process *proc, char *function_name) {
 		return;
 	}
 	if (current_proc) {
-		fprintf(output, " <unfinished ...>\n");
+		fprintf(options.output, " <unfinished ...>\n");
 		current_proc = 0;
 		current_column = 0;
 	}
@@ -182,10 +182,10 @@ output_left(enum tof type, struct process *proc, char *function_name) {
 	begin_of_line(type, proc);
 #ifdef USE_DEMANGLE
 	current_column +=
-	    fprintf(output, "%s(",
+	    fprintf(options.output, "%s(",
 		    options.demangle ? my_demangle(function_name) : function_name);
 #else
-	current_column += fprintf(output, "%s(", function_name);
+	current_column += fprintf(options.output, "%s(", function_name);
 #endif
 
 	func = name2func(function_name);
@@ -194,7 +194,7 @@ output_left(enum tof type, struct process *proc, char *function_name) {
 		for (i = 0; i < 4; i++) {
 			current_column +=
 			    display_arg(type, proc, i, arg_unknown);
-			current_column += fprintf(output, ", ");
+			current_column += fprintf(options.output, ", ");
 		}
 		current_column += display_arg(type, proc, 4, arg_unknown);
 		return;
@@ -203,13 +203,13 @@ output_left(enum tof type, struct process *proc, char *function_name) {
 		for (i = 0; i < func->num_params - func->params_right - 1; i++) {
 			current_column +=
 			    display_arg(type, proc, i, func->arg_info[i]);
-			current_column += fprintf(output, ", ");
+			current_column += fprintf(options.output, ", ");
 		}
 		if (func->num_params > func->params_right) {
 			current_column +=
 			    display_arg(type, proc, i, func->arg_info[i]);
 			if (func->params_right) {
-				current_column += fprintf(output, ", ");
+				current_column += fprintf(options.output, ", ");
 			}
 		}
 		if (func->params_right) {
@@ -254,31 +254,31 @@ output_right(enum tof type, struct process *proc, char *function_name) {
 		st->count++;
 		st->tv.tv_sec += current_time_spent.tv_sec;
 
-//              fprintf(output, "%s <%lu.%06d>\n", function_name,
+//              fprintf(options.output, "%s <%lu.%06d>\n", function_name,
 //                              current_time_spent.tv_sec, (int)current_time_spent.tv_usec);
 		return;
 	}
 	if (current_proc && (current_proc != proc ||
 			    current_depth != proc->callstack_depth)) {
-		fprintf(output, " <unfinished ...>\n");
+		fprintf(options.output, " <unfinished ...>\n");
 		current_proc = 0;
 	}
 	if (current_proc != proc) {
 		begin_of_line(type, proc);
 #ifdef USE_DEMANGLE
 		current_column +=
-		    fprintf(output, "<... %s resumed> ",
+		    fprintf(options.output, "<... %s resumed> ",
 			    options.demangle ? my_demangle(function_name) : function_name);
 #else
 		current_column +=
-		    fprintf(output, "<... %s resumed> ", function_name);
+		    fprintf(options.output, "<... %s resumed> ", function_name);
 #endif
 	}
 
 	if (!func) {
-		current_column += fprintf(output, ") ");
+		current_column += fprintf(options.output, ") ");
 		tabto(options.align - 1);
-		fprintf(output, "= ");
+		fprintf(options.output, "= ");
 		display_arg(type, proc, -1, arg_unknown);
 	} else {
 		int i;
@@ -286,27 +286,27 @@ output_right(enum tof type, struct process *proc, char *function_name) {
 		     i < func->num_params - 1; i++) {
 			current_column +=
 			    display_arg(type, proc, i, func->arg_info[i]);
-			current_column += fprintf(output, ", ");
+			current_column += fprintf(options.output, ", ");
 		}
 		if (func->params_right) {
 			current_column +=
 			    display_arg(type, proc, i, func->arg_info[i]);
 		}
-		current_column += fprintf(output, ") ");
+		current_column += fprintf(options.output, ") ");
 		tabto(options.align - 1);
-		fprintf(output, "= ");
+		fprintf(options.output, "= ");
 		if (func->return_info->type == ARGTYPE_VOID) {
-			fprintf(output, "<void>");
+			fprintf(options.output, "<void>");
 		} else {
 			display_arg(type, proc, -1, func->return_info);
 		}
 	}
 	if (opt_T) {
-		fprintf(output, " <%lu.%06d>",
+		fprintf(options.output, " <%lu.%06d>",
 			current_time_spent.tv_sec,
 			(int)current_time_spent.tv_usec);
 	}
-	fprintf(output, "\n");
+	fprintf(options.output, "\n");
 	current_proc = 0;
 	current_column = 0;
 }

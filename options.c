@@ -31,15 +31,16 @@ struct options_t options = {
 	.syscalls = 0,              /* display syscalls */
 	.libcalls = 1,              /* display library calls */
 #ifdef USE_DEMANGLE
-	.demangle = 0,                 /* Demangle low-level symbol names */
+	.demangle = 0,              /* Demangle low-level symbol names */
 #endif
+	.indent = 0,                /* indent output according to program flow */
+	.output = NULL,             /* output to a specific file */
 };
 
 #define MAX_LIBRARY		30
 char *library[MAX_LIBRARY];
 int library_num = 0;
 static char *progname;		/* Program name (`ltrace') */
-FILE *output;
 int opt_A = DEFAULT_ARRAYLEN;	/* maximum # array elements to print */
 int opt_c = 0;			/* Report a summary on program exit */
 int opt_d = 0;			/* debug */
@@ -48,9 +49,7 @@ int opt_s = DEFAULT_STRLEN;	/* maximum # of bytes printed in strings */
 int opt_f = 0;			/* trace child processes as they are created */
 int opt_r = 0;			/* print relative timestamp */
 int opt_t = 0;			/* print absolute timestamp */
-int opt_n = 0;			/* indent output according to program flow */
 int opt_T = 0;			/* show the time spent inside each call */
-int opt_o = 0;			/* output to a specific file */
 
 /* List of pids given to option -p: */
 struct opt_p_t *opt_p = NULL;	/* attach to process with a given pid */
@@ -202,7 +201,7 @@ guess_cols(void) {
 char **
 process_options(int argc, char **argv) {
 	progname = argv[0];
-	output = stderr;
+	options.output = stderr;
 
 	guess_cols();
 
@@ -326,19 +325,18 @@ process_options(int argc, char **argv) {
 			options.libcalls = 0;
 			break;
 		case 'n':
-			opt_n = atoi(optarg);
+			options.indent = atoi(optarg);
 			break;
 		case 'o':
-			opt_o++;
-			output = fopen(optarg, "w");
-			if (!output) {
+			options.output = fopen(optarg, "w");
+			if (!options.output) {
 				fprintf(stderr,
 					"Can't open %s for output: %s\n",
 					optarg, strerror(errno));
 				exit(1);
 			}
-			setvbuf(output, (char *)NULL, _IOLBF, 0);
-			fcntl(fileno(output), F_SETFD, FD_CLOEXEC);
+			setvbuf(options.output, (char *)NULL, _IOLBF, 0);
+			fcntl(fileno(options.output), F_SETFD, FD_CLOEXEC);
 			break;
 		case 'p':
 			{
