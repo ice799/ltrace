@@ -112,8 +112,8 @@ name2func(char *name) {
 	tmp = list_of_functions;
 	while (tmp) {
 #ifdef USE_DEMANGLE
-		str1 = opt_C ? my_demangle(tmp->name) : tmp->name;
-		str2 = opt_C ? my_demangle(name) : name;
+		str1 = options.demangle ? my_demangle(tmp->name) : tmp->name;
+		str2 = options.demangle ? my_demangle(name) : name;
 #else
 		str1 = tmp->name;
 		str2 = name;
@@ -183,7 +183,7 @@ output_left(enum tof type, struct process *proc, char *function_name) {
 #ifdef USE_DEMANGLE
 	current_column +=
 	    fprintf(output, "%s(",
-		    opt_C ? my_demangle(function_name) : function_name);
+		    options.demangle ? my_demangle(function_name) : function_name);
 #else
 	current_column += fprintf(output, "%s(", function_name);
 #endif
@@ -268,7 +268,7 @@ output_right(enum tof type, struct process *proc, char *function_name) {
 #ifdef USE_DEMANGLE
 		current_column +=
 		    fprintf(output, "<... %s resumed> ",
-			    opt_C ? my_demangle(function_name) : function_name);
+			    options.demangle ? my_demangle(function_name) : function_name);
 #else
 		current_column +=
 		    fprintf(output, "<... %s resumed> ", function_name);
@@ -277,7 +277,7 @@ output_right(enum tof type, struct process *proc, char *function_name) {
 
 	if (!func) {
 		current_column += fprintf(output, ") ");
-		tabto(opt_a - 1);
+		tabto(options.align - 1);
 		fprintf(output, "= ");
 		display_arg(type, proc, -1, arg_unknown);
 	} else {
@@ -293,7 +293,7 @@ output_right(enum tof type, struct process *proc, char *function_name) {
 			    display_arg(type, proc, i, func->arg_info[i]);
 		}
 		current_column += fprintf(output, ") ");
-		tabto(opt_a - 1);
+		tabto(options.align - 1);
 		fprintf(output, "= ");
 		if (func->return_info->type == ARGTYPE_VOID) {
 			fprintf(output, "<void>");

@@ -1,6 +1,6 @@
 
-#ifndef DEFAULT_ACOLUMN
-#define DEFAULT_ACOLUMN 50	/* default alignment column for results */
+#ifndef DEFAULT_ALIGN
+#define DEFAULT_ALIGN 50	/* default alignment column for results */
 #endif				/* (-a switch) */
 
 #ifndef MAX_ARGS

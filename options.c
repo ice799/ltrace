@@ -8,6 +8,7 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <limits.h>
+#include <sys/ioctl.h>
 
 #if HAVE_GETOPT_H
 #include <getopt.h>
@@ -24,26 +25,29 @@
 #define SYSTEM_CONFIG_FILE SYSCONFDIR "/ltrace.conf"
 #define USER_CONFIG_FILE "~/.ltrace.conf"
 
+struct options_t options = {
+	.align    = DEFAULT_ALIGN,  /* alignment column for results */
+	.user     = NULL,           /* username to run command as */
+	.syscalls = 0,              /* display syscalls */
+	.libcalls = 1,              /* display library calls */
+#ifdef USE_DEMANGLE
+	.demangle = 0,                 /* Demangle low-level symbol names */
+#endif
+};
+
 #define MAX_LIBRARY		30
 char *library[MAX_LIBRARY];
 int library_num = 0;
 static char *progname;		/* Program name (`ltrace') */
 FILE *output;
-int opt_a = DEFAULT_ACOLUMN;	/* alignment column for results */
 int opt_A = DEFAULT_ARRAYLEN;	/* maximum # array elements to print */
 int opt_c = 0;			/* Report a summary on program exit */
 int opt_d = 0;			/* debug */
 int opt_i = 0;			/* instruction pointer */
 int opt_s = DEFAULT_STRLEN;	/* maximum # of bytes printed in strings */
-int opt_S = 0;			/* display syscalls */
-int opt_L = 1;			/* display library calls */
 int opt_f = 0;			/* trace child processes as they are created */
-char *opt_u = NULL;		/* username to run command as */
 int opt_r = 0;			/* print relative timestamp */
 int opt_t = 0;			/* print absolute timestamp */
-#ifdef USE_DEMANGLE
-int opt_C = 0;			/* Demangle low-level symbol names */
-#endif
 int opt_n = 0;			/* indent output according to program flow */
 int opt_T = 0;			/* show the time spent inside each call */
 int opt_o = 0;			/* output to a specific file */
@@ -97,11 +101,10 @@ usage(void) {
 		"  -e expr             modify which events to trace.\n"
 		"  -f                  follow forks.\n"
 # if HAVE_GETOPT_LONG
-		"  -F, --config=FILE   load alternate configuration file\n"
+		"  -F, --config=FILE   load alternate configuration file (can be repeated).\n"
 # else
-		"  -F FILE             load alternate configuration file\n"
+		"  -F FILE             load alternate configuration file (can be repeated).\n"
 # endif
-		"                      (can be repeated).\n"
 # if HAVE_GETOPT_LONG
 		"  -h, --help          display this help and exit.\n"
 # else
@@ -177,10 +180,31 @@ search_for_command(char *filename) {
 	return filename;
 }
 
+static void
+guess_cols(void) {
+	struct winsize ws;
+	char *c;
+
+	options.align = DEFAULT_ALIGN;
+	c = getenv("COLUMNS");
+	if (c && *c) {
+		char *endptr;
+		int cols;
+		cols = strtol(c, &endptr, 0);
+		if (cols > 0 && !*endptr) {
+			options.align = cols * 5 / 8;
+		}
+	} else if (ioctl(1, TIOCGWINSZ, &ws) != -1 && ws.ws_col > 0) {
+		options.align = ws.ws_col * 5 / 8;
+	}
+}
+
 char **
 process_options(int argc, char **argv) {
 	progname = argv[0];
 	output = stderr;
+
+	guess_cols();
 
 #if HAVE_GETOPT || HAVE_GETOPT_LONG
 	while (1) {
@@ -219,7 +243,7 @@ process_options(int argc, char **argv) {
 		}
 		switch (c) {
 		case 'a':
-			opt_a = atoi(optarg);
+			options.align = atoi(optarg);
 			break;
 		case 'A':
 			opt_A = atoi(optarg);
@@ -229,7 +253,7 @@ process_options(int argc, char **argv) {
 			break;
 #ifdef USE_DEMANGLE
 		case 'C':
-			opt_C++;
+			options.demangle++;
 			break;
 #endif
 		case 'd':
@@ -299,7 +323,7 @@ process_options(int argc, char **argv) {
 			library[library_num++] = optarg;
 			break;
 		case 'L':
-			opt_L = 0;
+			options.libcalls = 0;
 			break;
 		case 'n':
 			opt_n = atoi(optarg);
@@ -335,7 +359,7 @@ process_options(int argc, char **argv) {
 			opt_s = atoi(optarg);
 			break;
 		case 'S':
-			opt_S = 1;
+			options.syscalls = 1;
 			break;
 		case 't':
 			opt_t++;
@@ -344,7 +368,7 @@ process_options(int argc, char **argv) {
 			opt_T++;
 			break;
 		case 'u':
-			opt_u = optarg;
+			options.user = optarg;
 			break;
 		case 'V':
 			printf("ltrace version " PACKAGE_VERSION ".\n"

@@ -22,7 +22,7 @@ change_uid(struct process *proc) {
 	uid_t run_uid, run_euid;
 	gid_t run_gid, run_egid;
 
-	if (opt_u) {
+	if (options.user) {
 		struct passwd *pent;
 
 		if (getuid() != 0 || geteuid() != 0) {
@@ -30,14 +30,14 @@ change_uid(struct process *proc) {
 				"you must be root to use the -u option\n");
 			exit(1);
 		}
-		if ((pent = getpwnam(opt_u)) == NULL) {
-			fprintf(stderr, "cannot find user `%s'\n", opt_u);
+		if ((pent = getpwnam(options.user)) == NULL) {
+			fprintf(stderr, "cannot find user `%s'\n", options.user);
 			exit(1);
 		}
 		run_uid = pent->pw_uid;
 		run_gid = pent->pw_gid;
 
-		if (initgroups(opt_u, run_gid) < 0) {
+		if (initgroups(options.user, run_gid) < 0) {
 			perror("ltrace: initgroups");
 			exit(1);
 		}
@@ -45,7 +45,7 @@ change_uid(struct process *proc) {
 		run_uid = getuid();
 		run_gid = getgid();
 	}
-	if (opt_u || !geteuid()) {
+	if (options.user || !geteuid()) {
 		struct stat statbuf;
 		run_euid = run_uid;
 		run_egid = run_gid;

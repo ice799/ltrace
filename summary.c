@@ -83,7 +83,7 @@ void show_summary(void)
 		       (unsigned long int)(c / entries[i].count),
 		       entries[i].count,
 #ifdef USE_DEMANGLE
-		       opt_C ? my_demangle(entries[i].name) :
+		       options.demangle ? my_demangle(entries[i].name) :
 #endif
 		       entries[i].name);
 	}

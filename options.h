@@ -5,20 +5,24 @@
 #include <stdio.h>
 #include <sys/types.h>
 
+struct options_t {
+	int align;    /* -a: default alignment column for results */
+	char * user;  /* -u: username to run command as */
+	int syscalls; /* -S: display system calls */
+	int libcalls; /* -L: display library calls */
+	int demangle; /* -C: demangle low-level names into user-level names */
+};
+extern struct options_t options;
+
 extern FILE *output;
-extern int opt_a;		/* default alignment column for results */
 extern int opt_A;		/* default maximum # of array elements printed */
 extern int opt_c;		/* count time, calls, and report a summary on program exit */
 extern int opt_d;		/* debug */
 extern int opt_i;		/* instruction pointer */
 extern int opt_s;		/* default maximum # of bytes printed in strings */
-extern int opt_L;		/* display library calls */
-extern int opt_S;		/* display system calls */
 extern int opt_f;		/* trace child processes */
-extern char *opt_u;		/* username to run command as */
 extern int opt_r;		/* print relative timestamp */
 extern int opt_t;		/* print absolute timestamp */
-extern int opt_C;		/* Demanglelow-level symbol names into user-level names */
 extern int opt_n;		/* indent trace output according to program flow */
 extern int opt_T;		/* show the time spent inside each call */
 extern int opt_o;		/* output to a specific file */

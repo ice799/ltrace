@@ -10,7 +10,6 @@
 #include <sys/param.h>
 #include <signal.h>
 #include <sys/wait.h>
-#include <sys/ioctl.h>
 
 #include "ltrace.h"
 #include "output.h"
@@ -81,25 +80,6 @@ normal_exit(void) {
 	}
 }
 
-static void
-guess_cols(void) {
-	struct winsize ws;
-	char *c;
-
-	opt_a = DEFAULT_ACOLUMN;
-	c = getenv("COLUMNS");
-	if (c && *c) {
-		char *endptr;
-		int cols;
-		cols = strtol(c, &endptr, 0);
-		if (cols > 0 && !*endptr) {
-			opt_a = cols * 5 / 8;
-		}
-	} else if (ioctl(1, TIOCGWINSZ, &ws) != -1 && ws.ws_col > 0) {
-		opt_a = ws.ws_col * 5 / 8;
-	}
-}
-
 int
 main(int argc, char **argv) {
 	struct opt_p_t *opt_p_tmp;
@@ -108,7 +88,6 @@ main(int argc, char **argv) {
 	signal(SIGINT, signal_exit);	/* Detach processes when interrupted */
 	signal(SIGTERM, signal_exit);	/*  ... or killed */
 
-	guess_cols();
 	argv = process_options(argc, argv);
 	while (opt_F) {
 		/* If filename begins with ~, expand it to the user's home */

@@ -213,7 +213,7 @@ remove_proc(struct process *proc) {
 
 static void
 process_syscall(struct event *event) {
-	if (opt_S) {
+	if (options.syscalls) {
 		output_left(LT_TOF_SYSCALL, event->proc,
 			    sysname(event->proc, event->e_un.sysnum));
 	}
@@ -228,7 +228,7 @@ process_syscall(struct event *event) {
 
 static void
 process_arch_syscall(struct event *event) {
-	if (opt_S) {
+	if (options.syscalls) {
 		output_left(LT_TOF_SYSCALL, event->proc,
 				arch_sysname(event->proc, event->e_un.sysnum));
 	}
@@ -280,7 +280,7 @@ process_sysret(struct event *event) {
 		enable_all_breakpoints(event->proc);
 	}
 	callstack_pop(event->proc);
-	if (opt_S) {
+	if (options.syscalls) {
 		output_right(LT_TOF_SYSCALLR, event->proc,
 			     sysname(event->proc, event->e_un.sysnum));
 	}
@@ -293,7 +293,7 @@ process_arch_sysret(struct event *event) {
 		calc_time_spent(event->proc);
 	}
 	callstack_pop(event->proc);
-	if (opt_S) {
+	if (options.syscalls) {
 		output_right(LT_TOF_SYSCALLR, event->proc,
 				arch_sysname(event->proc, event->e_un.sysnum));
 	}

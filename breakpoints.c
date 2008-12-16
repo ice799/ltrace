@@ -88,7 +88,7 @@ enable_all_breakpoints(struct process *proc) {
 		 * If the dynamic linker hasn't populated the PLT then
 		 * dont enable the breakpoints
 		 */
-		if (opt_L) {
+		if (options.libcalls) {
 			a = ptrace(PTRACE_PEEKTEXT, proc->pid,
 				   sym2addr(proc, proc->list_of_symbols),
 				   0);
@@ -167,7 +167,7 @@ breakpoints_init(struct process *proc) {
 	}
 	proc->breakpoints = dict_init(dict_key2hash_int, dict_key_cmp_int);
 
-	if (opt_L && proc->filename) {
+	if (options.libcalls && proc->filename) {
 		proc->list_of_symbols = read_elf(proc);
 		if (opt_e) {
 			struct library_symbol **tmp1 = &(proc->list_of_symbols);
