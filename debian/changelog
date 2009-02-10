@@ -1,3 +1,9 @@
+ltrace (0.5.1-2) unstable; urgency=low
+
+  * Red-added armel and armeb to debian/control (closes: Bug#46023)
+
+ -- Juan Cespedes <cespedes@debian.org>  Tue, 16 Dec 2008 13:00:50 +0100
+
 ltrace (0.5.1-1) unstable; urgency=low
 
   * New upstream release, fixing many bugs
