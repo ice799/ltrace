@@ -216,6 +216,7 @@ extern struct process *list_of_processes;
 extern void *instruction_pointer;
 
 extern struct event *wait_for_something(void);
+extern struct process * pid2proc(pid_t pid);
 extern void process_event(struct event *event);
 extern void execute_program(struct process *, char **);
 extern int display_arg(enum tof type, struct process *proc, int arg_num, arg_type_info *info);

@@ -197,13 +197,25 @@ untrace_pid(pid_t pid) {
 
 void
 continue_after_signal(pid_t pid, int signum) {
-	/* We should always trace syscalls to be able to control fork(), clone(), execve()... */
-	ptrace(PTRACE_SYSCALL, pid, 0, signum);
+	struct process *proc;
+
+	proc = pid2proc(pid);
+	if (proc && proc->breakpoint_being_enabled) {
+#if defined __sparc__  || defined __ia64___
+		ptrace(PTRACE_SYSCALL, pid, 0, signum);
+#else
+		ptrace(PTRACE_SINGLESTEP, pid, 0, signum);
+#endif
+	} else {
+		ptrace(PTRACE_SYSCALL, pid, 0, signum);
+	}
 }
 
 void
 continue_process(pid_t pid) {
-	continue_after_signal(pid, 0);
+	/* We always trace syscalls to control fork(), clone(), execve()... */
+
+	ptrace(PTRACE_SYSCALL, pid, 0, 0);
 }
 
 void

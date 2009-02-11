@@ -16,10 +16,6 @@
 
 static struct event event;
 
-/* This should also update `current_process' */
-
-static struct process *pid2proc(int pid);
-
 struct event *
 wait_for_something(void) {
 	pid_t pid;
@@ -153,18 +149,4 @@ wait_for_something(void) {
 	event.e_un.brk_addr =
 	    event.proc->instruction_pointer - DECR_PC_AFTER_BREAK;
 	return &event;
-}
-
-static struct process *
-pid2proc(pid_t pid) {
-	struct process *tmp;
-
-	tmp = list_of_processes;
-	while (tmp) {
-		if (pid == tmp->pid) {
-			return tmp;
-		}
-		tmp = tmp->next;
-	}
-	return NULL;
 }

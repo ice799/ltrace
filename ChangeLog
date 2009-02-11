@@ -1,3 +1,18 @@
+2009-02-11  Juan Cespedes <cespedes@debian.org>
+
+	* Fixed bug present since the first version (!) of ltrace,
+          which caused many programs to segfault when a signal is received:
+	  + When a breakpoint is hit, and we need to continue with it, we:
+	    1) remove the breakpoint
+	    2) order a SINGLESTEP
+	    3) when control comes back, set the breakpoint again
+	    4) let the process continue
+	  + The problem came when a signal is received in the middle
+	    of all this (specifically, between 2) and 3)).
+	    If this is so, we treat the signal "in the usual way",
+	    it is, at the end we issue a "CONTINUE" instead of the
+	    needed SINGLESTEP.
+
 2008-12-10  Juan Cespedes <cespedes@debian.org>
 
 	* summary.c: Fix "ltrace -o -c"

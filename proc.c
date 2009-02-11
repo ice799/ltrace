@@ -59,3 +59,17 @@ open_pid(pid_t pid, int verbose) {
 	continue_process(pid);
 	proc->breakpoints_enabled = 1;
 }
+
+struct process *
+pid2proc(pid_t pid) {
+	struct process *tmp;
+
+	tmp = list_of_processes;
+	while (tmp) {
+		if (pid == tmp->pid) {
+			return tmp;
+		}
+		tmp = tmp->next;
+	}
+	return NULL;
+}
