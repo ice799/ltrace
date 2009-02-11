@@ -87,9 +87,17 @@ int
 xinfdump(long pid, void *ptr, int len) {
 	int rc;
 	int i;
-	long wrdcnt = len / sizeof(long) + 1;
-	long *infwords = malloc(wrdcnt * sizeof(long));
-	long addr = (long)ptr;
+	long wrdcnt;
+	long *infwords;
+	long addr;
+
+	wrdcnt = len / sizeof(long) + 1;
+	infwords = malloc(wrdcnt * sizeof(long));
+	if (!infwords) {
+		perror("ltrace: malloc");
+		exit(1);
+	}
+	addr = (long)ptr;
 
 	addr = ((addr + sizeof(long) - 1) / sizeof(long)) * sizeof(long);
 

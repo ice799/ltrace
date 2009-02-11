@@ -85,7 +85,7 @@ execute_program(struct process *sp, char **argv) {
 		execvp(sp->filename, argv);
 		fprintf(stderr, "Can't execute `%s': %s\n", sp->filename,
 			strerror(errno));
-		exit(1);
+		_exit(1);
 	}
 
 	debug(1, "PID=%d", pid);

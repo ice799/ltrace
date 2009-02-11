@@ -647,6 +647,10 @@ process_line(char *buf) {
 	}
 	fun.num_params = i;
 	fun_p = malloc(sizeof(struct function));
+	if (!fun_p) {
+		perror("ltrace: malloc");
+		exit(1);
+	}
 	memcpy(fun_p, &fun, sizeof(struct function));
 	return fun_p;
 }
