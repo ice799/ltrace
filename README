@@ -2,7 +2,7 @@
 
                        A Dynamic Library Tracer
 
-         Copyright 1997-2008 Juan Cespedes <cespedes@debian.org>
+         Copyright 1997-2009 Juan Cespedes <cespedes@debian.org>
 
 
 Contents
@@ -72,7 +72,7 @@ This file is very incomplete and out-of-date.
 6. License
 ----------
 
-    Copyright (C) 1997-2008 Juan Cespedes <cespedes@debian.org>
+    Copyright (C) 1997-2009 Juan Cespedes <cespedes@debian.org>
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
