@@ -186,22 +186,24 @@ struct process {
 struct event {
 	struct process *proc;
 	enum {
-		LT_EV_UNKNOWN,
-		LT_EV_NONE,
-		LT_EV_SIGNAL,
-		LT_EV_EXIT,
-		LT_EV_EXIT_SIGNAL,
-		LT_EV_SYSCALL,
-		LT_EV_SYSRET,
-		LT_EV_ARCH_SYSCALL,
-		LT_EV_ARCH_SYSRET,
-		LT_EV_BREAKPOINT
+		EVENT_NONE,
+		EVENT_SIGNAL,
+		EVENT_EXIT,
+		EVENT_EXIT_SIGNAL,
+		EVENT_SYSCALL,
+		EVENT_SYSRET,
+		EVENT_ARCH_SYSCALL,
+		EVENT_ARCH_SYSRET,
+		EVENT_FORK,
+		EVENT_EXEC,
+		EVENT_BREAKPOINT
 	} thing;
 	union {
 		int ret_val;	/* _EV_EXIT */
-		int signum;	/* _EV_SIGNAL, _EV_EXIT_SIGNAL */
-		int sysnum;	/* _EV_SYSCALL, _EV_SYSRET, _EV_ARCH_SYSCALL, _EV_ARCH_SYSRET */
+		int signum;     /* _EV_SIGNAL, _EV_EXIT_SIGNAL */
+		int sysnum;     /* _EV_SYSCALL, _EV_SYSRET */
 		void *brk_addr;	/* _EV_BREAKPOINT */
+		int newpid;     /* _EV_FORK */
 	} e_un;
 };
 

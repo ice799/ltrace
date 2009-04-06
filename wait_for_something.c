@@ -34,7 +34,7 @@ wait_for_something(void) {
 			exit(0);
 		} else if (errno == EINTR) {
 			debug(1, "wait received EINTR ?");
-			event.thing = LT_EV_NONE;
+			event.thing = EVENT_NONE;
 			return &event;
 		}
 		perror("wait");
@@ -50,7 +50,7 @@ wait_for_something(void) {
 	debug(3, "signal from pid %u", pid);
 	if (event.proc->breakpoints_enabled == -1) {
 		enable_all_breakpoints(event.proc);
-		event.thing = LT_EV_NONE;
+		event.thing = EVENT_NONE;
 		trace_set_options(event.proc, event.proc->pid);
 		continue_process(event.proc->pid);
 		return &event;
@@ -61,38 +61,38 @@ wait_for_something(void) {
 	}
 	switch (syscall_p(event.proc, status, &tmp)) {
 		case 1:
-			event.thing = LT_EV_SYSCALL;
+			event.thing = EVENT_SYSCALL;
 			event.e_un.sysnum = tmp;
 			return &event;
 		case 2:
-			event.thing = LT_EV_SYSRET;
+			event.thing = EVENT_SYSRET;
 			event.e_un.sysnum = tmp;
 			return &event;
 		case 3:
-			event.thing = LT_EV_ARCH_SYSCALL;
+			event.thing = EVENT_ARCH_SYSCALL;
 			event.e_un.sysnum = tmp;
 			return &event;
 		case 4:
-			event.thing = LT_EV_ARCH_SYSRET;
+			event.thing = EVENT_ARCH_SYSRET;
 			event.e_un.sysnum = tmp;
 			return &event;
 		case -1:
-			event.thing = LT_EV_NONE;
+			event.thing = EVENT_NONE;
 			continue_process(event.proc->pid);
 			return &event;
 	}
 	if (WIFEXITED(status)) {
-		event.thing = LT_EV_EXIT;
+		event.thing = EVENT_EXIT;
 		event.e_un.ret_val = WEXITSTATUS(status);
 		return &event;
 	}
 	if (WIFSIGNALED(status)) {
-		event.thing = LT_EV_EXIT_SIGNAL;
+		event.thing = EVENT_EXIT_SIGNAL;
 		event.e_un.signum = WTERMSIG(status);
 		return &event;
 	}
 	if (!WIFSTOPPED(status)) {
-		event.thing = LT_EV_UNKNOWN;
+		event.thing = EVENT_NONE;
 		return &event;
 	}
 
@@ -118,7 +118,7 @@ wait_for_something(void) {
 
 	if (stop_signal != (SIGTRAP | event.proc->tracesysgood)
 	    && stop_signal != SIGTRAP) {
-		event.thing = LT_EV_SIGNAL;
+		event.thing = EVENT_SIGNAL;
 		event.e_un.signum = stop_signal;
 		return &event;
 	}
@@ -126,7 +126,7 @@ wait_for_something(void) {
 	if (was_exec(event.proc, status)) {
 		pid_t saved_pid;
 
-		event.thing = LT_EV_NONE;
+		event.thing = EVENT_NONE;
 		event.e_un.signum = WSTOPSIG(status);
 		debug(1, "Placing breakpoints for the new program");
 		event.proc->mask_32bit = 0;
@@ -141,7 +141,7 @@ wait_for_something(void) {
 		return &event;
 	}
 
-	event.thing = LT_EV_BREAKPOINT;
+	event.thing = EVENT_BREAKPOINT;
 	if (!event.proc->instruction_pointer) {
 		event.proc->instruction_pointer =
 		    get_instruction_pointer(event.proc);

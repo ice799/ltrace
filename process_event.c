@@ -104,50 +104,50 @@ arch_sysname(struct process *proc, int sysnum) {
 void
 process_event(struct event *event) {
 	switch (event->thing) {
-	case LT_EV_NONE:
+	case EVENT_NONE:
 		debug(1, "event: none");
 		return;
-	case LT_EV_SIGNAL:
+	case EVENT_SIGNAL:
 		debug(1, "event: signal (%s [%d])",
 		      shortsignal(event->proc, event->e_un.signum),
 		      event->e_un.signum);
 		process_signal(event);
 		return;
-	case LT_EV_EXIT:
+	case EVENT_EXIT:
 		debug(1, "event: exit (%d)", event->e_un.ret_val);
 		process_exit(event);
 		return;
-	case LT_EV_EXIT_SIGNAL:
+	case EVENT_EXIT_SIGNAL:
 		debug(1, "event: exit signal (%s [%d])",
 		      shortsignal(event->proc, event->e_un.signum),
 		      event->e_un.signum);
 		process_exit_signal(event);
 		return;
-	case LT_EV_SYSCALL:
+	case EVENT_SYSCALL:
 		debug(1, "event: syscall (%s [%d])",
 		      sysname(event->proc, event->e_un.sysnum),
 		      event->e_un.sysnum);
 		process_syscall(event);
 		return;
-	case LT_EV_SYSRET:
+	case EVENT_SYSRET:
 		debug(1, "event: sysret (%s [%d])",
 		      sysname(event->proc, event->e_un.sysnum),
 		      event->e_un.sysnum);
 		process_sysret(event);
 		return;
-	case LT_EV_ARCH_SYSCALL:
+	case EVENT_ARCH_SYSCALL:
 		debug(1, "event: arch_syscall (%s [%d])",
 				arch_sysname(event->proc, event->e_un.sysnum),
 				event->e_un.sysnum);
 		process_arch_syscall(event);
 		return;
-	case LT_EV_ARCH_SYSRET:
+	case EVENT_ARCH_SYSRET:
 		debug(1, "event: arch_sysret (%s [%d])",
 				arch_sysname(event->proc, event->e_un.sysnum),
 				event->e_un.sysnum);
 		process_arch_sysret(event);
 		return;
-	case LT_EV_BREAKPOINT:
+	case EVENT_BREAKPOINT:
 		debug(1, "event: breakpoint");
 		process_breakpoint(event);
 		return;
