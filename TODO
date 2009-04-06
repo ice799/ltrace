@@ -1,3 +1,7 @@
+* fork(), clone() does not work sometimes
+* EVENT_FORK, EVENT_EXEC instead of fork_p() and exec_p()
+* Get rid of EVENT_ARCH_SYSCALL and EVENT_ARCH_SYSRET
+* ltrace segfaults when killed with SIGTERM
 * BFD:
   + New executable formats
   + Read list of libraries needed
