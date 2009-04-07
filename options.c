@@ -195,6 +195,8 @@ guess_cols(void) {
 		}
 	} else if (ioctl(1, TIOCGWINSZ, &ws) != -1 && ws.ws_col > 0) {
 		options.align = ws.ws_col * 5 / 8;
+	} else if (ioctl(2, TIOCGWINSZ, &ws) != -1 && ws.ws_col > 0) {
+		options.align = ws.ws_col * 5 / 8;
 	}
 }
 

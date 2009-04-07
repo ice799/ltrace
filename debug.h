@@ -18,6 +18,6 @@ int xinfdump(long, void *, int);
 #  if defined __STDC_VERSION__ && __STDC_VERSION__ >= 199901L
 #   define DEBUG_FUNCTION	__func__
 #  else
-#   define DEBUG_FUNCTION	((__const char *) 0)
+#   define DEBUG_FUNCTION	"???"
 #  endif
 # endif
