@@ -25,7 +25,7 @@ sym2addr(struct process *proc, struct library_symbol *sym) {
 		return 0;
 	}
 
-	if (opt_d >= 3) {
+	if (options.debug >= 3) {
 		xinfdump(proc->pid, (void *)(((long)addr-32)&0xfffffff0),
 			 sizeof(void*)*8);
 	}

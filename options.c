@@ -26,24 +26,24 @@
 #define USER_CONFIG_FILE "~/.ltrace.conf"
 
 struct options_t options = {
-	.align    = DEFAULT_ALIGN,  /* alignment column for results */
-	.user     = NULL,           /* username to run command as */
-	.syscalls = 0,              /* display syscalls */
-	.libcalls = 1,              /* display library calls */
+	.align    = DEFAULT_ALIGN,    /* alignment column for results */
+	.user     = NULL,             /* username to run command as */
+	.syscalls = 0,                /* display syscalls */
+	.libcalls = 1,                /* display library calls */
 #ifdef USE_DEMANGLE
-	.demangle = 0,              /* Demangle low-level symbol names */
+	.demangle = 0,                /* Demangle low-level symbol names */
 #endif
-	.indent = 0,                /* indent output according to program flow */
-	.output = NULL,             /* output to a specific file */
+	.indent = 0,                  /* indent output according to program flow */
+	.output = NULL,               /* output to a specific file */
+	.summary = 0;                 /* Report a summary on program exit */
+	.debug = 0;                   /* debug */
+	.arraylen = DEFAULT_ARRAYLEN; /* maximum # array elements to print */
 };
 
 #define MAX_LIBRARY		30
 char *library[MAX_LIBRARY];
 int library_num = 0;
 static char *progname;		/* Program name (`ltrace') */
-int opt_A = DEFAULT_ARRAYLEN;	/* maximum # array elements to print */
-int opt_c = 0;			/* Report a summary on program exit */
-int opt_d = 0;			/* debug */
 int opt_i = 0;			/* instruction pointer */
 int opt_s = DEFAULT_STRLEN;	/* maximum # of bytes printed in strings */
 int opt_f = 0;			/* trace child processes as they are created */
@@ -247,10 +247,10 @@ process_options(int argc, char **argv) {
 			options.align = atoi(optarg);
 			break;
 		case 'A':
-			opt_A = atoi(optarg);
+			options.arraylen = atoi(optarg);
 			break;
 		case 'c':
-			opt_c++;
+			options.summary++;
 			break;
 #ifdef USE_DEMANGLE
 		case 'C':
@@ -258,7 +258,7 @@ process_options(int argc, char **argv) {
 			break;
 #endif
 		case 'd':
-			opt_d++;
+			options.debug++;
 			break;
 		case 'e':
 			{

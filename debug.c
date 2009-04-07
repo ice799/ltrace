@@ -11,7 +11,7 @@ debug_(int level, const char *file, int line, const char *func,
 	char buf[1024];
 	va_list args;
 
-	if (opt_d < level) {
+	if (options.debug < level) {
 		return;
 	}
 	va_start(args, fmt);

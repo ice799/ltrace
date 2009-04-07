@@ -67,7 +67,7 @@ signal_exit(int sig) {
 static void
 normal_exit(void) {
 	output_line(0, 0);
-	if (opt_c) {
+	if (options.summary) {
 		show_summary();
 	}
 	if (options.output) {

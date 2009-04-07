@@ -131,7 +131,7 @@ void
 output_line(struct process *proc, char *fmt, ...) {
 	va_list args;
 
-	if (opt_c) {
+	if (options.summary) {
 		return;
 	}
 	if (current_proc) {
@@ -168,7 +168,7 @@ output_left(enum tof type, struct process *proc, char *function_name) {
 	if (arg_unknown == NULL)
 	    arg_unknown = lookup_prototype(ARGTYPE_UNKNOWN);
 
-	if (opt_c) {
+	if (options.summary) {
 		return;
 	}
 	if (current_proc) {
@@ -225,7 +225,7 @@ output_right(enum tof type, struct process *proc, char *function_name) {
 	if (arg_unknown == NULL)
 	    arg_unknown = lookup_prototype(ARGTYPE_UNKNOWN);
 
-	if (opt_c) {
+	if (options.summary) {
 		struct opt_c_struct *st;
 		if (!dict_opt_c) {
 			dict_opt_c =

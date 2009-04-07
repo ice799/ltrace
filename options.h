@@ -13,12 +13,12 @@ struct options_t {
 	int demangle; /* -C: demangle low-level names into user-level names */
 	int indent;   /* -n: indent trace output according to program flow */
 	FILE *output; /* output to a specific file */
+	int summary;  /* count time, calls, and report a summary on program exit */
+	int debug;    /* debug */
+	int arraylen; /* default maximum # of array elements printed */
 };
 extern struct options_t options;
 
-extern int opt_A;		/* default maximum # of array elements printed */
-extern int opt_c;		/* count time, calls, and report a summary on program exit */
-extern int opt_d;		/* debug */
 extern int opt_i;		/* instruction pointer */
 extern int opt_s;		/* default maximum # of bytes printed in strings */
 extern int opt_f;		/* trace child processes */

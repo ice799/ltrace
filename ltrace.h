@@ -195,15 +195,16 @@ struct event {
 		EVENT_ARCH_SYSCALL,
 		EVENT_ARCH_SYSRET,
 		EVENT_FORK,
+		EVENT_CLONE, /* Like FORK, but parent and child share memory */
 		EVENT_EXEC,
 		EVENT_BREAKPOINT
 	} thing;
 	union {
-		int ret_val;	/* _EV_EXIT */
-		int signum;     /* _EV_SIGNAL, _EV_EXIT_SIGNAL */
-		int sysnum;     /* _EV_SYSCALL, _EV_SYSRET */
-		void *brk_addr;	/* _EV_BREAKPOINT */
-		int newpid;     /* _EV_FORK */
+		int ret_val;	/* EVENT_EXIT */
+		int signum;     /* EVENT_SIGNAL, EVENT_EXIT_SIGNAL */
+		int sysnum;     /* EVENT_SYSCALL, EVENT_SYSRET */
+		void *brk_addr;	/* EVENT_BREAKPOINT */
+		int newpid;     /* EVENT_FORK, EVENT_CLONE */
 	} e_un;
 };
 

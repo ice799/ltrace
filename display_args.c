@@ -73,12 +73,12 @@ display_arrayptr(enum tof type, struct process *proc,
 	array_len = get_length(type, proc, info->u.array_info.len_spec,
 			st, st_info);
 	len += fprintf(options.output, "[ ");
-	for (i = 0; i < opt_A && i < array_maxlength && i < array_len; i++) {
+	for (i = 0; i < options.arraylen && i < array_maxlength && i < array_len; i++) {
 		arg_type_info *elt_type = info->u.array_info.elt_type;
 		size_t elt_size = info->u.array_info.elt_size;
 		if (i != 0)
 			len += fprintf(options.output, ", ");
-		if (opt_d)
+		if (options.debug)
 			len += fprintf(options.output, "%p=", addr);
 		len +=
 			display_ptrto(type, proc, (long) addr, elt_type, st, st_info);
@@ -107,7 +107,7 @@ display_structptr(enum tof type, struct process *proc,
 	for (i = 0; (field = info->u.struct_info.fields[i]) != NULL; i++) {
 		if (i != 0)
 			len += fprintf(options.output, ", ");
-		if (opt_d)
+		if (options.debug)
 			len +=
 				fprintf(options.output, "%p=",
 						addr + info->u.struct_info.offset[i]);

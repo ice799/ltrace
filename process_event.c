@@ -263,7 +263,7 @@ calc_time_spent(struct process *proc) {
 
 static void
 process_sysret(struct event *event) {
-	if (opt_T || opt_c) {
+	if (opt_T || options.summary) {
 		calc_time_spent(event->proc);
 	}
 	if (fork_p(event->proc, event->e_un.sysnum)) {
@@ -288,7 +288,7 @@ process_sysret(struct event *event) {
 
 static void
 process_arch_sysret(struct event *event) {
-	if (opt_T || opt_c) {
+	if (opt_T || options.summary) {
 		calc_time_spent(event->proc);
 	}
 	callstack_pop(event->proc);
@@ -392,7 +392,7 @@ process_breakpoint(struct event *event) {
 			for (j = event->proc->callstack_depth - 1; j > i; j--) {
 				callstack_pop(event->proc);
 			}
-			if (opt_T || opt_c) {
+			if (opt_T || options.summary) {
 				calc_time_spent(event->proc);
 			}
 			callstack_pop(event->proc);
@@ -446,7 +446,7 @@ callstack_push_syscall(struct process *proc, int sysnum) {
 	elem->return_addr = NULL;
 
 	proc->callstack_depth++;
-	if (opt_T || opt_c) {
+	if (opt_T || options.summary) {
 		struct timezone tz;
 		gettimeofday(&elem->time_spent, &tz);
 	}
@@ -472,7 +472,7 @@ callstack_push_symfunc(struct process *proc, struct library_symbol *sym) {
 	}
 
 	proc->callstack_depth++;
-	if (opt_T || opt_c) {
+	if (opt_T || options.summary) {
 		struct timezone tz;
 		gettimeofday(&elem->time_spent, &tz);
 	}
