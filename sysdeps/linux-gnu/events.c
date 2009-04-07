@@ -17,7 +17,7 @@
 static struct event event;
 
 struct event *
-wait_for_something(void) {
+next_event(void) {
 	pid_t pid;
 	int status;
 	int tmp;

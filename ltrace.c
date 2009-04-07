@@ -126,6 +126,6 @@ main(int argc, char **argv) {
 		opt_p_tmp = opt_p_tmp->next;
 	}
 	while (1) {
-		process_event(wait_for_something());
+		process_event(next_event());
 	}
 }

@@ -31,7 +31,7 @@
 /**
    \param proc The process that had an event. 
 
-   Called by \c wait_for_something() right after the return from wait.
+   Called by \c next_event() right after the return from wait.
 
    Most targets just return here. A couple use proc->arch_ptr for a
    private data area.
@@ -46,7 +46,7 @@ get_arch_dep(struct process *proc) {
    \param sysnum 0-based syscall number. 
    \return 1 if syscall, 2 if sysret, 0 otherwise.
 
-   Called by \c wait_for_something() after the call to get_arch_dep()
+   Called by \c next_event() after the call to get_arch_dep()
 
    It seems that the ptrace call trips twice on a system call, once
    just before the system call and once when it returns. Both times,

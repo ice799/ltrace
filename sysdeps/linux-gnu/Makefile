@@ -3,7 +3,7 @@ ARCH		:=	$(shell uname -m | sed -e s/i.86/i386/ -e s/sun4u/sparc64/ \
 
 CPPFLAGS	+=	-I$(TOPDIR)/sysdeps/linux-gnu/$(ARCH)
 
-OBJ		=	trace.o proc.o breakpoint.o
+OBJ		=	events.o trace.o proc.o breakpoint.o
 
 all:		sysdep.h signalent.h syscallent.h arch_syscallent.h signalent1.h syscallent1.h ../sysdep.o
 

@@ -25,10 +25,9 @@ INSTALL_PROGRAM	=	$(INSTALL) -p    -m  755
 INSTALL_SCRIPT	=	$(INSTALL) -p    -m  755
 INSTALL_DIR	=	$(INSTALL) -p -d -m  755
 
-OBJ	=	ltrace.o options.o elf.o output.o read_config_file.o	\
-		execute_program.o wait_for_something.o process_event.o	\
-		display_args.o breakpoints.o proc.o demangle.o dict.o \
-		debug.o summary.o
+OBJ	=	ltrace.o options.o elf.o output.o read_config_file.o     \
+		execute_program.o process_event.o display_args.o         \
+		breakpoints.o proc.o demangle.o dict.o debug.o summary.o
 
 VERSION	=	@PACKAGE_VERSION@
 
