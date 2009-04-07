@@ -267,7 +267,7 @@ process_sysret(struct event *event) {
 		calc_time_spent(event->proc);
 	}
 	if (fork_p(event->proc, event->e_un.sysnum)) {
-		if (opt_f) {
+		if (options.follow) {
 			arg_type_info info;
 			info.type = ARGTYPE_LONG;
 			pid_t child =

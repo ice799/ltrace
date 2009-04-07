@@ -40,9 +40,7 @@ begin_of_line(enum tof type, struct process *proc) {
 	if (!proc) {
 		return;
 	}
-	if ((options.output != stderr) && (opt_p || opt_f)) {
-		current_column += fprintf(options.output, "%u ", proc->pid);
-	} else if (list_of_processes->next) {
+	if (list_of_processes->next) {
 		current_column += fprintf(options.output, "[pid %u] ", proc->pid);
 	}
 	if (opt_r) {

@@ -35,9 +35,11 @@ struct options_t options = {
 #endif
 	.indent = 0,                  /* indent output according to program flow */
 	.output = NULL,               /* output to a specific file */
-	.summary = 0;                 /* Report a summary on program exit */
-	.debug = 0;                   /* debug */
-	.arraylen = DEFAULT_ARRAYLEN; /* maximum # array elements to print */
+	.summary = 0,                 /* Report a summary on program exit */
+	.debug = 0,                   /* debug */
+	.arraylen = DEFAULT_ARRAYLEN, /* maximum # array elements to print */
+	.strlen = DEFAULT_STRLEN,     /* maximum # of bytes printed in strings */
+	.follow = 0,                  /* trace child processes */
 };
 
 #define MAX_LIBRARY		30
@@ -45,8 +47,6 @@ char *library[MAX_LIBRARY];
 int library_num = 0;
 static char *progname;		/* Program name (`ltrace') */
 int opt_i = 0;			/* instruction pointer */
-int opt_s = DEFAULT_STRLEN;	/* maximum # of bytes printed in strings */
-int opt_f = 0;			/* trace child processes as they are created */
 int opt_r = 0;			/* print relative timestamp */
 int opt_t = 0;			/* print absolute timestamp */
 int opt_T = 0;			/* show the time spent inside each call */
@@ -100,9 +100,9 @@ usage(void) {
 		"  -e expr             modify which events to trace.\n"
 		"  -f                  follow forks.\n"
 # if HAVE_GETOPT_LONG
-		"  -F, --config=FILE   load alternate configuration file (can be repeated).\n"
+		"  -F, --config=FILE   load alternate configuration file (may be repeated).\n"
 # else
-		"  -F FILE             load alternate configuration file (can be repeated).\n"
+		"  -F FILE             load alternate configuration file (may be repeated).\n"
 # endif
 # if HAVE_GETOPT_LONG
 		"  -h, --help          display this help and exit.\n"
@@ -294,7 +294,7 @@ process_options(int argc, char **argv) {
 				break;
 			}
 		case 'f':
-			opt_f = 1;
+			options.follow = 1;
 			break;
 		case 'F':
 			{
@@ -356,7 +356,7 @@ process_options(int argc, char **argv) {
 			opt_r++;
 			break;
 		case 's':
-			opt_s = atoi(optarg);
+			options.strlen = atoi(optarg);
 			break;
 		case 'S':
 			options.syscalls = 1;

@@ -16,12 +16,12 @@ struct options_t {
 	int summary;  /* count time, calls, and report a summary on program exit */
 	int debug;    /* debug */
 	int arraylen; /* default maximum # of array elements printed */
+	int strlen;   /* default maximum # of bytes printed in strings */
+	int follow;   /* trace child processes */
 };
 extern struct options_t options;
 
 extern int opt_i;		/* instruction pointer */
-extern int opt_s;		/* default maximum # of bytes printed in strings */
-extern int opt_f;		/* trace child processes */
 extern int opt_r;		/* print relative timestamp */
 extern int opt_t;		/* print absolute timestamp */
 extern int opt_T;		/* show the time spent inside each call */

@@ -293,13 +293,13 @@ display_string(enum tof type, struct process *proc, void *addr,
 		return fprintf(options.output, "NULL");
 	}
 
-	str1 = malloc(MIN(opt_s, maxlength) + 3);
+	str1 = malloc(MIN(options.strlen, maxlength) + 3);
 	if (!str1) {
 		return fprintf(options.output, "???");
 	}
-	umovestr(proc, addr, MIN(opt_s, maxlength) + 1, str1);
+	umovestr(proc, addr, MIN(options.strlen, maxlength) + 1, str1);
 	len = fprintf(options.output, "\"");
-	for (i = 0; i < MIN(opt_s, maxlength); i++) {
+	for (i = 0; i < MIN(options.strlen, maxlength); i++) {
 		if (str1[i]) {
 			len += display_char(str1[i]);
 		} else {
@@ -307,7 +307,7 @@ display_string(enum tof type, struct process *proc, void *addr,
 		}
 	}
 	len += fprintf(options.output, "\"");
-	if (str1[i] && (opt_s <= maxlength)) {
+	if (str1[i] && (options.strlen <= maxlength)) {
 		len += fprintf(options.output, "...");
 	}
 	free(str1);
@@ -342,13 +342,13 @@ display_format(enum tof type, struct process *proc, int arg_num) {
 		return fprintf(options.output, "NULL");
 	}
 
-	str1 = malloc(MIN(opt_s, string_maxlength) + 3);
+	str1 = malloc(MIN(options.strlen, string_maxlength) + 3);
 	if (!str1) {
 		return fprintf(options.output, "???");
 	}
-	umovestr(proc, addr, MIN(opt_s, string_maxlength) + 1, str1);
+	umovestr(proc, addr, MIN(options.strlen, string_maxlength) + 1, str1);
 	len = fprintf(options.output, "\"");
-	for (i = 0; len < MIN(opt_s, string_maxlength) + 1; i++) {
+	for (i = 0; len < MIN(options.strlen, string_maxlength) + 1; i++) {
 		if (str1[i]) {
 			len += display_char(str1[i]);
 		} else {
@@ -356,7 +356,7 @@ display_format(enum tof type, struct process *proc, int arg_num) {
 		}
 	}
 	len += fprintf(options.output, "\"");
-	if (str1[i] && (opt_s <= string_maxlength)) {
+	if (str1[i] && (options.strlen <= string_maxlength)) {
 		len += fprintf(options.output, "...");
 	}
 	for (i = 0; str1[i]; i++) {
