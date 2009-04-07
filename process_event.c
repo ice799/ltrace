@@ -27,6 +27,9 @@ static void process_syscall(struct event *event);
 static void process_arch_syscall(struct event *event);
 static void process_sysret(struct event *event);
 static void process_arch_sysret(struct event *event);
+static void process_fork(struct event *event);
+static void process_clone(struct event *event);
+static void process_exec(struct event *event);
 static void process_breakpoint(struct event *event);
 static void remove_proc(struct process *proc);
 
@@ -147,6 +150,18 @@ process_event(struct event *event) {
 				event->e_un.sysnum);
 		process_arch_sysret(event);
 		return;
+	case EVENT_FORK:
+		debug(1, "event: fork (%u)", event->e_un.newpid);
+		process_fork(event);
+		return;
+	case EVENT_CLONE:
+		debug(1, "event: clone (%u)", event->e_un.newpid);
+		process_clone(event);
+		return;
+	case EVENT_EXEC:
+		debug(1, "event: exec()");
+		process_exec(event);
+		return;
 	case EVENT_BREAKPOINT:
 		debug(1, "event: breakpoint");
 		process_breakpoint(event);
@@ -223,6 +238,26 @@ process_syscall(struct event *event) {
 	}
 	callstack_push_syscall(event->proc, event->e_un.sysnum);
 	continue_process(event->proc->pid);
+}
+
+static void
+process_fork(struct event * event) {
+	output_line(event->proc, "--- fork() = %u ---",
+			event->e_un.newpid);
+	continue_process(event->proc->pid);
+}
+
+static void
+process_clone(struct event * event) {
+	output_line(event->proc, "--- clone() = %u ---",
+			event->e_un.newpid);
+	abort();
+}
+
+static void
+process_exec(struct event * event) {
+	output_line(event->proc, "--- exec() ---");
+	abort();
 }
 
 static void

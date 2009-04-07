@@ -190,7 +190,9 @@ trace_set_options(struct process *proc, pid_t pid) {
 	if (proc->tracesysgood & 0x80)
 		return;
 
-	long options = PTRACE_O_TRACESYSGOOD | PTRACE_O_TRACEEXEC;
+	long options = PTRACE_O_TRACESYSGOOD | PTRACE_O_TRACEFORK |
+		PTRACE_O_TRACEVFORK | PTRACE_O_TRACECLONE |
+		PTRACE_O_TRACEEXEC;
 	if (ptrace(PTRACE_SETOPTIONS, pid, 0, options) < 0 &&
 	    ptrace(PTRACE_OLDSETOPTIONS, pid, 0, options) < 0) {
 		perror("PTRACE_SETOPTIONS");

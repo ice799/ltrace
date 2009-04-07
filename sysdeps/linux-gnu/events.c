@@ -9,6 +9,7 @@
 #include <errno.h>
 #include <signal.h>
 #include <string.h>
+#include <sys/ptrace.h>
 
 #include "ltrace.h"
 #include "options.h"
@@ -42,12 +43,12 @@ next_event(void) {
 	}
 	event.proc = pid2proc(pid);
 	if (!event.proc) {
-		fprintf(stderr, "signal from wrong pid %u ?!?\n", pid);
+		fprintf(stderr, "event from wrong pid %u ?!?\n", pid);
 		exit(1);
 	}
 	get_arch_dep(event.proc);
 	event.proc->instruction_pointer = NULL;
-	debug(3, "signal from pid %u", pid);
+	debug(3, "event from pid %u", pid);
 	if (event.proc->breakpoints_enabled == -1) {
 		enable_all_breakpoints(event.proc);
 		event.thing = EVENT_NONE;
@@ -80,6 +81,18 @@ next_event(void) {
 			event.thing = EVENT_NONE;
 			continue_process(event.proc->pid);
 			return &event;
+	}
+	if (WIFSTOPPED(status) && ((status>>16 == PTRACE_EVENT_FORK) || (status>>16 == PTRACE_EVENT_VFORK) || (status>>16 == PTRACE_EVENT_CLONE))) {
+		unsigned long data;
+		ptrace(PTRACE_GETEVENTMSG, pid, NULL, &data);
+		event.thing = EVENT_FORK;
+		event.e_un.newpid = data;
+		return &event;
+	}
+	/* TODO: check for EVENT_CLONE */
+	if (WIFSTOPPED(status) && (status>>16 == PTRACE_EVENT_EXEC)) {
+		event.thing = EVENT_EXEC;
+		return &event;
 	}
 	if (WIFEXITED(status)) {
 		event.thing = EVENT_EXIT;
