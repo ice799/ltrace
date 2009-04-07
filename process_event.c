@@ -164,7 +164,6 @@ process_signal(struct event *event) {
 		disable_all_breakpoints(event->proc);
 		untrace_pid(pid);
 		remove_proc(event->proc);
-		continue_after_signal(pid, event->e_un.signum);
 		return;
 	}
 	output_line(event->proc, "--- %s (%s) ---",

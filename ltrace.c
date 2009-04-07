@@ -50,10 +50,6 @@ static void
 signal_exit(int sig) {
 	exiting = 1;
 	debug(1, "Received interrupt signal; exiting...");
-	if (options.output) {
-		fclose(options.output);
-		options.output = NULL;
-	}
 	signal(SIGINT, SIG_IGN);
 	signal(SIGTERM, SIG_IGN);
 	signal(SIGALRM, signal_alarm);
