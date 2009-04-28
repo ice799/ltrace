@@ -43,8 +43,10 @@ next_event(void) {
 	}
 	event.proc = pid2proc(pid);
 	if (!event.proc) {
-		fprintf(stderr, "event from wrong pid %u ?!?\n", pid);
-		exit(1);
+		output_line(NULL, "event from wrong pid %u ?!?\n", pid);
+//		exit(1);
+		event.thing = EVENT_NONE;
+		return &event;
 	}
 	get_arch_dep(event.proc);
 	event.proc->instruction_pointer = NULL;

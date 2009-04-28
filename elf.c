@@ -453,7 +453,7 @@ opd2addr(struct ltelf *lte, GElf_Addr addr) {
 }
 
 struct library_symbol *
-read_elf(struct process *proc) {
+read_elf(Process *proc) {
 	struct library_symbol *library_symbols = NULL;
 	struct ltelf lte[MAX_LIBRARY + 1];
 	size_t i;

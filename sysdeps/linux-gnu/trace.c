@@ -74,15 +74,15 @@ static int fork_exec_syscalls[][5] = {
 };
 
 #ifdef ARCH_HAVE_UMOVELONG
-extern int arch_umovelong (struct process *, void *, long *, arg_type_info *);
+extern int arch_umovelong (Process *, void *, long *, arg_type_info *);
 int
-umovelong (struct process *proc, void *addr, long *result, arg_type_info *info) {
+umovelong (Process *proc, void *addr, long *result, arg_type_info *info) {
 	return arch_umovelong (proc, addr, result, info);
 }
 #else
 /* Read a single long from the process's memory address 'addr' */
 int
-umovelong (struct process *proc, void *addr, long *result, arg_type_info *info) {
+umovelong (Process *proc, void *addr, long *result, arg_type_info *info) {
 	long pointed_to;
 
 	errno = 0;
@@ -101,7 +101,7 @@ umovelong (struct process *proc, void *addr, long *result, arg_type_info *info) 
  * Returns 0 otherwise.
  */
 int
-fork_p(struct process *proc, int sysnum) {
+fork_p(Process *proc, int sysnum) {
 	unsigned int i;
 	if (proc->personality
 	    >= sizeof fork_exec_syscalls / sizeof(fork_exec_syscalls[0]))
@@ -115,7 +115,7 @@ fork_p(struct process *proc, int sysnum) {
 /* Returns 1 if the sysnum may make the process exec other program
  */
 int
-exec_p(struct process *proc, int sysnum) {
+exec_p(Process *proc, int sysnum) {
 	int i;
 	if (proc->personality
 	    >= sizeof fork_exec_syscalls / sizeof(fork_exec_syscalls[0]))
@@ -129,7 +129,7 @@ exec_p(struct process *proc, int sysnum) {
 /* Check that we just hit an exec.
  */
 int
-was_exec(struct process *proc, int status) {
+was_exec(Process *proc, int status) {
 	if (!WIFSTOPPED (status))
 		return 0;
 
@@ -186,7 +186,7 @@ trace_pid(pid_t pid) {
 }
 
 void
-trace_set_options(struct process *proc, pid_t pid) {
+trace_set_options(Process *proc, pid_t pid) {
 	if (proc->tracesysgood & 0x80)
 		return;
 
@@ -208,7 +208,7 @@ untrace_pid(pid_t pid) {
 
 void
 continue_after_signal(pid_t pid, int signum) {
-	struct process *proc;
+	Process *proc;
 
 	proc = pid2proc(pid);
 	if (proc && proc->breakpoint_being_enabled) {
@@ -236,7 +236,7 @@ continue_enabling_breakpoint(pid_t pid, struct breakpoint *sbp) {
 }
 
 void
-continue_after_breakpoint(struct process *proc, struct breakpoint *sbp) {
+continue_after_breakpoint(Process *proc, struct breakpoint *sbp) {
 	if (sbp->enabled)
 		disable_breakpoint(proc->pid, sbp);
 	set_instruction_pointer(proc, sbp->addr);
@@ -258,7 +258,7 @@ continue_after_breakpoint(struct process *proc, struct breakpoint *sbp) {
    have been read.
 */
 int
-umovestr(struct process *proc, void *addr, int len, void *laddr) {
+umovestr(Process *proc, void *addr, int len, void *laddr) {
 	union {
 		long a;
 		char c[sizeof(long)];

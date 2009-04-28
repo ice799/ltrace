@@ -13,7 +13,7 @@
 #include "ltrace.h"
 
 void *
-get_instruction_pointer(struct process *proc) {
+get_instruction_pointer(Process *proc) {
 	unsigned long ip = ptrace(PTRACE_PEEKUSER, proc->pid, PT_CR_IIP, 0);
 	unsigned long slot =
 	    (ptrace(PTRACE_PEEKUSER, proc->pid, PT_CR_IPSR, 0) >> 41) & 3;
@@ -22,7 +22,7 @@ get_instruction_pointer(struct process *proc) {
 }
 
 void
-set_instruction_pointer(struct process *proc, void *addr) {
+set_instruction_pointer(Process *proc, void *addr) {
 
 	unsigned long newip = (unsigned long)addr;
 	unsigned long slot = (unsigned long)addr & 0xf;
@@ -38,11 +38,11 @@ set_instruction_pointer(struct process *proc, void *addr) {
 }
 
 void *
-get_stack_pointer(struct process *proc) {
+get_stack_pointer(Process *proc) {
 	return (void *)ptrace(PTRACE_PEEKUSER, proc->pid, PT_R12, 0);
 }
 
 void *
-get_return_addr(struct process *proc, void *stack_pointer) {
+get_return_addr(Process *proc, void *stack_pointer) {
 	return (void *)ptrace(PTRACE_PEEKUSER, proc->pid, PT_B0, 0);
 }

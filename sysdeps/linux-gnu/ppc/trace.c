@@ -21,7 +21,7 @@
 #endif
 
 void
-get_arch_dep(struct process *proc) {
+get_arch_dep(Process *proc) {
 #ifdef __powerpc64__
 	if (proc->arch_ptr)
 		return;
@@ -38,7 +38,7 @@ unsigned int freg = 1;
 unsigned int vreg = 2;
 
 int
-syscall_p(struct process *proc, int status, int *sysnum) {
+syscall_p(Process *proc, int status, int *sysnum) {
 	if (WIFSTOPPED(status)
 	    && WSTOPSIG(status) == (SIGTRAP | proc->tracesysgood)) {
 		long pc = (long)get_instruction_pointer(proc);
@@ -63,7 +63,7 @@ syscall_p(struct process *proc, int status, int *sysnum) {
 
 /* Grab functions arguments based on the PPC64 ABI.  */
 long
-gimme_arg(enum tof type, struct process *proc, int arg_num, arg_type_info *info) {
+gimme_arg(enum tof type, Process *proc, int arg_num, arg_type_info *info) {
 	long data;
 
 	if (type == LT_TOF_FUNCTIONR) {
@@ -122,12 +122,12 @@ gimme_arg(enum tof type, struct process *proc, int arg_num, arg_type_info *info)
 }
 
 void
-save_register_args(enum tof type, struct process *proc) {
+save_register_args(enum tof type, Process *proc) {
 }
 
 /* Read a single long from the process's memory address 'addr'.  */
 int
-arch_umovelong (struct process *proc, void *addr, long *result, arg_type_info *info) {
+arch_umovelong (Process *proc, void *addr, long *result, arg_type_info *info) {
 	long pointed_to;
 
 	errno = 0;

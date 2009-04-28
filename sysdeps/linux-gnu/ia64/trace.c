@@ -47,7 +47,7 @@ union cfm_t {
 };
 
 int
-syscall_p(struct process *proc, int status, int *sysnum) {
+syscall_p(Process *proc, int status, int *sysnum) {
 	if (WIFSTOPPED(status)
 	    && WSTOPSIG(status) == (SIGTRAP | proc->tracesysgood)) {
 		unsigned long slot =
@@ -128,7 +128,7 @@ fpreg_to_double (struct ia64_fpreg *fp) {
 }
 
 static long
-gimme_long_arg(enum tof type, struct process *proc, int arg_num) {
+gimme_long_arg(enum tof type, Process *proc, int arg_num) {
 	union cfm_t cfm;
 	unsigned long bsp;
 
@@ -180,7 +180,7 @@ gimme_long_arg(enum tof type, struct process *proc, int arg_num) {
 static long float_regs[8] = { PT_F8, PT_F9, PT_F10, PT_F11,
 			      PT_F12, PT_F13, PT_F14, PT_F15 };
 static double
-gimme_float_arg(enum tof type, struct process *proc, int arg_num) {
+gimme_float_arg(enum tof type, Process *proc, int arg_num) {
 	union cfm_t cfm;
 	unsigned long bsp;
 	struct ia64_fpreg reg;
@@ -244,7 +244,7 @@ gimme_float_arg(enum tof type, struct process *proc, int arg_num) {
 }
 
 long
-gimme_arg(enum tof type, struct process *proc, int arg_num, arg_type_info *info) {
+gimme_arg(enum tof type, Process *proc, int arg_num, arg_type_info *info) {
 	union {
 		long l;
 		float f;
@@ -262,9 +262,9 @@ gimme_arg(enum tof type, struct process *proc, int arg_num, arg_type_info *info)
 }
 
 void
-save_register_args(enum tof type, struct process *proc) {
+save_register_args(enum tof type, Process *proc) {
 }
 
 void
-get_arch_dep(struct process *proc) {
+get_arch_dep(Process *proc) {
 }

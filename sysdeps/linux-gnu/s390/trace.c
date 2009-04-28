@@ -30,7 +30,7 @@
 #endif
 
 void
-get_arch_dep(struct process *proc) {
+get_arch_dep(Process *proc) {
 #ifdef __s390x__
 	unsigned long psw;
 
@@ -51,7 +51,7 @@ get_arch_dep(struct process *proc) {
 /* Returns 1 if syscall, 2 if sysret, 0 otherwise.
  */
 int
-syscall_p(struct process *proc, int status, int *sysnum) {
+syscall_p(Process *proc, int status, int *sysnum) {
 	long pc, opcode, offset_reg, scno, tmp;
 	void *svc_addr;
 	int gpr_offset[16] = { PT_GPR0, PT_GPR1, PT_ORIGGPR2, PT_GPR3,
@@ -162,7 +162,7 @@ syscall_p(struct process *proc, int status, int *sysnum) {
 }
 
 long
-gimme_arg(enum tof type, struct process *proc, int arg_num, arg_type_info *info) {
+gimme_arg(enum tof type, Process *proc, int arg_num, arg_type_info *info) {
 	long ret;
 
 	switch (arg_num) {
@@ -196,5 +196,5 @@ gimme_arg(enum tof type, struct process *proc, int arg_num, arg_type_info *info)
 }
 
 void
-save_register_args(enum tof type, struct process *proc) {
+save_register_args(enum tof type, Process *proc) {
 }

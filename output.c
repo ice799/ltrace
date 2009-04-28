@@ -24,18 +24,18 @@ extern struct timeval current_time_spent;
 
 struct dict *dict_opt_c = NULL;
 
-static struct process *current_proc = 0;
+static Process *current_proc = 0;
 static int current_depth = 0;
 static int current_column = 0;
 
 static void
-output_indent(struct process *proc) {
+output_indent(Process *proc) {
 	current_column +=
 	    fprintf(options.output, "%*s", options.indent * proc->callstack_depth, "");
 }
 
 static void
-begin_of_line(enum tof type, struct process *proc) {
+begin_of_line(enum tof type, Process *proc) {
 	current_column = 0;
 	if (!proc) {
 		return;
@@ -126,7 +126,7 @@ name2func(char *name) {
 }
 
 void
-output_line(struct process *proc, char *fmt, ...) {
+output_line(Process *proc, char *fmt, ...) {
 	va_list args;
 
 	if (options.summary) {
@@ -160,7 +160,7 @@ tabto(int col) {
 }
 
 void
-output_left(enum tof type, struct process *proc, char *function_name) {
+output_left(enum tof type, Process *proc, char *function_name) {
 	struct function *func;
 	static arg_type_info *arg_unknown = NULL;
 	if (arg_unknown == NULL)
@@ -217,7 +217,7 @@ output_left(enum tof type, struct process *proc, char *function_name) {
 }
 
 void
-output_right(enum tof type, struct process *proc, char *function_name) {
+output_right(enum tof type, Process *proc, char *function_name) {
 	struct function *func = name2func(function_name);
 	static arg_type_info *arg_unknown = NULL;
 	if (arg_unknown == NULL)

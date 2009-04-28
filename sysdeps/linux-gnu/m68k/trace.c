@@ -19,13 +19,13 @@
 #endif
 
 void
-get_arch_dep(struct process *proc) {
+get_arch_dep(Process *proc) {
 }
 
 /* Returns 1 if syscall, 2 if sysret, 0 otherwise.
  */
 int
-syscall_p(struct process *proc, int status, int *sysnum) {
+syscall_p(Process *proc, int status, int *sysnum) {
 	int depth;
 
 	if (WIFSTOPPED(status)
@@ -49,7 +49,7 @@ syscall_p(struct process *proc, int status, int *sysnum) {
 }
 
 long
-gimme_arg(enum tof type, struct process *proc, int arg_num, arg_type_info *info) {
+gimme_arg(enum tof type, Process *proc, int arg_num, arg_type_info *info) {
 	if (arg_num == -1) {	/* return value */
 		return ptrace(PTRACE_PEEKUSER, proc->pid, 4 * PT_D0, 0);
 	}
@@ -88,5 +88,5 @@ gimme_arg(enum tof type, struct process *proc, int arg_num, arg_type_info *info)
 }
 
 void
-save_register_args(enum tof type, struct process *proc) {
+save_register_args(enum tof type, Process *proc) {
 }

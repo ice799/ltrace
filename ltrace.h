@@ -152,7 +152,9 @@ struct callstack_element {
 
 #define MAX_CALLDEPTH 64
 
-struct process {
+typedef struct Process Process;
+
+struct Process {
 	char *filename;
 	pid_t pid;
 	struct dict *breakpoints;
@@ -180,11 +182,11 @@ struct process {
 	/* output: */
 	enum tof type_being_displayed;
 
-	struct process *next;
+	Process *next;
 };
 
 struct event {
-	struct process *proc;
+	Process *proc;
 	enum {
 		EVENT_NONE,
 		EVENT_SIGNAL,
@@ -214,60 +216,60 @@ struct opt_c_struct {
 };
 extern struct dict *dict_opt_c;
 
-extern struct process *list_of_processes;
+extern Process *list_of_processes;
 
 extern void *instruction_pointer;
 
 extern struct event *next_event(void);
-extern struct process * pid2proc(pid_t pid);
+extern Process * pid2proc(pid_t pid);
 extern void process_event(struct event *event);
-extern void execute_program(struct process *, char **);
-extern int display_arg(enum tof type, struct process *proc, int arg_num, arg_type_info *info);
-extern struct breakpoint *address2bpstruct(struct process *proc, void *addr);
-extern void breakpoints_init(struct process *proc);
-extern void insert_breakpoint(struct process *proc, void *addr,
+extern void execute_program(Process *, char **);
+extern int display_arg(enum tof type, Process *proc, int arg_num, arg_type_info *info);
+extern struct breakpoint *address2bpstruct(Process *proc, void *addr);
+extern void breakpoints_init(Process *proc);
+extern void insert_breakpoint(Process *proc, void *addr,
 			      struct library_symbol *libsym);
-extern void delete_breakpoint(struct process *proc, void *addr);
-extern void enable_all_breakpoints(struct process *proc);
-extern void disable_all_breakpoints(struct process *proc);
-extern void reinitialize_breakpoints(struct process *);
+extern void delete_breakpoint(Process *proc, void *addr);
+extern void enable_all_breakpoints(Process *proc);
+extern void disable_all_breakpoints(Process *proc);
+extern void reinitialize_breakpoints(Process *);
 
-extern struct process *open_program(char *filename, pid_t pid);
+extern Process *open_program(char *filename, pid_t pid);
 extern void open_pid(pid_t pid, int verbose);
 extern void show_summary(void);
 extern arg_type_info *lookup_prototype(enum arg_type at);
 
 /* Arch-dependent stuff: */
 extern char *pid2name(pid_t pid);
-extern void trace_set_options(struct process *proc, pid_t pid);
+extern void trace_set_options(Process *proc, pid_t pid);
 extern void trace_me(void);
 extern int trace_pid(pid_t pid);
 extern void untrace_pid(pid_t pid);
-extern void get_arch_dep(struct process *proc);
-extern void *get_instruction_pointer(struct process *proc);
-extern void set_instruction_pointer(struct process *proc, void *addr);
-extern void *get_stack_pointer(struct process *proc);
-extern void *get_return_addr(struct process *proc, void *stack_pointer);
+extern void get_arch_dep(Process *proc);
+extern void *get_instruction_pointer(Process *proc);
+extern void set_instruction_pointer(Process *proc, void *addr);
+extern void *get_stack_pointer(Process *proc);
+extern void *get_return_addr(Process *proc, void *stack_pointer);
 extern void enable_breakpoint(pid_t pid, struct breakpoint *sbp);
 extern void disable_breakpoint(pid_t pid, const struct breakpoint *sbp);
-extern int fork_p(struct process *proc, int sysnum);
-extern int exec_p(struct process *proc, int sysnum);
-extern int was_exec(struct process *proc, int status);
-extern int syscall_p(struct process *proc, int status, int *sysnum);
+extern int fork_p(Process *proc, int sysnum);
+extern int exec_p(Process *proc, int sysnum);
+extern int was_exec(Process *proc, int status);
+extern int syscall_p(Process *proc, int status, int *sysnum);
 extern void continue_process(pid_t pid);
 extern void continue_after_signal(pid_t pid, int signum);
-extern void continue_after_breakpoint(struct process *proc,
+extern void continue_after_breakpoint(Process *proc,
 				      struct breakpoint *sbp);
 extern void continue_enabling_breakpoint(pid_t pid, struct breakpoint *sbp);
-extern long gimme_arg(enum tof type, struct process *proc, int arg_num, arg_type_info *info);
-extern void save_register_args(enum tof type, struct process *proc);
-extern int umovestr(struct process *proc, void *addr, int len, void *laddr);
-extern int umovelong (struct process *proc, void *addr, long *result, arg_type_info *info);
+extern long gimme_arg(enum tof type, Process *proc, int arg_num, arg_type_info *info);
+extern void save_register_args(enum tof type, Process *proc);
+extern int umovestr(Process *proc, void *addr, int len, void *laddr);
+extern int umovelong (Process *proc, void *addr, long *result, arg_type_info *info);
 extern int ffcheck(void *maddr);
-extern void *sym2addr(struct process *, struct library_symbol *);
+extern void *sym2addr(Process *, struct library_symbol *);
 
 #if 0				/* not yet */
-extern int umoven(struct process *proc, void *addr, int len, void *laddr);
+extern int umoven(Process *proc, void *addr, int len, void *laddr);
 #endif
 
 #endif

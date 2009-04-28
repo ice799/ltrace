@@ -18,13 +18,13 @@
 #include "debug.h"
 
 char *command = NULL;
-struct process *list_of_processes = NULL;
+Process *list_of_processes = NULL;
 
 int exiting = 0;		/* =1 if a SIGINT or SIGTERM has been received */
 
 static void
 signal_alarm(int sig) {
-	struct process *tmp = list_of_processes;
+	Process *tmp = list_of_processes;
 
 	signal(SIGALRM, SIG_DFL);
 	while (tmp) {

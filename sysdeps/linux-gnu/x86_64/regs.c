@@ -17,7 +17,7 @@
 #endif
 
 void *
-get_instruction_pointer(struct process *proc) {
+get_instruction_pointer(Process *proc) {
 	long int ret = ptrace(PTRACE_PEEKUSER, proc->pid, 8 * RIP, 0);
 	if (proc->mask_32bit)
 		ret &= 0xffffffff;
@@ -25,14 +25,14 @@ get_instruction_pointer(struct process *proc) {
 }
 
 void
-set_instruction_pointer(struct process *proc, void *addr) {
+set_instruction_pointer(Process *proc, void *addr) {
 	if (proc->mask_32bit)
 		addr = (void *)((long int)addr & 0xffffffff);
 	ptrace(PTRACE_POKEUSER, proc->pid, 8 * RIP, addr);
 }
 
 void *
-get_stack_pointer(struct process *proc) {
+get_stack_pointer(Process *proc) {
 	long int ret = ptrace(PTRACE_PEEKUSER, proc->pid, 8 * RSP, 0);
 	if (proc->mask_32bit)
 		ret &= 0xffffffff;
@@ -40,7 +40,7 @@ get_stack_pointer(struct process *proc) {
 }
 
 void *
-get_return_addr(struct process *proc, void *stack_pointer) {
+get_return_addr(Process *proc, void *stack_pointer) {
 	unsigned long int ret;
 	ret = ptrace(PTRACE_PEEKTEXT, proc->pid, stack_pointer, 0);
 	if (proc->mask_32bit)

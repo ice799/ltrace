@@ -12,19 +12,19 @@
 #include "options.h"
 
 static int display_char(int what);
-static int display_string(enum tof type, struct process *proc,
+static int display_string(enum tof type, Process *proc,
 			  void* addr, size_t maxlen);
-static int display_value(enum tof type, struct process *proc,
+static int display_value(enum tof type, Process *proc,
 			 long value, arg_type_info *info,
 			 void *st, arg_type_info* st_info);
-static int display_unknown(enum tof type, struct process *proc, long value);
-static int display_format(enum tof type, struct process *proc, int arg_num);
+static int display_unknown(enum tof type, Process *proc, long value);
+static int display_format(enum tof type, Process *proc, int arg_num);
 
 static int string_maxlength = INT_MAX;
 static int array_maxlength = INT_MAX;
 
 static long
-get_length(enum tof type, struct process *proc, int len_spec,
+get_length(enum tof type, Process *proc, int len_spec,
 		       void *st, arg_type_info* st_info) {
 	long len;
 	arg_type_info info;
@@ -42,7 +42,7 @@ get_length(enum tof type, struct process *proc, int len_spec,
 }
 
 static int
-display_ptrto(enum tof type, struct process *proc, long item,
+display_ptrto(enum tof type, Process *proc, long item,
 			 arg_type_info * info,
 			 void *st, arg_type_info* st_info) {
 	arg_type_info temp;
@@ -60,7 +60,7 @@ display_ptrto(enum tof type, struct process *proc, long item,
  * pointer to that region of memory.
  */
 static int
-display_arrayptr(enum tof type, struct process *proc,
+display_arrayptr(enum tof type, Process *proc,
 			    void *addr, arg_type_info * info,
 			    void *st, arg_type_info* st_info) {
 	int len = 0;
@@ -94,7 +94,7 @@ display_arrayptr(enum tof type, struct process *proc,
  *        the struct (aka a pointer to the struct)
  */
 static int
-display_structptr(enum tof type, struct process *proc,
+display_structptr(enum tof type, Process *proc,
 			     void *addr, arg_type_info * info) {
 	int i;
 	arg_type_info *field;
@@ -122,7 +122,7 @@ display_structptr(enum tof type, struct process *proc,
 }
 
 static int
-display_pointer(enum tof type, struct process *proc, long value,
+display_pointer(enum tof type, Process *proc, long value,
 			   arg_type_info * info,
 			   void *st, arg_type_info* st_info) {
 	long pointed_to;
@@ -146,7 +146,7 @@ display_pointer(enum tof type, struct process *proc, long value,
 }
 
 static int
-display_enum(enum tof type, struct process *proc,
+display_enum(enum tof type, Process *proc,
 		arg_type_info* info, long value) {
 	int ii;
 	for (ii = 0; ii < info->u.enum_info.entries; ++ii) {
@@ -169,7 +169,7 @@ display_enum(enum tof type, struct process *proc,
    strings whose length is given by another structure element.
 */
 int
-display_value(enum tof type, struct process *proc,
+display_value(enum tof type, Process *proc,
 		long value, arg_type_info *info,
 		void *st, arg_type_info* st_info) {
 	int tmp;
@@ -243,7 +243,7 @@ display_value(enum tof type, struct process *proc,
 }
 
 int
-display_arg(enum tof type, struct process *proc, int arg_num, arg_type_info * info) {
+display_arg(enum tof type, Process *proc, int arg_num, arg_type_info * info) {
 	long arg;
 
 	if (info->type == ARGTYPE_VOID) {
@@ -283,7 +283,7 @@ display_char(int what) {
 #define MIN(a,b) (((a)<(b)) ? (a) : (b))
 
 static int
-display_string(enum tof type, struct process *proc, void *addr,
+display_string(enum tof type, Process *proc, void *addr,
 			  size_t maxlength) {
 	unsigned char *str1;
 	int i;
@@ -315,7 +315,7 @@ display_string(enum tof type, struct process *proc, void *addr,
 }
 
 static int
-display_unknown(enum tof type, struct process *proc, long value) {
+display_unknown(enum tof type, Process *proc, long value) {
 	if (proc->mask_32bit) {
 		if ((int)value < 1000000 && (int)value > -1000000)
 			return fprintf(options.output, "%d", (int)value);
@@ -329,7 +329,7 @@ display_unknown(enum tof type, struct process *proc, long value) {
 }
 
 static int
-display_format(enum tof type, struct process *proc, int arg_num) {
+display_format(enum tof type, Process *proc, int arg_num) {
 	void *addr;
 	unsigned char *str1;
 	int i;

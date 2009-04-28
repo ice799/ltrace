@@ -12,10 +12,10 @@
 #include "options.h"
 #include "elf.h"
 
-struct process *
+Process *
 open_program(char *filename, pid_t pid) {
-	struct process *proc;
-	proc = calloc(sizeof(struct process), 1);
+	Process *proc;
+	proc = calloc(sizeof(Process), 1);
 	if (!proc) {
 		perror("malloc");
 		exit(1);
@@ -34,7 +34,7 @@ open_program(char *filename, pid_t pid) {
 
 void
 open_pid(pid_t pid, int verbose) {
-	struct process *proc;
+	Process *proc;
 	char *filename;
 
 	if (trace_pid(pid) < 0) {
@@ -60,9 +60,9 @@ open_pid(pid_t pid, int verbose) {
 	proc->breakpoints_enabled = 1;
 }
 
-struct process *
+Process *
 pid2proc(pid_t pid) {
-	struct process *tmp;
+	Process *tmp;
 
 	tmp = list_of_processes;
 	while (tmp) {

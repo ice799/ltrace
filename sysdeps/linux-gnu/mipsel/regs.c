@@ -29,7 +29,7 @@
    \return The current instruction pointer.
  */
 void *
-get_instruction_pointer(struct process *proc) {
+get_instruction_pointer(Process *proc) {
 	return (void *)ptrace(PTRACE_PEEKUSER, proc->pid, off_pc, 0);
 }
 
@@ -43,7 +43,7 @@ get_instruction_pointer(struct process *proc) {
    we \c continue_process() after a breakpoint. Check if this is OK.
  */
 void
-set_instruction_pointer(struct process *proc, void *addr) {
+set_instruction_pointer(Process *proc, void *addr) {
 	ptrace(PTRACE_POKEUSER, proc->pid, off_pc, addr);
 }
 
@@ -52,7 +52,7 @@ set_instruction_pointer(struct process *proc, void *addr) {
    \return The current stack pointer.
  */
 void *
-get_stack_pointer(struct process *proc) {
+get_stack_pointer(Process *proc) {
 	return (void *)ptrace(PTRACE_PEEKUSER, proc->pid, off_sp, 0);
 }
 
@@ -67,7 +67,7 @@ get_stack_pointer(struct process *proc) {
    unused.
  */
 void *
-get_return_addr(struct process *proc, void *stack_pointer) {
+get_return_addr(Process *proc, void *stack_pointer) {
 	return (void *)ptrace(PTRACE_PEEKUSER, proc->pid, off_lr, 0);
 }
 /**@}*/

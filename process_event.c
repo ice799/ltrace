@@ -31,15 +31,15 @@ static void process_fork(struct event *event);
 static void process_clone(struct event *event);
 static void process_exec(struct event *event);
 static void process_breakpoint(struct event *event);
-static void remove_proc(struct process *proc);
+static void remove_proc(Process *proc);
 
-static void callstack_push_syscall(struct process *proc, int sysnum);
-static void callstack_push_symfunc(struct process *proc,
+static void callstack_push_syscall(Process *proc, int sysnum);
+static void callstack_push_symfunc(Process *proc,
 				   struct library_symbol *sym);
-static void callstack_pop(struct process *proc);
+static void callstack_pop(Process *proc);
 
 static char *
-shortsignal(struct process *proc, int signum) {
+shortsignal(Process *proc, int signum) {
 	static char *signalent0[] = {
 #include "signalent.h"
 	};
@@ -61,7 +61,7 @@ shortsignal(struct process *proc, int signum) {
 }
 
 static char *
-sysname(struct process *proc, int sysnum) {
+sysname(Process *proc, int sysnum) {
 	static char result[128];
 	static char *syscalent0[] = {
 #include "syscallent.h"
@@ -87,7 +87,7 @@ sysname(struct process *proc, int sysnum) {
 }
 
 static char *
-arch_sysname(struct process *proc, int sysnum) {
+arch_sysname(Process *proc, int sysnum) {
 	static char result[128];
 	static char *arch_syscalent[] = {
 #include "arch_syscallent.h"
@@ -202,8 +202,8 @@ process_exit_signal(struct event *event) {
 }
 
 static void
-remove_proc(struct process *proc) {
-	struct process *tmp, *tmp2;
+remove_proc(Process *proc) {
+	Process *tmp, *tmp2;
 
 	debug(1, "Removing pid %u\n", proc->pid);
 
@@ -276,7 +276,7 @@ process_arch_syscall(struct event *event) {
 struct timeval current_time_spent;
 
 static void
-calc_time_spent(struct process *proc) {
+calc_time_spent(Process *proc) {
 	struct timeval tv;
 	struct timezone tz;
 	struct timeval diff;
@@ -466,7 +466,7 @@ process_breakpoint(struct event *event) {
 }
 
 static void
-callstack_push_syscall(struct process *proc, int sysnum) {
+callstack_push_syscall(Process *proc, int sysnum) {
 	struct callstack_element *elem;
 
 	/* FIXME: not good -- should use dynamic allocation. 19990703 mortene. */
@@ -488,7 +488,7 @@ callstack_push_syscall(struct process *proc, int sysnum) {
 }
 
 static void
-callstack_push_symfunc(struct process *proc, struct library_symbol *sym) {
+callstack_push_symfunc(Process *proc, struct library_symbol *sym) {
 	struct callstack_element *elem;
 
 	/* FIXME: not good -- should use dynamic allocation. 19990703 mortene. */
@@ -514,7 +514,7 @@ callstack_push_symfunc(struct process *proc, struct library_symbol *sym) {
 }
 
 static void
-callstack_pop(struct process *proc) {
+callstack_pop(Process *proc) {
 	struct callstack_element *elem;
 	assert(proc->callstack_depth > 0);
 

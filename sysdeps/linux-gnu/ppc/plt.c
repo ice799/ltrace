@@ -11,7 +11,7 @@ arch_plt_sym_val(struct ltelf *lte, size_t ndx, GElf_Rela * rela) {
 }
 
 void *
-sym2addr(struct process *proc, struct library_symbol *sym) {
+sym2addr(Process *proc, struct library_symbol *sym) {
 	void *addr = sym->enter_addr;
 	long pt_ret;
 

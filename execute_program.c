@@ -18,7 +18,7 @@
 #include "sysdep.h"
 
 static void
-change_uid(struct process *proc) {
+change_uid(Process *proc) {
 	uid_t run_uid, run_euid;
 	gid_t run_gid, run_egid;
 
@@ -70,7 +70,7 @@ change_uid(struct process *proc) {
 }
 
 void
-execute_program(struct process *sp, char **argv) {
+execute_program(Process *sp, char **argv) {
 	pid_t pid;
 
 	debug(1, "Executing `%s'...", sp->filename);

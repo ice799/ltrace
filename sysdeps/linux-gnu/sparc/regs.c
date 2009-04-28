@@ -7,7 +7,7 @@
 #include "ltrace.h"
 
 void *
-get_instruction_pointer(struct process *proc) {
+get_instruction_pointer(Process *proc) {
 	proc_archdep *a = (proc_archdep *) (proc->arch_ptr);
 	if (a->valid)
 		return (void *)a->regs.r_pc;
@@ -15,14 +15,14 @@ get_instruction_pointer(struct process *proc) {
 }
 
 void
-set_instruction_pointer(struct process *proc, void *addr) {
+set_instruction_pointer(Process *proc, void *addr) {
 	proc_archdep *a = (proc_archdep *) (proc->arch_ptr);
 	if (a->valid)
 		a->regs.r_pc = (long)addr;
 }
 
 void *
-get_stack_pointer(struct process *proc) {
+get_stack_pointer(Process *proc) {
 	proc_archdep *a = (proc_archdep *) (proc->arch_ptr);
 	if (a->valid)
 		return (void *)a->regs.r_o6;
@@ -30,7 +30,7 @@ get_stack_pointer(struct process *proc) {
 }
 
 void *
-get_return_addr(struct process *proc, void *stack_pointer) {
+get_return_addr(Process *proc, void *stack_pointer) {
 	proc_archdep *a = (proc_archdep *) (proc->arch_ptr);
 	unsigned int t;
 	if (!a->valid)
