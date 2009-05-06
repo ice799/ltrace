@@ -1,5 +1,3 @@
-* EVENT_FORK, EVENT_EXEC instead of fork_p() and exec_p()
-* Get rid of EVENT_ARCH_SYSCALL and EVENT_ARCH_SYSRET
 * BFD:
   + New executable formats
   + Read list of libraries needed
@@ -17,3 +15,28 @@
 * More operating systems (solaris?)
 * Option -I (inter-library calls)
 * Modify ARGTYPE_STRING[0-5] types so that they not stop displaying chars when '\0' is encountered
+* Get rid of EVENT_ARCH_SYSCALL and EVENT_ARCH_SYSRET
+* EVENT_FORK, EVENT_CLONE, EVENT_EXEC instead of fork_p() and exec_p()
+* If EVENT_FORK is received:
+  + Add the new process to the list, with a state of "future child of XXX"
+* If EVENT_CLONE is received:
+  + Add the new process to the list, with a state of "future clone of XXX"
+* If EVENT_EXEC is received:
+  + Clean structs with breakpoints, open new created program
+* If a signal is received from an an unknown process, add it to the list,
+  with a state of "new process"
+* Cleaner way to use breakpoints:
+  + BP is placed in the PLT
+  + When control hits there:
+    - write down return address
+    - change return address with another one (handled by ltrace)
+    - get arguments...
+    - change the process' PC to be in the correct place,
+      without removing breakpoint
+  + When control hits one of our return addresses:
+    - get return value...
+    - change PC to the right place
+* To be able to work with processes sharing memory, we must:
+  + ptrace() every single thread
+  + place breakpoints only in places where the process control can continue
+    without having to remove it

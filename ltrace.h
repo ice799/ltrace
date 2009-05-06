@@ -152,9 +152,17 @@ struct callstack_element {
 
 #define MAX_CALLDEPTH 64
 
-typedef struct Process Process;
+typedef enum Process_State Process_State;
+enum Process_State {
+	STATE_ATTACHED,
+	STATE_NEW,
+	STATE_FUTURE_CHILD,
+	STATE_FUTURE_CLONE
+};
 
+typedef struct Process Process;
 struct Process {
+	Process_State state;
 	char *filename;
 	pid_t pid;
 	struct dict *breakpoints;
