@@ -98,7 +98,7 @@ usage(void) {
 		"  -d                  print debugging info.\n"
 # endif
 		"  -e expr             modify which events to trace.\n"
-		"  -f                  follow forks.\n"
+		"  -f                  trace children (fork() and clone()).\n"
 # if HAVE_GETOPT_LONG
 		"  -F, --config=FILE   load alternate configuration file (may be repeated).\n"
 # else

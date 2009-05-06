@@ -40,3 +40,5 @@
   + ptrace() every single thread
   + place breakpoints only in places where the process control can continue
     without having to remove it
+* Get rid of GNU's autoconf stuff
+* List source dependencies in Makefile

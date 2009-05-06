@@ -163,6 +163,7 @@ enum Process_State {
 typedef struct Process Process;
 struct Process {
 	Process_State state;
+	Process *parent; /* needed by STATE_FUTURE_CHILD and STATE_FUTURE_CLONE */
 	char *filename;
 	pid_t pid;
 	struct dict *breakpoints;
