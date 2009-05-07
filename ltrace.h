@@ -11,7 +11,7 @@
 /* BREAKPOINT_LENGTH is defined in "sysdep.h" */
 #include "sysdep.h"
 
-#define MAX_LIBRARY	30
+#define MAX_LIBRARY 30
 
 #if defined HAVE_LIBIBERTY || defined HAVE_LIBSUPC__
 # define USE_DEMANGLE
@@ -207,17 +207,17 @@ struct Event {
 		EVENT_SYSRET,
 		EVENT_ARCH_SYSCALL,
 		EVENT_ARCH_SYSRET,
-		EVENT_FORK,
-		EVENT_CLONE, /* Like FORK, but parent and child share memory */
+		EVENT_CLONE,
 		EVENT_EXEC,
-		EVENT_BREAKPOINT
-	} thing;
+		EVENT_BREAKPOINT,
+		EVENT_NEW       /* in this case, proc is NULL */
+	} type;
 	union {
-		int ret_val;	/* EVENT_EXIT */
+		int ret_val;    /* EVENT_EXIT */
 		int signum;     /* EVENT_SIGNAL, EVENT_EXIT_SIGNAL */
 		int sysnum;     /* EVENT_SYSCALL, EVENT_SYSRET */
-		void *brk_addr;	/* EVENT_BREAKPOINT */
-		int newpid;     /* EVENT_FORK, EVENT_CLONE */
+		void *brk_addr; /* EVENT_BREAKPOINT */
+		int newpid;     /* EVENT_CLONE, EVENT_NEW */
 	} e_un;
 };
 

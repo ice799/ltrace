@@ -27,10 +27,10 @@ static void process_syscall(Event *event);
 static void process_arch_syscall(Event *event);
 static void process_sysret(Event *event);
 static void process_arch_sysret(Event *event);
-static void process_fork(Event *event);
 static void process_clone(Event *event);
 static void process_exec(Event *event);
 static void process_breakpoint(Event *event);
+static void process_new(Event *event);
 static void remove_proc(Process *proc);
 
 static void callstack_push_syscall(Process *proc, int sysnum);
@@ -106,7 +106,7 @@ arch_sysname(Process *proc, int sysnum) {
 
 void
 process_event(Event *event) {
-	switch (event->thing) {
+	switch (event->type) {
 	case EVENT_NONE:
 		debug(1, "event: none");
 		return;
@@ -150,10 +150,6 @@ process_event(Event *event) {
 				event->e_un.sysnum);
 		process_arch_sysret(event);
 		return;
-	case EVENT_FORK:
-		debug(1, "event: fork (%u)", event->e_un.newpid);
-		process_fork(event);
-		return;
 	case EVENT_CLONE:
 		debug(1, "event: clone (%u)", event->e_un.newpid);
 		process_clone(event);
@@ -165,6 +161,10 @@ process_event(Event *event) {
 	case EVENT_BREAKPOINT:
 		debug(1, "event: breakpoint");
 		process_breakpoint(event);
+		return;
+	case EVENT_NEW:
+		debug(1, "event: new process");
+		process_new(event);
 		return;
 	default:
 		fprintf(stderr, "Error! unknown event?\n");
@@ -241,17 +241,16 @@ process_syscall(Event *event) {
 }
 
 static void
-process_fork(Event * event) {
-	output_line(event->proc, "--- fork() = %u ---",
+process_clone(Event * event) {
+	output_line(event->proc, "--- clone() = %u ---",
 			event->e_un.newpid);
 	continue_process(event->proc->pid);
 }
 
 static void
-process_clone(Event * event) {
-	output_line(event->proc, "--- clone() = %u ---",
+process_new(Event * event) {
+	output_line(NULL, "--- new child = %u ---",
 			event->e_un.newpid);
-	abort();
 }
 
 static void
