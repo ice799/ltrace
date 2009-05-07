@@ -340,7 +340,6 @@ add_library_symbol(GElf_Addr addr, const char *name,
 	s->plt_type = type_of_plt;
 	s->next = *library_symbolspp;
 	s->enter_addr = (void *)(uintptr_t) addr;
-	s->brkpnt = NULL;
 	s->name = (char *)(s + 1);
 	strcpy(s->name, name);
 	*library_symbolspp = s;

@@ -134,7 +134,6 @@ extern char *PLTs_initialized_by_here;
 struct library_symbol {
 	char *name;
 	void *enter_addr;
-	Breakpoint *brkpnt;
 	char needs_init;
 	enum toplt plt_type;
 	char is_weak;
@@ -156,9 +155,7 @@ struct callstack_element {
 typedef enum Process_State Process_State;
 enum Process_State {
 	STATE_ATTACHED = 0,
-	STATE_NEW,
-	STATE_FUTURE_FORK,
-	STATE_FUTURE_CLONE
+	STATE_BEING_CREATED
 };
 
 typedef struct Process Process;

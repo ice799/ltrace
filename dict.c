@@ -165,3 +165,36 @@ int
 dict_key_cmp_int(void *key1, void *key2) {
 	return key1 - key2;
 }
+
+struct dict *
+dict_clone(struct dict *old, void * (*key_clone)(void*), void * (*value_clone)(void*)) {
+	struct dict *d;
+	int i;
+
+	d = malloc(sizeof(struct dict));
+	if (!d) {
+		perror("malloc()");
+		exit(1);
+	}
+	memcpy(d, old, sizeof(struct dict));
+	for (i = 0; i < DICTTABLESIZE; i++) {	/* better use memset()? */
+		struct dict_entry *de_old;
+		struct dict_entry **de_new;
+
+		de_old = old->buckets[i];
+		de_new = &d->buckets[i];
+		while (de_old) {
+			*de_new = malloc(sizeof(struct dict_entry));
+			if (!*de_new) {
+				perror("malloc()");
+				exit(1);
+			}
+			memcpy(*de_new, de_old, sizeof(struct dict_entry));
+			(*de_new)->key = key_clone(de_old->key);
+			(*de_new)->value = value_clone(de_old->value);
+			de_new = &(*de_new)->next;
+			de_old = de_old->next;
+		}
+	}
+	return d;
+}

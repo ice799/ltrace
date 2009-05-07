@@ -38,6 +38,118 @@ static void callstack_push_symfunc(Process *proc,
 				   struct library_symbol *sym);
 static void callstack_pop(Process *proc);
 
+/* TODO */
+void * address_clone(void * addr) {
+	return addr;
+}
+
+void * breakpoint_clone(void * bp) {
+	Breakpoint * b;
+	b = malloc(sizeof(Breakpoint));
+	if (!b) {
+		perror("malloc()");
+		exit(1);
+	}
+	memcpy(b, bp, sizeof(Breakpoint));
+	return b;
+}
+
+typedef struct Pending_New Pending_New;
+struct Pending_New {
+	pid_t pid;
+	Pending_New * next;
+};
+static Pending_New * pending_news = NULL;
+
+static int
+pending_new(pid_t pid) {
+	Pending_New * p = pending_news;
+	while (p) {
+		if (p->pid == pid) {
+			return 1;
+		}
+		p = p->next;
+	}
+	return 0;
+}
+
+static void
+pending_new_insert(pid_t pid) {
+	Pending_New * p = malloc(sizeof(Pending_New));
+	if (!p) {
+		perror("malloc()");
+		exit(1);
+	}
+	p->pid = pid;
+	p->next = pending_news;
+	pending_news = p;
+}
+
+static void
+pending_new_remove(pid_t pid) {
+	Pending_New *p, *pred;
+
+	p = pending_news;
+	if (p->pid == pid) {
+		pending_news = p->next;
+		free(p);
+	} else {
+		while (p) {
+			if (p->pid == pid) {
+				pred->next = p->next;
+				free(p);
+			}
+			pred = p;
+			p = p->next;
+		}
+	}
+}
+
+static void
+process_clone(Event * event) {
+	Process *p;
+
+	p = malloc(sizeof(Process));
+	if (!p) {
+		perror("malloc()");
+		exit(1);
+	}
+	memcpy(p, event->proc, sizeof(Process));
+	p->breakpoints = dict_clone(event->proc->breakpoints, address_clone, breakpoint_clone);
+	p->pid = event->e_un.newpid;
+
+	if (pending_new(p->pid)) {
+		pending_new_remove(p->pid);
+		if (p->breakpoint_being_enabled) {
+			enable_breakpoint(p->pid, p->breakpoint_being_enabled);
+			p->breakpoint_being_enabled = NULL;
+		}
+		p->state = STATE_ATTACHED;
+		continue_process(p->pid);
+		p->next = list_of_processes;
+		list_of_processes = p;
+	} else {
+		p->state = STATE_BEING_CREATED;
+	}
+	/* look for previous process_new() */
+}
+
+static void
+process_new(Event * event) {
+	Process * proc = pid2proc(event->e_un.newpid);
+	if (!proc) {
+		pending_new_insert(event->e_un.newpid);
+	} else {
+		assert(proc->state == STATE_BEING_CREATED);
+		if (proc->breakpoint_being_enabled) {
+			enable_breakpoint(proc->pid, proc->breakpoint_being_enabled);
+			proc->breakpoint_being_enabled = NULL;
+		}
+		proc->state = STATE_ATTACHED;
+		continue_process(proc->pid);
+	}
+}
+
 static char *
 shortsignal(Process *proc, int signum) {
 	static char *signalent0[] = {
@@ -241,19 +353,6 @@ process_syscall(Event *event) {
 }
 
 static void
-process_clone(Event * event) {
-	output_line(event->proc, "--- clone() = %u ---",
-			event->e_un.newpid);
-	continue_process(event->proc->pid);
-}
-
-static void
-process_new(Event * event) {
-	output_line(NULL, "--- new child = %u ---",
-			event->e_un.newpid);
-}
-
-static void
 process_exec(Event * event) {
 	output_line(event->proc, "--- exec() ---");
 	abort();
@@ -398,7 +497,7 @@ process_breakpoint(Event *event) {
 							  libsym);
 				}
 			} else {
-				sbp = libsym->brkpnt;
+				sbp = dict_find_entry(event->proc->breakpoints, sym2addr(event->proc, libsym));
 				assert(sbp);
 				if (addr != sbp->addr) {
 					insert_breakpoint(event->proc, addr,
@@ -409,8 +508,8 @@ process_breakpoint(Event *event) {
 			void *addr;
 			void *old_addr;
 			struct library_symbol *sym= event->proc->callstack[i].c_un.libfunc;
-			assert(sym && sym->brkpnt);
-			old_addr=sym->brkpnt->addr;
+			assert(sym);
+			old_addr = dict_find_entry(event->proc->breakpoints, sym2addr(event->proc, sym))->addr;
 			addr=sym2addr(event->proc,sym);
 			assert(old_addr !=0 && addr !=0);
 			if(addr != old_addr){
@@ -419,7 +518,6 @@ process_breakpoint(Event *event) {
 				memcpy(new_sym,sym,sizeof(*new_sym));
 				new_sym->next=event->proc->list_of_symbols;
 				event->proc->list_of_symbols=new_sym;
-				new_sym->brkpnt=0;
 				insert_breakpoint(event->proc, addr, new_sym);
 			}
 #endif

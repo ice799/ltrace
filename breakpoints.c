@@ -44,8 +44,6 @@ insert_breakpoint(Process *proc, void *addr,
 		dict_enter(proc->breakpoints, addr, sbp);
 		sbp->addr = addr;
 		sbp->libsym = libsym;
-		if (libsym)
-			libsym->brkpnt = sbp;
 	}
 #ifdef __arm__
 	sbp->thumb_mode = proc->thumb_mode;
@@ -124,7 +122,6 @@ enable_all_breakpoints(Process *proc) {
 				memcpy(new_sym,sym,sizeof(*new_sym));
 				new_sym->next=proc->list_of_symbols;
 				proc->list_of_symbols=new_sym;
-				new_sym->brkpnt=0;
 				insert_breakpoint(proc, addr, new_sym);
 				sym=sym->next;
 			}
