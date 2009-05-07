@@ -16,9 +16,9 @@
 #include "output.h"
 #include "debug.h"
 
-static struct event event;
+static Event event;
 
-struct event *
+Event *
 next_event(void) {
 	pid_t pid;
 	int status;

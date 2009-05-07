@@ -20,17 +20,17 @@
 #include <sys/ptrace.h>
 #endif
 
-static void process_signal(struct event *event);
-static void process_exit(struct event *event);
-static void process_exit_signal(struct event *event);
-static void process_syscall(struct event *event);
-static void process_arch_syscall(struct event *event);
-static void process_sysret(struct event *event);
-static void process_arch_sysret(struct event *event);
-static void process_fork(struct event *event);
-static void process_clone(struct event *event);
-static void process_exec(struct event *event);
-static void process_breakpoint(struct event *event);
+static void process_signal(Event *event);
+static void process_exit(Event *event);
+static void process_exit_signal(Event *event);
+static void process_syscall(Event *event);
+static void process_arch_syscall(Event *event);
+static void process_sysret(Event *event);
+static void process_arch_sysret(Event *event);
+static void process_fork(Event *event);
+static void process_clone(Event *event);
+static void process_exec(Event *event);
+static void process_breakpoint(Event *event);
 static void remove_proc(Process *proc);
 
 static void callstack_push_syscall(Process *proc, int sysnum);
@@ -105,7 +105,7 @@ arch_sysname(Process *proc, int sysnum) {
 }
 
 void
-process_event(struct event *event) {
+process_event(Event *event) {
 	switch (event->thing) {
 	case EVENT_NONE:
 		debug(1, "event: none");
@@ -173,7 +173,7 @@ process_event(struct event *event) {
 }
 
 static void
-process_signal(struct event *event) {
+process_signal(Event *event) {
 	if (exiting && event->e_un.signum == SIGSTOP) {
 		pid_t pid = event->proc->pid;
 		disable_all_breakpoints(event->proc);
@@ -188,14 +188,14 @@ process_signal(struct event *event) {
 }
 
 static void
-process_exit(struct event *event) {
+process_exit(Event *event) {
 	output_line(event->proc, "+++ exited (status %d) +++",
 		    event->e_un.ret_val);
 	remove_proc(event->proc);
 }
 
 static void
-process_exit_signal(struct event *event) {
+process_exit_signal(Event *event) {
 	output_line(event->proc, "+++ killed by %s +++",
 		    shortsignal(event->proc, event->e_un.signum));
 	remove_proc(event->proc);
@@ -226,7 +226,7 @@ remove_proc(Process *proc) {
 }
 
 static void
-process_syscall(struct event *event) {
+process_syscall(Event *event) {
 	if (options.syscalls) {
 		output_left(LT_TOF_SYSCALL, event->proc,
 			    sysname(event->proc, event->e_un.sysnum));
@@ -241,27 +241,27 @@ process_syscall(struct event *event) {
 }
 
 static void
-process_fork(struct event * event) {
+process_fork(Event * event) {
 	output_line(event->proc, "--- fork() = %u ---",
 			event->e_un.newpid);
 	continue_process(event->proc->pid);
 }
 
 static void
-process_clone(struct event * event) {
+process_clone(Event * event) {
 	output_line(event->proc, "--- clone() = %u ---",
 			event->e_un.newpid);
 	abort();
 }
 
 static void
-process_exec(struct event * event) {
+process_exec(Event * event) {
 	output_line(event->proc, "--- exec() ---");
 	abort();
 }
 
 static void
-process_arch_syscall(struct event *event) {
+process_arch_syscall(Event *event) {
 	if (options.syscalls) {
 		output_left(LT_TOF_SYSCALL, event->proc,
 				arch_sysname(event->proc, event->e_un.sysnum));
@@ -297,7 +297,7 @@ calc_time_spent(Process *proc) {
 }
 
 static void
-process_sysret(struct event *event) {
+process_sysret(Event *event) {
 	if (opt_T || options.summary) {
 		calc_time_spent(event->proc);
 	}
@@ -322,7 +322,7 @@ process_sysret(struct event *event) {
 }
 
 static void
-process_arch_sysret(struct event *event) {
+process_arch_sysret(Event *event) {
 	if (opt_T || options.summary) {
 		calc_time_spent(event->proc);
 	}
@@ -335,7 +335,7 @@ process_arch_sysret(struct event *event) {
 }
 
 static void
-process_breakpoint(struct event *event) {
+process_breakpoint(Event *event) {
 	int i, j;
 	Breakpoint *sbp;
 

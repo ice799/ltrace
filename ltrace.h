@@ -195,7 +195,8 @@ struct Process {
 	Process *next;
 };
 
-struct event {
+typedef struct Event Event;
+struct Event {
 	Process *proc;
 	enum {
 		EVENT_NONE,
@@ -230,9 +231,9 @@ extern Process *list_of_processes;
 
 extern void *instruction_pointer;
 
-extern struct event *next_event(void);
+extern Event *next_event(void);
 extern Process * pid2proc(pid_t pid);
-extern void process_event(struct event *event);
+extern void process_event(Event *event);
 extern void execute_program(Process *, char **);
 extern int display_arg(enum tof type, Process *proc, int arg_num, arg_type_info *info);
 extern Breakpoint *address2bpstruct(Process *proc, void *addr);
