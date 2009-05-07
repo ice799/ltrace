@@ -112,13 +112,14 @@ enum tof {
 	LT_TOF_STRUCT		/* Not a function; read args from struct */
 };
 
-struct function {
+typedef struct Function Function;
+struct Function {
 	const char *name;
 	arg_type_info *return_info;
 	int num_params;
 	arg_type_info *arg_info[MAX_ARGS];
 	int params_right;
-	struct function *next;
+	Function *next;
 };
 
 enum toplt {
@@ -127,8 +128,7 @@ enum toplt {
 	LS_TOPLT_POINT		/* PLT for this symbol is a non-executable. */
 };
 
-
-extern struct function *list_of_functions;
+extern Function *list_of_functions;
 extern char *PLTs_initialized_by_here;
 
 struct library_symbol {
@@ -155,7 +155,7 @@ struct callstack_element {
 
 typedef enum Process_State Process_State;
 enum Process_State {
-	STATE_ATTACHED,
+	STATE_ATTACHED = 0,
 	STATE_NEW,
 	STATE_FUTURE_FORK,
 	STATE_FUTURE_CLONE

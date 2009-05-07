@@ -13,6 +13,7 @@
 
 #include "ltrace.h"
 #include "options.h"
+#include "output.h"
 #include "debug.h"
 
 static struct event event;

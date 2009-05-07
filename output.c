@@ -102,9 +102,9 @@ begin_of_line(enum tof type, Process *proc) {
 	}
 }
 
-static struct function *
+static Function *
 name2func(char *name) {
-	struct function *tmp;
+	Function *tmp;
 	const char *str1, *str2;
 
 	tmp = list_of_functions;
@@ -161,7 +161,7 @@ tabto(int col) {
 
 void
 output_left(enum tof type, Process *proc, char *function_name) {
-	struct function *func;
+	Function *func;
 	static arg_type_info *arg_unknown = NULL;
 	if (arg_unknown == NULL)
 	    arg_unknown = lookup_prototype(ARGTYPE_UNKNOWN);
@@ -218,7 +218,7 @@ output_left(enum tof type, Process *proc, char *function_name) {
 
 void
 output_right(enum tof type, Process *proc, char *function_name) {
-	struct function *func = name2func(function_name);
+	Function *func = name2func(function_name);
 	static arg_type_info *arg_unknown = NULL;
 	if (arg_unknown == NULL)
 	    arg_unknown = lookup_prototype(ARGTYPE_UNKNOWN);

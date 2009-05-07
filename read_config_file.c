@@ -17,7 +17,7 @@ static int error_count = 0;
 
 static arg_type_info *parse_type(char **str);
 
-struct function *list_of_functions = NULL;
+Function *list_of_functions = NULL;
 
 /* Map of strings to type names. These do not need to be in any
  * particular order */
@@ -574,10 +574,10 @@ parse_type(char **str) {
 	return info;
 }
 
-static struct function *
+static Function *
 process_line(char *buf) {
-	struct function fun;
-	struct function *fun_p;
+	Function fun;
+	Function *fun_p;
 	char *str = buf;
 	char *tmp;
 	int i;
@@ -646,12 +646,12 @@ process_line(char *buf) {
 		}
 	}
 	fun.num_params = i;
-	fun_p = malloc(sizeof(struct function));
+	fun_p = malloc(sizeof(Function));
 	if (!fun_p) {
 		perror("ltrace: malloc");
 		exit(1);
 	}
-	memcpy(fun_p, &fun, sizeof(struct function));
+	memcpy(fun_p, &fun, sizeof(Function));
 	return fun_p;
 }
 
@@ -670,7 +670,7 @@ read_config_file(char *file) {
 
 	line_no = 0;
 	while (fgets(buf, 1024, stream)) {
-		struct function *tmp;
+		Function *tmp;
 
 		error_count = 0;
 		tmp = process_line(buf);
