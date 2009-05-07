@@ -18,7 +18,7 @@
 
 /*****************************************************************************/
 
-struct breakpoint *
+Breakpoint *
 address2bpstruct(Process *proc, void *addr) {
 	return dict_find_entry(proc->breakpoints, addr);
 }
@@ -26,7 +26,7 @@ address2bpstruct(Process *proc, void *addr) {
 void
 insert_breakpoint(Process *proc, void *addr,
 		  struct library_symbol *libsym) {
-	struct breakpoint *sbp;
+	Breakpoint *sbp;
 	debug(1, "symbol=%s, addr=%p", libsym?libsym->name:"(nil)", addr);
 
 	if (!addr)
@@ -37,7 +37,7 @@ insert_breakpoint(Process *proc, void *addr,
 
 	sbp = dict_find_entry(proc->breakpoints, addr);
 	if (!sbp) {
-		sbp = calloc(1, sizeof(struct breakpoint));
+		sbp = calloc(1, sizeof(Breakpoint));
 		if (!sbp) {
 			return;	/* TODO FIXME XXX: error_mem */
 		}
@@ -58,7 +58,7 @@ insert_breakpoint(Process *proc, void *addr,
 
 void
 delete_breakpoint(Process *proc, void *addr) {
-	struct breakpoint *sbp = dict_find_entry(proc->breakpoints, addr);
+	Breakpoint *sbp = dict_find_entry(proc->breakpoints, addr);
 	assert(sbp);		/* FIXME: remove after debugging has been done. */
 	/* This should only happen on out-of-memory conditions. */
 	if (sbp == NULL)
@@ -72,7 +72,7 @@ delete_breakpoint(Process *proc, void *addr) {
 
 static void
 enable_bp_cb(void *addr, void *sbp, void *proc) {
-	if (((struct breakpoint *)sbp)->enabled) {
+	if (((Breakpoint *)sbp)->enabled) {
 		enable_breakpoint(((Process *)proc)->pid, sbp);
 	}
 }
@@ -136,7 +136,7 @@ enable_all_breakpoints(Process *proc) {
 
 static void
 disable_bp_cb(void *addr, void *sbp, void *proc) {
-	if (((struct breakpoint *)sbp)->enabled) {
+	if (((Breakpoint *)sbp)->enabled) {
 		disable_breakpoint(((Process *)proc)->pid, sbp);
 	}
 }

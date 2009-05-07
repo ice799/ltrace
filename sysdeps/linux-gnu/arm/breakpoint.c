@@ -30,7 +30,7 @@
 #include "debug.h"
 
 void
-arch_enable_breakpoint(pid_t pid, struct breakpoint *sbp) {
+arch_enable_breakpoint(pid_t pid, Breakpoint *sbp) {
 	unsigned int i, j;
 	const unsigned char break_insn[] = BREAKPOINT_VALUE;
 	const unsigned char thumb_break_insn[] = THUMB_BREAKPOINT_VALUE;
@@ -57,7 +57,7 @@ arch_enable_breakpoint(pid_t pid, struct breakpoint *sbp) {
 }
 
 void
-arch_disable_breakpoint(pid_t pid, const struct breakpoint *sbp) {
+arch_disable_breakpoint(pid_t pid, const Breakpoint *sbp) {
 	unsigned int i, j;
 	const unsigned char break_insn[] = BREAKPOINT_VALUE;
 	const unsigned char thumb_break_insn[] = THUMB_BREAKPOINT_VALUE;

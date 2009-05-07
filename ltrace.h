@@ -19,9 +19,10 @@
 
 extern char *command;
 
-extern int exiting;		/* =1 if we have to exit ASAP */
+extern int exiting;  /* =1 if we have to exit ASAP */
 
-struct breakpoint {
+typedef struct Breakpoint Breakpoint;
+struct Breakpoint {
 	void *addr;
 	unsigned char orig_value[BREAKPOINT_LENGTH];
 	int enabled;
@@ -133,7 +134,7 @@ extern char *PLTs_initialized_by_here;
 struct library_symbol {
 	char *name;
 	void *enter_addr;
-	struct breakpoint *brkpnt;
+	Breakpoint *brkpnt;
 	char needs_init;
 	enum toplt plt_type;
 	char is_weak;
@@ -156,21 +157,21 @@ typedef enum Process_State Process_State;
 enum Process_State {
 	STATE_ATTACHED,
 	STATE_NEW,
-	STATE_FUTURE_CHILD,
+	STATE_FUTURE_FORK,
 	STATE_FUTURE_CLONE
 };
 
 typedef struct Process Process;
 struct Process {
 	Process_State state;
-	Process *parent; /* needed by STATE_FUTURE_CHILD and STATE_FUTURE_CLONE */
+	Process *parent;          /* needed by STATE_FUTURE_{FORK,CLONE} */
 	char *filename;
 	pid_t pid;
 	struct dict *breakpoints;
-	int breakpoints_enabled;	/* -1:not enabled yet, 0:disabled, 1:enabled */
-	int mask_32bit;		/* 1 if 64-bit ltrace is tracing 32-bit process.  */
+	int breakpoints_enabled;  /* -1:not enabled yet, 0:disabled, 1:enabled */
+	int mask_32bit;           /* 1 if 64-bit ltrace is tracing 32-bit process */
 	unsigned int personality;
-	int tracesysgood;	/* signal indicating a PTRACE_SYSCALL trap */
+	int tracesysgood;         /* signal indicating a PTRACE_SYSCALL trap */
 
 	int callstack_depth;
 	struct callstack_element callstack[MAX_CALLDEPTH];
@@ -178,14 +179,14 @@ struct Process {
 
 	/* Arch-dependent: */
 	void *instruction_pointer;
-	void *stack_pointer;	/* To get return addr, args... */
+	void *stack_pointer;      /* To get return addr, args... */
 	void *return_addr;
-	struct breakpoint *breakpoint_being_enabled;
+	Breakpoint *breakpoint_being_enabled;
 	void *arch_ptr;
 	short e_machine;
 	short need_to_reinitialize_breakpoints;
 #ifdef __arm__
-	int thumb_mode; /* ARM execution mode: 0: ARM mode, 1: Thumb mode */
+	int thumb_mode;           /* ARM execution mode: 0: ARM, 1: Thumb */
 #endif
 
 	/* output: */
@@ -234,10 +235,9 @@ extern Process * pid2proc(pid_t pid);
 extern void process_event(struct event *event);
 extern void execute_program(Process *, char **);
 extern int display_arg(enum tof type, Process *proc, int arg_num, arg_type_info *info);
-extern struct breakpoint *address2bpstruct(Process *proc, void *addr);
+extern Breakpoint *address2bpstruct(Process *proc, void *addr);
 extern void breakpoints_init(Process *proc);
-extern void insert_breakpoint(Process *proc, void *addr,
-			      struct library_symbol *libsym);
+extern void insert_breakpoint(Process *proc, void *addr, struct library_symbol *libsym);
 extern void delete_breakpoint(Process *proc, void *addr);
 extern void enable_all_breakpoints(Process *proc);
 extern void disable_all_breakpoints(Process *proc);
@@ -259,17 +259,16 @@ extern void *get_instruction_pointer(Process *proc);
 extern void set_instruction_pointer(Process *proc, void *addr);
 extern void *get_stack_pointer(Process *proc);
 extern void *get_return_addr(Process *proc, void *stack_pointer);
-extern void enable_breakpoint(pid_t pid, struct breakpoint *sbp);
-extern void disable_breakpoint(pid_t pid, const struct breakpoint *sbp);
+extern void enable_breakpoint(pid_t pid, Breakpoint *sbp);
+extern void disable_breakpoint(pid_t pid, const Breakpoint *sbp);
 extern int fork_p(Process *proc, int sysnum);
 extern int exec_p(Process *proc, int sysnum);
 extern int was_exec(Process *proc, int status);
 extern int syscall_p(Process *proc, int status, int *sysnum);
 extern void continue_process(pid_t pid);
 extern void continue_after_signal(pid_t pid, int signum);
-extern void continue_after_breakpoint(Process *proc,
-				      struct breakpoint *sbp);
-extern void continue_enabling_breakpoint(pid_t pid, struct breakpoint *sbp);
+extern void continue_after_breakpoint(Process *proc, Breakpoint *sbp);
+extern void continue_enabling_breakpoint(pid_t pid, Breakpoint *sbp);
 extern long gimme_arg(enum tof type, Process *proc, int arg_num, arg_type_info *info);
 extern void save_register_args(enum tof type, Process *proc);
 extern int umovestr(Process *proc, void *addr, int len, void *laddr);

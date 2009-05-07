@@ -337,14 +337,14 @@ process_arch_sysret(struct event *event) {
 static void
 process_breakpoint(struct event *event) {
 	int i, j;
-	struct breakpoint *sbp;
+	Breakpoint *sbp;
 
 	debug(2, "event: breakpoint (%p)", event->e_un.brk_addr);
 
 #ifdef __powerpc__
 	/* Need to skip following NOP's to prevent a fake function from being stacked.  */
 	long stub_addr = (long) get_count_register(event->proc);
-	struct breakpoint *stub_bp = NULL;
+	Breakpoint *stub_bp = NULL;
 	char nop_instruction[] = PPC_NOP;
 
 	stub_bp = address2bpstruct (event->proc, event->e_un.brk_addr);

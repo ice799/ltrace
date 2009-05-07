@@ -230,13 +230,13 @@ continue_process(pid_t pid) {
 }
 
 void
-continue_enabling_breakpoint(pid_t pid, struct breakpoint *sbp) {
+continue_enabling_breakpoint(pid_t pid, Breakpoint *sbp) {
 	enable_breakpoint(pid, sbp);
 	continue_process(pid);
 }
 
 void
-continue_after_breakpoint(Process *proc, struct breakpoint *sbp) {
+continue_after_breakpoint(Process *proc, Breakpoint *sbp) {
 	if (sbp->enabled)
 		disable_breakpoint(proc->pid, sbp);
 	set_instruction_pointer(proc, sbp->addr);

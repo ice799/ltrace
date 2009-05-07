@@ -12,14 +12,14 @@
 static unsigned char break_insn[] = BREAKPOINT_VALUE;
 
 #ifdef ARCH_HAVE_ENABLE_BREAKPOINT
-extern void arch_enable_breakpoint(pid_t, struct breakpoint *);
+extern void arch_enable_breakpoint(pid_t, Breakpoint *);
 void
-enable_breakpoint(pid_t pid, struct breakpoint *sbp) {
+enable_breakpoint(pid_t pid, Breakpoint *sbp) {
 	arch_enable_breakpoint(pid, sbp);
 }
 #else
 void
-enable_breakpoint(pid_t pid, struct breakpoint *sbp) {
+enable_breakpoint(pid_t pid, Breakpoint *sbp) {
 	unsigned int i, j;
 
 	debug(1, "enable_breakpoint(%d,%p)", pid, sbp->addr);
@@ -42,14 +42,14 @@ enable_breakpoint(pid_t pid, struct breakpoint *sbp) {
 #endif				/* ARCH_HAVE_ENABLE_BREAKPOINT */
 
 #ifdef ARCH_HAVE_DISABLE_BREAKPOINT
-extern void arch_disable_breakpoint(pid_t, const struct breakpoint *sbp);
+extern void arch_disable_breakpoint(pid_t, const Breakpoint *sbp);
 void
-disable_breakpoint(pid_t pid, const struct breakpoint *sbp) {
+disable_breakpoint(pid_t pid, const Breakpoint *sbp) {
 	arch_disable_breakpoint(pid, sbp);
 }
 #else
 void
-disable_breakpoint(pid_t pid, const struct breakpoint *sbp) {
+disable_breakpoint(pid_t pid, const Breakpoint *sbp) {
 	unsigned int i, j;
 
 	debug(2, "disable_breakpoint(%d,%p)", pid, sbp->addr);

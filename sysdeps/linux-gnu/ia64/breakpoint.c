@@ -153,7 +153,7 @@ union bundle_t {
 };
 
 void
-arch_enable_breakpoint(pid_t pid, struct breakpoint *sbp) {
+arch_enable_breakpoint(pid_t pid, Breakpoint *sbp) {
 
 	unsigned long addr = (unsigned long)sbp->addr;
 	union bundle_t bundle;
@@ -190,7 +190,7 @@ arch_enable_breakpoint(pid_t pid, struct breakpoint *sbp) {
 }
 
 void
-arch_disable_breakpoint(pid_t pid, const struct breakpoint *sbp) {
+arch_disable_breakpoint(pid_t pid, const Breakpoint *sbp) {
 
 	unsigned long addr = (unsigned long)sbp->addr;
 	int slotnum = (int)(addr & 0x0f) & 0x3;
