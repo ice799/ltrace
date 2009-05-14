@@ -246,13 +246,13 @@ continue_enabling_breakpoint(pid_t pid, Breakpoint *sbp) {
 
 void
 continue_after_breakpoint(Process *proc, Breakpoint *sbp) {
-	debug(DEBUG_PROCESS, "continue_after_breakpoint: pid=%d, addr=%p", proc->pid, sbp->addr);
 	if (sbp->enabled)
 		disable_breakpoint(proc->pid, sbp);
 	set_instruction_pointer(proc, sbp->addr);
 	if (sbp->enabled == 0) {
 		continue_process(proc->pid);
 	} else {
+		debug(DEBUG_PROCESS, "continue_after_breakpoint: pid=%d, addr=%p", proc->pid, sbp->addr);
 		proc->breakpoint_being_enabled = sbp;
 #if defined __sparc__  || defined __ia64___
 		/* we don't want to singlestep here */
