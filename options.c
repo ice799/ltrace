@@ -93,9 +93,9 @@ usage(void) {
 #  endif
 # endif
 # if HAVE_GETOPT_LONG
-		"  -d, --debug         print debugging info.\n"
+		"  -d, --debug=LEVEL   print debugging info.\n"
 # else
-		"  -d                  print debugging info.\n"
+		"  -d LEVEL            print debugging info.\n"
 # endif
 		"  -e expr             modify which events to trace.\n"
 		"  -f                  trace children (fork() and clone()).\n"
@@ -226,18 +226,18 @@ process_options(int argc, char **argv) {
 			{"version", 0, 0, 'V'},
 			{0, 0, 0, 0}
 		};
-		c = getopt_long(argc, argv, "+cdfhiLrStTV"
+		c = getopt_long(argc, argv, "+cfhiLrStTV"
 # ifdef USE_DEMANGLE
 				"C"
 # endif
-				"a:A:e:F:l:n:o:p:s:u:x:X:", long_options,
+				"a:A:d:e:F:l:n:o:p:s:u:x:X:", long_options,
 				&option_index);
 #else
-		c = getopt(argc, argv, "+cdfhiLrStTV"
+		c = getopt(argc, argv, "+cfhiLrStTV"
 # ifdef USE_DEMANGLE
 				"C"
 # endif
-				"a:A:e:F:l:n:o:p:s:u:x:X:");
+				"a:A:d:e:F:l:n:o:p:s:u:x:X:");
 #endif
 		if (c == -1) {
 			break;
@@ -258,7 +258,7 @@ process_options(int argc, char **argv) {
 			break;
 #endif
 		case 'd':
-			options.debug++;
+			options.debug = strtoul(optarg,NULL,0);
 			break;
 		case 'e':
 			{

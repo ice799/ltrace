@@ -35,6 +35,7 @@ do_init_elf(struct ltelf *lte, const char *filename) {
 	GElf_Addr relplt_addr = 0;
 	size_t relplt_size = 0;
 
+	debug(DEBUG_FUNCTION, "do_init_elf(filename=%s)", filename);
 	debug(1, "Reading ELF from %s...", filename);
 
 	memset(lte, 0, sizeof(*lte));
@@ -320,6 +321,7 @@ do_init_elf(struct ltelf *lte, const char *filename) {
 
 static void
 do_close_elf(struct ltelf *lte) {
+	debug(DEBUG_FUNCTION, "do_close_elf()");
 	if (lte->lte_flags & LTE_HASH_MALLOCED)
 		free((char *)lte->hash);
 	elf_end(lte->elf);
@@ -331,6 +333,9 @@ add_library_symbol(GElf_Addr addr, const char *name,
 		   struct library_symbol **library_symbolspp,
 		   enum toplt type_of_plt, int is_weak) {
 	struct library_symbol *s;
+
+	debug(DEBUG_FUNCTION, "add_library_symbol()");
+
 	s = malloc(sizeof(struct library_symbol) + strlen(name) + 1);
 	if (s == NULL)
 		error(EXIT_FAILURE, errno, "add_library_symbol failed");
@@ -459,6 +464,8 @@ read_elf(Process *proc) {
 	struct opt_x_t *xptr;
 	struct library_symbol **lib_tail = NULL;
 	int exit_out = 0;
+
+	debug(DEBUG_FUNCTION, "read_elf(file=%s)", proc->filename);
 
 	elf_version(EV_CURRENT);
 

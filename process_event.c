@@ -40,11 +40,13 @@ static void callstack_pop(Process *proc);
 
 /* TODO */
 void * address_clone(void * addr) {
+	debug(DEBUG_FUNCTION, "address_clone(%p)", addr);
 	return addr;
 }
 
 void * breakpoint_clone(void * bp) {
 	Breakpoint * b;
+	debug(DEBUG_FUNCTION, "breakpoint_clone(%p)", bp);
 	b = malloc(sizeof(Breakpoint));
 	if (!b) {
 		perror("malloc()");
@@ -63,7 +65,11 @@ static Pending_New * pending_news = NULL;
 
 static int
 pending_new(pid_t pid) {
-	Pending_New * p = pending_news;
+	Pending_New * p;
+
+	debug(DEBUG_FUNCTION, "pending_new(%d)", pid);
+
+	p = pending_news;
 	while (p) {
 		if (p->pid == pid) {
 			return 1;
@@ -75,7 +81,11 @@ pending_new(pid_t pid) {
 
 static void
 pending_new_insert(pid_t pid) {
-	Pending_New * p = malloc(sizeof(Pending_New));
+	Pending_New * p;
+
+	debug(DEBUG_FUNCTION, "pending_new_insert(%d)", pid);
+
+	p = malloc(sizeof(Pending_New));
 	if (!p) {
 		perror("malloc()");
 		exit(1);
@@ -88,6 +98,8 @@ pending_new_insert(pid_t pid) {
 static void
 pending_new_remove(pid_t pid) {
 	Pending_New *p, *pred;
+
+	debug(DEBUG_FUNCTION, "pending_new_remove(%d)", pid);
 
 	p = pending_news;
 	if (p->pid == pid) {
@@ -108,6 +120,8 @@ pending_new_remove(pid_t pid) {
 static void
 process_clone(Event * event) {
 	Process *p;
+
+	debug(DEBUG_FUNCTION, "process_clone(pid=%d)", event->proc->pid);
 
 	p = malloc(sizeof(Process));
 	if (!p) {
@@ -136,7 +150,11 @@ process_clone(Event * event) {
 
 static void
 process_new(Event * event) {
-	Process * proc = pid2proc(event->e_un.newpid);
+	Process * proc;
+
+	debug(DEBUG_FUNCTION, "process_new(pid=%d)", event->e_un.newpid);
+
+	proc = pid2proc(event->e_un.newpid);
 	if (!proc) {
 		pending_new_insert(event->e_un.newpid);
 	} else {
@@ -163,6 +181,8 @@ shortsignal(Process *proc, int signum) {
 		sizeof signalent1 / sizeof signalent1[0]
 	};
 
+	debug(DEBUG_FUNCTION, "shortsignal(pid=%d, signum=%d)", proc->pid, signum);
+
 	if (proc->personality > sizeof signalents / sizeof signalents[0])
 		abort();
 	if (signum < 0 || signum >= nsignals[proc->personality]) {
@@ -186,6 +206,8 @@ sysname(Process *proc, int sysnum) {
 		sizeof syscalent1 / sizeof syscalent1[0]
 	};
 
+	debug(DEBUG_FUNCTION, "sysname(pid=%d, sysnum=%d)", proc->pid, sysnum);
+
 	if (proc->personality > sizeof syscalents / sizeof syscalents[0])
 		abort();
 	if (sysnum < 0 || sysnum >= nsyscals[proc->personality]) {
@@ -206,6 +228,8 @@ arch_sysname(Process *proc, int sysnum) {
 	};
 	int nsyscals = sizeof arch_syscalent / sizeof arch_syscalent[0];
 
+	debug(DEBUG_FUNCTION, "arch_sysname(pid=%d, sysnum=%d)", proc->pid, sysnum);
+
 	if (sysnum < 0 || sysnum >= nsyscals) {
 		sprintf(result, "ARCH_%d", sysnum);
 		return result;
@@ -218,6 +242,7 @@ arch_sysname(Process *proc, int sysnum) {
 
 void
 process_event(Event *event) {
+	debug(DEBUG_FUNCTION, "process_event(pid=%d, type=%d)", event->proc ? event->proc->pid : -1, event->type);
 	switch (event->type) {
 	case EVENT_NONE:
 		debug(1, "event: none");
@@ -286,6 +311,7 @@ process_event(Event *event) {
 
 static void
 process_signal(Event *event) {
+	debug(DEBUG_FUNCTION, "process_signal(pid=%d, signum=%d)", event->proc->pid, event->e_un.signum);
 	if (exiting && event->e_un.signum == SIGSTOP) {
 		pid_t pid = event->proc->pid;
 		disable_all_breakpoints(event->proc);
@@ -301,6 +327,7 @@ process_signal(Event *event) {
 
 static void
 process_exit(Event *event) {
+	debug(DEBUG_FUNCTION, "process_exit(pid=%d, status=%d)", event->proc->pid, event->e_un.ret_val);
 	output_line(event->proc, "+++ exited (status %d) +++",
 		    event->e_un.ret_val);
 	remove_proc(event->proc);
@@ -308,6 +335,7 @@ process_exit(Event *event) {
 
 static void
 process_exit_signal(Event *event) {
+	debug(DEBUG_FUNCTION, "process_exit_signal(pid=%d, signum=%d)", event->proc->pid, event->e_un.signum);
 	output_line(event->proc, "+++ killed by %s +++",
 		    shortsignal(event->proc, event->e_un.signum));
 	remove_proc(event->proc);
@@ -317,7 +345,7 @@ static void
 remove_proc(Process *proc) {
 	Process *tmp, *tmp2;
 
-	debug(1, "Removing pid %u\n", proc->pid);
+	debug(DEBUG_FUNCTION, "remove_proc(pid=%d)", proc->pid);
 
 	if (list_of_processes == proc) {
 		tmp = list_of_processes;
@@ -339,6 +367,7 @@ remove_proc(Process *proc) {
 
 static void
 process_syscall(Event *event) {
+	debug(DEBUG_FUNCTION, "process_syscall(pid=%d, sysnum=%d)", event->proc->pid, event->e_un.sysnum);
 	if (options.syscalls) {
 		output_left(LT_TOF_SYSCALL, event->proc,
 			    sysname(event->proc, event->e_un.sysnum));
@@ -352,12 +381,14 @@ process_syscall(Event *event) {
 
 static void
 process_exec(Event * event) {
+	debug(DEBUG_FUNCTION, "process_exec(pid=%d)", event->proc->pid);
 	output_line(event->proc, "--- exec() ---");
 	abort();
 }
 
 static void
 process_arch_syscall(Event *event) {
+	debug(DEBUG_FUNCTION, "process_arch_syscall(pid=%d, sysnum=%d)", event->proc->pid, event->e_un.sysnum);
 	if (options.syscalls) {
 		output_left(LT_TOF_SYSCALL, event->proc,
 				arch_sysname(event->proc, event->e_un.sysnum));
@@ -378,6 +409,7 @@ calc_time_spent(Process *proc) {
 	struct timeval diff;
 	struct callstack_element *elem;
 
+	debug(DEBUG_FUNCTION, "calc_time_spent(pid=%d)", proc->pid);
 	elem = &proc->callstack[proc->callstack_depth - 1];
 
 	gettimeofday(&tv, &tz);
@@ -394,6 +426,7 @@ calc_time_spent(Process *proc) {
 
 static void
 process_sysret(Event *event) {
+	debug(DEBUG_FUNCTION, "process_sysret(pid=%d, sysnum=%d)", event->proc->pid, event->e_un.sysnum);
 	if (opt_T || options.summary) {
 		calc_time_spent(event->proc);
 	}
@@ -407,6 +440,7 @@ process_sysret(Event *event) {
 
 static void
 process_arch_sysret(Event *event) {
+	debug(DEBUG_FUNCTION, "process_arch_sysret(pid=%d, sysnum=%d)", event->proc->pid, event->e_un.sysnum);
 	if (opt_T || options.summary) {
 		calc_time_spent(event->proc);
 	}
@@ -423,6 +457,7 @@ process_breakpoint(Event *event) {
 	int i, j;
 	Breakpoint *sbp;
 
+	debug(DEBUG_FUNCTION, "process_breakpoint(pid=%d, addr=%p)", event->proc->pid, event->e_un.brk_addr);
 	debug(2, "event: breakpoint (%p)", event->e_un.brk_addr);
 
 #ifdef __powerpc__
@@ -552,6 +587,7 @@ static void
 callstack_push_syscall(Process *proc, int sysnum) {
 	struct callstack_element *elem;
 
+	debug(DEBUG_FUNCTION, "callstack_push_syscall(pid=%d, sysnum=%d)", proc->pid, sysnum);
 	/* FIXME: not good -- should use dynamic allocation. 19990703 mortene. */
 	if (proc->callstack_depth == MAX_CALLDEPTH - 1) {
 		fprintf(stderr, "Error: call nesting too deep!\n");
@@ -574,6 +610,7 @@ static void
 callstack_push_symfunc(Process *proc, struct library_symbol *sym) {
 	struct callstack_element *elem;
 
+	debug(DEBUG_FUNCTION, "callstack_push_symfunc(pid=%d, symbol=%s)", proc->pid, sym->name);
 	/* FIXME: not good -- should use dynamic allocation. 19990703 mortene. */
 	if (proc->callstack_depth == MAX_CALLDEPTH - 1) {
 		fprintf(stderr, "Error: call nesting too deep!\n");
@@ -601,6 +638,7 @@ callstack_pop(Process *proc) {
 	struct callstack_element *elem;
 	assert(proc->callstack_depth > 0);
 
+	debug(DEBUG_FUNCTION, "callstack_pop(pid=%d)", proc->pid);
 	elem = &proc->callstack[proc->callstack_depth - 1];
 	if (!elem->is_syscall && elem->return_addr) {
 		delete_breakpoint(proc, elem->return_addr);

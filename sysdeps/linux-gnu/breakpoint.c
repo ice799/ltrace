@@ -15,6 +15,11 @@ static unsigned char break_insn[] = BREAKPOINT_VALUE;
 extern void arch_enable_breakpoint(pid_t, Breakpoint *);
 void
 enable_breakpoint(pid_t pid, Breakpoint *sbp) {
+	if (sbp->libsym) {
+		debug(DEBUG_PROCESS, "enable_breakpoint: pid=%d, addr=%p, symbol=%s", pid, sbp->addr, sbp->libsym->name);
+	} else {
+		debug(DEBUG_PROCESS, "enable_breakpoint: pid=%d, addr=%p", pid, sbp->addr);
+	}
 	arch_enable_breakpoint(pid, sbp);
 }
 #else
@@ -22,7 +27,11 @@ void
 enable_breakpoint(pid_t pid, Breakpoint *sbp) {
 	unsigned int i, j;
 
-	debug(1, "enable_breakpoint(%d,%p)", pid, sbp->addr);
+	if (sbp->libsym) {
+		debug(DEBUG_PROCESS, "enable_breakpoint: pid=%d, addr=%p, symbol=%s", pid, sbp->addr, sbp->libsym->name);
+	} else {
+		debug(DEBUG_PROCESS, "enable_breakpoint: pid=%d, addr=%p", pid, sbp->addr);
+	}
 
 	for (i = 0; i < 1 + ((BREAKPOINT_LENGTH - 1) / sizeof(long)); i++) {
 		long a =
@@ -45,6 +54,11 @@ enable_breakpoint(pid_t pid, Breakpoint *sbp) {
 extern void arch_disable_breakpoint(pid_t, const Breakpoint *sbp);
 void
 disable_breakpoint(pid_t pid, const Breakpoint *sbp) {
+	if (sbp->libsym) {
+		debug(DEBUG_PROCESS, "disable_breakpoint: pid=%d, addr=%p, symbol=%s", pid, sbp->addr, sbp->libsym->name);
+	} else {
+		debug(DEBUG_PROCESS, "disable_breakpoint: pid=%d, addr=%p", pid, sbp->addr);
+	}
 	arch_disable_breakpoint(pid, sbp);
 }
 #else
@@ -52,7 +66,11 @@ void
 disable_breakpoint(pid_t pid, const Breakpoint *sbp) {
 	unsigned int i, j;
 
-	debug(2, "disable_breakpoint(%d,%p)", pid, sbp->addr);
+	if (sbp->libsym) {
+		debug(DEBUG_PROCESS, "disable_breakpoint: pid=%d, addr=%p, symbol=%s", pid, sbp->addr, sbp->libsym->name);
+	} else {
+		debug(DEBUG_PROCESS, "disable_breakpoint: pid=%d, addr=%p", pid, sbp->addr);
+	}
 
 	for (i = 0; i < 1 + ((BREAKPOINT_LENGTH - 1) / sizeof(long)); i++) {
 		long a =

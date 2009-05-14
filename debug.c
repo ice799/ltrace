@@ -6,19 +6,18 @@
 #include "output.h"
 
 void
-debug_(int level, const char *file, int line, const char *func,
-		const char *fmt, ...) {
+debug_(int level, const char *file, int line, const char *fmt, ...) {
 	char buf[1024];
 	va_list args;
 
-	if (options.debug < level) {
+	if (!(options.debug & level)) {
 		return;
 	}
 	va_start(args, fmt);
 	vsnprintf(buf, 1024, fmt, args);
 	va_end(args);
 
-	output_line(NULL, "DEBUG: %s:%d: %s(): %s", file, line, func, buf);
+	output_line(NULL, "DEBUG: %s:%d: %s", file, line, buf);
 }
 
 // The following section provides a way to print things, like hex dumps,

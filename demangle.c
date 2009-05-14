@@ -9,6 +9,7 @@
 #include "options.h"
 #include "output.h"
 #include "demangle.h"
+#include "debug.h"
 
 #include "dict.h"
 
@@ -25,6 +26,8 @@ my_demangle(const char *function_name) {
 	extern char *__cxa_demangle(const char *, char *, size_t *, int *);
 	int status = 0;
 #endif
+
+	debug(DEBUG_FUNCTION, "my_demangle(name=%s)", function_name);
 
 	if (!d)
 		d = dict_init(dict_key2hash_string, dict_key_cmp_string);

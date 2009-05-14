@@ -25,17 +25,18 @@ next_event(void) {
 	int tmp;
 	int stop_signal;
 
+	debug(DEBUG_FUNCTION, "next_event()");
 	if (!list_of_processes) {
-		debug(1, "No more children");
+		debug(DEBUG_EVENT, "event: No more traced programs: exiting");
 		exit(0);
 	}
 	pid = wait(&status);
 	if (pid == -1) {
 		if (errno == ECHILD) {
-			debug(1, "No more children");
+			debug(DEBUG_EVENT, "event: No more traced programs: exiting");
 			exit(0);
 		} else if (errno == EINTR) {
-			debug(1, "wait received EINTR ?");
+			debug(DEBUG_EVENT, "event: none (wait received EINTR?)");
 			event.type = EVENT_NONE;
 			return &event;
 		}
@@ -45,6 +46,7 @@ next_event(void) {
 	event.proc = pid2proc(pid);
 	if (!event.proc) {
 		event.type = EVENT_NEW;
+		debug(DEBUG_EVENT, "event: NEW: pid=%d", pid);
 		return &event;
 	}
 	get_arch_dep(event.proc);
@@ -55,6 +57,7 @@ next_event(void) {
 		event.type = EVENT_NONE;
 		trace_set_options(event.proc, event.proc->pid);
 		continue_process(event.proc->pid);
+		debug(DEBUG_EVENT, "event: NONE: pid=%d (enabling breakpoints)", pid);
 		return &event;
 	}
 	if (opt_i) {
@@ -65,22 +68,27 @@ next_event(void) {
 		case 1:
 			event.type = EVENT_SYSCALL;
 			event.e_un.sysnum = tmp;
+			debug(DEBUG_EVENT, "event: SYSCALL: pid=%d, sysnum=%d", pid, tmp);
 			return &event;
 		case 2:
 			event.type = EVENT_SYSRET;
 			event.e_un.sysnum = tmp;
+			debug(DEBUG_EVENT, "event: SYSRET: pid=%d, sysnum=%d", pid, tmp);
 			return &event;
 		case 3:
 			event.type = EVENT_ARCH_SYSCALL;
 			event.e_un.sysnum = tmp;
+			debug(DEBUG_EVENT, "event: ARCH_SYSCALL: pid=%d, sysnum=%d", pid, tmp);
 			return &event;
 		case 4:
 			event.type = EVENT_ARCH_SYSRET;
 			event.e_un.sysnum = tmp;
+			debug(DEBUG_EVENT, "event: ARCH_SYSRET: pid=%d, sysnum=%d", pid, tmp);
 			return &event;
 		case -1:
 			event.type = EVENT_NONE;
 			continue_process(event.proc->pid);
+			debug(DEBUG_EVENT, "event: NONE: pid=%d (syscall_p returned -1)", pid);
 			return &event;
 	}
 	if (WIFSTOPPED(status) && ((status>>16 == PTRACE_EVENT_FORK) || (status>>16 == PTRACE_EVENT_VFORK) || (status>>16 == PTRACE_EVENT_CLONE))) {
@@ -88,24 +96,29 @@ next_event(void) {
 		ptrace(PTRACE_GETEVENTMSG, pid, NULL, &data);
 		event.type = EVENT_CLONE;
 		event.e_un.newpid = data;
+		debug(DEBUG_EVENT, "event: CLONE: pid=%d, newpid=%d", pid, (int)data);
 		return &event;
 	}
 	if (WIFSTOPPED(status) && (status>>16 == PTRACE_EVENT_EXEC)) {
 		event.type = EVENT_EXEC;
+		debug(DEBUG_EVENT, "event: EXEC: pid=%d", pid);
 		return &event;
 	}
 	if (WIFEXITED(status)) {
 		event.type = EVENT_EXIT;
 		event.e_un.ret_val = WEXITSTATUS(status);
+		debug(DEBUG_EVENT, "event: EXIT: pid=%d, status=%d", pid, event.e_un.ret_val);
 		return &event;
 	}
 	if (WIFSIGNALED(status)) {
 		event.type = EVENT_EXIT_SIGNAL;
 		event.e_un.signum = WTERMSIG(status);
+		debug(DEBUG_EVENT, "event: EXIT_SIGNAL: pid=%d, signum=%d", pid, event.e_un.signum);
 		return &event;
 	}
 	if (!WIFSTOPPED(status)) {
 		event.type = EVENT_NONE;
+		debug(DEBUG_EVENT, "event: NONE: pid=%d (wait error?)", pid);
 		return &event;
 	}
 
@@ -133,6 +146,7 @@ next_event(void) {
 	    && stop_signal != SIGTRAP) {
 		event.type = EVENT_SIGNAL;
 		event.e_un.signum = stop_signal;
+		debug(DEBUG_EVENT, "event: SIGNAL: pid=%d, signum=%d", pid, stop_signal);
 		return &event;
 	}
 
@@ -151,6 +165,7 @@ next_event(void) {
 		breakpoints_init(event.proc);
 		event.proc->pid = saved_pid;
 		continue_process(event.proc->pid);
+		debug(DEBUG_EVENT, "event: NONE: pid=%d (was_exec; placed breakpoints)", pid);
 		return &event;
 	}
 
@@ -161,5 +176,6 @@ next_event(void) {
 	}
 	event.e_un.brk_addr =
 	    event.proc->instruction_pointer - DECR_PC_AFTER_BREAK;
+	debug(DEBUG_EVENT, "event: BREAKPOINT: pid=%d, addr=%p", pid, event.e_un.brk_addr);
 	return &event;
 }

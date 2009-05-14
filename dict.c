@@ -36,6 +36,8 @@ dict_init(unsigned int (*key2hash) (void *),
 	struct dict *d;
 	int i;
 
+	debug(DEBUG_FUNCTION, "dict_init()");
+
 	d = malloc(sizeof(struct dict));
 	if (!d) {
 		perror("malloc()");
@@ -54,6 +56,7 @@ dict_clear(struct dict *d) {
 	int i;
 	struct dict_entry *entry, *nextentry;
 
+	debug(DEBUG_FUNCTION, "dict_clear()");
 	assert(d);
 	for (i = 0; i < DICTTABLESIZE; i++) {
 		for (entry = d->buckets[i]; entry != NULL; entry = nextentry) {
@@ -68,8 +71,13 @@ dict_clear(struct dict *d) {
 int
 dict_enter(struct dict *d, void *key, void *value) {
 	struct dict_entry *entry, *newentry;
-	unsigned int hash = d->key2hash(key);
-	unsigned int bucketpos = hash % DICTTABLESIZE;
+	unsigned int hash;
+	unsigned int bucketpos;
+
+	debug(DEBUG_FUNCTION, "dict_enter()");
+
+	hash = d->key2hash(key);
+	bucketpos = hash % DICTTABLESIZE;
 
 	assert(d);
 	newentry = malloc(sizeof(struct dict_entry));
@@ -98,9 +106,14 @@ dict_enter(struct dict *d, void *key, void *value) {
 
 void *
 dict_find_entry(struct dict *d, void *key) {
-	unsigned int hash = d->key2hash(key);
-	unsigned int bucketpos = hash % DICTTABLESIZE;
+	unsigned int hash;
+	unsigned int bucketpos;
 	struct dict_entry *entry;
+
+	debug(DEBUG_FUNCTION, "dict_find_entry()");
+
+	hash = d->key2hash(key);
+	bucketpos = hash % DICTTABLESIZE;
 
 	assert(d);
 	for (entry = d->buckets[bucketpos]; entry; entry = entry->next) {
@@ -118,6 +131,8 @@ void
 dict_apply_to_all(struct dict *d,
 		  void (*func) (void *key, void *value, void *data), void *data) {
 	int i;
+
+	debug(DEBUG_FUNCTION, "dict_apply_to_all()");
 
 	if (!d) {
 		return;
@@ -170,6 +185,8 @@ struct dict *
 dict_clone(struct dict *old, void * (*key_clone)(void*), void * (*value_clone)(void*)) {
 	struct dict *d;
 	int i;
+
+	debug(DEBUG_FUNCTION, "dict_clone()");
 
 	d = malloc(sizeof(struct dict));
 	if (!d) {

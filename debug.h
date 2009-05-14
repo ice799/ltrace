@@ -1,23 +1,17 @@
 #include <features.h>
 
-void debug_(int level, const char *file, int line, const char *func,
-		const char *fmt, ...) __attribute__((format(printf,5,6)));
+/* debug levels:
+ */
+enum {
+	DEBUG_EVENT    = 0x10,
+	DEBUG_PROCESS  = 0x20,
+	DEBUG_FUNCTION = 0x40
+};
+
+void debug_(int level, const char *file, int line,
+		const char *fmt, ...) __attribute__((format(printf,4,5)));
 
 int xinfdump(long, void *, int);
 
-# define debug(level, expr...) debug_(level, __FILE__, __LINE__, DEBUG_FUNCTION, expr)
+# define debug(level, expr...) debug_(level, __FILE__, __LINE__, expr)
 
-/* Version 2.4 and later of GCC define a magical variable `__PRETTY_FUNCTION__'
-   which contains the name of the function currently being defined.
-   This is broken in G++ before version 2.6.
-   C9x has a similar variable called __func__, but prefer the GCC one since
-   it demangles C++ function names.  */
-# if __GNUC_PREREQ (2, 4)
-#   define DEBUG_FUNCTION	__PRETTY_FUNCTION__
-# else
-#  if defined __STDC_VERSION__ && __STDC_VERSION__ >= 199901L
-#   define DEBUG_FUNCTION	__func__
-#  else
-#   define DEBUG_FUNCTION	"???"
-#  endif
-# endif
