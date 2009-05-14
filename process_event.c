@@ -343,9 +343,7 @@ process_syscall(Event *event) {
 		output_left(LT_TOF_SYSCALL, event->proc,
 			    sysname(event->proc, event->e_un.sysnum));
 	}
-	if (fork_p(event->proc, event->e_un.sysnum)) {
-		disable_all_breakpoints(event->proc);
-	} else if (event->proc->breakpoints_enabled == 0) {
+	if (event->proc->breakpoints_enabled == 0) {
 		enable_all_breakpoints(event->proc);
 	}
 	callstack_push_syscall(event->proc, event->e_un.sysnum);
@@ -398,18 +396,6 @@ static void
 process_sysret(Event *event) {
 	if (opt_T || options.summary) {
 		calc_time_spent(event->proc);
-	}
-	if (fork_p(event->proc, event->e_un.sysnum)) {
-		if (options.follow) {
-			arg_type_info info;
-			info.type = ARGTYPE_LONG;
-			pid_t child =
-			    gimme_arg(LT_TOF_SYSCALLR, event->proc, -1, &info);
-			if (child > 0) {
-				open_pid(child, 0);
-			}
-		}
-		enable_all_breakpoints(event->proc);
 	}
 	callstack_pop(event->proc);
 	if (options.syscalls) {
