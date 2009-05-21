@@ -111,8 +111,10 @@ enable_all_breakpoints(Process *proc) {
 		}
 #ifdef __mips__
 		{
-			// I'm sure there is a nicer way to do this. We need to
-			// insert breakpoints _after_ the child has been started.
+			/*
+			 * I'm sure there is a nicer way to do this. We need to
+			 * insert breakpoints _after_ the child has been started.
+			 */
 			struct library_symbol *sym;
 			struct library_symbol *new_sym;
 			sym=proc->list_of_symbols;

@@ -20,8 +20,10 @@ debug_(int level, const char *file, int line, const char *fmt, ...) {
 	output_line(NULL, "DEBUG: %s:%d: %s", file, line, buf);
 }
 
-// The following section provides a way to print things, like hex dumps,
-// with out using buffered output.  This was written by Steve Munroe of IBM.
+/*
+ * The following section provides a way to print things, like hex dumps,
+ * with out using buffered output.  This was written by Steve Munroe of IBM.
+ */
 
 #include <stdio.h>
 #include <errno.h>

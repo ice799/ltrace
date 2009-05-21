@@ -60,43 +60,43 @@ enum arg_type {
 typedef struct arg_type_info_t {
 	enum arg_type type;
 	union {
-		// ARGTYPE_ENUM
+		/* ARGTYPE_ENUM */
 		struct {
 			size_t entries;
 			char **keys;
 			int *values;
 		} enum_info;
 
-		// ARGTYPE_ARRAY
+		/* ARGTYPE_ARRAY */
 		struct {
 			struct arg_type_info_t *elt_type;
 			size_t elt_size;
 			int len_spec;
 		} array_info;
 
-		// ARGTYPE_STRING_N
+		/* ARGTYPE_STRING_N */
 		struct {
 			int size_spec;
 		} string_n_info;
 
-		// ARGTYPE_STRUCT
+		/* ARGTYPE_STRUCT */
 		struct {
-			struct arg_type_info_t **fields;	// NULL-terminated
+			struct arg_type_info_t **fields;	/* NULL-terminated */
 			size_t *offset;
 			size_t size;
 		} struct_info;
 
-		// ARGTYPE_POINTER
+		/* ARGTYPE_POINTER */
 		struct {
 			struct arg_type_info_t *info;
 		} ptr_info;
 
-		// ARGTYPE_FLOAT
+		/* ARGTYPE_FLOAT */
 		struct {
 			size_t float_index;
 		} float_info;
 
-		// ARGTYPE_DOUBLE
+		/* ARGTYPE_DOUBLE */
 		struct {
 			size_t float_index;
 		} double_info;
@@ -155,7 +155,8 @@ struct callstack_element {
 typedef enum Process_State Process_State;
 enum Process_State {
 	STATE_ATTACHED = 0,
-	STATE_BEING_CREATED
+	STATE_BEING_CREATED,
+	STATE_IGNORED  /* ignore this process (it's a fork and no -f was used) */
 };
 
 typedef struct Process Process;

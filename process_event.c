@@ -139,7 +139,11 @@ process_clone(Event * event) {
 			enable_breakpoint(p->pid, p->breakpoint_being_enabled);
 			p->breakpoint_being_enabled = NULL;
 		}
-		p->state = STATE_ATTACHED;
+		if (event->proc->state == STATE_ATTACHED && options.follow) {
+			p->state = STATE_ATTACHED;
+		} else {
+			p->state = STATE_IGNORED;
+		}
 		continue_process(p->pid);
 		p->next = list_of_processes;
 		list_of_processes = p;
@@ -166,7 +170,11 @@ process_new(Event * event) {
 			enable_breakpoint(proc->pid, proc->breakpoint_being_enabled);
 			proc->breakpoint_being_enabled = NULL;
 		}
-		proc->state = STATE_ATTACHED;
+		if (proc->parent->state == STATE_ATTACHED && options.follow) {
+			proc->state = STATE_ATTACHED;
+		} else {
+			proc->state = STATE_IGNORED;
+		}
 		continue_process(proc->pid);
 	}
 }
@@ -322,25 +330,31 @@ process_signal(Event *event) {
 		remove_proc(event->proc);
 		return;
 	}
-	output_line(event->proc, "--- %s (%s) ---",
-		    shortsignal(event->proc, event->e_un.signum),
-		    strsignal(event->e_un.signum));
+	if (event->proc->state != STATE_IGNORED) {
+		output_line(event->proc, "--- %s (%s) ---",
+				shortsignal(event->proc, event->e_un.signum),
+				strsignal(event->e_un.signum));
+	}
 	continue_after_signal(event->proc->pid, event->e_un.signum);
 }
 
 static void
 process_exit(Event *event) {
 	debug(DEBUG_FUNCTION, "process_exit(pid=%d, status=%d)", event->proc->pid, event->e_un.ret_val);
-	output_line(event->proc, "+++ exited (status %d) +++",
-		    event->e_un.ret_val);
+	if (event->proc->state != STATE_IGNORED) {
+		output_line(event->proc, "+++ exited (status %d) +++",
+				event->e_un.ret_val);
+	}
 	remove_proc(event->proc);
 }
 
 static void
 process_exit_signal(Event *event) {
 	debug(DEBUG_FUNCTION, "process_exit_signal(pid=%d, signum=%d)", event->proc->pid, event->e_un.signum);
-	output_line(event->proc, "+++ killed by %s +++",
-		    shortsignal(event->proc, event->e_un.signum));
+	if (event->proc->state != STATE_IGNORED) {
+		output_line(event->proc, "+++ killed by %s +++",
+				shortsignal(event->proc, event->e_un.signum));
+	}
 	remove_proc(event->proc);
 }
 
@@ -371,20 +385,27 @@ remove_proc(Process *proc) {
 static void
 process_syscall(Event *event) {
 	debug(DEBUG_FUNCTION, "process_syscall(pid=%d, sysnum=%d)", event->proc->pid, event->e_un.sysnum);
-	if (options.syscalls) {
-		output_left(LT_TOF_SYSCALL, event->proc,
-			    sysname(event->proc, event->e_un.sysnum));
+	if (event->proc->state != STATE_IGNORED) {
+		if (options.syscalls) {
+			output_left(LT_TOF_SYSCALL, event->proc,
+					sysname(event->proc, event->e_un.sysnum));
+		}
+		if (event->proc->breakpoints_enabled == 0) {
+			enable_all_breakpoints(event->proc);
+		}
+		callstack_push_syscall(event->proc, event->e_un.sysnum);
 	}
-	if (event->proc->breakpoints_enabled == 0) {
-		enable_all_breakpoints(event->proc);
-	}
-	callstack_push_syscall(event->proc, event->e_un.sysnum);
 	continue_process(event->proc->pid);
 }
 
 static void
 process_exec(Event * event) {
 	debug(DEBUG_FUNCTION, "process_exec(pid=%d)", event->proc->pid);
+	if (event->proc->state == STATE_IGNORED) {
+		untrace_pid(event->proc->pid);
+		remove_proc(event->proc);
+	}
+	/* TODO */
 	output_line(event->proc, "--- exec() ---");
 	abort();
 }
@@ -392,14 +413,16 @@ process_exec(Event * event) {
 static void
 process_arch_syscall(Event *event) {
 	debug(DEBUG_FUNCTION, "process_arch_syscall(pid=%d, sysnum=%d)", event->proc->pid, event->e_un.sysnum);
-	if (options.syscalls) {
-		output_left(LT_TOF_SYSCALL, event->proc,
-				arch_sysname(event->proc, event->e_un.sysnum));
+	if (event->proc->state != STATE_IGNORED) {
+		if (options.syscalls) {
+			output_left(LT_TOF_SYSCALL, event->proc,
+					arch_sysname(event->proc, event->e_un.sysnum));
+		}
+		if (event->proc->breakpoints_enabled == 0) {
+			enable_all_breakpoints(event->proc);
+		}
+		callstack_push_syscall(event->proc, 0xf0000 + event->e_un.sysnum);
 	}
-	if (event->proc->breakpoints_enabled == 0) {
-		enable_all_breakpoints(event->proc);
-	}
-	callstack_push_syscall(event->proc, 0xf0000 + event->e_un.sysnum);
 	continue_process(event->proc->pid);
 }
 
@@ -430,13 +453,15 @@ calc_time_spent(Process *proc) {
 static void
 process_sysret(Event *event) {
 	debug(DEBUG_FUNCTION, "process_sysret(pid=%d, sysnum=%d)", event->proc->pid, event->e_un.sysnum);
-	if (opt_T || options.summary) {
-		calc_time_spent(event->proc);
-	}
-	callstack_pop(event->proc);
-	if (options.syscalls) {
-		output_right(LT_TOF_SYSCALLR, event->proc,
-			     sysname(event->proc, event->e_un.sysnum));
+	if (event->proc->state != STATE_IGNORED) {
+		if (opt_T || options.summary) {
+			calc_time_spent(event->proc);
+		}
+		callstack_pop(event->proc);
+		if (options.syscalls) {
+			output_right(LT_TOF_SYSCALLR, event->proc,
+					sysname(event->proc, event->e_un.sysnum));
+		}
 	}
 	continue_process(event->proc->pid);
 }
@@ -444,13 +469,15 @@ process_sysret(Event *event) {
 static void
 process_arch_sysret(Event *event) {
 	debug(DEBUG_FUNCTION, "process_arch_sysret(pid=%d, sysnum=%d)", event->proc->pid, event->e_un.sysnum);
-	if (opt_T || options.summary) {
-		calc_time_spent(event->proc);
-	}
-	callstack_pop(event->proc);
-	if (options.syscalls) {
-		output_right(LT_TOF_SYSCALLR, event->proc,
-				arch_sysname(event->proc, event->e_un.sysnum));
+	if (event->proc->state != STATE_IGNORED) {
+		if (opt_T || options.summary) {
+			calc_time_spent(event->proc);
+		}
+		callstack_pop(event->proc);
+		if (options.syscalls) {
+			output_right(LT_TOF_SYSCALLR, event->proc,
+					arch_sysname(event->proc, event->e_un.sysnum));
+		}
 	}
 	continue_process(event->proc->pid);
 }
@@ -548,28 +575,32 @@ process_breakpoint(Event *event) {
 			for (j = event->proc->callstack_depth - 1; j > i; j--) {
 				callstack_pop(event->proc);
 			}
-			if (opt_T || options.summary) {
-				calc_time_spent(event->proc);
+			if (event->proc->state != STATE_IGNORED) {
+				if (opt_T || options.summary) {
+					calc_time_spent(event->proc);
+				}
 			}
 			callstack_pop(event->proc);
 			event->proc->return_addr = event->e_un.brk_addr;
-			output_right(LT_TOF_FUNCTIONR, event->proc,
-				     event->proc->callstack[i].c_un.libfunc->
-				     name);
+			if (event->proc->state != STATE_IGNORED) {
+				output_right(LT_TOF_FUNCTIONR, event->proc,
+						event->proc->callstack[i].c_un.libfunc->name);
+			}
 			continue_after_breakpoint(event->proc,
-						  address2bpstruct(event->proc,
-								   event->e_un.
-								   brk_addr));
+					address2bpstruct(event->proc,
+						event->e_un.brk_addr));
 			return;
 		}
 	}
 
 	if ((sbp = address2bpstruct(event->proc, event->e_un.brk_addr))) {
-		event->proc->stack_pointer = get_stack_pointer(event->proc);
-		event->proc->return_addr =
-		    get_return_addr(event->proc, event->proc->stack_pointer);
-		output_left(LT_TOF_FUNCTION, event->proc, sbp->libsym->name);
-		callstack_push_symfunc(event->proc, sbp->libsym);
+		if (event->proc->state != STATE_IGNORED) {
+			event->proc->stack_pointer = get_stack_pointer(event->proc);
+			event->proc->return_addr =
+				get_return_addr(event->proc, event->proc->stack_pointer);
+			output_left(LT_TOF_FUNCTION, event->proc, sbp->libsym->name);
+			callstack_push_symfunc(event->proc, sbp->libsym);
+		}
 #ifdef PLT_REINITALISATION_BP
 		if (event->proc->need_to_reinitialize_breakpoints
 		    && (strcmp(sbp->libsym->name, PLTs_initialized_by_here) ==
@@ -581,8 +612,10 @@ process_breakpoint(Event *event) {
 		return;
 	}
 
-	output_line(event->proc, "unexpected breakpoint at %p",
-		    (void *)event->e_un.brk_addr);
+	if (event->proc->state != STATE_IGNORED) {
+		output_line(event->proc, "unexpected breakpoint at %p",
+				(void *)event->e_un.brk_addr);
+	}
 	continue_process(event->proc->pid);
 }
 
