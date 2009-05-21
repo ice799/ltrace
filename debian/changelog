@@ -1,6 +1,15 @@
+ltrace (0.5.2-1) unstable; urgency=low
+
+  * New upstream release                                   (closes: Bug#463023)
+  * New approach for following forks; it should now attach
+    every newly created process                            (closes: Bug#483827)
+  * Fixed SEGFAULT when killing ltrace with SIGINT or SIGTERM (closes: #458923)
+
+ -- Juan Cespedes <cespedes@debian.org>  XXX
+
 ltrace (0.5.1-2) unstable; urgency=low
 
-  * Red-added armel and armeb to debian/control (closes: Bug#46023)
+  * Red-added armel and armeb to debian/control (closes: Bug#463023)
 
  -- Juan Cespedes <cespedes@debian.org>  Tue, 16 Dec 2008 13:00:50 +0100
 

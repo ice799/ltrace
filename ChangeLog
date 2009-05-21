@@ -1,7 +1,28 @@
+2009-05-21  Juan Cespedes <cespedes@debian.org>
+
+	* Release version 0.5.2
+	* new fork() and clone() approach:
+	  + used PTRACE_O_TRACE{FORK,VFORK,CLONE} to trace newly created
+	    processes instead of figuring it out whether a given syscall
+	    would create another process or not
+	  That way, new processes are always traced from the very beginning
+	* Use PTRACE_O_TRACEEXEC to check if a process has called exec()
+
+2009-05-07  Juan Cespedes <cespedes@debian.org>
+
+	* clean-up of structs Process, Breakpoint, Function and Event
+
+2009-04-07  Juan Cespedes <cespedes@debian.org>
+
+	* Improved documentation
+	* Cleaning up of "struct options"
+	* wait_for_something -> sysdeps/linux/events.c:next_event()
+	* wait for new children to stop instead of assuming they have stopped
+
 2009-02-11  Juan Cespedes <cespedes@debian.org>
 
 	* Fixed bug present since the first version (!) of ltrace,
-          which caused many programs to segfault when a signal is received:
+	  which caused many programs to segfault when a signal is received:
 	  + When a breakpoint is hit, and we need to continue with it, we:
 	    1) remove the breakpoint
 	    2) order a SINGLESTEP

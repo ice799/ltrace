@@ -16,9 +16,6 @@
 * Option -I (inter-library calls)
 * Modify ARGTYPE_STRING[0-5] types so that they don't stop displaying chars when '\0' is seen
 * Get rid of EVENT_ARCH_SYSCALL and EVENT_ARCH_SYSRET
-* EVENT_EXEC instead of exec_p()
-* If EVENT_EXEC is received:
-  + Clean structs with breakpoints, open new created program
 * Cleaner way to use breakpoints:
   + BP is placed in the PLT
   + When control hits there:
@@ -39,4 +36,4 @@
 * Create different ltrace processes to trace different children
 * debug: change "-d" option to be something like "-d elf,events", or "-d breakpoints"
 * Find out if a process is sharing memory with its parent?
-* When using -p, find out if that process is sharing memory with other processes
+* When using -p, find out if that process is sharing memory with other procs
