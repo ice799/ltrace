@@ -161,7 +161,7 @@ enum Process_State {
 typedef struct Process Process;
 struct Process {
 	Process_State state;
-	Process *parent;          /* needed by STATE_FUTURE_{FORK,CLONE} */
+	Process *parent;          /* needed by STATE_BEING_CREATED */
 	char *filename;
 	pid_t pid;
 	struct dict *breakpoints;
@@ -259,7 +259,6 @@ extern void *get_stack_pointer(Process *proc);
 extern void *get_return_addr(Process *proc, void *stack_pointer);
 extern void enable_breakpoint(pid_t pid, Breakpoint *sbp);
 extern void disable_breakpoint(pid_t pid, const Breakpoint *sbp);
-extern int fork_p(Process *proc, int sysnum);
 extern int exec_p(Process *proc, int sysnum);
 extern int was_exec(Process *proc, int status);
 extern int syscall_p(Process *proc, int status, int *sysnum);

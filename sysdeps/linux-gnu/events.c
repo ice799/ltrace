@@ -44,8 +44,9 @@ next_event(void) {
 		exit(1);
 	}
 	event.proc = pid2proc(pid);
-	if (!event.proc) {
+	if (!event.proc || event.proc->state == STATE_BEING_CREATED) {
 		event.type = EVENT_NEW;
+		event.e_un.newpid = pid;
 		debug(DEBUG_EVENT, "event: NEW: pid=%d", pid);
 		return &event;
 	}

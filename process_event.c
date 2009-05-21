@@ -131,6 +131,7 @@ process_clone(Event * event) {
 	memcpy(p, event->proc, sizeof(Process));
 	p->breakpoints = dict_clone(event->proc->breakpoints, address_clone, breakpoint_clone);
 	p->pid = event->e_un.newpid;
+	p->parent = event->proc;
 
 	if (pending_new(p->pid)) {
 		pending_new_remove(p->pid);
@@ -144,8 +145,10 @@ process_clone(Event * event) {
 		list_of_processes = p;
 	} else {
 		p->state = STATE_BEING_CREATED;
+		p->next = list_of_processes;
+		list_of_processes = p;
 	}
-	/* look for previous process_new() */
+	continue_process(event->proc->pid);
 }
 
 static void

@@ -95,23 +95,6 @@ umovelong (Process *proc, void *addr, long *result, arg_type_info *info) {
 }
 #endif
 
-
-/* Returns 1 if the sysnum may make a new child to be created
- * (ie, with fork() or clone())
- * Returns 0 otherwise.
- */
-int
-fork_p(Process *proc, int sysnum) {
-	unsigned int i;
-	if (proc->personality
-	    >= sizeof fork_exec_syscalls / sizeof(fork_exec_syscalls[0]))
-		return 0;
-	for (i = 0; i < sizeof(fork_exec_syscalls[0]) / sizeof(int) - 1; ++i)
-		if (sysnum == fork_exec_syscalls[proc->personality][i])
-			return 1;
-	return 0;
-}
-
 /* Returns 1 if the sysnum may make the process exec other program
  */
 int
