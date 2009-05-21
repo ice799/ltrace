@@ -95,53 +95,6 @@ umovelong (Process *proc, void *addr, long *result, arg_type_info *info) {
 }
 #endif
 
-/* Returns 1 if the sysnum may make the process exec other program
- */
-int
-exec_p(Process *proc, int sysnum) {
-	int i;
-	if (proc->personality
-	    >= sizeof fork_exec_syscalls / sizeof(fork_exec_syscalls[0]))
-		return 0;
-	i = sizeof(fork_exec_syscalls[0]) / sizeof(int) - 1;
-	if (sysnum == fork_exec_syscalls[proc->personality][i])
-		return 1;
-	return 0;
-}
-
-/* Check that we just hit an exec.
- */
-int
-was_exec(Process *proc, int status) {
-	if (!WIFSTOPPED (status))
-		return 0;
-
-	if (WSTOPSIG (status) == SIGTRAP
-	    && (status >> 16) == PTRACE_EVENT_EXEC) {
-		debug (1, "detected exec (PTRACE_EVENT_EXEC)");
-		return 1;
-	}
-
-	if (WSTOPSIG (status) == SIGTRAP
-	    && proc->callstack_depth > 0) {
-		/* Check whether this SIGTRAP is received just after
-		   execve is called for this process.  Ideally we'd
-		   like to check that the exec succeeded, but e.g. on
-		   s390 we have no way of knowing, because return
-		   value is not set to -1 (as it should).  Never mind,
-		   reseting breakpoints for current process doesn't
-		   hurt. */
-		struct callstack_element *elem;
-		elem = &proc->callstack[proc->callstack_depth - 1];
-		if (elem && elem->is_syscall &&  exec_p(proc, elem->c_un.syscall)) {
-			debug (1, "detected exec (callstack)");
-			return 1;
-		}
-	}
-
-	return 0;
-}
-
 void
 trace_me(void) {
 	debug(DEBUG_PROCESS, "trace_me: pid=%d\n", getpid());

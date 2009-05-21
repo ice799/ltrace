@@ -16,7 +16,7 @@
 #define	MAX_DELAY	100000	/* 100000 microseconds = 0.1 seconds */
 
 /*
- * Returns a file name corresponding to a running pid
+ * Returns a (malloc'd) file name corresponding to a running pid
  */
 char *
 pid2name(pid_t pid) {

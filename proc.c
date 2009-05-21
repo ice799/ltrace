@@ -20,7 +20,7 @@ open_program(char *filename, pid_t pid) {
 		perror("malloc");
 		exit(1);
 	}
-	proc->filename = filename;
+	proc->filename = strdup(filename);
 	proc->breakpoints_enabled = -1;
 	if (pid) {
 		proc->pid = pid;

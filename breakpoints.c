@@ -180,6 +180,7 @@ breakpoints_init(Process *proc) {
 	proc->breakpoints = dict_init(dict_key2hash_int, dict_key_cmp_int);
 
 	if (options.libcalls && proc->filename) {
+		/* FIXME: memory leak when called by exec(): */
 		proc->list_of_symbols = read_elf(proc);
 		if (opt_e) {
 			struct library_symbol **tmp1 = &(proc->list_of_symbols);

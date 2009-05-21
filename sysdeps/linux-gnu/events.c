@@ -151,25 +151,6 @@ next_event(void) {
 		return &event;
 	}
 
-	if (was_exec(event.proc, status)) {
-		pid_t saved_pid;
-
-		event.type = EVENT_NONE;
-		event.e_un.signum = WSTOPSIG(status);
-		debug(1, "Placing breakpoints for the new program");
-		event.proc->mask_32bit = 0;
-		event.proc->personality = 0;
-		event.proc->arch_ptr = NULL;
-		event.proc->filename = pid2name(event.proc->pid);
-		saved_pid = event.proc->pid;
-		event.proc->pid = 0;
-		breakpoints_init(event.proc);
-		event.proc->pid = saved_pid;
-		continue_process(event.proc->pid);
-		debug(DEBUG_EVENT, "event: NONE: pid=%d (was_exec; placed breakpoints)", pid);
-		return &event;
-	}
-
 	event.type = EVENT_BREAKPOINT;
 	if (!event.proc->instruction_pointer) {
 		event.proc->instruction_pointer =

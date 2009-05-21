@@ -400,14 +400,27 @@ process_syscall(Event *event) {
 
 static void
 process_exec(Event * event) {
-	debug(DEBUG_FUNCTION, "process_exec(pid=%d)", event->proc->pid);
-	if (event->proc->state == STATE_IGNORED) {
-		untrace_pid(event->proc->pid);
-		remove_proc(event->proc);
+	Process * proc = event->proc;
+	pid_t saved_pid;
+
+	debug(DEBUG_FUNCTION, "process_exec(pid=%d)", proc->pid);
+	if (proc->state == STATE_IGNORED) {
+		untrace_pid(proc->pid);
+		remove_proc(proc);
+		return;
 	}
-	/* TODO */
-	output_line(event->proc, "--- exec() ---");
-	abort();
+	output_line(proc, "--- Called exec() ---");
+	proc->mask_32bit = 0;
+	proc->personality = 0;
+	proc->arch_ptr = NULL;
+	free(proc->filename);
+	proc->filename = pid2name(proc->pid);
+	saved_pid = proc->pid;
+	proc->pid = 0;
+	breakpoints_init(proc);
+	proc->pid = saved_pid;
+	proc->callstack_depth = 0;
+	continue_process(proc->pid);
 }
 
 static void

@@ -260,8 +260,6 @@ extern void *get_stack_pointer(Process *proc);
 extern void *get_return_addr(Process *proc, void *stack_pointer);
 extern void enable_breakpoint(pid_t pid, Breakpoint *sbp);
 extern void disable_breakpoint(pid_t pid, const Breakpoint *sbp);
-extern int exec_p(Process *proc, int sysnum);
-extern int was_exec(Process *proc, int status);
 extern int syscall_p(Process *proc, int status, int *sysnum);
 extern void continue_process(pid_t pid);
 extern void continue_after_signal(pid_t pid, int signum);
