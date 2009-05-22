@@ -60,33 +60,34 @@ get_arch_dep(Process *proc) {
 int
 syscall_p(Process *proc, int status, int *sysnum) {
 	if (WIFSTOPPED(status)
-	    && WSTOPSIG(status) == (SIGTRAP | proc->tracesysgood)) {
-       /* get the user's pc (plus 8) */
-       long pc = (long)get_instruction_pointer(proc);
-       /* fetch the SWI instruction */
-       int insn = ptrace(PTRACE_PEEKTEXT, proc->pid, pc - 4, 0);
-       int num = ptrace(PTRACE_PEEKTEXT, proc->pid, pc - 8, 0);
-       
-/*
-  On a mipsel,  syscall looks like:
-  24040fa1    li v0, 0x0fa1   # 4001 --> _exit syscall
-  0000000c    syscall
- */
-      if(insn!=0x0000000c){
-          return 0;
-      }
+			&& WSTOPSIG(status) == (SIGTRAP | proc->tracesysgood)) {
+		/* get the user's pc (plus 8) */
+		long pc = (long)get_instruction_pointer(proc);
+		/* fetch the SWI instruction */
+		int insn = ptrace(PTRACE_PEEKTEXT, proc->pid, pc - 4, 0);
+		int num = ptrace(PTRACE_PEEKTEXT, proc->pid, pc - 8, 0);
 
-      *sysnum = (num & 0xFFFF) - 4000;
-      /* if it is a syscall, return 1 or 2 */
-      if (proc->callstack_depth > 0 &&
-          proc->callstack[proc->callstack_depth - 1].is_syscall) {
-          return 2;
-      }
-      
-      if (*sysnum >= 0) {
-          return 1;
-      }
-   }
+		/*
+		   On a mipsel,  syscall looks like:
+		   24040fa1    li v0, 0x0fa1   # 4001 --> _exit syscall
+		   0000000c    syscall
+		 */
+		if(insn!=0x0000000c){
+			return 0;
+		}
+
+		*sysnum = (num & 0xFFFF) - 4000;
+		/* if it is a syscall, return 1 or 2 */
+		if (proc->callstack_depth > 0 &&
+				proc->callstack[proc->callstack_depth - 1].is_syscall &&
+				proc->callstack[proc->callstack_depth - 1].c_un.syscall == *sysnum) {
+			return 2;
+		}
+
+		if (*sysnum >= 0) {
+			return 1;
+		}
+	}
 	return 0;
 }
 /**
@@ -119,34 +120,34 @@ I'm not doing any floating point support here.
 */
 long
 gimme_arg(enum tof type, Process *proc, int arg_num, arg_type_info *info) {
-    long ret;
-    debug(2,"type %d arg %d",type,arg_num);
-    if (type == LT_TOF_FUNCTION || type == LT_TOF_SYSCALL){
-        if(arg_num <4){
-            ret=ptrace(PTRACE_PEEKUSER,proc->pid,off_a0+arg_num,0);
-            debug(2,"ret = %#lx",ret);
-            return ret;
-        } else {
-            // If we need this, I think we can look at [sp+16] for arg_num==4.
-            CP;
-            return 0;
-        }
-    } 
-    if(arg_num>=0){
-       fprintf(stderr,"args on return?");
-    }
-    if(type == LT_TOF_FUNCTIONR) {
-        return  ptrace(PTRACE_PEEKUSER,proc->pid,off_v0,0);
-    }
-    if (type == LT_TOF_SYSCALLR) {
-        unsigned a3=ptrace(PTRACE_PEEKUSER, proc->pid,off_a3,0);
-        unsigned v0=ptrace(PTRACE_PEEKUSER, proc->pid,off_v0,0);
-        if(!a3){
-            return v0;
-        }
-        return -1;
-    }
-    fprintf(stderr, "gimme_arg called with wrong arguments\n");
+	long ret;
+	debug(2,"type %d arg %d",type,arg_num);
+	if (type == LT_TOF_FUNCTION || type == LT_TOF_SYSCALL){
+		if(arg_num <4){
+			ret=ptrace(PTRACE_PEEKUSER,proc->pid,off_a0+arg_num,0);
+			debug(2,"ret = %#lx",ret);
+			return ret;
+		} else {
+			// If we need this, I think we can look at [sp+16] for arg_num==4.
+			CP;
+			return 0;
+		}
+	} 
+	if(arg_num>=0){
+		fprintf(stderr,"args on return?");
+	}
+	if(type == LT_TOF_FUNCTIONR) {
+		return  ptrace(PTRACE_PEEKUSER,proc->pid,off_v0,0);
+	}
+	if (type == LT_TOF_SYSCALLR) {
+		unsigned a3=ptrace(PTRACE_PEEKUSER, proc->pid,off_a3,0);
+		unsigned v0=ptrace(PTRACE_PEEKUSER, proc->pid,off_v0,0);
+		if(!a3){
+			return v0;
+		}
+		return -1;
+	}
+	fprintf(stderr, "gimme_arg called with wrong arguments\n");
 	return 0;
 }
 

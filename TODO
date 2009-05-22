@@ -37,3 +37,4 @@
 * debug: change "-d" option to be something like "-d elf,events", or "-d breakpoints"
 * Find out if a process is sharing memory with its parent?
 * When using -p, find out if that process is sharing memory with other procs
+* After a clone(), syscalls may be seen as sysrets in s390 (see trace.c:syscall_p())

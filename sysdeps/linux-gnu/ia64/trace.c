@@ -106,8 +106,8 @@ syscall_p(Process *proc, int status, int *sysnum) {
 		if (insn == 0x1000000000 || insn == 0x1ffffffffff) {
 			*sysnum = r15;
 			if (proc->callstack_depth > 0 &&
-			    proc->callstack[proc->callstack_depth -
-					    1].is_syscall) {
+				proc->callstack[proc->callstack_depth - 1].is_syscall &&
+				proc->callstack[proc->callstack_depth - 1].c_un.syscall == *sysnum) {
 				return 2;
 			}
 			return 1;

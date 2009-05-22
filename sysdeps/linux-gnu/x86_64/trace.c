@@ -41,7 +41,8 @@ syscall_p(Process *proc, int status, int *sysnum) {
 		*sysnum = ptrace(PTRACE_PEEKUSER, proc->pid, 8 * ORIG_RAX, 0);
 
 		if (proc->callstack_depth > 0 &&
-		    proc->callstack[proc->callstack_depth - 1].is_syscall) {
+				proc->callstack[proc->callstack_depth - 1].is_syscall &&
+				proc->callstack[proc->callstack_depth - 1].c_un.syscall == *sysnum) {
 			return 2;
 		}
 

@@ -36,9 +36,8 @@ syscall_p(Process *proc, int status, int *sysnum) {
 		if (*sysnum >= 0) {
 			depth = proc->callstack_depth;
 			if (depth > 0 &&
-			    proc->callstack[depth - 1].is_syscall &&
-			    proc->callstack[depth - 1].c_un.syscall ==
-			    *sysnum) {
+					proc->callstack[depth - 1].is_syscall &&
+					proc->callstack[depth - 1].c_un.syscall == *sysnum) {
 				return 2;
 			} else {
 				return 1;

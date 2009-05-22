@@ -33,9 +33,9 @@ syscall_p(Process *proc, int status, int *sysnum) {
 		insn = ptrace(PTRACE_PEEKTEXT, proc->pid, ip, 0);
 		if ((insn & 0xc1f8007f) == 0x81d00010) {
 			*sysnum = ((proc_archdep *) proc->arch_ptr)->regs.r_g1;
-			if ((proc->callstack_depth > 0)
-			    && proc->callstack[proc->callstack_depth -
-					       1].is_syscall) {
+			if (proc->callstack_depth > 0 &&
+					proc->callstack[proc->callstack_depth - 1].is_syscall &&
+					proc->callstack[proc->callstack_depth - 1].c_un.syscall == *sysnum) {
 				return 2;
 			} else if (*sysnum >= 0) {
 				return 1;
