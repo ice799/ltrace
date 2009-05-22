@@ -170,7 +170,7 @@ process_new(Event * event) {
 			enable_breakpoint(proc->pid, proc->breakpoint_being_enabled);
 			proc->breakpoint_being_enabled = NULL;
 		}
-		if (proc->parent->state == STATE_ATTACHED && options.follow) {
+		if (options.follow) {
 			proc->state = STATE_ATTACHED;
 		} else {
 			proc->state = STATE_IGNORED;

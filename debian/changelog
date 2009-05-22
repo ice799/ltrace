@@ -5,7 +5,7 @@ ltrace (0.5.2-1) unstable; urgency=low
     every newly created process                            (closes: Bug#483827)
   * Fixed SEGFAULT when killing ltrace with SIGINT or SIGTERM (closes: #458923)
 
- -- Juan Cespedes <cespedes@debian.org>  XXX
+ -- Juan Cespedes <cespedes@debian.org>  Thu, 21 May 2009 19:16:22 +0200
 
 ltrace (0.5.1-2) unstable; urgency=low
 
