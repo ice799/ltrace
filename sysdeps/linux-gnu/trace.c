@@ -40,39 +40,6 @@
 
 #endif /* PTRACE_EVENT_FORK */
 
-static int fork_exec_syscalls[][5] = {
-	{
-#ifdef __NR_fork
-	 __NR_fork,
-#else
-	 -1,
-#endif
-#ifdef __NR_clone
-	 __NR_clone,
-#else
-	 -1,
-#endif
-#ifdef __NR_clone2
-	 __NR_clone2,
-#else
-	 -1,
-#endif
-#ifdef __NR_vfork
-	 __NR_vfork,
-#else
-	 -1,
-#endif
-#ifdef __NR_execve
-	 __NR_execve,
-#else
-	 -1,
-#endif
-	 }
-#ifdef FORK_EXEC_SYSCALLS
-	FORK_EXEC_SYSCALLS
-#endif
-};
-
 #ifdef ARCH_HAVE_UMOVELONG
 extern int arch_umovelong (Process *, void *, long *, arg_type_info *);
 int

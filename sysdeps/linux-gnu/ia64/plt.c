@@ -6,9 +6,9 @@
 /* A bundle is 128 bits */
 #define BUNDLE_SIZE 16
 
-/* 
+/*
 
-  The PLT has 
+  The PLT has
 
   ] 3 bundles as a header
 
@@ -16,7 +16,7 @@
 
   ] Following that, each PLT entry has it's initial code that the GOT entry
     points to.  Each PLT entry has one bundle allocated.
- 
+
   ] Following that, each PLT entry has two bundles of actual PLT code,
     i.e. load up the address from the GOT and jump to it.  This is the
     point we want to insert the breakpoint, as this will be captured

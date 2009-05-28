@@ -23,13 +23,13 @@
    \addtogroup mipsel Mipsel specific functions.
 
    These are the functions that it looks like I need to implement in
-   order to get ltrace to work on our target. 
+   order to get ltrace to work on our target.
 
    @{
  */
 
 /**
-   \param proc The process that had an event. 
+   \param proc The process that had an event.
 
    Called by \c next_event() right after the return from wait.
 
@@ -41,9 +41,9 @@ get_arch_dep(Process *proc) {
 }
 
 /**
-   \param proc Process that had event. 
+   \param proc Process that had event.
    \param status From \c wait()
-   \param sysnum 0-based syscall number. 
+   \param sysnum 0-based syscall number.
    \return 1 if syscall, 2 if sysret, 0 otherwise.
 
    Called by \c next_event() after the call to get_arch_dep()
@@ -93,29 +93,29 @@ syscall_p(Process *proc, int status, int *sysnum) {
 /**
    \param type Function/syscall call or return.
    \param proc The process that had an event.
-   \param arg_num -1 for return value, 
-   \return The argument to fetch. 
+   \param arg_num -1 for return value,
+   \return The argument to fetch.
 
-   A couple of assumptions. 
+   A couple of assumptions.
 
 -  Type is LT_TOF_FUNCTIONR or LT_TOF_SYSCALLR if arg_num==-1. These
    types are only used in calls for output_right(), which only uses -1
    for arg_num.
--  Type is LT_TOF_FUNCTION or LT_TOF_SYSCALL for args 0...4. 
+-  Type is LT_TOF_FUNCTION or LT_TOF_SYSCALL for args 0...4.
 -   I'm only displaying the first 4 args (Registers a0..a3). Good
    enough for now.
 
   Mipsel conventions seem to be:
 - syscall parameters: r4...r9
 - syscall return: if(!a3){ return v0;} else{ errno=v0;return -1;}
-- function call: r4..r7. Not sure how to get arg number 5. 
+- function call: r4..r7. Not sure how to get arg number 5.
 - function return: v0
 
 The argument registers are wiped by a call, so it is a mistake to ask
 for arguments on a return. If ltrace does this, we will need to cache
 arguments somewhere on the call.
 
-I'm not doing any floating point support here. 
+I'm not doing any floating point support here.
 
 */
 long
@@ -132,7 +132,7 @@ gimme_arg(enum tof type, Process *proc, int arg_num, arg_type_info *info) {
 			CP;
 			return 0;
 		}
-	} 
+	}
 	if(arg_num>=0){
 		fprintf(stderr,"args on return?");
 	}
@@ -153,14 +153,14 @@ gimme_arg(enum tof type, Process *proc, int arg_num, arg_type_info *info) {
 
 /**
    \param type Type of call/return
-   \param proc Process to work with. 
-   
+   \param proc Process to work with.
+
    Called by \c output_left(), which is called on a syscall or
    function.
-   
+
    The other architectures stub this out, but seems to be the place to
    stash off the arguments on a call so we have them on the return.
-   
+
 */
 void
 save_register_args(enum tof type, Process *proc) {

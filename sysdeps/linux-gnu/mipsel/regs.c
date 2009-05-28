@@ -37,7 +37,7 @@ get_instruction_pointer(Process *proc) {
    \param proc The process to work on.
    \param addr The address to set to.
 
-   Called by \c continue_after_breakpoint(). 
+   Called by \c continue_after_breakpoint().
 
    \todo Our mips kernel ptrace doesn't support PTRACE_SINGLESTEP, so
    we \c continue_process() after a breakpoint. Check if this is OK.
@@ -59,9 +59,9 @@ get_stack_pointer(Process *proc) {
 /**
    \param proc The process to work on.
    \param stack_pointer The current stack pointer for proc
-   \return The current return address. 
+   \return The current return address.
 
-   Called by \c process_breakpoint(). 
+   Called by \c process_breakpoint().
 
    Mips uses r31 for the return address, so the stack_pointer is
    unused.

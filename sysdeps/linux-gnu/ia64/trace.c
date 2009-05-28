@@ -18,7 +18,7 @@
  * longs */
 union bundle_t {
 	/* An IA64 instruction bundle has a 5 bit header describing the
-	 * type of bundle, then 3 41 bit instructions 
+	 * type of bundle, then 3 41 bit instructions
 	 */
 	struct {
 		struct {
@@ -95,7 +95,7 @@ syscall_p(Process *proc, int status, int *sysnum) {
 		}
 
 		/* We need to support both the older break instruction
-		 * type syscalls, and the new epc type ones.  
+		 * type syscalls, and the new epc type ones.
 		 *
 		 * Bit 20 of the break constant is encoded in the "i"
 		 * bit (bit 36) of the instruction, hence you should
