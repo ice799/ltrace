@@ -4,7 +4,7 @@
 
 #include <sys/types.h>
 #include "ptrace.h"
-#include "ltrace.h"
+#include "main.h"
 
 void *
 get_instruction_pointer(Process *proc) {

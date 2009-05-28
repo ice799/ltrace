@@ -7,7 +7,7 @@
 #include <asm/ptrace.h>
 #include <linux/user.h>
 
-#include "ltrace.h"
+#include "main.h"
 #include "mipsel.h"
 
 #if (!defined(PTRACE_PEEKUSER) && defined(PTRACE_PEEKUSR))

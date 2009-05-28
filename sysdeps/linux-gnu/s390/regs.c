@@ -11,7 +11,7 @@
 #include <sys/ptrace.h>
 #include <asm/ptrace.h>
 
-#include "ltrace.h"
+#include "main.h"
 
 #if (!defined(PTRACE_PEEKUSER) && defined(PTRACE_PEEKUSR))
 # define PTRACE_PEEKUSER PTRACE_PEEKUSR

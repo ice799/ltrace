@@ -8,7 +8,7 @@
 #include <errno.h>
 #include <stdlib.h>
 
-#include "ltrace.h"
+#include "main.h"
 #include "options.h"
 #include "elf.h"
 

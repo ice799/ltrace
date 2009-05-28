@@ -12,7 +12,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "ltrace.h"
+#include "main.h"
 #include "elf.h"
 #include "debug.h"
 #include "options.h"

@@ -1,5 +1,5 @@
 #include <gelf.h>
-#include "ltrace.h"
+#include "main.h"
 #include "elf.h"
 #include "debug.h"
 #include "ptrace.h"

@@ -12,7 +12,7 @@
 #include <pwd.h>
 #include <grp.h>
 
-#include "ltrace.h"
+#include "main.h"
 #include "options.h"
 #include "debug.h"
 #include "sysdep.h"

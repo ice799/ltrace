@@ -4,7 +4,7 @@
 #include <gelf.h>
 #include <stdlib.h>
 
-#include "ltrace.h"
+#include "main.h"
 
 struct ltelf {
 	int fd;

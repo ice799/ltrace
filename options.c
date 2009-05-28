@@ -14,7 +14,7 @@
 #include <getopt.h>
 #endif
 
-#include "ltrace.h"
+#include "main.h"
 #include "options.h"
 #include "defs.h"
 

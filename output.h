@@ -1,6 +1,6 @@
 #include <sys/types.h>
 
-#include "ltrace.h"
+#include "main.h"
 
 void output_line(Process *proc, char *fmt, ...);
 

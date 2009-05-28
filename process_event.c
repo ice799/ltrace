@@ -10,7 +10,7 @@
 #include <assert.h>
 #include <sys/time.h>
 
-#include "ltrace.h"
+#include "main.h"
 #include "output.h"
 #include "options.h"
 #include "elf.h"

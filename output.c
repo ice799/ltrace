@@ -10,7 +10,7 @@
 #include <sys/time.h>
 #include <unistd.h>
 
-#include "ltrace.h"
+#include "main.h"
 #include "options.h"
 #include "output.h"
 #include "dict.h"
@@ -19,7 +19,7 @@
 #include "demangle.h"
 #endif
 
-/* TODO FIXME XXX: include in ltrace.h: */
+/* TODO FIXME XXX: include in main.h: */
 extern struct timeval current_time_spent;
 
 struct dict *dict_opt_c = NULL;

@@ -10,7 +10,7 @@
 #include <sys/ptrace.h>
 #endif
 
-#include "ltrace.h"
+#include "main.h"
 #include "options.h"
 #include "debug.h"
 #include "dict.h"

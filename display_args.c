@@ -8,7 +8,7 @@
 #include <string.h>
 #include <limits.h>
 
-#include "ltrace.h"
+#include "main.h"
 #include "options.h"
 
 static int display_char(int what);

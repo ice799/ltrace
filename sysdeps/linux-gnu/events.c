@@ -11,7 +11,7 @@
 #include <string.h>
 #include <sys/ptrace.h>
 
-#include "ltrace.h"
+#include "main.h"
 #include "options.h"
 #include "output.h"
 #include "debug.h"

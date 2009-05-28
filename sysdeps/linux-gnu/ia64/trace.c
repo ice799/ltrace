@@ -12,7 +12,7 @@
 #include <asm/ptrace_offsets.h>
 #include <asm/rse.h>
 
-#include "ltrace.h"
+#include "main.h"
 
 /* What we think of as a bundle, ptrace thinks of it as two unsigned
  * longs */
