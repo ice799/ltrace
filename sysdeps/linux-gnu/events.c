@@ -30,7 +30,7 @@ next_event(void) {
 		debug(DEBUG_EVENT, "event: No more traced programs: exiting");
 		exit(0);
 	}
-	pid = wait(&status);
+	pid = waitpid(-1, &status, __WALL);
 	if (pid == -1) {
 		if (errno == ECHILD) {
 			debug(DEBUG_EVENT, "event: No more traced programs: exiting");
