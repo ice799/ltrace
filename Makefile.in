@@ -25,7 +25,7 @@ INSTALL_PROGRAM	=	$(INSTALL) -p    -m  755
 INSTALL_SCRIPT	=	$(INSTALL) -p    -m  755
 INSTALL_DIR	=	$(INSTALL) -p -d -m  755
 
-OBJ	=	main.o options.o elf.o output.o read_config_file.o       \
+OBJ	=	libltrace.o options.o elf.o output.o read_config_file.o       \
 		execute_program.o process_event.o display_args.o         \
 		breakpoints.o proc.o demangle.o dict.o debug.o summary.o
 
@@ -33,7 +33,7 @@ VERSION	=	@PACKAGE_VERSION@
 
 all:		ltrace
 
-ltrace:		ltrace.o libltrace.a
+ltrace:		main.o libltrace.a
 		$(CC) $(LDFLAGS) $^ $(LIBS) -o $@
 
 libltrace.a: 	sysdeps/sysdep.o $(OBJ)
@@ -48,7 +48,7 @@ clean-deja:
 
 clean:		clean-deja
 		$(MAKE) -C sysdeps/$(OS) clean
-		rm -f ltrace $(OBJ)
+		rm -f ltrace main.o libltrace.a $(OBJ)
 		rm -f *~ *.bak a.out core KK
 
 distclean:	clean

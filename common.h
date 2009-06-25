@@ -159,7 +159,8 @@ enum Process_State {
 	STATE_IGNORED  /* ignore this process (it's a fork and no -f was used) */
 };
 
-typedef struct Process Process;
+#include "ltrace.h"
+
 struct Process {
 	Process_State state;
 	Process *parent;          /* needed by STATE_BEING_CREATED */
@@ -191,32 +192,6 @@ struct Process {
 	enum tof type_being_displayed;
 
 	Process *next;
-};
-
-typedef struct Event Event;
-struct Event {
-	Process *proc;
-	enum {
-		EVENT_NONE,
-		EVENT_SIGNAL,
-		EVENT_EXIT,
-		EVENT_EXIT_SIGNAL,
-		EVENT_SYSCALL,
-		EVENT_SYSRET,
-		EVENT_ARCH_SYSCALL,
-		EVENT_ARCH_SYSRET,
-		EVENT_CLONE,
-		EVENT_EXEC,
-		EVENT_BREAKPOINT,
-		EVENT_NEW       /* in this case, proc is NULL */
-	} type;
-	union {
-		int ret_val;    /* EVENT_EXIT */
-		int signum;     /* EVENT_SIGNAL, EVENT_EXIT_SIGNAL */
-		int sysnum;     /* EVENT_SYSCALL, EVENT_SYSRET */
-		void *brk_addr; /* EVENT_BREAKPOINT */
-		int newpid;     /* EVENT_CLONE, EVENT_NEW */
-	} e_un;
 };
 
 struct opt_c_struct {

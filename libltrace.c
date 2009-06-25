@@ -123,9 +123,34 @@ ltrace_init(int argc, char **argv) {
 	}
 }
 
+static int num_ltrace_callbacks = 0;
+static void (**ltrace_callbacks)(Event *) = NULL;
+
+void
+ltrace_add_callback(void (*func)(Event *)) {
+	ltrace_callbacks = realloc(ltrace_callbacks, (num_ltrace_callbacks+1)*sizeof(*ltrace_callbacks));
+	ltrace_callbacks[num_ltrace_callbacks++] = func;
+
+	{
+		int i;
+
+		printf("*** Added callback\n");
+		printf("\tThere are %d callbacks:\n", num_ltrace_callbacks);
+		for (i=0; i<num_ltrace_callbacks; i++) {
+			printf("\t\t%10p\n", ltrace_callbacks[i]);
+		}
+	}
+}
+
 void
 ltrace_main(void) {
+	int i;
+	Event * ev;
 	while (1) {
-		process_event(next_event());
+		ev = next_event();
+		for (i=0; i<num_ltrace_callbacks; i++) {
+			ltrace_callbacks[i](ev);
+		}
+		process_event(ev);
 	}
 }
