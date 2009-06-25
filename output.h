@@ -1,6 +1,6 @@
 #include <sys/types.h>
 
-#include "main.h"
+#include "common.h"
 
 void output_line(Process *proc, char *fmt, ...);
 

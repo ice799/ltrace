@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-#include "main.h"
+#include "common.h"
 #include "read_config_file.h"
 #include "output.h"
 #include "debug.h"
@@ -49,7 +49,7 @@ static struct list_of_pt_t {
 
 /* Array of prototype objects for each of the types. The order in this
  * array must exactly match the list of enumerated values in
- * main.h */
+ * common.h */
 static arg_type_info arg_type_prototypes[] = {
 	{ ARGTYPE_VOID },
 	{ ARGTYPE_INT },

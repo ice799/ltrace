@@ -9,7 +9,7 @@
 #include <sys/ptrace.h>
 #include <asm/ptrace.h>
 
-#include "main.h"
+#include "common.h"
 #include "output.h"
 #include "ptrace.h"
 

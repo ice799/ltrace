@@ -1,7 +1,7 @@
 #include <debug.h>
 #include <gelf.h>
 #include <sys/ptrace.h>
-#include "main.h"
+#include "common.h"
 #include "ltrace_elf.h"
 
 /**

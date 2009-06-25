@@ -8,7 +8,7 @@
 #include <sys/ptrace.h>
 #include <asm/ptrace.h>
 #include "debug.h"
-#include "main.h"
+#include "common.h"
 #include "mipsel.h"
 #if (!defined(PTRACE_PEEKUSER) && defined(PTRACE_PEEKUSR))
 # define PTRACE_PEEKUSER PTRACE_PEEKUSR

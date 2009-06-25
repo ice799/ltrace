@@ -8,7 +8,7 @@
 #include "ptrace.h"
 #include <asm/unistd.h>
 
-#include "main.h"
+#include "common.h"
 #include "options.h"
 #include "sysdep.h"
 #include "debug.h"

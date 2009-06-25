@@ -1,5 +1,5 @@
 #include <gelf.h>
-#include "main.h"
+#include "common.h"
 #include "elf.h"
 
 GElf_Addr

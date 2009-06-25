@@ -12,7 +12,7 @@
 #define PTRACE_DETACH PTRACE_SUNDETACH
 
 #include <asm/reg.h>
-#include "main.h"
+#include "common.h"
 
 typedef struct {
 	int valid;

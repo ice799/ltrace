@@ -10,7 +10,7 @@
 #include <sys/time.h>
 #include <unistd.h>
 
-#include "main.h"
+#include "common.h"
 #include "options.h"
 #include "output.h"
 #include "dict.h"
@@ -19,7 +19,7 @@
 #include "demangle.h"
 #endif
 
-/* TODO FIXME XXX: include in main.h: */
+/* TODO FIXME XXX: include in common.h: */
 extern struct timeval current_time_spent;
 
 struct dict *dict_opt_c = NULL;

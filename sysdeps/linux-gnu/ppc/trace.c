@@ -10,7 +10,7 @@
 #include <elf.h>
 #include <errno.h>
 
-#include "main.h"
+#include "common.h"
 
 #if (!defined(PTRACE_PEEKUSER) && defined(PTRACE_PEEKUSR))
 # define PTRACE_PEEKUSER PTRACE_PEEKUSR

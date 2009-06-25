@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <sys/time.h>
 
-#include "main.h"
+#include "common.h"
 #include "options.h"
 
 #ifdef USE_DEMANGLE

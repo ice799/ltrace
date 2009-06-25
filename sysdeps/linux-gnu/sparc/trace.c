@@ -8,7 +8,7 @@
 #include <signal.h>
 #include <string.h>
 #include "ptrace.h"
-#include "main.h"
+#include "common.h"
 
 void
 get_arch_dep(Process *proc) {

@@ -14,7 +14,7 @@
 #include <getopt.h>
 #endif
 
-#include "main.h"
+#include "common.h"
 #include "options.h"
 #include "defs.h"
 

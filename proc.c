@@ -8,7 +8,7 @@
 #include <errno.h>
 #include <stdlib.h>
 
-#include "main.h"
+#include "common.h"
 #include "options.h"
 #include "elf.h"
 

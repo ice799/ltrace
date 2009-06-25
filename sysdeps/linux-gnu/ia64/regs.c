@@ -10,7 +10,7 @@
 
 #include <stddef.h>
 #include "debug.h"
-#include "main.h"
+#include "common.h"
 
 void *
 get_instruction_pointer(Process *proc) {
