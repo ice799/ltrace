@@ -151,6 +151,6 @@ ltrace_main(void) {
 		for (i=0; i<num_ltrace_callbacks; i++) {
 			ltrace_callbacks[i](ev);
 		}
-		process_event(ev);
+		handle_event(ev);
 	}
 }

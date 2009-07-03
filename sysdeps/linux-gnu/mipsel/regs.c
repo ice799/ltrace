@@ -61,7 +61,7 @@ get_stack_pointer(Process *proc) {
    \param stack_pointer The current stack pointer for proc
    \return The current return address.
 
-   Called by \c process_breakpoint().
+   Called by \c handle_breakpoint().
 
    Mips uses r31 for the return address, so the stack_pointer is
    unused.

@@ -26,7 +26,7 @@ INSTALL_SCRIPT	=	$(INSTALL) -p    -m  755
 INSTALL_DIR	=	$(INSTALL) -p -d -m  755
 
 OBJ	=	libltrace.o options.o elf.o output.o read_config_file.o       \
-		execute_program.o process_event.o display_args.o         \
+		execute_program.o handle_event.o display_args.o         \
 		breakpoints.o proc.o demangle.o dict.o debug.o summary.o
 
 VERSION	=	@PACKAGE_VERSION@

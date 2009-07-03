@@ -1,7 +1,7 @@
 dnl Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.57)
 AC_INIT(ltrace,0.5.2,[ltrace-devel <ltrace-devel@lists.alioth.debian.org>])
-AC_CONFIG_SRCDIR(ltrace.c)
+AC_CONFIG_SRCDIR(libltrace.c)
 AC_CONFIG_HEADER(config.h)
 
 dnl Check host system type

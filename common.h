@@ -206,7 +206,7 @@ extern void *instruction_pointer;
 
 extern Event *next_event(void);
 extern Process * pid2proc(pid_t pid);
-extern void process_event(Event *event);
+extern void handle_event(Event *event);
 extern void execute_program(Process *, char **);
 extern int display_arg(enum tof type, Process *proc, int arg_num, arg_type_info *info);
 extern Breakpoint *address2bpstruct(Process *proc, void *addr);

@@ -20,17 +20,17 @@
 #include <sys/ptrace.h>
 #endif
 
-static void process_signal(Event *event);
-static void process_exit(Event *event);
-static void process_exit_signal(Event *event);
-static void process_syscall(Event *event);
-static void process_arch_syscall(Event *event);
-static void process_sysret(Event *event);
-static void process_arch_sysret(Event *event);
-static void process_clone(Event *event);
-static void process_exec(Event *event);
-static void process_breakpoint(Event *event);
-static void process_new(Event *event);
+static void handle_signal(Event *event);
+static void handle_exit(Event *event);
+static void handle_exit_signal(Event *event);
+static void handle_syscall(Event *event);
+static void handle_arch_syscall(Event *event);
+static void handle_sysret(Event *event);
+static void handle_arch_sysret(Event *event);
+static void handle_clone(Event *event);
+static void handle_exec(Event *event);
+static void handle_breakpoint(Event *event);
+static void handle_new(Event *event);
 static void remove_proc(Process *proc);
 
 static void callstack_push_syscall(Process *proc, int sysnum);
@@ -118,10 +118,10 @@ pending_new_remove(pid_t pid) {
 }
 
 static void
-process_clone(Event * event) {
+handle_clone(Event * event) {
 	Process *p;
 
-	debug(DEBUG_FUNCTION, "process_clone(pid=%d)", event->proc->pid);
+	debug(DEBUG_FUNCTION, "handle_clone(pid=%d)", event->proc->pid);
 
 	p = malloc(sizeof(Process));
 	if (!p) {
@@ -156,10 +156,10 @@ process_clone(Event * event) {
 }
 
 static void
-process_new(Event * event) {
+handle_new(Event * event) {
 	Process * proc;
 
-	debug(DEBUG_FUNCTION, "process_new(pid=%d)", event->e_un.newpid);
+	debug(DEBUG_FUNCTION, "handle_new(pid=%d)", event->e_un.newpid);
 
 	proc = pid2proc(event->e_un.newpid);
 	if (!proc) {
@@ -252,8 +252,8 @@ arch_sysname(Process *proc, int sysnum) {
 }
 
 void
-process_event(Event *event) {
-	debug(DEBUG_FUNCTION, "process_event(pid=%d, type=%d)", event->proc ? event->proc->pid : -1, event->type);
+handle_event(Event *event) {
+	debug(DEBUG_FUNCTION, "handle_event(pid=%d, type=%d)", event->proc ? event->proc->pid : -1, event->type);
 	switch (event->type) {
 	case EVENT_NONE:
 		debug(1, "event: none");
@@ -262,57 +262,57 @@ process_event(Event *event) {
 		debug(1, "event: signal (%s [%d])",
 		      shortsignal(event->proc, event->e_un.signum),
 		      event->e_un.signum);
-		process_signal(event);
+		handle_signal(event);
 		return;
 	case EVENT_EXIT:
 		debug(1, "event: exit (%d)", event->e_un.ret_val);
-		process_exit(event);
+		handle_exit(event);
 		return;
 	case EVENT_EXIT_SIGNAL:
 		debug(1, "event: exit signal (%s [%d])",
 		      shortsignal(event->proc, event->e_un.signum),
 		      event->e_un.signum);
-		process_exit_signal(event);
+		handle_exit_signal(event);
 		return;
 	case EVENT_SYSCALL:
 		debug(1, "event: syscall (%s [%d])",
 		      sysname(event->proc, event->e_un.sysnum),
 		      event->e_un.sysnum);
-		process_syscall(event);
+		handle_syscall(event);
 		return;
 	case EVENT_SYSRET:
 		debug(1, "event: sysret (%s [%d])",
 		      sysname(event->proc, event->e_un.sysnum),
 		      event->e_un.sysnum);
-		process_sysret(event);
+		handle_sysret(event);
 		return;
 	case EVENT_ARCH_SYSCALL:
 		debug(1, "event: arch_syscall (%s [%d])",
 				arch_sysname(event->proc, event->e_un.sysnum),
 				event->e_un.sysnum);
-		process_arch_syscall(event);
+		handle_arch_syscall(event);
 		return;
 	case EVENT_ARCH_SYSRET:
 		debug(1, "event: arch_sysret (%s [%d])",
 				arch_sysname(event->proc, event->e_un.sysnum),
 				event->e_un.sysnum);
-		process_arch_sysret(event);
+		handle_arch_sysret(event);
 		return;
 	case EVENT_CLONE:
 		debug(1, "event: clone (%u)", event->e_un.newpid);
-		process_clone(event);
+		handle_clone(event);
 		return;
 	case EVENT_EXEC:
 		debug(1, "event: exec()");
-		process_exec(event);
+		handle_exec(event);
 		return;
 	case EVENT_BREAKPOINT:
 		debug(1, "event: breakpoint");
-		process_breakpoint(event);
+		handle_breakpoint(event);
 		return;
 	case EVENT_NEW:
 		debug(1, "event: new process");
-		process_new(event);
+		handle_new(event);
 		return;
 	default:
 		fprintf(stderr, "Error! unknown event?\n");
@@ -321,8 +321,8 @@ process_event(Event *event) {
 }
 
 static void
-process_signal(Event *event) {
-	debug(DEBUG_FUNCTION, "process_signal(pid=%d, signum=%d)", event->proc->pid, event->e_un.signum);
+handle_signal(Event *event) {
+	debug(DEBUG_FUNCTION, "handle_signal(pid=%d, signum=%d)", event->proc->pid, event->e_un.signum);
 	if (exiting && event->e_un.signum == SIGSTOP) {
 		pid_t pid = event->proc->pid;
 		disable_all_breakpoints(event->proc);
@@ -339,8 +339,8 @@ process_signal(Event *event) {
 }
 
 static void
-process_exit(Event *event) {
-	debug(DEBUG_FUNCTION, "process_exit(pid=%d, status=%d)", event->proc->pid, event->e_un.ret_val);
+handle_exit(Event *event) {
+	debug(DEBUG_FUNCTION, "handle_exit(pid=%d, status=%d)", event->proc->pid, event->e_un.ret_val);
 	if (event->proc->state != STATE_IGNORED) {
 		output_line(event->proc, "+++ exited (status %d) +++",
 				event->e_un.ret_val);
@@ -349,8 +349,8 @@ process_exit(Event *event) {
 }
 
 static void
-process_exit_signal(Event *event) {
-	debug(DEBUG_FUNCTION, "process_exit_signal(pid=%d, signum=%d)", event->proc->pid, event->e_un.signum);
+handle_exit_signal(Event *event) {
+	debug(DEBUG_FUNCTION, "handle_exit_signal(pid=%d, signum=%d)", event->proc->pid, event->e_un.signum);
 	if (event->proc->state != STATE_IGNORED) {
 		output_line(event->proc, "+++ killed by %s +++",
 				shortsignal(event->proc, event->e_un.signum));
@@ -383,8 +383,8 @@ remove_proc(Process *proc) {
 }
 
 static void
-process_syscall(Event *event) {
-	debug(DEBUG_FUNCTION, "process_syscall(pid=%d, sysnum=%d)", event->proc->pid, event->e_un.sysnum);
+handle_syscall(Event *event) {
+	debug(DEBUG_FUNCTION, "handle_syscall(pid=%d, sysnum=%d)", event->proc->pid, event->e_un.sysnum);
 	if (event->proc->state != STATE_IGNORED) {
 		if (options.syscalls) {
 			output_left(LT_TOF_SYSCALL, event->proc,
@@ -399,11 +399,11 @@ process_syscall(Event *event) {
 }
 
 static void
-process_exec(Event * event) {
+handle_exec(Event * event) {
 	Process * proc = event->proc;
 	pid_t saved_pid;
 
-	debug(DEBUG_FUNCTION, "process_exec(pid=%d)", proc->pid);
+	debug(DEBUG_FUNCTION, "handle_exec(pid=%d)", proc->pid);
 	if (proc->state == STATE_IGNORED) {
 		untrace_pid(proc->pid);
 		remove_proc(proc);
@@ -424,8 +424,8 @@ process_exec(Event * event) {
 }
 
 static void
-process_arch_syscall(Event *event) {
-	debug(DEBUG_FUNCTION, "process_arch_syscall(pid=%d, sysnum=%d)", event->proc->pid, event->e_un.sysnum);
+handle_arch_syscall(Event *event) {
+	debug(DEBUG_FUNCTION, "handle_arch_syscall(pid=%d, sysnum=%d)", event->proc->pid, event->e_un.sysnum);
 	if (event->proc->state != STATE_IGNORED) {
 		if (options.syscalls) {
 			output_left(LT_TOF_SYSCALL, event->proc,
@@ -464,8 +464,8 @@ calc_time_spent(Process *proc) {
 }
 
 static void
-process_sysret(Event *event) {
-	debug(DEBUG_FUNCTION, "process_sysret(pid=%d, sysnum=%d)", event->proc->pid, event->e_un.sysnum);
+handle_sysret(Event *event) {
+	debug(DEBUG_FUNCTION, "handle_sysret(pid=%d, sysnum=%d)", event->proc->pid, event->e_un.sysnum);
 	if (event->proc->state != STATE_IGNORED) {
 		if (opt_T || options.summary) {
 			calc_time_spent(event->proc);
@@ -480,8 +480,8 @@ process_sysret(Event *event) {
 }
 
 static void
-process_arch_sysret(Event *event) {
-	debug(DEBUG_FUNCTION, "process_arch_sysret(pid=%d, sysnum=%d)", event->proc->pid, event->e_un.sysnum);
+handle_arch_sysret(Event *event) {
+	debug(DEBUG_FUNCTION, "handle_arch_sysret(pid=%d, sysnum=%d)", event->proc->pid, event->e_un.sysnum);
 	if (event->proc->state != STATE_IGNORED) {
 		if (opt_T || options.summary) {
 			calc_time_spent(event->proc);
@@ -496,11 +496,11 @@ process_arch_sysret(Event *event) {
 }
 
 static void
-process_breakpoint(Event *event) {
+handle_breakpoint(Event *event) {
 	int i, j;
 	Breakpoint *sbp;
 
-	debug(DEBUG_FUNCTION, "process_breakpoint(pid=%d, addr=%p)", event->proc->pid, event->e_un.brk_addr);
+	debug(DEBUG_FUNCTION, "handle_breakpoint(pid=%d, addr=%p)", event->proc->pid, event->e_un.brk_addr);
 	debug(2, "event: breakpoint (%p)", event->e_un.brk_addr);
 
 #ifdef __powerpc__
