@@ -34,13 +34,88 @@ static void callstack_push_symfunc(Process *proc,
 				   struct library_symbol *sym);
 static void callstack_pop(Process *proc);
 
+static char * shortsignal(Process *proc, int signum);
+static char * sysname(Process *proc, int sysnum);
+static char * arch_sysname(Process *proc, int sysnum);
+
+void
+handle_event(Event *event) {
+	debug(DEBUG_FUNCTION, "handle_event(pid=%d, type=%d)", event->proc ? event->proc->pid : -1, event->type);
+	switch (event->type) {
+	case EVENT_NONE:
+		debug(1, "event: none");
+		return;
+	case EVENT_SIGNAL:
+		debug(1, "event: signal (%s [%d])",
+		      shortsignal(event->proc, event->e_un.signum),
+		      event->e_un.signum);
+		handle_signal(event);
+		return;
+	case EVENT_EXIT:
+		debug(1, "event: exit (%d)", event->e_un.ret_val);
+		handle_exit(event);
+		return;
+	case EVENT_EXIT_SIGNAL:
+		debug(1, "event: exit signal (%s [%d])",
+		      shortsignal(event->proc, event->e_un.signum),
+		      event->e_un.signum);
+		handle_exit_signal(event);
+		return;
+	case EVENT_SYSCALL:
+		debug(1, "event: syscall (%s [%d])",
+		      sysname(event->proc, event->e_un.sysnum),
+		      event->e_un.sysnum);
+		handle_syscall(event);
+		return;
+	case EVENT_SYSRET:
+		debug(1, "event: sysret (%s [%d])",
+		      sysname(event->proc, event->e_un.sysnum),
+		      event->e_un.sysnum);
+		handle_sysret(event);
+		return;
+	case EVENT_ARCH_SYSCALL:
+		debug(1, "event: arch_syscall (%s [%d])",
+				arch_sysname(event->proc, event->e_un.sysnum),
+				event->e_un.sysnum);
+		handle_arch_syscall(event);
+		return;
+	case EVENT_ARCH_SYSRET:
+		debug(1, "event: arch_sysret (%s [%d])",
+				arch_sysname(event->proc, event->e_un.sysnum),
+				event->e_un.sysnum);
+		handle_arch_sysret(event);
+		return;
+	case EVENT_CLONE:
+		debug(1, "event: clone (%u)", event->e_un.newpid);
+		handle_clone(event);
+		return;
+	case EVENT_EXEC:
+		debug(1, "event: exec()");
+		handle_exec(event);
+		return;
+	case EVENT_BREAKPOINT:
+		debug(1, "event: breakpoint");
+		handle_breakpoint(event);
+		return;
+	case EVENT_NEW:
+		debug(1, "event: new process");
+		handle_new(event);
+		return;
+	default:
+		fprintf(stderr, "Error! unknown event?\n");
+		exit(1);
+	}
+}
+
 /* TODO */
-void * address_clone(void * addr) {
+static void *
+address_clone(void * addr) {
 	debug(DEBUG_FUNCTION, "address_clone(%p)", addr);
 	return addr;
 }
 
-void * breakpoint_clone(void * bp) {
+static void *
+breakpoint_clone(void * bp) {
 	Breakpoint * b;
 	debug(DEBUG_FUNCTION, "breakpoint_clone(%p)", bp);
 	b = malloc(sizeof(Breakpoint));
@@ -244,75 +319,6 @@ arch_sysname(Process *proc, int sysnum) {
 		sprintf(result, "ARCH_%s",
 				arch_syscalent[sysnum]);
 		return result;
-	}
-}
-
-void
-handle_event(Event *event) {
-	debug(DEBUG_FUNCTION, "handle_event(pid=%d, type=%d)", event->proc ? event->proc->pid : -1, event->type);
-	switch (event->type) {
-	case EVENT_NONE:
-		debug(1, "event: none");
-		return;
-	case EVENT_SIGNAL:
-		debug(1, "event: signal (%s [%d])",
-		      shortsignal(event->proc, event->e_un.signum),
-		      event->e_un.signum);
-		handle_signal(event);
-		return;
-	case EVENT_EXIT:
-		debug(1, "event: exit (%d)", event->e_un.ret_val);
-		handle_exit(event);
-		return;
-	case EVENT_EXIT_SIGNAL:
-		debug(1, "event: exit signal (%s [%d])",
-		      shortsignal(event->proc, event->e_un.signum),
-		      event->e_un.signum);
-		handle_exit_signal(event);
-		return;
-	case EVENT_SYSCALL:
-		debug(1, "event: syscall (%s [%d])",
-		      sysname(event->proc, event->e_un.sysnum),
-		      event->e_un.sysnum);
-		handle_syscall(event);
-		return;
-	case EVENT_SYSRET:
-		debug(1, "event: sysret (%s [%d])",
-		      sysname(event->proc, event->e_un.sysnum),
-		      event->e_un.sysnum);
-		handle_sysret(event);
-		return;
-	case EVENT_ARCH_SYSCALL:
-		debug(1, "event: arch_syscall (%s [%d])",
-				arch_sysname(event->proc, event->e_un.sysnum),
-				event->e_un.sysnum);
-		handle_arch_syscall(event);
-		return;
-	case EVENT_ARCH_SYSRET:
-		debug(1, "event: arch_sysret (%s [%d])",
-				arch_sysname(event->proc, event->e_un.sysnum),
-				event->e_un.sysnum);
-		handle_arch_sysret(event);
-		return;
-	case EVENT_CLONE:
-		debug(1, "event: clone (%u)", event->e_un.newpid);
-		handle_clone(event);
-		return;
-	case EVENT_EXEC:
-		debug(1, "event: exec()");
-		handle_exec(event);
-		return;
-	case EVENT_BREAKPOINT:
-		debug(1, "event: breakpoint");
-		handle_breakpoint(event);
-		return;
-	case EVENT_NEW:
-		debug(1, "event: new process");
-		handle_new(event);
-		return;
-	default:
-		fprintf(stderr, "Error! unknown event?\n");
-		exit(1);
 	}
 }
 

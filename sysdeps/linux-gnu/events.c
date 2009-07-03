@@ -60,7 +60,7 @@ next_event(void) {
 	}
 	if (opt_i) {
 		event.proc->instruction_pointer =
-		    get_instruction_pointer(event.proc);
+			get_instruction_pointer(event.proc);
 	}
 	switch (syscall_p(event.proc, status, &tmp)) {
 		case 1:

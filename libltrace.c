@@ -119,34 +119,38 @@ ltrace_init(int argc, char **argv) {
 	}
 }
 
-static int num_ltrace_callbacks = 0;
-static void (**ltrace_callbacks)(Event *) = NULL;
+static int num_ltrace_callbacks[EVENT_MAX];
+static callback_func * ltrace_callbacks[EVENT_MAX];
 
 void
-ltrace_add_callback(void (*func)(Event *)) {
-	ltrace_callbacks = realloc(ltrace_callbacks, (num_ltrace_callbacks+1)*sizeof(*ltrace_callbacks));
-	ltrace_callbacks[num_ltrace_callbacks++] = func;
+ltrace_add_callback(callback_func func, Event_type type) {
+	ltrace_callbacks[type] = realloc(ltrace_callbacks[type], (num_ltrace_callbacks[type]+1)*sizeof(callback_func));
+	ltrace_callbacks[type][num_ltrace_callbacks[type]++] = func;
+}
 
-	{
-		int i;
-
-		printf("*** Added callback\n");
-		printf("\tThere are %d callbacks:\n", num_ltrace_callbacks);
-		for (i=0; i<num_ltrace_callbacks; i++) {
-			printf("\t\t%10p\n", ltrace_callbacks[i]);
-		}
+static void
+dispatch_callbacks(Event * ev) {
+	int i;
+	/* Ignoring case 1: signal into a dying tracer */
+	if (ev->type==EVENT_SIGNAL && 
+			exiting && ev->e_un.signum == SIGSTOP) {
+		return;
+	}
+	/* Ignoring case 2: process being born before a clone event */
+	if (ev->proc && ev->proc->state == STATE_IGNORED) {
+		return;
+	}
+	for (i=0; i<num_ltrace_callbacks[ev->type]; i++) {
+		ltrace_callbacks[ev->type][i](ev);
 	}
 }
 
 void
 ltrace_main(void) {
-	int i;
 	Event * ev;
 	while (1) {
 		ev = next_event();
-		for (i=0; i<num_ltrace_callbacks; i++) {
-			ltrace_callbacks[i](ev);
-		}
+		dispatch_callbacks(ev);
 		handle_event(ev);
 	}
 }

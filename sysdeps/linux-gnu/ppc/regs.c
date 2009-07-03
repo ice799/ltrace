@@ -18,19 +18,17 @@
 
 void *
 get_instruction_pointer(Process *proc) {
-	return (void *)ptrace(PTRACE_PEEKUSER, proc->pid, sizeof(long) * PT_NIP,
-			      0);
+	return (void *)ptrace(PTRACE_PEEKUSER, proc->pid, sizeof(long)*PT_NIP, 0);
 }
 
 void
 set_instruction_pointer(Process *proc, void *addr) {
-	ptrace(PTRACE_POKEUSER, proc->pid, sizeof(long) * PT_NIP, addr);
+	ptrace(PTRACE_POKEUSER, proc->pid, sizeof(long)*PT_NIP, addr);
 }
 
 void *
 get_stack_pointer(Process *proc) {
-	return (void *)ptrace(PTRACE_PEEKUSER, proc->pid, sizeof(long) * PT_R1,
-			      0);
+	return (void *)ptrace(PTRACE_PEEKUSER, proc->pid, sizeof(long)*PT_R1, 0);
 }
 
 void *
