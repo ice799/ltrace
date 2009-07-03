@@ -4,10 +4,7 @@
 
 #include <sys/ptrace.h>
 #include <string.h>
-#include "arch.h"
-#include "options.h"
-#include "output.h"
-#include "debug.h"
+#include "common.h"
 
 static unsigned char break_insn[] = BREAKPOINT_VALUE;
 

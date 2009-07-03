@@ -3,13 +3,11 @@
 #include <string.h>
 #include <assert.h>
 
-#include "debug.h"
+#include "common.h"
 
 /*
   Dictionary based on code by Morten Eriksen <mortene@sim.no>.
 */
-
-#include "dict.h"
 
 struct dict_entry {
 	unsigned int hash;
@@ -30,15 +28,15 @@ struct dict {
 	int (*key_cmp) (void *, void *);
 };
 
-struct dict *
+Dict *
 dict_init(unsigned int (*key2hash) (void *),
 		       int (*key_cmp) (void *, void *)) {
-	struct dict *d;
+	Dict *d;
 	int i;
 
 	debug(DEBUG_FUNCTION, "dict_init()");
 
-	d = malloc(sizeof(struct dict));
+	d = malloc(sizeof(Dict));
 	if (!d) {
 		perror("malloc()");
 		exit(1);
@@ -52,7 +50,7 @@ dict_init(unsigned int (*key2hash) (void *),
 }
 
 void
-dict_clear(struct dict *d) {
+dict_clear(Dict *d) {
 	int i;
 	struct dict_entry *entry, *nextentry;
 
@@ -69,7 +67,7 @@ dict_clear(struct dict *d) {
 }
 
 int
-dict_enter(struct dict *d, void *key, void *value) {
+dict_enter(Dict *d, void *key, void *value) {
 	struct dict_entry *entry, *newentry;
 	unsigned int hash;
 	unsigned int bucketpos;
@@ -105,7 +103,7 @@ dict_enter(struct dict *d, void *key, void *value) {
 }
 
 void *
-dict_find_entry(struct dict *d, void *key) {
+dict_find_entry(Dict *d, void *key) {
 	unsigned int hash;
 	unsigned int bucketpos;
 	struct dict_entry *entry;
@@ -128,7 +126,7 @@ dict_find_entry(struct dict *d, void *key) {
 }
 
 void
-dict_apply_to_all(struct dict *d,
+dict_apply_to_all(Dict *d,
 		  void (*func) (void *key, void *value, void *data), void *data) {
 	int i;
 
@@ -181,19 +179,19 @@ dict_key_cmp_int(void *key1, void *key2) {
 	return key1 - key2;
 }
 
-struct dict *
-dict_clone(struct dict *old, void * (*key_clone)(void*), void * (*value_clone)(void*)) {
-	struct dict *d;
+Dict *
+dict_clone(Dict *old, void * (*key_clone)(void*), void * (*value_clone)(void*)) {
+	Dict *d;
 	int i;
 
 	debug(DEBUG_FUNCTION, "dict_clone()");
 
-	d = malloc(sizeof(struct dict));
+	d = malloc(sizeof(Dict));
 	if (!d) {
 		perror("malloc()");
 		exit(1);
 	}
-	memcpy(d, old, sizeof(struct dict));
+	memcpy(d, old, sizeof(Dict));
 	for (i = 0; i < DICTTABLESIZE; i++) {	/* better use memset()? */
 		struct dict_entry *de_old;
 		struct dict_entry **de_new;

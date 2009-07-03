@@ -13,9 +13,6 @@
 #include <unistd.h>
 
 #include "common.h"
-#include "elf.h"
-#include "debug.h"
-#include "options.h"
 
 static void do_init_elf(struct ltelf *lte, const char *filename);
 static void do_close_elf(struct ltelf *lte);
@@ -459,7 +456,7 @@ opd2addr(struct ltelf *lte, GElf_Addr addr) {
 struct library_symbol *
 read_elf(Process *proc) {
 	struct library_symbol *library_symbols = NULL;
-	struct ltelf lte[MAX_LIBRARY + 1];
+	struct ltelf lte[MAX_LIBRARIES + 1];
 	size_t i;
 	struct opt_x_t *xptr;
 	struct library_symbol **lib_tail = NULL;

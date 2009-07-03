@@ -12,9 +12,6 @@
 #include <sys/ptrace.h>
 
 #include "common.h"
-#include "options.h"
-#include "output.h"
-#include "debug.h"
 
 static Event event;
 

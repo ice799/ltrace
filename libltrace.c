@@ -12,10 +12,6 @@
 #include <sys/wait.h>
 
 #include "common.h"
-#include "output.h"
-#include "read_config_file.h"
-#include "options.h"
-#include "debug.h"
 
 char *command = NULL;
 Process *list_of_processes = NULL;
@@ -118,7 +114,7 @@ ltrace_init(int argc, char **argv) {
 	}
 	opt_p_tmp = opt_p;
 	while (opt_p_tmp) {
-		open_pid(opt_p_tmp->pid, 1);
+		open_pid(opt_p_tmp->pid);
 		opt_p_tmp = opt_p_tmp->next;
 	}
 }

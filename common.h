@@ -1,32 +1,29 @@
-#ifndef _HCK_LTRACE_H
-#define _HCK_LTRACE_H
-
 #include <sys/types.h>
 #include <sys/time.h>
 #include <stdio.h>
 
+#include "ltrace.h"
 #include "defs.h"
 #include "dict.h"
-
-/* BREAKPOINT_LENGTH is defined in "sysdep.h" */
 #include "sysdep.h"
-
-#define MAX_LIBRARY 30
+#include "debug.h"
+#include "elf.h"
+#include "read_config_file.h"
 
 #if defined HAVE_LIBIBERTY || defined HAVE_LIBSUPC__
 # define USE_DEMANGLE
 #endif
 
-extern char *command;
+extern char * command;
 
 extern int exiting;  /* =1 if we have to exit ASAP */
 
 typedef struct Breakpoint Breakpoint;
 struct Breakpoint {
-	void *addr;
+	void * addr;
 	unsigned char orig_value[BREAKPOINT_LENGTH];
 	int enabled;
-	struct library_symbol *libsym;
+	struct library_symbol * libsym;
 #ifdef __arm__
 	int thumb_mode;
 #endif
@@ -63,13 +60,13 @@ typedef struct arg_type_info_t {
 		/* ARGTYPE_ENUM */
 		struct {
 			size_t entries;
-			char **keys;
-			int *values;
+			char ** keys;
+			int * values;
 		} enum_info;
 
 		/* ARGTYPE_ARRAY */
 		struct {
-			struct arg_type_info_t *elt_type;
+			struct arg_type_info_t * elt_type;
 			size_t elt_size;
 			int len_spec;
 		} array_info;
@@ -81,14 +78,14 @@ typedef struct arg_type_info_t {
 
 		/* ARGTYPE_STRUCT */
 		struct {
-			struct arg_type_info_t **fields;	/* NULL-terminated */
-			size_t *offset;
+			struct arg_type_info_t ** fields;	/* NULL-terminated */
+			size_t * offset;
 			size_t size;
 		} struct_info;
 
 		/* ARGTYPE_POINTER */
 		struct {
-			struct arg_type_info_t *info;
+			struct arg_type_info_t * info;
 		} ptr_info;
 
 		/* ARGTYPE_FLOAT */
@@ -114,12 +111,12 @@ enum tof {
 
 typedef struct Function Function;
 struct Function {
-	const char *name;
-	arg_type_info *return_info;
+	const char * name;
+	arg_type_info * return_info;
 	int num_params;
-	arg_type_info *arg_info[MAX_ARGS];
+	arg_type_info * arg_info[MAX_ARGS];
 	int params_right;
-	Function *next;
+	Function * next;
 };
 
 enum toplt {
@@ -128,25 +125,25 @@ enum toplt {
 	LS_TOPLT_POINT		/* PLT for this symbol is a non-executable. */
 };
 
-extern Function *list_of_functions;
+extern Function * list_of_functions;
 extern char *PLTs_initialized_by_here;
 
 struct library_symbol {
-	char *name;
-	void *enter_addr;
+	char * name;
+	void * enter_addr;
 	char needs_init;
 	enum toplt plt_type;
 	char is_weak;
-	struct library_symbol *next;
+	struct library_symbol * next;
 };
 
 struct callstack_element {
 	union {
 		int syscall;
-		struct library_symbol *libfunc;
+		struct library_symbol * libfunc;
 	} c_un;
 	int is_syscall;
-	void *return_addr;
+	void * return_addr;
 	struct timeval time_spent;
 };
 
@@ -159,14 +156,12 @@ enum Process_State {
 	STATE_IGNORED  /* ignore this process (it's a fork and no -f was used) */
 };
 
-#include "ltrace.h"
-
 struct Process {
 	Process_State state;
-	Process *parent;          /* needed by STATE_BEING_CREATED */
-	char *filename;
+	Process * parent;          /* needed by STATE_BEING_CREATED */
+	char * filename;
 	pid_t pid;
-	struct dict *breakpoints;
+	Dict * breakpoints;
 	int breakpoints_enabled;  /* -1:not enabled yet, 0:disabled, 1:enabled */
 	int mask_32bit;           /* 1 if 64-bit ltrace is tracing 32-bit process */
 	unsigned int personality;
@@ -174,14 +169,14 @@ struct Process {
 
 	int callstack_depth;
 	struct callstack_element callstack[MAX_CALLDEPTH];
-	struct library_symbol *list_of_symbols;
+	struct library_symbol * list_of_symbols;
 
 	/* Arch-dependent: */
-	void *instruction_pointer;
-	void *stack_pointer;      /* To get return addr, args... */
-	void *return_addr;
-	Breakpoint *breakpoint_being_enabled;
-	void *arch_ptr;
+	void * instruction_pointer;
+	void * stack_pointer;      /* To get return addr, args... */
+	void * return_addr;
+	Breakpoint * breakpoint_being_enabled;
+	void * arch_ptr;
 	short e_machine;
 	short need_to_reinitialize_breakpoints;
 #ifdef __arm__
@@ -191,64 +186,69 @@ struct Process {
 	/* output: */
 	enum tof type_being_displayed;
 
-	Process *next;
+	Process * next;
 };
 
 struct opt_c_struct {
 	int count;
 	struct timeval tv;
 };
-extern struct dict *dict_opt_c;
 
-extern Process *list_of_processes;
+#include "options.h"
+#include "output.h"
+#ifdef USE_DEMANGLE
+#include "demangle.h"
+#endif
 
-extern void *instruction_pointer;
+extern Dict * dict_opt_c;
 
-extern Event *next_event(void);
+extern Process * list_of_processes;
+
+extern void * instruction_pointer;
+
+extern Event * next_event(void);
 extern Process * pid2proc(pid_t pid);
-extern void handle_event(Event *event);
+extern void handle_event(Event * event);
 extern void execute_program(Process *, char **);
-extern int display_arg(enum tof type, Process *proc, int arg_num, arg_type_info *info);
-extern Breakpoint *address2bpstruct(Process *proc, void *addr);
-extern void breakpoints_init(Process *proc);
-extern void insert_breakpoint(Process *proc, void *addr, struct library_symbol *libsym);
-extern void delete_breakpoint(Process *proc, void *addr);
-extern void enable_all_breakpoints(Process *proc);
-extern void disable_all_breakpoints(Process *proc);
+extern int display_arg(enum tof type, Process * proc, int arg_num, arg_type_info * info);
+extern Breakpoint * address2bpstruct(Process * proc, void * addr);
+extern void breakpoints_init(Process * proc);
+extern void insert_breakpoint(Process * proc, void * addr, struct library_symbol * libsym);
+extern void delete_breakpoint(Process * proc, void * addr);
+extern void enable_all_breakpoints(Process * proc);
+extern void disable_all_breakpoints(Process * proc);
 extern void reinitialize_breakpoints(Process *);
 
-extern Process *open_program(char *filename, pid_t pid);
-extern void open_pid(pid_t pid, int verbose);
+extern Process * open_program(char * filename, pid_t pid);
+extern void open_pid(pid_t pid);
 extern void show_summary(void);
-extern arg_type_info *lookup_prototype(enum arg_type at);
+extern arg_type_info * lookup_prototype(enum arg_type at);
 
 /* Arch-dependent stuff: */
-extern char *pid2name(pid_t pid);
-extern void trace_set_options(Process *proc, pid_t pid);
+extern char * pid2name(pid_t pid);
+extern void trace_set_options(Process * proc, pid_t pid);
 extern void trace_me(void);
 extern int trace_pid(pid_t pid);
 extern void untrace_pid(pid_t pid);
-extern void get_arch_dep(Process *proc);
-extern void *get_instruction_pointer(Process *proc);
-extern void set_instruction_pointer(Process *proc, void *addr);
-extern void *get_stack_pointer(Process *proc);
-extern void *get_return_addr(Process *proc, void *stack_pointer);
-extern void enable_breakpoint(pid_t pid, Breakpoint *sbp);
-extern void disable_breakpoint(pid_t pid, const Breakpoint *sbp);
-extern int syscall_p(Process *proc, int status, int *sysnum);
+extern void get_arch_dep(Process * proc);
+extern void * get_instruction_pointer(Process * proc);
+extern void set_instruction_pointer(Process * proc, void * addr);
+extern void * get_stack_pointer(Process * proc);
+extern void * get_return_addr(Process * proc, void * stack_pointer);
+extern void enable_breakpoint(pid_t pid, Breakpoint * sbp);
+extern void disable_breakpoint(pid_t pid, const Breakpoint * sbp);
+extern int syscall_p(Process * proc, int status, int * sysnum);
 extern void continue_process(pid_t pid);
 extern void continue_after_signal(pid_t pid, int signum);
-extern void continue_after_breakpoint(Process *proc, Breakpoint *sbp);
-extern void continue_enabling_breakpoint(pid_t pid, Breakpoint *sbp);
-extern long gimme_arg(enum tof type, Process *proc, int arg_num, arg_type_info *info);
-extern void save_register_args(enum tof type, Process *proc);
-extern int umovestr(Process *proc, void *addr, int len, void *laddr);
-extern int umovelong (Process *proc, void *addr, long *result, arg_type_info *info);
-extern int ffcheck(void *maddr);
-extern void *sym2addr(Process *, struct library_symbol *);
+extern void continue_after_breakpoint(Process * proc, Breakpoint * sbp);
+extern void continue_enabling_breakpoint(pid_t pid, Breakpoint * sbp);
+extern long gimme_arg(enum tof type, Process * proc, int arg_num, arg_type_info * info);
+extern void save_register_args(enum tof type, Process * proc);
+extern int umovestr(Process * proc, void * addr, int len, void * laddr);
+extern int umovelong (Process * proc, void * addr, long * result, arg_type_info * info);
+extern int ffcheck(void * maddr);
+extern void * sym2addr(Process *, struct library_symbol *);
 
 #if 0				/* not yet */
-extern int umoven(Process *proc, void *addr, int len, void *laddr);
-#endif
-
+extern int umoven(Process * proc, void * addr, int len, void * laddr);
 #endif

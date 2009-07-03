@@ -7,11 +7,6 @@
 #include <sys/time.h>
 
 #include "common.h"
-#include "options.h"
-
-#ifdef USE_DEMANGLE
-#include "demangle.h"
-#endif
 
 static int num_entries = 0;
 static struct entry_st {

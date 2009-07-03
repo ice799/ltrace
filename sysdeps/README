@@ -10,22 +10,22 @@ inside the directory after invoking the first target of the Makefile.
 -----------
 "sysdep.o" must export the following functions:
 
-struct event * next_event(void);
-void continue_after_breakpoint(struct process * proc, struct breakpoint * sbp, int delete_it);
+Event * next_event(void);
+void continue_after_breakpoint(Process * proc, Breakpoint * sbp, int delete_it);
 void continue_after_signal(pid_t pid, int signum);
-void continue_enabling_breakpoint(pid_t pid, struct breakpoint * sbp);
+void continue_enabling_breakpoint(pid_t pid, Breakpoint * sbp);
 void continue_process(pid_t pid);
-void enable_breakpoint(pid_t pid, struct breakpoint * sbp);
-void disable_breakpoint(pid_t pid, struct breakpoint * sbp);
+void enable_breakpoint(pid_t pid, Breakpoint * sbp);
+void disable_breakpoint(pid_t pid, Breakpoint * sbp);
 int fork_p(int sysnum);
 int exec_p(int sysnum);
-int syscall_p(struct process * proc, int status, int * sysnum);
+int syscall_p(Process * proc, int status, int * sysnum);
 void * get_instruction_pointer(pid_t pid);
 void * get_stack_pointer(pid_t pid);
 void * get_return_addr(pid_t pid, void * stack_pointer);
-long gimme_arg(enum tof type, struct process * proc, arg_type_info*);
-int umovestr(struct process * proc, void * addr, int len, void * laddr);
-int umovelong(struct process * proc, void * addr, long * result);
+long gimme_arg(enum tof type, Process * proc, arg_type_info*);
+int umovestr(Process * proc, void * addr, int len, void * laddr);
+int umovelong(Process * proc, void * addr, long * result);
 char * pid2name(pid_t pid);
 void trace_me(void);
 int trace_pid(pid_t pid);

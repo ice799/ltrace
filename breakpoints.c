@@ -11,10 +11,6 @@
 #endif
 
 #include "common.h"
-#include "options.h"
-#include "debug.h"
-#include "dict.h"
-#include "elf.h"
 
 /*****************************************************************************/
 

@@ -1,7 +1,3 @@
-#if HAVE_CONFIG_H
-#include "config.h"
-#endif
-
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -9,7 +5,6 @@
 #include <limits.h>
 
 #include "common.h"
-#include "options.h"
 
 static int display_char(int what);
 static int display_string(enum tof type, Process *proc,

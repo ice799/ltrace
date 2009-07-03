@@ -1,9 +1,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 
-#include "debug.h"
-#include "options.h"
-#include "output.h"
+#include "common.h"
 
 void
 debug_(int level, const char *file, int line, const char *fmt, ...) {

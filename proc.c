@@ -1,7 +1,3 @@
-#if HAVE_CONFIG_H
-#include "config.h"
-#endif
-
 #include <sys/types.h>
 #include <string.h>
 #include <stdio.h>
@@ -9,8 +5,6 @@
 #include <stdlib.h>
 
 #include "common.h"
-#include "options.h"
-#include "elf.h"
 
 Process *
 open_program(char *filename, pid_t pid) {
@@ -33,7 +27,7 @@ open_program(char *filename, pid_t pid) {
 }
 
 void
-open_pid(pid_t pid, int verbose) {
+open_pid(pid_t pid) {
 	Process *proc;
 	char *filename;
 
@@ -45,15 +39,11 @@ open_pid(pid_t pid, int verbose) {
 
 	filename = pid2name(pid);
 
-#if 0
 	if (!filename) {
-		if (verbose) {
-			fprintf(stderr, "Cannot trace pid %u: %s\n", pid,
+		fprintf(stderr, "Cannot trace pid %u: %s\n", pid,
 				strerror(errno));
-		}
 		return;
 	}
-#endif
 
 	proc = open_program(filename, pid);
 	continue_process(pid);

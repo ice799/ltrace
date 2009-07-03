@@ -11,10 +11,6 @@
 #include <sys/time.h>
 
 #include "common.h"
-#include "output.h"
-#include "options.h"
-#include "elf.h"
-#include "debug.h"
 
 #ifdef __powerpc__
 #include <sys/ptrace.h>

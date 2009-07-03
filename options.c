@@ -15,8 +15,6 @@
 #endif
 
 #include "common.h"
-#include "options.h"
-#include "defs.h"
 
 #ifndef SYSCONFDIR
 #define SYSCONFDIR "/etc"
@@ -42,8 +40,7 @@ struct options_t options = {
 	.follow = 0,                  /* trace child processes */
 };
 
-#define MAX_LIBRARY		30
-char *library[MAX_LIBRARY];
+char *library[MAX_LIBRARIES];
 int library_num = 0;
 static char *progname;		/* Program name (`ltrace') */
 int opt_i = 0;			/* instruction pointer */
@@ -215,7 +212,7 @@ process_options(int argc, char **argv) {
 		static struct option long_options[] = {
 			{"align", 1, 0, 'a'},
 			{"config", 1, 0, 'F'},
-			{"debug", 0, 0, 'd'},
+			{"debug", 1, 0, 'd'},
 # ifdef USE_DEMANGLE
 			{"demangle", 0, 0, 'C'},
 #endif
@@ -315,10 +312,10 @@ process_options(int argc, char **argv) {
 			opt_i++;
 			break;
 		case 'l':
-			if (library_num == MAX_LIBRARY) {
+			if (library_num == MAX_LIBRARIES) {
 				fprintf(stderr,
 					"Too many libraries.  Maximum is %i.\n",
-					MAX_LIBRARY);
+					MAX_LIBRARIES);
 				exit(1);
 			}
 			library[library_num++] = optarg;

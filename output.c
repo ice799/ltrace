@@ -11,18 +11,11 @@
 #include <unistd.h>
 
 #include "common.h"
-#include "options.h"
-#include "output.h"
-#include "dict.h"
-
-#ifdef USE_DEMANGLE
-#include "demangle.h"
-#endif
 
 /* TODO FIXME XXX: include in common.h: */
 extern struct timeval current_time_spent;
 
-struct dict *dict_opt_c = NULL;
+Dict *dict_opt_c = NULL;
 
 static Process *current_proc = 0;
 static int current_depth = 0;

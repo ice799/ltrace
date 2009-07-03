@@ -13,9 +13,6 @@
 #include <grp.h>
 
 #include "common.h"
-#include "options.h"
-#include "debug.h"
-#include "sysdep.h"
 
 static void
 change_uid(Process *proc) {

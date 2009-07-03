@@ -6,18 +6,13 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "options.h"
-#include "output.h"
-#include "demangle.h"
-#include "debug.h"
-
-#include "dict.h"
+#include "common.h"
 
 #ifdef USE_DEMANGLE
 
 /*****************************************************************************/
 
-static struct dict *d = NULL;
+static Dict *d = NULL;
 
 const char *
 my_demangle(const char *function_name) {

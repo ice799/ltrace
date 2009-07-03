@@ -7,9 +7,6 @@
 #include <ctype.h>
 
 #include "common.h"
-#include "read_config_file.h"
-#include "output.h"
-#include "debug.h"
 
 static int line_no;
 static char *filename;

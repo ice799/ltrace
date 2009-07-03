@@ -9,9 +9,6 @@
 #include <asm/unistd.h>
 
 #include "common.h"
-#include "options.h"
-#include "sysdep.h"
-#include "debug.h"
 
 /* If the system headers did not provide the constants, hard-code the normal
    values.  */
