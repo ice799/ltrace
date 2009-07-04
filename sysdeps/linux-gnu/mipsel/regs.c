@@ -70,4 +70,8 @@ void *
 get_return_addr(Process *proc, void *stack_pointer) {
 	return (void *)ptrace(PTRACE_PEEKUSER, proc->pid, off_lr, 0);
 }
-/**@}*/
+
+void
+set_return_addr(Process *proc, void *addr) {
+	ptrace(PTRACE_POKEUSER, proc->pid, off_lr, addr);
+}

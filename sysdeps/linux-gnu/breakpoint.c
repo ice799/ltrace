@@ -6,6 +6,7 @@
 #include <string.h>
 
 #include "common.h"
+#include "arch.h"
 
 static unsigned char break_insn[] = BREAKPOINT_VALUE;
 

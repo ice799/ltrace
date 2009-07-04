@@ -47,3 +47,10 @@ get_return_addr(Process *proc, void *stack_pointer) {
 		ret &= 0xffffffff;
 	return (void *)ret;
 }
+
+void
+set_return_addr(Process *proc, void *addr) {
+	if (proc->mask_32bit)
+		addr = (void *)((long int)addr & 0xffffffff);
+	ptrace(PTRACE_POKETEXT, proc->pid, proc->stack_pointer, addr);
+}

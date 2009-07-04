@@ -33,8 +33,12 @@ get_stack_pointer(Process *proc) {
 
 void *
 get_return_addr(Process *proc, void *stack_pointer) {
-	return (void *)ptrace(PTRACE_PEEKUSER, proc->pid, sizeof(long) * PT_LNK,
-			      0);
+	return (void *)ptrace(PTRACE_PEEKUSER, proc->pid, sizeof(long)*PT_LNK, 0);
+}
+
+void
+set_return_addr(Process *proc, void *addr) {
+	ptrace(PTRACE_POKEUSER, proc->pid, sizeof(long)*PT_LNK, addr);
 }
 
 /* Grab the value of CTR registers.  */

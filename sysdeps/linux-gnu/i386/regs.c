@@ -35,3 +35,8 @@ void *
 get_return_addr(Process *proc, void *stack_pointer) {
 	return (void *)ptrace(PTRACE_PEEKTEXT, proc->pid, stack_pointer, 0);
 }
+
+void
+set_return_addr(Process *proc, void *addr) {
+	ptrace(PTRACE_POKETEXT, proc->pid, proc->stack_pointer, (long)addr);
+}

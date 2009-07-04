@@ -2,7 +2,6 @@
 #include <gelf.h>
 #include <sys/ptrace.h>
 #include "common.h"
-#include "ltrace_elf.h"
 
 /**
    \addtogroup mipsel

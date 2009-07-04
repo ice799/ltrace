@@ -66,3 +66,12 @@ get_return_addr(Process *proc, void *stack_pointer) {
 #endif
 	return (void *)ret;
 }
+
+void
+set_return_addr(Process *proc, void *addr) {
+#ifdef __s390x__
+	if (proc->mask_32bit)
+		addr = (void *)((long)addr & PSW_MASK31);
+#endif
+	ptrace(PTRACE_POKEUSER, proc->pid, PT_GPR14, addr);
+}

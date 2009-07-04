@@ -41,3 +41,12 @@ get_return_addr(Process *proc, void *stack_pointer) {
 		return (void *)a->regs.r_o7 + 12;
 	return (void *)a->regs.r_o7 + 8;
 }
+
+void
+set_return_addr(Process *proc, void *addr) {
+	proc_archdep *a = (proc_archdep *) (proc->arch_ptr);
+	unsigned int t;
+	if (!a->valid)
+		return;
+	ptrace(PTRACE_POKETEXT, proc->pid, a->regs.r_o7 + 8, addr);
+}

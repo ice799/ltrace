@@ -1,7 +1,5 @@
 #include <gelf.h>
 #include "common.h"
-#include "elf.h"
-#include "debug.h"
 
 /* A bundle is 128 bits */
 #define BUNDLE_SIZE 16

@@ -46,3 +46,8 @@ get_return_addr(Process *proc, void *stack_pointer) {
 		addr &= ~1;
 	return (void *)addr;
 }
+
+void
+set_return_addr(Process *proc, void *addr) {
+	ptrace(PTRACE_POKEUSER, proc->pid, off_lr, addr);
+}

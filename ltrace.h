@@ -1,18 +1,18 @@
 typedef enum Event_type Event_type;
 enum Event_type {
-		EVENT_NONE=0,
-		EVENT_SIGNAL,
-		EVENT_EXIT,
-		EVENT_EXIT_SIGNAL,
-		EVENT_SYSCALL,
-		EVENT_SYSRET,
-		EVENT_ARCH_SYSCALL,
-		EVENT_ARCH_SYSRET,
-		EVENT_CLONE,
-		EVENT_EXEC,
-		EVENT_BREAKPOINT,
-		EVENT_NEW,        /* in this case, proc is NULL */
-		EVENT_MAX
+	EVENT_NONE=0,
+	EVENT_SIGNAL,
+	EVENT_EXIT,
+	EVENT_EXIT_SIGNAL,
+	EVENT_SYSCALL,
+	EVENT_SYSRET,
+	EVENT_ARCH_SYSCALL,
+	EVENT_ARCH_SYSRET,
+	EVENT_CLONE,
+	EVENT_EXEC,
+	EVENT_BREAKPOINT,
+	EVENT_NEW,        /* in this case, proc is NULL */
+	EVENT_MAX
 };
 
 typedef struct Process Process;

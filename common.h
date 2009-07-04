@@ -158,7 +158,7 @@ enum Process_State {
 
 struct Process {
 	Process_State state;
-	Process * parent;          /* needed by STATE_BEING_CREATED */
+	Process * parent;         /* needed by STATE_BEING_CREATED */
 	char * filename;
 	pid_t pid;
 	Dict * breakpoints;
@@ -204,8 +204,6 @@ extern Dict * dict_opt_c;
 
 extern Process * list_of_processes;
 
-extern void * instruction_pointer;
-
 extern Event * next_event(void);
 extern Process * pid2proc(pid_t pid);
 extern void handle_event(Event * event);
@@ -235,6 +233,7 @@ extern void * get_instruction_pointer(Process * proc);
 extern void set_instruction_pointer(Process * proc, void * addr);
 extern void * get_stack_pointer(Process * proc);
 extern void * get_return_addr(Process * proc, void * stack_pointer);
+extern void set_return_addr(Process * proc, void * addr);
 extern void enable_breakpoint(pid_t pid, Breakpoint * sbp);
 extern void disable_breakpoint(pid_t pid, const Breakpoint * sbp);
 extern int syscall_p(Process * proc, int status, int * sysnum);
