@@ -3,5 +3,4 @@
 * It lacks support for several Linux archs, and many operating systems
 * 2008-12-29: this line in config file does not work (2nd argument not used):
   string setlocale(enum(LC_ALL=6), string);
-* 2009-04-07 fork() and clone() are not always followed
 * 2009-04-07 doesn't work with threads (processes sharing memory)

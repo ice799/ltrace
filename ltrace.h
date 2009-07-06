@@ -11,6 +11,8 @@ enum Event_type {
 	EVENT_CLONE,
 	EVENT_EXEC,
 	EVENT_BREAKPOINT,
+	EVENT_LIBCALL,
+	EVENT_LIBRET,
 	EVENT_NEW,        /* in this case, proc is NULL */
 	EVENT_MAX
 };

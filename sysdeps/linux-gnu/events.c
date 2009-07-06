@@ -115,6 +115,7 @@ next_event(void) {
 		return &event;
 	}
 	if (!WIFSTOPPED(status)) {
+		/* should never happen */
 		event.type = EVENT_NONE;
 		debug(DEBUG_EVENT, "event: NONE: pid=%d (wait error?)", pid);
 		return &event;
@@ -124,37 +125,39 @@ next_event(void) {
 
 	/* On some targets, breakpoints are signalled not using
 	   SIGTRAP, but also with SIGILL, SIGSEGV or SIGEMT.  Check
-	   for these. */
+	   for these. (TODO: is this true?) */
 	if (stop_signal == SIGSEGV
-	    || stop_signal == SIGILL
+			|| stop_signal == SIGILL
 #ifdef SIGEMT
-	    || stop_signal == SIGEMT
+			|| stop_signal == SIGEMT
 #endif
-	    ) {
-		// If we didn't need to know IP so far, get it now.
-		void * addr = opt_i
-		  ? event.proc->instruction_pointer
-		  : (event.proc->instruction_pointer = get_instruction_pointer (event.proc));
+	   ) {
+		if (!event.proc->instruction_pointer) {
+			event.proc->instruction_pointer =
+				get_instruction_pointer(event.proc);
+		}
 
-		if (address2bpstruct(event.proc, addr))
+		if (address2bpstruct(event.proc, event.proc->instruction_pointer))
 			stop_signal = SIGTRAP;
 	}
 
 	if (stop_signal != (SIGTRAP | event.proc->tracesysgood)
-	    && stop_signal != SIGTRAP) {
+			&& stop_signal != SIGTRAP) {
 		event.type = EVENT_SIGNAL;
 		event.e_un.signum = stop_signal;
 		debug(DEBUG_EVENT, "event: SIGNAL: pid=%d, signum=%d", pid, stop_signal);
 		return &event;
 	}
 
+	/* last case [by exhaustion] */
 	event.type = EVENT_BREAKPOINT;
+
 	if (!event.proc->instruction_pointer) {
 		event.proc->instruction_pointer =
-		    get_instruction_pointer(event.proc);
+			get_instruction_pointer(event.proc);
 	}
 	event.e_un.brk_addr =
-	    event.proc->instruction_pointer - DECR_PC_AFTER_BREAK;
+		event.proc->instruction_pointer - DECR_PC_AFTER_BREAK;
 	debug(DEBUG_EVENT, "event: BREAKPOINT: pid=%d, addr=%p", pid, event.e_un.brk_addr);
 	return &event;
 }
