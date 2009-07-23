@@ -68,6 +68,16 @@ char *PLTs_initialized_by_here = PLT_REINITALISATION_BP;
 #endif
 
 static void
+err_usage(void) {
+#if HAVE_GETOPT_LONG
+	fprintf(stderr, "Try `%s --help' for more information\n", progname);
+#else
+	fprintf(stderr, "Try `%s -h' for more information\n", progname);
+#endif
+	exit(1);
+}
+
+static void
 usage(void) {
 #if !(HAVE_GETOPT || HAVE_GETOPT_LONG)
 	fprintf(stdout, "Usage: %s [command [arg ...]]\n"
@@ -90,9 +100,14 @@ usage(void) {
 #  endif
 # endif
 # if HAVE_GETOPT_LONG
-		"  -d, --debug=LEVEL   print debugging info.\n"
+		"  -D, --debug=LEVEL   enable debugging (see -Dh or --debug=help).\n"
 # else
-		"  -d LEVEL            print debugging info.\n"
+		"  -d LEVEL            enable debugging (see -Dh).\n"
+# endif
+# if HAVE_GETOPT_LONG
+		"  -Dh, --debug=help   show help on debugging.\n"
+# else
+		"  -Dh                 show help on debugging.\n"
 # endif
 		"  -e expr             modify which events to trace.\n"
 		"  -f                  trace children (fork() and clone()).\n"
@@ -142,6 +157,22 @@ usage(void) {
 		"\nReport bugs to ltrace-devel@lists.alioth.debian.org\n",
 		progname);
 #endif
+}
+
+static void
+usage_debug(void) {
+	fprintf(stdout, "%s debugging option, --debug=<octal> or -D<octal>:\n", progname);
+	fprintf(stdout, 
+			"\n"
+			" number  ref. in source   description\n"
+			"      1   general           Generally helpful progress information\n"
+			"     10   event             Shows every event received by a traced process\n"
+			"     20   process           Shows actions carried upon a traced processes\n"
+			"     40   function          Shows every entry to internal functions\n"
+			"\n"
+			"Debugging options are mixed using bitwise-or.\n"
+			"Note that the meanings and values are subject to change.\n"
+		   );
 }
 
 static char *
@@ -207,12 +238,13 @@ process_options(int argc, char **argv) {
 #if HAVE_GETOPT || HAVE_GETOPT_LONG
 	while (1) {
 		int c;
+		char *p;
 #if HAVE_GETOPT_LONG
 		int option_index = 0;
 		static struct option long_options[] = {
 			{"align", 1, 0, 'a'},
 			{"config", 1, 0, 'F'},
-			{"debug", 1, 0, 'd'},
+			{"debug", 1, 0, 'D'},
 # ifdef USE_DEMANGLE
 			{"demangle", 0, 0, 'C'},
 #endif
@@ -227,14 +259,14 @@ process_options(int argc, char **argv) {
 # ifdef USE_DEMANGLE
 				"C"
 # endif
-				"a:A:d:e:F:l:n:o:p:s:u:x:X:", long_options,
+				"a:A:D:e:F:l:n:o:p:s:u:x:X:", long_options,
 				&option_index);
 #else
 		c = getopt(argc, argv, "+cfhiLrStTV"
 # ifdef USE_DEMANGLE
 				"C"
 # endif
-				"a:A:d:e:F:l:n:o:p:s:u:x:X:");
+				"a:A:D:e:F:l:n:o:p:s:u:x:X:");
 #endif
 		if (c == -1) {
 			break;
@@ -254,8 +286,16 @@ process_options(int argc, char **argv) {
 			options.demangle++;
 			break;
 #endif
-		case 'd':
-			options.debug = strtoul(optarg,NULL,0);
+		case 'D':
+			if (optarg[0]=='h') {
+				usage_debug();
+				exit(0);
+			}
+			options.debug = strtoul(optarg,&p,8);
+			if (*p) {
+				fprintf(stderr, "%s: --debug requires an octal argument\n", progname);
+				err_usage();
+			}
 			break;
 		case 'e':
 			{
@@ -408,15 +448,7 @@ process_options(int argc, char **argv) {
 			}
 
 		default:
-#if HAVE_GETOPT_LONG
-			fprintf(stderr,
-				"Try `%s --help' for more information\n",
-				progname);
-#else
-			fprintf(stderr, "Try `%s -h' for more information\n",
-				progname);
-#endif
-			exit(1);
+			err_usage();
 		}
 	}
 	argc -= optind;
@@ -448,13 +480,12 @@ process_options(int argc, char **argv) {
 
 	if (!opt_p && argc < 1) {
 		fprintf(stderr, "%s: too few arguments\n", progname);
-		usage();
-		exit(1);
+		err_usage();
 	}
 	if (opt_r && opt_t) {
 		fprintf(stderr, "%s: Incompatible options -r and -t\n",
 			progname);
-		exit(1);
+		err_usage();
 	}
 	if (argc > 0) {
 		command = search_for_command(argv[0]);

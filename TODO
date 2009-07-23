@@ -34,5 +34,4 @@
 * Get rid of GNU's autoconf stuff
 * List source dependencies in Makefile
 * Create different ltrace processes to trace different children
-* debug: change "-d" option to be something like "-d elf,events", or "-d breakpoints"
 * After a clone(), syscalls may be seen as sysrets in s390 (see trace.c:syscall_p())

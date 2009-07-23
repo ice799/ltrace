@@ -3,9 +3,9 @@
 /* debug levels:
  */
 enum {
-	DEBUG_EVENT    = 0x10,
-	DEBUG_PROCESS  = 0x20,
-	DEBUG_FUNCTION = 0x40
+	DEBUG_EVENT    = 010,
+	DEBUG_PROCESS  = 020,
+	DEBUG_FUNCTION = 040
 };
 
 void debug_(int level, const char *file, int line,

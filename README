@@ -23,6 +23,8 @@ ltrace has been developed mainly by Juan Cespedes <cespedes@debian.org>,
 but he has received many contributions from other people.  The following
 people have contributed significantly to this project:
 
+* César Sánchez <cesar.sanchez@imdea.org>
+* Santiago Romero <santiago.romero@imdea.org>
 * Pat Beirne <pbeirne@home.com> (ARM port)
 * Roman Hodek <Roman.Hodek@informatik.uni-erlangen.de> (m68k port)
 * Morten Eriksen <mortene@sim.no> (misc fixes)
@@ -58,7 +60,7 @@ Using software breakpoints, just like gdb.
 It works with ELF based Linux systems running on i386, m68k, S/390,
 ARM, PowerPC, PowerPC64, IA64, AMD64, SPARC and Alpha processors.
 
-It is part of at least Debian GNU/Linux, RedHat, SuSE and Mandrake.
+It is part of at least Debian GNU/Linux, RedHat, SuSE, Mandrake...
 
 5. Bugs
 -------

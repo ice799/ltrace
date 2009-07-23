@@ -6,7 +6,7 @@ ltrace \- A library call tracer
 
 .SH SYNOPSIS
 .B ltrace
-.I "[-CfhiLrStttV] [-a column] [-A maxelts] [-d level] [-e expr] [-l filename] [-n nr] [-o filename] [-p pid] ... [-s strsize] [-u username] [-X extern] [-x extern] ... [--align=column] [--debug=level] [--demangle] [--help] [--indent=nr] [--library=filename] [--output=filename] [--version] [command [arg ...]]"
+.I "[-CfhiLrStttV] [-a column] [-A maxelts] [-D level] [-e expr] [-l filename] [-n nr] [-o filename] [-p pid] ... [-s strsize] [-u username] [-X extern] [-x extern] ... [--align=column] [--debug=level] [--demangle] [--help] [--indent=nr] [--library=filename] [--output=filename] [--version] [command [arg ...]]"
 
 .SH DESCRIPTION
 .B ltrace
@@ -36,7 +36,7 @@ Decode (demangle) low-level symbol names into user-level names.
 Besides removing any initial underscore prefix used by the system,
 this makes C++ function names readable.
 .TP
-.I \-d, \-\-debug level
+.I \-D, \-\-debug level
 Show debugging output of
 .B ltrace
 itself.
@@ -44,13 +44,19 @@ itself.
 must be a sum of some of the following numbers:
 .RS
 .TP
-.B 0x10
+.B 01
+DEBUG_GENERAL.  Shows helpful progress information
+.TP
+.B 010
 DEBUG_EVENT.  Shows every event received by a traced program
 .TP
-.B 0x20
+.B 020
 DEBUG_PROCESS.  Shows every action
 .B ltrace
-carries upon a traced program
+carries upon a traced process
+.TP
+.B 040
+DEBUG_FUNCTION.  Shows every entry to internal functions
 .RE
 .TP
 .I \-e expr
