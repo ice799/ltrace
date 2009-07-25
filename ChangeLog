@@ -1,3 +1,11 @@
+2009-07-25  Juan Cespedes <cespedes@debian.org>
+
+	* New release 0.5.3
+	* Created "libltrace.a" and a simple main program that calls it
+	* Added support for callbacks to libltrace
+	* Got rid of GNU's Autoconf stuff
+	* Make it work again in sparc with new kernel headers
+
 2009-05-21  Juan Cespedes <cespedes@debian.org>
 
 	* Release version 0.5.2

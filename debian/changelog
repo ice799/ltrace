@@ -1,3 +1,17 @@
+ltrace (0.5.3-1) unstable; urgency=low
+
+  * New upstream release
+  * Make it work again in sparc with new kernel headers (closes: Bug#532195)
+
+ -- Juan Cespedes <cespedes@debian.org>  Sat, 25 Jul 2009 16:24:38 +0200
+
+ltrace (0.5.2-2) unstable; urgency=low
+
+  * Make clone() work when child starts after parent finishes
+  * See syscalls as syscalls and not sysrets when we are a clone
+
+ -- Juan Cespedes <cespedes@debian.org>  Thu, 28 May 2009 16:30:08 +0200
+
 ltrace (0.5.2-1) unstable; urgency=low
 
   * New upstream release                                   (closes: Bug#463023)
