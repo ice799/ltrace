@@ -17,8 +17,6 @@ PowerPC port: Copyright (C) 2001-2002 Anton Blanchard <anton@samba.org>
 SPARC port: Copyright (C) 1999 Jakub Jelinek <jakub@redhat.com>
 
 
-Autoconf stuff: Copyright 1992-1996 Free Software Foundation, Inc.
-install-sh: Copyright 1991 by the Massachusetts Institute of Technology
 C++ demangle: Copyright 1989-1997 Free Software Foundation, Inc.
 
 

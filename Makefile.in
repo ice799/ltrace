@@ -15,7 +15,7 @@ docdir		= $(prefix)/share/doc/ltrace
 
 CC		=	@CC@
 CFLAGS		=	-Wall @CFLAGS@
-CPPFLAGS	=	@iquote@$(TOPDIR) @iquote@$(TOPDIR)/sysdeps/$(OS) @iquoteend@ @DEFS@ -DSYSCONFDIR=\"$(sysconfdir)\" @CPPFLAGS@
+CPPFLAGS	=	-iquote $(TOPDIR) -iquote $(TOPDIR)/sysdeps/$(OS) -DSYSCONFDIR=\"$(sysconfdir)\" @CPPFLAGS@
 LDFLAGS		=	@LDFLAGS@
 LIBS		=	@LIBS@
 
@@ -52,12 +52,9 @@ clean:		clean-deja
 		rm -f *~ *.bak a.out core
 
 distclean:	clean
-		rm -f config.cache config.status config.log config.h Makefile configure.scan
-		rm -rf autom4te.cache
-		cd testsuite; make distclean
+		rm -f config.h Makefile
 
 realclean:	distclean
-		rm configure config.h.in
 
 install:	ltrace
 		$(INSTALL_DIR) $(DESTDIR)$(bindir) $(DESTDIR)$(docdir) $(DESTDIR)$(mandir)/man1

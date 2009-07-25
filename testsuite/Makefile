@@ -62,7 +62,6 @@ distclean:
 	list='$(SUBDIRS)'; for subdir in $$list; do \
 	echo "Making clean in $$subdir"; \
 	(cd $$subdir && $(MAKE) distclean ) done;
-	-rm -f Makefile
 	-rm -f $(CLEANFILES)
 
 .PHONY: $(RECURSIVE_TARGETS) check  clean distclean realclean

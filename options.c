@@ -1,6 +1,4 @@
-#if HAVE_CONFIG_H
 #include "config.h"
-#endif
 
 #include <string.h>
 #include <stdlib.h>
@@ -10,9 +8,7 @@
 #include <limits.h>
 #include <sys/ioctl.h>
 
-#if HAVE_GETOPT_H
 #include <getopt.h>
-#endif
 
 #include "common.h"
 
@@ -69,75 +65,31 @@ char *PLTs_initialized_by_here = PLT_REINITALISATION_BP;
 
 static void
 err_usage(void) {
-#if HAVE_GETOPT_LONG
 	fprintf(stderr, "Try `%s --help' for more information\n", progname);
-#else
-	fprintf(stderr, "Try `%s -h' for more information\n", progname);
-#endif
 	exit(1);
 }
 
 static void
 usage(void) {
-#if !(HAVE_GETOPT || HAVE_GETOPT_LONG)
-	fprintf(stdout, "Usage: %s [command [arg ...]]\n"
-		"Trace library calls of a given program.\n\n", progname);
-#else
 	fprintf(stdout, "Usage: %s [option ...] [command [arg ...]]\n"
 		"Trace library calls of a given program.\n\n"
-# if HAVE_GETOPT_LONG
 		"  -a, --align=COLUMN  align return values in a secific column.\n"
-# else
-		"  -a COLUMN           align return values in a secific column.\n"
-# endif
 		"  -A ARRAYLEN         maximum number of array elements to print.\n"
 		"  -c                  count time and calls, and report a summary on exit.\n"
 # ifdef USE_DEMANGLE
-#  if HAVE_GETOPT_LONG
 		"  -C, --demangle      decode low-level symbol names into user-level names.\n"
-#  else
-		"  -C                  decode low-level symbol names into user-level names.\n"
-#  endif
 # endif
-# if HAVE_GETOPT_LONG
 		"  -D, --debug=LEVEL   enable debugging (see -Dh or --debug=help).\n"
-# else
-		"  -d LEVEL            enable debugging (see -Dh).\n"
-# endif
-# if HAVE_GETOPT_LONG
 		"  -Dh, --debug=help   show help on debugging.\n"
-# else
-		"  -Dh                 show help on debugging.\n"
-# endif
 		"  -e expr             modify which events to trace.\n"
 		"  -f                  trace children (fork() and clone()).\n"
-# if HAVE_GETOPT_LONG
 		"  -F, --config=FILE   load alternate configuration file (may be repeated).\n"
-# else
-		"  -F FILE             load alternate configuration file (may be repeated).\n"
-# endif
-# if HAVE_GETOPT_LONG
 		"  -h, --help          display this help and exit.\n"
-# else
-		"  -h                  display this help and exit.\n"
-# endif
 		"  -i                  print instruction pointer at time of library call.\n"
-#  if HAVE_GETOPT_LONG
 		"  -l, --library=FILE  print library calls from this library only.\n"
-#  else
-		"  -l FILE             print library calls from this library only.\n"
-#  endif
 		"  -L                  do NOT display library calls.\n"
-# if HAVE_GETOPT_LONG
 		"  -n, --indent=NR     indent output by NR spaces for each call level nesting.\n"
-# else
-		"  -n NR               indent output by NR spaces for each call level nesting.\n"
-# endif
-# if HAVE_GETOPT_LONG
 		"  -o, --output=FILE   write the trace output to that file.\n"
-# else
-		"  -o FILE             write the trace output to that file.\n"
-# endif
 		"  -p PID              attach to the process with the process ID pid.\n"
 		"  -r                  print relative timestamps.\n"
 		"  -s STRLEN           specify the maximum string size to print.\n"
@@ -145,18 +97,13 @@ usage(void) {
 		"  -t, -tt, -ttt       print absolute timestamps.\n"
 		"  -T                  show the time spent inside each call.\n"
 		"  -u USERNAME         run command with the userid, groupid of username.\n"
-# if HAVE_GETOPT_LONG
 		"  -V, --version       output version information and exit.\n"
-# else
-		"  -V                  output version information and exit.\n"
-# endif
 		"  -x NAME             treat the global NAME like a library subroutine.\n"
 #ifdef PLT_REINITALISATION_BP
 		"  -X NAME             same as -x; and PLT's will be initialized by here.\n"
 #endif
 		"\nReport bugs to ltrace-devel@lists.alioth.debian.org\n",
 		progname);
-#endif
 }
 
 static void
@@ -235,11 +182,9 @@ process_options(int argc, char **argv) {
 
 	guess_cols();
 
-#if HAVE_GETOPT || HAVE_GETOPT_LONG
 	while (1) {
 		int c;
 		char *p;
-#if HAVE_GETOPT_LONG
 		int option_index = 0;
 		static struct option long_options[] = {
 			{"align", 1, 0, 'a'},
@@ -261,13 +206,6 @@ process_options(int argc, char **argv) {
 # endif
 				"a:A:D:e:F:l:n:o:p:s:u:x:X:", long_options,
 				&option_index);
-#else
-		c = getopt(argc, argv, "+cfhiLrStTV"
-# ifdef USE_DEMANGLE
-				"C"
-# endif
-				"a:A:D:e:F:l:n:o:p:s:u:x:X:");
-#endif
 		if (c == -1) {
 			break;
 		}
@@ -453,7 +391,6 @@ process_options(int argc, char **argv) {
 	}
 	argc -= optind;
 	argv += optind;
-#endif
 
 	if (!opt_F) {
 		opt_F = malloc(sizeof(struct opt_F_t));

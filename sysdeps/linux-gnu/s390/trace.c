@@ -7,9 +7,7 @@
 ** Copyright (C) 2001,2005 IBM Corp.
 */
 
-#if HAVE_CONFIG_H
 #include "config.h"
-#endif
 
 #include <errno.h>
 #include <stdlib.h>

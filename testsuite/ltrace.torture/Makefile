@@ -19,15 +19,11 @@ CLEANFILES = *.log *.sum site.bak setval.tmp site.exp
 
 .SUFFIXES:	
 clean:
-	-rm -f demangle trace-fork trace-clone trace-exec trace-exec1
-	-rm -f time-record-tt time-record-ttt time-record-T
-	-rm -f attach-process count-record
-	-rm -f print-instruction-pointer
+	-rm -f signals 
 	-rm -f *.o *.so 
 	-rm -f *.ltrace
 	-rm -f $(CLEANFILES)
 distclean: clean
-	-rm -f Makefile
 
 
 .PHONY: $(RECURSIVE_TARGETS) check  clean distclean realclean

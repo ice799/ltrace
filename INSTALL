@@ -9,15 +9,7 @@ To create a distribution (ltrace-<version>.tar.gz):
 
 	./mkdist
 
-To compile from repository:
-
-	aclocal
-	autoheader
-	autoconf
-	./configure
-	make
-
-To compile from distribution:
+To compile:
 
 	./configure
 	make

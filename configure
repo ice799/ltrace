@@ -1,0 +1,157 @@
+#!/bin/sh
+
+if [ ! -f libltrace.c ]
+then
+  echo "configure: error: cannot find sources (libltrace.c)" 1>&2
+  exit 1
+fi
+
+echo -n "checking package name... "
+PACKAGE_NAME='ltrace'
+echo $PACKAGE_NAME
+
+echo -n "checking $PACKAGE_NAME version... "
+PACKAGE_VERSION=$( cat VERSION )
+echo $PACKAGE_VERSION
+
+echo -n "checking HOST_OS... "
+HOST_OS=$( uname -s )
+if [ "$HOST_OS" = "Linux" ]
+then
+  HOST_OS="linux-gnu"
+fi
+echo $HOST_OS
+
+# HAVE_LIBIBERTY
+echo -n "checking for cplus_demangle in -liberty... "
+cat > conftest.c << EOF
+char cplus_demangle();
+int main () {
+  return cplus_demangle();
+}
+EOF
+if gcc conftest.c -liberty 2>/dev/null
+then
+  HAVE_LIBIBERTY=1
+  echo "yes"
+else
+  unset HAVE_LIBIBERTY
+  echo "no"
+fi
+rm -f conftest.c a.out
+
+# HAVE_LIBSUPC__
+echo -n "checking for __cxa_demangle in -lsupc++... "
+cat > conftest.c << EOF
+char __cxa_demangle();
+int main () {
+  return __cxa_demangle();
+}
+EOF
+if gcc conftest.c -lsupc++ 2>/dev/null
+then
+  HAVE_LIBSUPC__=1
+  echo "yes"
+else
+  unset HAVE_LIBSUPC__
+  echo "no"
+fi
+rm -f conftest.c a.out
+
+# HAVE_ELF_C_READ_MMAP
+echo -n "checking whether elf_begin accepts ELF_C_READ_MMAP... "
+cat > conftest.c << EOF
+#include <gelf.h>
+int main () {
+  Elf *elf = elf_begin (4, ELF_C_READ_MMAP, 0);
+  return 0;
+}
+EOF
+if gcc conftest.c 2>/dev/null
+then
+  HAVE_ELF_C_READ_MMAP=1
+  echo "yes"
+else
+  unset HAVE_ELF_C_READ_MMAP
+  echo "no"
+fi
+rm -f conftest.c a.out
+
+CC=gcc
+CPPFLAGS=' -I /usr/include/libelf'
+CFLAGS='-g -O2'
+LIBS='-lelf -lsupc++ -liberty '
+INSTALL='/usr/bin/install -c'
+iquote='-iquote '
+iquoteend=''
+
+prefix=/usr/local
+sysconfdir='${prefix}/etc'
+bindir='${prefix}/bin'
+mandir='${prefix}/share/man'
+docdir='${prefix}/share/doc/ltrace'
+for x_option
+do
+  if test -n "$x_prev"; then
+    eval $x_prev=\$x_option
+    x_prev=
+    continue
+  fi
+  case $x_option in
+    --*=* | *=*)
+      x_var=`echo $x_option | sed 's/^--//' | sed 's/=.*//'`
+      x_val=`echo $x_option | sed 's/^.*=//'`
+      eval $x_var=$x_val
+      ;;
+    --*)
+      x_prev=`echo $x_option | sed 's/^--//'`
+      ;;
+  esac
+done
+
+echo "configure: creating Makefile"
+#
+# Makefile.in -> Makefile
+#
+x_subst_vars='PACKAGE_VERSION HOST_OS INSTALL CC CPPFLAGS CFLAGS LDFLAGS LIBS iquote iquoteend prefix sysconfdir mandir docdir'
+
+for i in $x_subst_vars
+do
+  x_val=`eval echo \\"\\$$i\\"`
+  x_sed="$x_sed
+s&@$i@&$x_val&g"
+done
+
+sed "$x_sed" Makefile.in > Makefile
+
+echo "configure: creating config.h"
+#
+# config.h
+#
+exec > config.h
+
+echo '#define PACKAGE_NAME "ltrace"'
+echo '#define PACKAGE_VERSION "'$PACKAGE_VERSION'"'
+
+if [ "$HAVE_LIBIBERTY" ]
+then
+  echo '#define HAVE_LIBIBERTY 1'
+else
+  echo '#undef HAVE_LIBIBERTY'
+fi
+
+if [ "$HAVE_LIBSUPC__" ]
+then
+  echo '#define HAVE_LIBSUPC__ 1'
+else
+  echo '#undef HAVE_LIBSUPC__'
+fi
+
+if [ "$HAVE_ELF_C_READ_MMAP" ]
+then
+  echo '#define HAVE_ELF_C_READ_MMAP 1'
+else
+  echo '#undef HAVE_ELF_C_READ_MMAP'
+fi
+
+exit 0
