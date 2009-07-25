@@ -1,5 +1,12 @@
-ARCH		:=	$(shell uname -m | sed -e s/i.86/i386/ -e s/sun4u/sparc64/ \
-			-e s/arm.*/arm/ -e s/sa110/arm/ -e s/ppc64/ppc/ -e s/s390x/s390/)
+ARCH		:=	$(shell uname -m | sed \
+				-e s/i.86/i386/ \
+				-e s/sun4u/sparc64/ \
+				-e s/sparc64/sparc/ \
+				-e s/arm.*/arm/ \
+				-e s/sa110/arm/ \
+				-e s/ppc64/ppc/ \
+				-e s/s390x/s390/ \
+			)
 
 CPPFLAGS	+=	-I$(TOPDIR)/sysdeps/linux-gnu/$(ARCH)
 

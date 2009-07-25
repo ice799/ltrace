@@ -11,12 +11,11 @@
 #define PT_DETACH PTRACE_SUNDETACH
 #define PTRACE_DETACH PTRACE_SUNDETACH
 
-#include <asm/reg.h>
-#include "common.h"
+#include <asm/ptrace.h>
 
 typedef struct {
 	int valid;
-	struct regs regs;
+	struct pt_regs regs;
 	unsigned int func_arg[6];
 	unsigned int sysc_arg[6];
 } proc_archdep;

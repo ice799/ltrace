@@ -30,7 +30,7 @@ syscall_p(Process *proc, int status, int *sysnum) {
 			return 0;
 		insn = ptrace(PTRACE_PEEKTEXT, proc->pid, ip, 0);
 		if ((insn & 0xc1f8007f) == 0x81d00010) {
-			*sysnum = ((proc_archdep *) proc->arch_ptr)->regs.r_g1;
+			*sysnum = ((proc_archdep *) proc->arch_ptr)->regs.u_regs[UREG_G0];
 			if (proc->callstack_depth > 0 &&
 					proc->callstack[proc->callstack_depth - 1].is_syscall &&
 					proc->callstack[proc->callstack_depth - 1].c_un.syscall == *sysnum) {
@@ -51,11 +51,11 @@ gimme_arg(enum tof type, Process *proc, int arg_num, arg_type_info *info) {
 		exit(1);
 	}
 	if (arg_num == -1)	/* return value */
-		return a->regs.r_o0;
+		return a->regs.u_regs[UREG_G7];
 
 	if (type == LT_TOF_FUNCTION || type == LT_TOF_SYSCALL || arg_num >= 6) {
 		if (arg_num < 6)
-			return ((int *)&a->regs.r_o0)[arg_num];
+			return ((int *)&a->regs.u_regs[UREG_G7])[arg_num];
 		return ptrace(PTRACE_PEEKTEXT, proc->pid,
 			      proc->stack_pointer + 64 * (arg_num + 1));
 	} else if (type == LT_TOF_FUNCTIONR)
@@ -74,8 +74,8 @@ save_register_args(enum tof type, Process *proc) {
 	proc_archdep *a = (proc_archdep *) proc->arch_ptr;
 	if (a->valid) {
 		if (type == LT_TOF_FUNCTION)
-			memcpy(a->func_arg, &a->regs.r_o0, sizeof(a->func_arg));
+			memcpy(a->func_arg, &a->regs.u_regs[UREG_G7], sizeof(a->func_arg));
 		else
-			memcpy(a->sysc_arg, &a->regs.r_o0, sizeof(a->sysc_arg));
+			memcpy(a->sysc_arg, &a->regs.u_regs[UREG_G7], sizeof(a->sysc_arg));
 	}
 }
