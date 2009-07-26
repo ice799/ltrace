@@ -6,10 +6,7 @@
 
 #include <sys/ptrace.h>
 #include <string.h>
-#include "arch.h"
-#include "options.h"
-#include "output.h"
-#include "debug.h"
+#include "common.h"
 
 static long long
 extract_bit_field(char *bundle, int from, int len) {

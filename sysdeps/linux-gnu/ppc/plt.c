@@ -1,4 +1,5 @@
 #include <gelf.h>
+#include <sys/ptrace.h>
 #include "common.h"
 
 GElf_Addr

@@ -24,10 +24,7 @@
 
 #include <sys/ptrace.h>
 #include "config.h"
-#include "arch.h"
-#include "options.h"
-#include "output.h"
-#include "debug.h"
+#include "common.h"
 
 void
 arch_enable_breakpoint(pid_t pid, Breakpoint *sbp) {
@@ -59,8 +56,6 @@ arch_enable_breakpoint(pid_t pid, Breakpoint *sbp) {
 void
 arch_disable_breakpoint(pid_t pid, const Breakpoint *sbp) {
 	unsigned int i, j;
-	const unsigned char break_insn[] = BREAKPOINT_VALUE;
-	const unsigned char thumb_break_insn[] = THUMB_BREAKPOINT_VALUE;
 
 	debug(1, "arch_disable_breakpoint(%d,%p)", pid, sbp->addr);
 

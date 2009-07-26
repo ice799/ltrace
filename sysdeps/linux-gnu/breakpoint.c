@@ -6,8 +6,6 @@
 #include "common.h"
 #include "arch.h"
 
-static unsigned char break_insn[] = BREAKPOINT_VALUE;
-
 #ifdef ARCH_HAVE_ENABLE_BREAKPOINT
 extern void arch_enable_breakpoint(pid_t, Breakpoint *);
 void
@@ -20,6 +18,9 @@ enable_breakpoint(pid_t pid, Breakpoint *sbp) {
 	arch_enable_breakpoint(pid, sbp);
 }
 #else
+
+static unsigned char break_insn[] = BREAKPOINT_VALUE;
+
 void
 enable_breakpoint(pid_t pid, Breakpoint *sbp) {
 	unsigned int i, j;
