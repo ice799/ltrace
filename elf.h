@@ -24,6 +24,9 @@ struct ltelf {
 	Elf32_Word *hash;
 	int hash_type;
 	int lte_flags;
+  GElf_Addr dyn_addr;
+  size_t dyn_sz;
+  size_t debug_offset;
 #ifdef __mips__
 	size_t pltgot_addr;
 	size_t mips_local_gotno;
@@ -31,6 +34,8 @@ struct ltelf {
 #endif // __mips__
 };
 
+#define ELF_MAX_SEGMENTS  (50)
+#define ELF_SYMTAB_MAX    (5000)
 #define LTE_HASH_MALLOCED 1
 #define LTE_PLT_EXECUTABLE 2
 

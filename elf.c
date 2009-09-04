@@ -5,6 +5,7 @@
 #include <error.h>
 #include <fcntl.h>
 #include <gelf.h>
+#include <link.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
@@ -19,6 +20,8 @@ static void add_library_symbol(GElf_Addr addr, const char *name,
 			       enum toplt type_of_plt, int is_weak);
 static int in_load_libraries(const char *name, struct ltelf *lte);
 static GElf_Addr opd2addr(struct ltelf *ltc, GElf_Addr addr);
+
+static struct library_symbol *library_symbols = NULL;
 
 #ifdef PLT_REINITALISATION_BP
 extern char *PLTs_initialized_by_here;
@@ -141,6 +144,9 @@ do_init_elf(struct ltelf *lte, const char *filename) {
 		} else if (shdr.sh_type == SHT_DYNAMIC) {
 			Elf_Data *data;
 			size_t j;
+      
+      lte->dyn_addr = shdr.sh_addr;
+      lte->dyn_sz = shdr.sh_size;
 
 			data = elf_getdata(scn, NULL);
 			if (data == NULL || elf_getdata(scn, data) != NULL)
@@ -186,6 +192,10 @@ do_init_elf(struct ltelf *lte, const char *filename) {
 					relplt_addr = dyn.d_un.d_ptr;
 				else if (dyn.d_tag == DT_PLTRELSZ)
 					relplt_size = dyn.d_un.d_val;
+        else if (dyn.d_tag == DT_DEBUG) {
+          lte->debug_offset = sizeof(GElf_Dyn) * j;
+          debug(2, "vma of dynamic: %lx:%lx debug offset: %zd bytes: %zd\n", shdr.sh_addr, shdr.sh_size, j, lte->debug_offset);
+        }
 			}
 		} else if (shdr.sh_type == SHT_HASH) {
 			Elf_Data *data;
@@ -280,7 +290,7 @@ do_init_elf(struct ltelf *lte, const char *filename) {
 	if (!relplt_addr || !lte->plt_addr) {
 		debug(1, "%s has no PLT relocations", filename);
 		lte->relplt = NULL;
-		lte->relplt_count = 0;
+    lte->relplt_count = 0;
 	} else {
 		for (i = 1; i < lte->ehdr.e_shnum; ++i) {
 			Elf_Scn *scn;
@@ -302,7 +312,7 @@ do_init_elf(struct ltelf *lte, const char *filename) {
 					      "Couldn't get .rel*.plt data from \"%s\"",
 					      filename);
 				break;
-			}
+      }
 		}
 
 		if (i == lte->ehdr.e_shnum)
@@ -451,9 +461,239 @@ opd2addr(struct ltelf *lte, GElf_Addr addr) {
 #endif
 }
 
+
+static int
+find_dynamic_entry(Process *proc, void *pvAddr, Elf64_Sxword d_tag, GElf_Dyn *entry) {
+  int i = 0, done = 0;
+
+  debug(DEBUG_FUNCTION, "find_dynamic_entry()");
+
+  if (entry == NULL || pvAddr == NULL || d_tag < 0 || d_tag > DT_NUM) {
+    return -1;
+  }
+
+  while ((!done) && (i < ELF_MAX_SEGMENTS) && 
+      (sizeof(*entry) == umovebytes(proc, pvAddr, entry, sizeof(*entry))) &&
+      (entry->d_tag != DT_NULL)) {
+    if (entry->d_tag == d_tag) 
+      done = 1;
+    pvAddr += sizeof(*entry);
+    i++;
+  }
+
+  if (done) {
+    debug(2, "found address: 0x%lx in dtag %ld\n", entry->d_un.d_val, d_tag);
+    return(0);
+  }
+  else {
+    debug(2, "Couldn't address for dtag!\n");
+    return(-1);
+  }
+}
+
+static int
+check_lib(const char *lib_name) {
+  int i = 0;
+  for(i = 0; i < library_num; i++)
+    if (strcmp(lib_name, library[i]) == 0)
+      return 0;
+
+  return 1;
+}
+
+void
+check_sym_name(const char *sym_name, GElf_Addr sym_addr, unsigned char sym_info) {
+  Function *tmp = list_of_functions;
+  
+  debug(DEBUG_FUNCTION, "check_sym_name()");
+
+  while (tmp != NULL) {
+    const char *demangled = my_demangle(sym_name);
+    char *found = strchr(demangled, '(');
+    int demang_len = 0;
+    if (found) {
+      demang_len = found - demangled - 1;
+    }
+    if (strcmp(sym_name, tmp->name) == 0) {
+      add_library_symbol(sym_addr, sym_name, &library_symbols,
+          LS_TOPLT_NONE,
+          ELF64_ST_BIND(sym_info)== STB_WEAK);
+      debug(2, "added symbol %s!\n", tmp->name);
+    }
+    else if (found && strncmp(demangled, tmp->name, demang_len) == 0) {
+      add_library_symbol(sym_addr, demangled, &library_symbols,
+          LS_TOPLT_NONE,
+          ELF64_ST_BIND(sym_info) == STB_WEAK);
+      debug(2, "added c++ symbol %s!\n", tmp->name);
+    }
+
+    tmp = tmp->next;
+  }
+}
+
+static int
+crawl_symtab(Process *proc, struct link_map *lm, const char *str_tab, GElf_Sym *symtab, Elf64_Xword sym_ent_len) {
+  int i = 0, bytes_read = 0;
+  GElf_Sym tmp;
+  GElf_Sym *tmp_symtab = symtab;
+  GElf_Addr sym_addr;
+  char sym_name[BUFSIZ];
+
+  debug(DEBUG_FUNCTION, "crawl_symtab(): %p", symtab);
+
+  /* XXX need a better loop invariant!!! */
+  while ((i < ELF_SYMTAB_MAX)) {
+    if (umovebytes(proc, tmp_symtab, &tmp, sizeof(tmp)) != sizeof(tmp)) {
+      debug(2, "Couldn't read symtab entry");
+      return -1;
+    }
+
+    tmp_symtab = (GElf_Sym *) ((unsigned long) tmp_symtab + (unsigned long) (sym_ent_len));
+    i++;
+
+    if (!tmp.st_name) {
+      continue;
+    }
+    if (!tmp.st_size){
+      continue;
+    }
+    if (!(ELF32_ST_TYPE(tmp.st_info) == STT_FUNC)) {
+      continue;
+    }
+    if (!tmp.st_value) {
+      continue;
+    }
+
+    bytes_read = umovebytes(proc, str_tab + tmp.st_name, sym_name, sizeof(sym_name));
+
+    if (bytes_read < 0) {
+      debug(2, "Could not read symbol name\n");
+      continue; 
+    }
+   
+    sym_name[bytes_read] = '\0';
+    sym_addr = (GElf_Addr)lm->l_addr + tmp.st_value;
+
+    debug(2, "Found symbol %s @ 0x%lx", sym_name, sym_addr);
+
+    check_sym_name(sym_name, sym_addr, tmp.st_info);
+  }
+
+  return 0; 
+}
+
+static int
+crawl_linkmap(Process *proc, struct link_map *lm) {
+  GElf_Dyn tmp;
+  GElf_Sym *sym_tab = NULL;
+  struct link_map rlm;
+  const char *str_table = NULL;
+  char lib_name[BUFSIZ];
+  Elf64_Xword sym_ent_len = 0;
+
+  debug (DEBUG_FUNCTION, "crawl_linkmap()");
+  
+  while (lm) {
+    if (umovebytes(proc, lm, &rlm, sizeof(rlm)) != sizeof(rlm)) {
+      debug(2, "Unable to read link map\n");
+      return -1;
+    }
+
+    lm = rlm.l_next;
+    if (rlm.l_name == NULL) {
+      debug(2, "Invalid library name referenced in dynamic linker map\n");
+      return -1;
+    }
+
+    umovebytes(proc, rlm.l_name, lib_name, sizeof(lib_name));
+
+    if (lib_name[0] == '\0') {
+      debug(2, "Library name is an empty string");
+      continue;
+    }
+
+    debug(2, "Object %s, Loaded at 0x%lx\n", lib_name, rlm.l_addr);
+    
+    if (check_lib(lib_name)) {
+      debug(2, "User doesn't care about this library, skipping.");
+      continue;
+    }
+
+    if (!rlm.l_ld)  {
+      debug(2, "Could not find .dynamic section for DSO %s\n", lib_name);
+
+      /* XXX return, really? */
+      return -1;
+    }
+
+    debug(2, ".dynamic section for library %s is at 0x%p size:%zd\n", lib_name, rlm.l_ld, sizeof(rlm.l_ld));
+
+    if (find_dynamic_entry(proc, (void *) rlm.l_ld, DT_SYMTAB, &tmp) == -1) {
+      debug(2, "Couldn't find symtab!\n");
+      
+      /* XXX look for static symtab? */
+      return -1;
+    }
+
+    sym_tab = (GElf_Sym *) tmp.d_un.d_ptr;
+
+    debug(2, "symtab: %p, l_addr: %lx", sym_tab, rlm.l_addr);
+    /* If the address is less than the base offset, it is probably a relative
+       address and we need to adjust sym_tab accordingly */
+    if (sym_tab < (Elf64_Sym *) rlm.l_addr)
+      sym_tab = (GElf_Sym *) ((unsigned long) sym_tab + rlm.l_addr);
+
+    if (find_dynamic_entry(proc, (void *) rlm.l_ld, DT_SYMENT, &tmp) == -1) {
+      debug(2, "Couldn't read symtab entry length!");
+      return -1;
+    }
+
+    sym_ent_len = tmp.d_un.d_val;
+
+    if (find_dynamic_entry(proc, (void *) rlm.l_ld, DT_STRTAB, &tmp) == -1) {
+      debug(2, "No string table found for library %s\n", lib_name);
+      return -1;
+    }
+
+    str_table = (const char *) tmp.d_un.d_ptr;
+
+    crawl_symtab(proc, &rlm, str_table, sym_tab, sym_ent_len);
+  }
+  return 0;
+}
+
+
+void
+linkmap_init(Process *proc, struct ltelf *lte) {
+  GElf_Dyn tmp;
+  struct r_debug rdbg, *tdbg = NULL;
+  struct link_map *tlink_map = NULL;
+
+  debug(DEBUG_FUNCTION, "linkmap_init()");
+
+  if (find_dynamic_entry(proc, (void *)lte->dyn_addr, DT_DEBUG, &tmp) == -1) {
+    debug(2, "Couldn't find debug structure!");
+    return;
+  }
+  
+  tdbg = (struct r_debug *) tmp.d_un.d_val;
+  /* XXX
+     this isn't actually a failure case - we need to set breakpoints on
+     dl_debug_state and then re-try this function.
+   */
+  if (umovebytes(proc, tdbg, &rdbg, sizeof(rdbg)) != sizeof(rdbg)) {
+    debug(2, "This process does not have a debug structure!\n");
+    return;
+  }
+
+  tlink_map = rdbg.r_map;
+  crawl_linkmap(proc, tlink_map);
+
+  return;
+}
+
 struct library_symbol *
 read_elf(Process *proc) {
-	struct library_symbol *library_symbols = NULL;
 	struct ltelf lte[MAX_LIBRARIES + 1];
 	size_t i;
 	struct opt_x_t *xptr;
@@ -465,9 +705,15 @@ read_elf(Process *proc) {
 	elf_version(EV_CURRENT);
 
 	do_init_elf(lte, proc->filename);
+
+  /* XXX if attaching to pid or something */
+  linkmap_init(proc, lte);
+
 	proc->e_machine = lte->ehdr.e_machine;
-	for (i = 0; i < library_num; ++i)
-		do_init_elf(&lte[i + 1], library[i]);
+	for (i = 0; i < library_num; ++i) {
+    do_init_elf(&lte[i + 1], library[i]);
+  }
+
 #ifdef __mips__
 	// MIPS doesn't use the PLT and the GOT entries get changed
 	// on startup.

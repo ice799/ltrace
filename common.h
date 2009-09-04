@@ -217,6 +217,8 @@ extern void enable_all_breakpoints(Process * proc);
 extern void disable_all_breakpoints(Process * proc);
 extern void reinitialize_breakpoints(Process *);
 
+extern void linkmap_init(Process * proc, struct ltelf *lte);
+
 extern Process * open_program(char * filename, pid_t pid);
 extern void open_pid(pid_t pid);
 extern void show_summary(void);
@@ -245,6 +247,7 @@ extern long gimme_arg(enum tof type, Process * proc, int arg_num, arg_type_info 
 extern void save_register_args(enum tof type, Process * proc);
 extern int umovestr(Process * proc, void * addr, int len, void * laddr);
 extern int umovelong (Process * proc, void * addr, long * result, arg_type_info * info);
+extern size_t umovebytes (Process *proc, void * src, void * dest, size_t count);
 extern int ffcheck(void * maddr);
 extern void * sym2addr(Process *, struct library_symbol *);
 
