@@ -1,4 +1,4 @@
-# include "config.h"
+#include "config.h"
 
 #include <endian.h>
 #include <errno.h>
@@ -12,19 +12,24 @@
 
 #include "common.h"
 
-static void do_init_elf(struct ltelf *lte, const char *filename);
-static void do_close_elf(struct ltelf *lte);
-static void add_library_symbol(GElf_Addr addr, const char *name,
+void do_init_elf(struct ltelf *lte, const char *filename);
+void do_close_elf(struct ltelf *lte);
+void add_library_symbol(GElf_Addr addr, const char *name,
 			       struct library_symbol **library_symbolspp,
 			       enum toplt type_of_plt, int is_weak);
-static int in_load_libraries(const char *name, struct ltelf *lte);
+int in_load_libraries(const char *name, struct ltelf *lte, size_t count, GElf_Sym *sym);
 static GElf_Addr opd2addr(struct ltelf *ltc, GElf_Addr addr);
+
+struct library_symbol *library_symbols;
+struct ltelf main_lte;
 
 #ifdef PLT_REINITALISATION_BP
 extern char *PLTs_initialized_by_here;
 #endif
 
-static void
+int libdl_hooked = 0;
+
+void
 do_init_elf(struct ltelf *lte, const char *filename) {
 	int i;
 	GElf_Addr relplt_addr = 0;
@@ -33,7 +38,6 @@ do_init_elf(struct ltelf *lte, const char *filename) {
 	debug(DEBUG_FUNCTION, "do_init_elf(filename=%s)", filename);
 	debug(1, "Reading ELF from %s...", filename);
 
-	memset(lte, 0, sizeof(*lte));
 	lte->fd = open(filename, O_RDONLY);
 	if (lte->fd == -1)
 		error(EXIT_FAILURE, errno, "Can't open \"%s\"", filename);
@@ -141,6 +145,9 @@ do_init_elf(struct ltelf *lte, const char *filename) {
 		} else if (shdr.sh_type == SHT_DYNAMIC) {
 			Elf_Data *data;
 			size_t j;
+
+			lte->dyn_addr = shdr.sh_addr;
+			lte->dyn_sz = shdr.sh_size;
 
 			data = elf_getdata(scn, NULL);
 			if (data == NULL || elf_getdata(scn, data) != NULL)
@@ -314,7 +321,7 @@ do_init_elf(struct ltelf *lte, const char *filename) {
 	}
 }
 
-static void
+void
 do_close_elf(struct ltelf *lte) {
 	debug(DEBUG_FUNCTION, "do_close_elf()");
 	if (lte->lte_flags & LTE_HASH_MALLOCED)
@@ -323,7 +330,7 @@ do_close_elf(struct ltelf *lte) {
 	close(lte->fd);
 }
 
-static void
+void
 add_library_symbol(GElf_Addr addr, const char *name,
 		   struct library_symbol **library_symbolspp,
 		   enum toplt type_of_plt, int is_weak) {
@@ -358,18 +365,18 @@ private_elf_gnu_hash(const char *name) {
 	return h & 0xffffffff;
 }
 
-static int
-in_load_libraries(const char *name, struct ltelf *lte) {
+int
+in_load_libraries(const char *name, struct ltelf *lte, size_t count, GElf_Sym *sym) {
 	size_t i;
 	unsigned long hash;
 	unsigned long gnu_hash;
 
-	if (!library_num)
+	if (!count)
 		return 1;
 
 	hash = elf_hash((const unsigned char *)name);
 	gnu_hash = private_elf_gnu_hash(name);
-	for (i = 1; i <= library_num; ++i) {
+	for (i = 0; i < count; ++i) {
 		if (lte[i].hash == NULL)
 			continue;
 
@@ -394,15 +401,20 @@ in_load_libraries(const char *name, struct ltelf *lte) {
 				do
 					if ((*hasharr & ~1u) == (gnu_hash & ~1u)) {
 						int symidx = hasharr - chain_zero;
-						GElf_Sym sym;
+						GElf_Sym tmp_sym;
+						GElf_Sym *tmp;
 
-						if (gelf_getsym(lte[i].dynsym, symidx, &sym) == NULL)
-							error(EXIT_FAILURE, 0,
-							      "Couldn't get symbol from .dynsym");
+						tmp = (sym) ? (sym) : (&tmp_sym);
 
-						if (sym.st_value != 0
-						    && sym.st_shndx != SHN_UNDEF
-						    && strcmp(name, lte[i].dynstr + sym.st_name) == 0)
+						if (gelf_getsym(lte[i].dynsym, symidx, tmp) == NULL)
+							error(EXIT_FAILURE, 0, "Couldn't get symbol from .dynsym");
+						else {
+							tmp->st_value += lte[i].base_addr;
+							debug(2, "symbol found: %s, %zd, %lx", name, i, tmp->st_value);
+						}
+						if (tmp->st_value != 0
+						    && tmp->st_shndx != SHN_UNDEF
+						    && strcmp(name, lte[i].dynstr + tmp->st_name) == 0)
 							return 1;
 					}
 				while ((*hasharr++ & 1u) == 0);
@@ -416,15 +428,22 @@ in_load_libraries(const char *name, struct ltelf *lte) {
 
 			for (symndx = buckets[hash % nbuckets];
 			     symndx != STN_UNDEF; symndx = chain[symndx]) {
-				GElf_Sym sym;
+				GElf_Sym tmp_sym;
+				GElf_Sym *tmp;
 
-				if (gelf_getsym(lte[i].dynsym, symndx, &sym) == NULL)
+				tmp = (sym) ? (sym) : (&tmp_sym);
+
+				if (gelf_getsym(lte[i].dynsym, symndx, tmp) == NULL)
 					error(EXIT_FAILURE, 0,
 					      "Couldn't get symbol from .dynsym");
+				else {
+					tmp->st_value += lte[i].base_addr;
+					debug(2, "symbol found: %s, %zd, %lx", name, i, tmp->st_value);
+				}
 
-				if (sym.st_value != 0
-				    && sym.st_shndx != SHN_UNDEF
-				    && strcmp(name, lte[i].dynstr + sym.st_name) == 0)
+				if (tmp->st_value != 0
+				    && tmp->st_shndx != SHN_UNDEF
+				    && strcmp(name, lte[i].dynstr + tmp->st_name) == 0)
 					return 1;
 			}
 		}
@@ -453,21 +472,34 @@ opd2addr(struct ltelf *lte, GElf_Addr addr) {
 
 struct library_symbol *
 read_elf(Process *proc) {
-	struct library_symbol *library_symbols = NULL;
 	struct ltelf lte[MAX_LIBRARIES + 1];
 	size_t i;
 	struct opt_x_t *xptr;
 	struct library_symbol **lib_tail = NULL;
 	int exit_out = 0;
+	int count  = 0;
 
 	debug(DEBUG_FUNCTION, "read_elf(file=%s)", proc->filename);
+
+	memset(lte, 0, sizeof(lte));
 
 	elf_version(EV_CURRENT);
 
 	do_init_elf(lte, proc->filename);
+
+	memcpy(&main_lte, lte, sizeof(struct ltelf));
+
+	if (opt_p && opt_p->pid > 0) {
+		linkmap_init(proc, lte);
+		libdl_hooked = 1;
+	}
+
 	proc->e_machine = lte->ehdr.e_machine;
-	for (i = 0; i < library_num; ++i)
+
+	for (i = 0; i < library_num; ++i) {
 		do_init_elf(&lte[i + 1], library[i]);
+	}
+
 #ifdef __mips__
 	// MIPS doesn't use the PLT and the GOT entries get changed
 	// on startup.
@@ -521,15 +553,16 @@ read_elf(Process *proc) {
 			proc->need_to_reinitialize_breakpoints = 1;
 #endif
 
-		name = lte->dynstr + sym.st_name;
-		if (in_load_libraries(name, lte)) {
-			addr = arch_plt_sym_val(lte, i, &rela);
-			add_library_symbol(addr, name, &library_symbols,
-					   (PLTS_ARE_EXECUTABLE(lte)
-					   ?  LS_TOPLT_EXEC : LS_TOPLT_POINT),
-					   ELF64_ST_BIND(sym.st_info) == STB_WEAK);
-			if (!lib_tail)
-				lib_tail = &(library_symbols->next);
+			name = lte->dynstr + sym.st_name;
+			count = library_num ? library_num+1 : 0;
+			if (in_load_libraries(name, lte, count, NULL)) {
+				addr = arch_plt_sym_val(lte, i, &rela);
+				add_library_symbol(addr, name, &library_symbols,
+						(PLTS_ARE_EXECUTABLE(lte)
+						 ?	LS_TOPLT_EXEC : LS_TOPLT_POINT),
+						ELF64_ST_BIND(sym.st_info) == STB_WEAK);
+				if (!lib_tail)
+					lib_tail = &(library_symbols->next);
 		}
 	}
 #endif // !__mips__
@@ -583,6 +616,30 @@ read_elf(Process *proc) {
 				break;
 			}
 	}
+
+	int found_count = 0;
+
+	for (xptr = opt_x; xptr; xptr = xptr->next) {
+		if (xptr->found)
+			continue;
+
+		GElf_Sym sym;
+		GElf_Addr addr;
+		if (in_load_libraries(xptr->name, lte, library_num+1, &sym)) {
+			debug(2, "found symbol %s @ %lx, adding it.", xptr->name, sym.st_value);
+			addr = sym.st_value;
+			if (ELF32_ST_TYPE (sym.st_info) == STT_FUNC) {
+				add_library_symbol(addr, xptr->name, lib_tail, LS_TOPLT_NONE, 0);
+				xptr->found = 1;
+				found_count++;
+			}
+		}
+		if (found_count == opt_x_cnt){
+			debug(2, "done, found everything: %d\n", found_count);
+			break;
+		}
+	}
+
 	for (xptr = opt_x; xptr; xptr = xptr->next)
 		if ( ! xptr->found) {
 			char *badthing = "WARNING";
@@ -605,8 +662,8 @@ read_elf(Process *proc) {
 			}
 #endif
 			fprintf (stderr,
-				 "%s: Couldn't find symbol \"%s\" in file \"%s"
-			         "\"\n", badthing, xptr->name, proc->filename);
+				 "%s: Couldn't find symbol \"%s\" in file \"%s\" assuming it will be loaded by libdl!"
+				 "\n", badthing, xptr->name, proc->filename);
 		}
 	if (exit_out) {
 		exit (1);

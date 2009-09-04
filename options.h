@@ -40,6 +40,7 @@ struct opt_F_t {
 struct opt_x_t {
 	char *name;
 	int found;
+	unsigned long hash;
 	struct opt_x_t *next;
 };
 
@@ -51,5 +52,6 @@ extern int opt_e_enable;	/* 0 if '!' is used, 1 otherwise */
 extern struct opt_F_t *opt_F;	/* alternate configuration file(s) */
 
 extern struct opt_x_t *opt_x;	/* list of functions to break at */
+extern unsigned int opt_x_cnt;
 
 extern char **process_options(int argc, char **argv);

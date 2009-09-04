@@ -1,5 +1,6 @@
 #include "config.h"
 
+#include <gelf.h>
 #include <stdlib.h>
 #include <sys/types.h>
 #include <sys/wait.h>
