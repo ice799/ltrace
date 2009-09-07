@@ -14,6 +14,7 @@ struct options_t {
 	int arraylen; /* default maximum # of array elements printed */
 	int strlen;   /* default maximum # of bytes printed in strings */
 	int follow;   /* trace child processes */
+	int no_plt;   /* set bps on PLT entries */
 };
 extern struct options_t options;
 
