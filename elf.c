@@ -500,57 +500,58 @@ read_elf(Process *proc) {
 		do_init_elf(&lte[i + 1], library[i]);
 	}
 
+	if (!options.no_plt) {
 #ifdef __mips__
-	// MIPS doesn't use the PLT and the GOT entries get changed
-	// on startup.
-	proc->need_to_reinitialize_breakpoints = 1;
-	for(i=lte->mips_gotsym; i<lte->dynsym_count;i++){
-		GElf_Sym sym;
-		const char *name;
-		GElf_Addr addr = arch_plt_sym_val(lte, i, 0);
-		if (gelf_getsym(lte->dynsym, i, &sym) == NULL){
-			error(EXIT_FAILURE, 0,
-					"Couldn't get relocation from \"%s\"",
-					proc->filename);
+		// MIPS doesn't use the PLT and the GOT entries get changed
+		// on startup.
+		proc->need_to_reinitialize_breakpoints = 1;
+		for(i=lte->mips_gotsym; i<lte->dynsym_count;i++){
+			GElf_Sym sym;
+			const char *name;
+			GElf_Addr addr = arch_plt_sym_val(lte, i, 0);
+			if (gelf_getsym(lte->dynsym, i, &sym) == NULL){
+				error(EXIT_FAILURE, 0,
+						"Couldn't get relocation from \"%s\"",
+						proc->filename);
+			}
+			name=lte->dynstr+sym.st_name;
+			if(ELF64_ST_TYPE(sym.st_info) != STT_FUNC){
+				debug(2,"sym %s not a function",name);
+				continue;
+			}
+			add_library_symbol(addr, name, &library_symbols, 0,
+					ELF64_ST_BIND(sym.st_info) != 0);
+			if (!lib_tail)
+				lib_tail = &(library_symbols->next);
 		}
-		name=lte->dynstr+sym.st_name;
-		if(ELF64_ST_TYPE(sym.st_info) != STT_FUNC){
-			debug(2,"sym %s not a function",name);
-			continue;
-		}
-		add_library_symbol(addr, name, &library_symbols, 0,
-				ELF64_ST_BIND(sym.st_info) != 0);
-		if (!lib_tail)
-			lib_tail = &(library_symbols->next);
-	}
 #else
-	for (i = 0; i < lte->relplt_count; ++i) {
-		GElf_Rel rel;
-		GElf_Rela rela;
-		GElf_Sym sym;
-		GElf_Addr addr;
-		void *ret;
-		const char *name;
+		for (i = 0; i < lte->relplt_count; ++i) {
+			GElf_Rel rel;
+			GElf_Rela rela;
+			GElf_Sym sym;
+			GElf_Addr addr;
+			void *ret;
+			const char *name;
 
-		if (lte->relplt->d_type == ELF_T_REL) {
-			ret = gelf_getrel(lte->relplt, i, &rel);
-			rela.r_offset = rel.r_offset;
-			rela.r_info = rel.r_info;
-			rela.r_addend = 0;
-		} else
-			ret = gelf_getrela(lte->relplt, i, &rela);
+			if (lte->relplt->d_type == ELF_T_REL) {
+				ret = gelf_getrel(lte->relplt, i, &rel);
+				rela.r_offset = rel.r_offset;
+				rela.r_info = rel.r_info;
+				rela.r_addend = 0;
+			} else
+				ret = gelf_getrela(lte->relplt, i, &rela);
 
-		if (ret == NULL
-		    || ELF64_R_SYM(rela.r_info) >= lte->dynsym_count
-		    || gelf_getsym(lte->dynsym, ELF64_R_SYM(rela.r_info),
-				   &sym) == NULL)
-			error(EXIT_FAILURE, 0,
-			      "Couldn't get relocation from \"%s\"",
-			      proc->filename);
+			if (ret == NULL
+					|| ELF64_R_SYM(rela.r_info) >= lte->dynsym_count
+					|| gelf_getsym(lte->dynsym, ELF64_R_SYM(rela.r_info),
+						&sym) == NULL)
+				error(EXIT_FAILURE, 0,
+						"Couldn't get relocation from \"%s\"",
+						proc->filename);
 
 #ifdef PLT_REINITALISATION_BP
-		if (!sym.st_value && PLTs_initialized_by_here)
-			proc->need_to_reinitialize_breakpoints = 1;
+			if (!sym.st_value && PLTs_initialized_by_here)
+				proc->need_to_reinitialize_breakpoints = 1;
 #endif
 
 			name = lte->dynstr + sym.st_name;
@@ -563,33 +564,36 @@ read_elf(Process *proc) {
 						ELF64_ST_BIND(sym.st_info) == STB_WEAK);
 				if (!lib_tail)
 					lib_tail = &(library_symbols->next);
+			}
 		}
-	}
 #endif // !__mips__
 #ifdef PLT_REINITALISATION_BP
-	struct opt_x_t *main_cheat;
+		struct opt_x_t *main_cheat;
 
-	if (proc->need_to_reinitialize_breakpoints) {
-		/* Add "PLTs_initialized_by_here" to opt_x list, if not
-		   already there. */
-		main_cheat = (struct opt_x_t *)malloc(sizeof(struct opt_x_t));
-		if (main_cheat == NULL)
-			error(EXIT_FAILURE, 0, "Couldn't allocate memory");
-		main_cheat->next = opt_x;
-		main_cheat->found = 0;
-		main_cheat->name = PLTs_initialized_by_here;
+		if (proc->need_to_reinitialize_breakpoints) {
+			/* Add "PLTs_initialized_by_here" to opt_x list, if not
+				 already there. */
+			main_cheat = (struct opt_x_t *)malloc(sizeof(struct opt_x_t));
+			if (main_cheat == NULL)
+				error(EXIT_FAILURE, 0, "Couldn't allocate memory");
+			main_cheat->next = opt_x;
+			main_cheat->found = 0;
+			main_cheat->name = PLTs_initialized_by_here;
 
-		for (xptr = opt_x; xptr; xptr = xptr->next)
-			if (strcmp(xptr->name, PLTs_initialized_by_here) == 0
-			    && main_cheat) {
-				free(main_cheat);
-				main_cheat = NULL;
-				break;
-			}
-		if (main_cheat)
-			opt_x = main_cheat;
-	}
+			for (xptr = opt_x; xptr; xptr = xptr->next)
+				if (strcmp(xptr->name, PLTs_initialized_by_here) == 0
+						&& main_cheat) {
+					free(main_cheat);
+					main_cheat = NULL;
+					break;
+				}
+			if (main_cheat)
+				opt_x = main_cheat;
+		}
 #endif
+	} else {
+		lib_tail = &library_symbols;
+	}
 
 	for (i = 0; i < lte->symtab_count; ++i) {
 		GElf_Sym sym;

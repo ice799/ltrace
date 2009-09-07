@@ -99,6 +99,7 @@ usage(void) {
 		"  -T                  show the time spent inside each call.\n"
 		"  -u USERNAME         run command with the userid, groupid of username.\n"
 		"  -V, --version       output version information and exit.\n"
+		"  -g, --no-plt        disable breakpoints on PLT entries.\n"
 		"  -x NAME             treat the global NAME like a library subroutine.\n"
 #ifdef PLT_REINITALISATION_BP
 		"  -X NAME             same as -x; and PLT's will be initialized by here.\n"
@@ -180,6 +181,7 @@ char **
 process_options(int argc, char **argv) {
 	progname = argv[0];
 	options.output = stderr;
+	options.no_plt = 0;
 
 	guess_cols();
 
@@ -199,9 +201,10 @@ process_options(int argc, char **argv) {
 			{"library", 1, 0, 'l'},
 			{"output", 1, 0, 'o'},
 			{"version", 0, 0, 'V'},
+			{"no-plt", 0, 0, 'g'},
 			{0, 0, 0, 0}
 		};
-		c = getopt_long(argc, argv, "+cfhiLrStTV"
+		c = getopt_long(argc, argv, "+cfhiLrStTVg"
 # ifdef USE_DEMANGLE
 				"C"
 # endif
@@ -352,6 +355,9 @@ process_options(int argc, char **argv) {
 					"This is free software; see the GNU General Public Licence\n"
 					"version 2 or later for copying conditions.  There is NO warranty.\n");
 			exit(0);
+		case 'g':
+			options.no_plt = 1;
+			break;
 		case 'X':
 #ifdef PLT_REINITALISATION_BP
 			PLTs_initialized_by_here = optarg;
