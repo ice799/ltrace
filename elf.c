@@ -378,7 +378,7 @@ in_load_libraries(const char *name, struct ltelf *lte, GElf_Sym *sym) {
 
 	hash = elf_hash((const unsigned char *)name);
 	gnu_hash = private_elf_gnu_hash(name);
-	for (i = 1; i <= library_num; ++i) {
+	for (i = 0; i <= library_num; ++i) {
 		if (lte[i].hash == NULL)
 			continue;
 
@@ -729,7 +729,7 @@ read_elf(Process *proc) {
 			xptr->found = 1;
 			found_count++;
 		}
-		if (found_count == opt_x_cnt-1){
+		if (found_count == opt_x_cnt){
 			debug(2, "done, found everything: %d\n", found_count);
 			break;
 		}
