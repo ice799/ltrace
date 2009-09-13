@@ -53,6 +53,7 @@ int opt_e_enable = 1;
 
 /* List of global function names given to -x: */
 struct opt_x_t *opt_x = NULL;
+unsigned int opt_x_cnt = 0;
 
 /* List of filenames give to option -F: */
 struct opt_F_t *opt_F = NULL;	/* alternate configuration file(s) */
@@ -384,9 +385,11 @@ process_options(int argc, char **argv) {
 					perror("ltrace: malloc");
 					exit(1);
 				}
+				opt_x_cnt++;
 				p->name = optarg;
 				p->found = 0;
 				p->next = opt_x;
+				p->hash = ~(0UL);
 				opt_x = p;
 				break;
 			}

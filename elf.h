@@ -27,6 +27,7 @@ struct ltelf {
   GElf_Addr dyn_addr;
   size_t dyn_sz;
   size_t debug_offset;
+  GElf_Addr base_addr;
 #ifdef __mips__
 	size_t pltgot_addr;
 	size_t mips_local_gotno;

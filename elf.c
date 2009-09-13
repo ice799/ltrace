@@ -18,7 +18,7 @@ static void do_close_elf(struct ltelf *lte);
 static void add_library_symbol(GElf_Addr addr, const char *name,
 			       struct library_symbol **library_symbolspp,
 			       enum toplt type_of_plt, int is_weak);
-static int in_load_libraries(const char *name, struct ltelf *lte);
+static int in_load_libraries(const char *name, struct ltelf *lte, GElf_Sym *sym);
 static GElf_Addr opd2addr(struct ltelf *ltc, GElf_Addr addr);
 
 static struct library_symbol *library_symbols = NULL;
@@ -36,7 +36,6 @@ do_init_elf(struct ltelf *lte, const char *filename) {
 	debug(DEBUG_FUNCTION, "do_init_elf(filename=%s)", filename);
 	debug(1, "Reading ELF from %s...", filename);
 
-	memset(lte, 0, sizeof(*lte));
 	lte->fd = open(filename, O_RDONLY);
 	if (lte->fd == -1)
 		error(EXIT_FAILURE, errno, "Can't open \"%s\"", filename);
@@ -369,7 +368,7 @@ private_elf_gnu_hash(const char *name) {
 }
 
 static int
-in_load_libraries(const char *name, struct ltelf *lte) {
+in_load_libraries(const char *name, struct ltelf *lte, GElf_Sym *sym) {
 	size_t i;
 	unsigned long hash;
 	unsigned long gnu_hash;
@@ -404,15 +403,20 @@ in_load_libraries(const char *name, struct ltelf *lte) {
 				do
 					if ((*hasharr & ~1u) == (gnu_hash & ~1u)) {
 						int symidx = hasharr - chain_zero;
-						GElf_Sym sym;
+						GElf_Sym tmp_sym;
+						GElf_Sym *tmp;
 
-						if (gelf_getsym(lte[i].dynsym, symidx, &sym) == NULL)
-							error(EXIT_FAILURE, 0,
-							      "Couldn't get symbol from .dynsym");
+						tmp = (sym) ? (sym) : (&tmp_sym);
 
-						if (sym.st_value != 0
-						    && sym.st_shndx != SHN_UNDEF
-						    && strcmp(name, lte[i].dynstr + sym.st_name) == 0)
+						if (gelf_getsym(lte[i].dynsym, symidx, tmp) == NULL)
+							error(EXIT_FAILURE, 0, "Couldn't get symbol from .dynsym");
+						else {
+							tmp->st_value += lte[i].base_addr;
+							debug(2, "symbol found: %s, %zd, %lx", name, i, tmp->st_value);
+						}
+						if (tmp->st_value != 0
+						    && tmp->st_shndx != SHN_UNDEF
+						    && strcmp(name, lte[i].dynstr + tmp->st_name) == 0)
 							return 1;
 					}
 				while ((*hasharr++ & 1u) == 0);
@@ -426,15 +430,22 @@ in_load_libraries(const char *name, struct ltelf *lte) {
 
 			for (symndx = buckets[hash % nbuckets];
 			     symndx != STN_UNDEF; symndx = chain[symndx]) {
-				GElf_Sym sym;
+				GElf_Sym tmp_sym;
+				GElf_Sym *tmp;
 
-				if (gelf_getsym(lte[i].dynsym, symndx, &sym) == NULL)
+				tmp = (sym) ? (sym) : (&tmp_sym);
+
+				if (gelf_getsym(lte[i].dynsym, symndx, tmp) == NULL)
 					error(EXIT_FAILURE, 0,
 					      "Couldn't get symbol from .dynsym");
+				else {
+					tmp->st_value += lte[i].base_addr;
+					debug(2, "symbol found: %s, %zd, %lx", name, i, tmp->st_value);
+				}
 
-				if (sym.st_value != 0
-				    && sym.st_shndx != SHN_UNDEF
-				    && strcmp(name, lte[i].dynstr + sym.st_name) == 0)
+				if (tmp->st_value != 0
+				    && tmp->st_shndx != SHN_UNDEF
+				    && strcmp(name, lte[i].dynstr + tmp->st_name) == 0)
 					return 1;
 			}
 		}
@@ -464,145 +475,50 @@ opd2addr(struct ltelf *lte, GElf_Addr addr) {
 
 static int
 find_dynamic_entry(Process *proc, void *pvAddr, Elf64_Sxword d_tag, GElf_Dyn *entry) {
-  int i = 0, done = 0;
+	int i = 0, done = 0;
 
-  debug(DEBUG_FUNCTION, "find_dynamic_entry()");
+	debug(DEBUG_FUNCTION, "find_dynamic_entry()");
 
-  if (entry == NULL || pvAddr == NULL || d_tag < 0 || d_tag > DT_NUM) {
-    return -1;
-  }
+	if (entry == NULL || pvAddr == NULL || d_tag < 0 || d_tag > DT_NUM) {
+		return -1;
+	}
 
-  while ((!done) && (i < ELF_MAX_SEGMENTS) && 
-      (sizeof(*entry) == umovebytes(proc, pvAddr, entry, sizeof(*entry))) &&
-      (entry->d_tag != DT_NULL)) {
-    if (entry->d_tag == d_tag) 
-      done = 1;
-    pvAddr += sizeof(*entry);
-    i++;
-  }
+	while ((!done) && (i < ELF_MAX_SEGMENTS) &&
+			(sizeof(*entry) == umovebytes(proc, pvAddr, entry, sizeof(*entry))) &&
+			(entry->d_tag != DT_NULL)) {
+		if (entry->d_tag == d_tag)
+			done = 1;
+		pvAddr += sizeof(*entry);
+		i++;
+	}
 
-  if (done) {
-    debug(2, "found address: 0x%lx in dtag %ld\n", entry->d_un.d_val, d_tag);
-    return(0);
-  }
-  else {
-    debug(2, "Couldn't address for dtag!\n");
-    return(-1);
-  }
+	if (done) {
+		debug(2, "found address: 0x%lx in dtag %ld\n", entry->d_un.d_val, d_tag);
+		return(0);
+	}
+	else {
+		debug(2, "Couldn't address for dtag!\n");
+		return(-1);
+	}
 }
 
-static int
-check_lib(const char *lib_name) {
-  int i = 0;
-  for(i = 0; i < library_num; i++)
-    if (strcmp(lib_name, library[i]) == 0)
-      return 0;
-
-  return 1;
-}
-
-void
-check_sym_name(const char *sym_name, GElf_Addr sym_addr, unsigned char sym_info) {
-  Function *tmp = list_of_functions;
-  
-  debug(DEBUG_FUNCTION, "check_sym_name()");
-
-  while (tmp != NULL) {
-    const char *demangled = my_demangle(sym_name);
-    char *found = strchr(demangled, '(');
-    int demang_len = 0;
-    if (found) {
-      demang_len = found - demangled - 1;
-    }
-    if (strcmp(sym_name, tmp->name) == 0) {
-      add_library_symbol(sym_addr, sym_name, &library_symbols,
-          LS_TOPLT_NONE,
-          ELF64_ST_BIND(sym_info)== STB_WEAK);
-      debug(2, "added symbol %s!\n", tmp->name);
-    }
-    else if (found && strncmp(demangled, tmp->name, demang_len) == 0) {
-      add_library_symbol(sym_addr, demangled, &library_symbols,
-          LS_TOPLT_NONE,
-          ELF64_ST_BIND(sym_info) == STB_WEAK);
-      debug(2, "added c++ symbol %s!\n", tmp->name);
-    }
-
-    tmp = tmp->next;
-  }
-}
-
-static int
-crawl_symtab(Process *proc, struct link_map *lm, const char *str_tab, GElf_Sym *symtab, Elf64_Xword sym_ent_len) {
-  int i = 0, bytes_read = 0;
-  GElf_Sym tmp;
-  GElf_Sym *tmp_symtab = symtab;
-  GElf_Addr sym_addr;
-  char sym_name[BUFSIZ];
-
-  debug(DEBUG_FUNCTION, "crawl_symtab(): %p", symtab);
-
-  /* XXX need a better loop invariant!!! */
-  while ((i < ELF_SYMTAB_MAX)) {
-    if (umovebytes(proc, tmp_symtab, &tmp, sizeof(tmp)) != sizeof(tmp)) {
-      debug(2, "Couldn't read symtab entry");
-      return -1;
-    }
-
-    tmp_symtab = (GElf_Sym *) ((unsigned long) tmp_symtab + (unsigned long) (sym_ent_len));
-    i++;
-
-    if (!tmp.st_name) {
-      continue;
-    }
-    if (!tmp.st_size){
-      continue;
-    }
-    if (!(ELF32_ST_TYPE(tmp.st_info) == STT_FUNC)) {
-      continue;
-    }
-    if (!tmp.st_value) {
-      continue;
-    }
-
-    bytes_read = umovebytes(proc, str_tab + tmp.st_name, sym_name, sizeof(sym_name));
-
-    if (bytes_read < 0) {
-      debug(2, "Could not read symbol name\n");
-      continue; 
-    }
-   
-    sym_name[bytes_read] = '\0';
-    sym_addr = (GElf_Addr)lm->l_addr + tmp.st_value;
-
-    debug(2, "Found symbol %s @ 0x%lx", sym_name, sym_addr);
-
-    check_sym_name(sym_name, sym_addr, tmp.st_info);
-  }
-
-  return 0; 
-}
-
-static int
-crawl_linkmap(Process *proc, struct link_map *lm) {
-  GElf_Dyn tmp;
-  GElf_Sym *sym_tab = NULL;
+static void
+crawl_linkmap(Process *proc, struct ltelf *lte, struct link_map *lm) {
   struct link_map rlm;
-  const char *str_table = NULL;
   char lib_name[BUFSIZ];
-  Elf64_Xword sym_ent_len = 0;
 
   debug (DEBUG_FUNCTION, "crawl_linkmap()");
   
   while (lm) {
     if (umovebytes(proc, lm, &rlm, sizeof(rlm)) != sizeof(rlm)) {
       debug(2, "Unable to read link map\n");
-      return -1;
+      return;
     }
 
     lm = rlm.l_next;
     if (rlm.l_name == NULL) {
       debug(2, "Invalid library name referenced in dynamic linker map\n");
-      return -1;
+      return;
     }
 
     umovebytes(proc, rlm.l_name, lib_name, sizeof(lib_name));
@@ -613,53 +529,17 @@ crawl_linkmap(Process *proc, struct link_map *lm) {
     }
 
     debug(2, "Object %s, Loaded at 0x%lx\n", lib_name, rlm.l_addr);
-    
-    if (check_lib(lib_name)) {
-      debug(2, "User doesn't care about this library, skipping.");
-      continue;
+
+    if (library_num < MAX_LIBRARIES) {
+      library[library_num++] = strdup(lib_name);
+      lte[library_num].base_addr = rlm.l_addr;
     }
-
-    if (!rlm.l_ld)  {
-      debug(2, "Could not find .dynamic section for DSO %s\n", lib_name);
-
-      /* XXX return, really? */
-      return -1;
+    else {
+      fprintf (stderr, "MAX LIBS REACHED\n");
+      exit(EXIT_FAILURE);
     }
-
-    debug(2, ".dynamic section for library %s is at 0x%p size:%zd\n", lib_name, rlm.l_ld, sizeof(rlm.l_ld));
-
-    if (find_dynamic_entry(proc, (void *) rlm.l_ld, DT_SYMTAB, &tmp) == -1) {
-      debug(2, "Couldn't find symtab!\n");
-      
-      /* XXX look for static symtab? */
-      return -1;
-    }
-
-    sym_tab = (GElf_Sym *) tmp.d_un.d_ptr;
-
-    debug(2, "symtab: %p, l_addr: %lx", sym_tab, rlm.l_addr);
-    /* If the address is less than the base offset, it is probably a relative
-       address and we need to adjust sym_tab accordingly */
-    if (sym_tab < (Elf64_Sym *) rlm.l_addr)
-      sym_tab = (GElf_Sym *) ((unsigned long) sym_tab + rlm.l_addr);
-
-    if (find_dynamic_entry(proc, (void *) rlm.l_ld, DT_SYMENT, &tmp) == -1) {
-      debug(2, "Couldn't read symtab entry length!");
-      return -1;
-    }
-
-    sym_ent_len = tmp.d_un.d_val;
-
-    if (find_dynamic_entry(proc, (void *) rlm.l_ld, DT_STRTAB, &tmp) == -1) {
-      debug(2, "No string table found for library %s\n", lib_name);
-      return -1;
-    }
-
-    str_table = (const char *) tmp.d_un.d_ptr;
-
-    crawl_symtab(proc, &rlm, str_table, sym_tab, sym_ent_len);
   }
-  return 0;
+  return;
 }
 
 
@@ -687,7 +567,7 @@ linkmap_init(Process *proc, struct ltelf *lte) {
   }
 
   tlink_map = rdbg.r_map;
-  crawl_linkmap(proc, tlink_map);
+  crawl_linkmap(proc, lte, tlink_map);
 
   return;
 }
@@ -706,13 +586,13 @@ read_elf(Process *proc) {
 
 	do_init_elf(lte, proc->filename);
 
-  /* XXX if attaching to pid or something */
-  linkmap_init(proc, lte);
+	linkmap_init(proc, lte);
 
 	proc->e_machine = lte->ehdr.e_machine;
+
 	for (i = 0; i < library_num; ++i) {
-    do_init_elf(&lte[i + 1], library[i]);
-  }
+		do_init_elf(&lte[i + 1], library[i]);
+	}
 
 	if (!options.no_plt) {
 #ifdef __mips__
@@ -769,7 +649,7 @@ read_elf(Process *proc) {
 #endif
 
 			name = lte->dynstr + sym.st_name;
-			if (in_load_libraries(name, lte)) {
+			if (in_load_libraries(name, lte, NULL)) {
 				addr = arch_plt_sym_val(lte, i, &rela);
 				add_library_symbol(addr, name, &library_symbols,
 						(PLTS_ARE_EXECUTABLE(lte)
@@ -833,6 +713,28 @@ read_elf(Process *proc) {
 				break;
 			}
 	}
+
+	int found_count = 0;
+
+	for (xptr = opt_x; xptr; xptr = xptr->next) {
+		if (xptr->found)
+			continue;
+
+		GElf_Sym sym;
+		GElf_Addr addr;
+		if (in_load_libraries(xptr->name, lte, &sym)) {
+			debug(2, "found symbol %s @ %lx, adding it.", xptr->name, sym.st_value);
+			addr = sym.st_value;
+			add_library_symbol(addr, xptr->name, lib_tail, LS_TOPLT_NONE, 0);
+			xptr->found = 1;
+			found_count++;
+		}
+		if (found_count == opt_x_cnt-1){
+			debug(2, "done, found everything: %d\n", found_count);
+			break;
+		}
+	}
+
 	for (xptr = opt_x; xptr; xptr = xptr->next)
 		if ( ! xptr->found) {
 			char *badthing = "WARNING";
