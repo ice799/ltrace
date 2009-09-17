@@ -1,6 +1,8 @@
 #include "config.h"
+#include "common.h"
 
 #include <sys/types.h>
+#include <link.h>
 #include <stdio.h>
 #include <string.h>
 #include <signal.h>
@@ -33,4 +35,74 @@ pid2name(pid_t pid) {
 		}
 	}
 	return NULL;
+}
+
+static void
+crawl_linkmap(Process *proc, struct ltelf *lte, struct link_map *lm) {
+	struct link_map rlm;
+	char lib_name[BUFSIZ];
+
+	debug (DEBUG_FUNCTION, "crawl_linkmap()");
+
+	while (lm) {
+		if (umovebytes(proc, lm, &rlm, sizeof(rlm)) != sizeof(rlm)) {
+			debug(2, "Unable to read link map\n");
+			return;
+		}
+
+		lm = rlm.l_next;
+		if (rlm.l_name == NULL) {
+			debug(2, "Invalid library name referenced in dynamic linker map\n");
+			return;
+		}
+
+		umovebytes(proc, rlm.l_name, lib_name, sizeof(lib_name));
+
+		if (lib_name[0] == '\0') {
+			debug(2, "Library name is an empty string");
+			continue;
+		}
+
+		debug(2, "Object %s, Loaded at 0x%x\n", lib_name, rlm.l_addr);
+
+		if (library_num < MAX_LIBRARIES) {
+			library[library_num++] = strdup(lib_name);
+			lte[library_num].base_addr = rlm.l_addr;
+		}
+		else {
+			fprintf (stderr, "MAX LIBS REACHED\n");
+			exit(EXIT_FAILURE);
+		}
+	}
+	return;
+}
+
+void
+linkmap_init(Process *proc, struct ltelf *lte) {
+	void *dbg_addr = NULL;
+	struct r_debug rdbg, *tdbg = NULL;
+	struct link_map *tlink_map = NULL;
+
+	debug(DEBUG_FUNCTION, "linkmap_init()");
+
+	if (find_dynamic_entry_addr(proc, (void *)lte->dyn_addr, DT_DEBUG, &dbg_addr) == -1) {
+		debug(2, "Couldn't find debug structure!");
+		return;
+	}
+
+	tdbg = dbg_addr;
+
+	/* XXX
+	 * use r_debug's s_brk to watch for libs as they are added/removed
+	 */
+
+	if (umovebytes(proc, tdbg, &rdbg, sizeof(rdbg)) != sizeof(rdbg)) {
+		debug(2, "This process does not have a debug structure!\n");
+		return;
+	}
+
+	tlink_map = rdbg.r_map;
+	crawl_linkmap(proc, lte, tlink_map);
+
+	return;
 }

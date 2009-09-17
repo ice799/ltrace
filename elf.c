@@ -5,7 +5,6 @@
 #include <error.h>
 #include <fcntl.h>
 #include <gelf.h>
-#include <link.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
@@ -191,10 +190,6 @@ do_init_elf(struct ltelf *lte, const char *filename) {
 					relplt_addr = dyn.d_un.d_ptr;
 				else if (dyn.d_tag == DT_PLTRELSZ)
 					relplt_size = dyn.d_un.d_val;
-        else if (dyn.d_tag == DT_DEBUG) {
-          lte->debug_offset = sizeof(GElf_Dyn) * j;
-          debug(2, "vma of dynamic: %lx:%lx debug offset: %zd bytes: %zd\n", shdr.sh_addr, shdr.sh_size, j, lte->debug_offset);
-        }
 			}
 		} else if (shdr.sh_type == SHT_HASH) {
 			Elf_Data *data;
@@ -470,106 +465,6 @@ opd2addr(struct ltelf *lte, GElf_Addr addr) {
 #else //!ARCH_SUPPORTS_OPD
 	return addr;
 #endif
-}
-
-
-static int
-find_dynamic_entry(Process *proc, void *pvAddr, Elf64_Sxword d_tag, GElf_Dyn *entry) {
-	int i = 0, done = 0;
-
-	debug(DEBUG_FUNCTION, "find_dynamic_entry()");
-
-	if (entry == NULL || pvAddr == NULL || d_tag < 0 || d_tag > DT_NUM) {
-		return -1;
-	}
-
-	while ((!done) && (i < ELF_MAX_SEGMENTS) &&
-			(sizeof(*entry) == umovebytes(proc, pvAddr, entry, sizeof(*entry))) &&
-			(entry->d_tag != DT_NULL)) {
-		if (entry->d_tag == d_tag)
-			done = 1;
-		pvAddr += sizeof(*entry);
-		i++;
-	}
-
-	if (done) {
-		debug(2, "found address: 0x%lx in dtag %ld\n", entry->d_un.d_val, d_tag);
-		return(0);
-	}
-	else {
-		debug(2, "Couldn't address for dtag!\n");
-		return(-1);
-	}
-}
-
-static void
-crawl_linkmap(Process *proc, struct ltelf *lte, struct link_map *lm) {
-  struct link_map rlm;
-  char lib_name[BUFSIZ];
-
-  debug (DEBUG_FUNCTION, "crawl_linkmap()");
-  
-  while (lm) {
-    if (umovebytes(proc, lm, &rlm, sizeof(rlm)) != sizeof(rlm)) {
-      debug(2, "Unable to read link map\n");
-      return;
-    }
-
-    lm = rlm.l_next;
-    if (rlm.l_name == NULL) {
-      debug(2, "Invalid library name referenced in dynamic linker map\n");
-      return;
-    }
-
-    umovebytes(proc, rlm.l_name, lib_name, sizeof(lib_name));
-
-    if (lib_name[0] == '\0') {
-      debug(2, "Library name is an empty string");
-      continue;
-    }
-
-    debug(2, "Object %s, Loaded at 0x%lx\n", lib_name, rlm.l_addr);
-
-    if (library_num < MAX_LIBRARIES) {
-      library[library_num++] = strdup(lib_name);
-      lte[library_num].base_addr = rlm.l_addr;
-    }
-    else {
-      fprintf (stderr, "MAX LIBS REACHED\n");
-      exit(EXIT_FAILURE);
-    }
-  }
-  return;
-}
-
-
-void
-linkmap_init(Process *proc, struct ltelf *lte) {
-  GElf_Dyn tmp;
-  struct r_debug rdbg, *tdbg = NULL;
-  struct link_map *tlink_map = NULL;
-
-  debug(DEBUG_FUNCTION, "linkmap_init()");
-
-  if (find_dynamic_entry(proc, (void *)lte->dyn_addr, DT_DEBUG, &tmp) == -1) {
-    debug(2, "Couldn't find debug structure!");
-    return;
-  }
-  
-  tdbg = (struct r_debug *) tmp.d_un.d_val;
-  /* XXX
-     this isn't actually a failure case - we need to set breakpoints on
-     dl_debug_state and then re-try this function.
-   */
-  if (umovebytes(proc, tdbg, &rdbg, sizeof(rdbg)) != sizeof(rdbg)) {
-    debug(2, "This process does not have a debug structure!\n");
-    return;
-  }
-
-  tlink_map = rdbg.r_map;
-  crawl_linkmap(proc, lte, tlink_map);
-
-  return;
 }
 
 struct library_symbol *

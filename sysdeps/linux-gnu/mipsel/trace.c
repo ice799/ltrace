@@ -165,3 +165,6 @@ save_register_args(enum tof type, Process *proc) {
 }
 
 /**@}*/
+
+int find_dynamic_entry_addr(Process *, void *, int, void **){
+}

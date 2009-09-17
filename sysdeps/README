@@ -30,3 +30,5 @@ char * pid2name(pid_t pid);
 void trace_me(void);
 int trace_pid(pid_t pid);
 void untrace_pid(pid_t pid);
+void linkmap_init(Process *, struct ltelf *);
+int find_dynamic_entry_addr(Process *, void *, int, void **);

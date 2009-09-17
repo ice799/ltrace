@@ -79,3 +79,6 @@ save_register_args(enum tof type, Process *proc) {
 			memcpy(a->sysc_arg, &a->regs.u_regs[UREG_G7], sizeof(a->sysc_arg));
 	}
 }
+
+int find_dynamic_entry_addr(Process *, void *, int, void **){
+}

@@ -87,3 +87,6 @@ gimme_arg(enum tof type, Process *proc, int arg_num, arg_type_info *info) {
 void
 save_register_args(enum tof type, Process *proc) {
 }
+
+int find_dynamic_entry_addr(Process *, void *, int, void **){
+}
