@@ -1,3 +1,9 @@
+ltrace (0.5.3-2) unstable; urgency=low
+
+  * Fixed compilation problems in armel, ia64 and powerpc (closes: Bug#538441)
+
+ -- Juan Cespedes <cespedes@debian.org>  Sun, 26 Jul 2009 13:24:44 +0200
+
 ltrace (0.5.3-1) unstable; urgency=low
 
   * New upstream release
