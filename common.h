@@ -251,4 +251,3 @@ extern size_t umovebytes (Process *proc, void * src, void * dest, size_t count);
 extern int ffcheck(void * maddr);
 extern void * sym2addr(Process *, struct library_symbol *);
 extern void linkmap_init(Process *, struct ltelf *);
-extern int find_dynamic_entry_addr(Process *, void *, int, void **);

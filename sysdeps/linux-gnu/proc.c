@@ -37,6 +37,39 @@ pid2name(pid_t pid) {
 	return NULL;
 }
 
+static int
+find_dynamic_entry_addr(Process *proc, void *pvAddr, int d_tag, void **addr) {
+	int i = 0, done = 0;
+	ElfW(Dyn) entry;
+
+	debug(DEBUG_FUNCTION, "find_dynamic_entry()");
+
+	if (addr ==	NULL || pvAddr == NULL || d_tag < 0 || d_tag > DT_NUM) {
+		return -1;
+	}
+
+	while ((!done) && (i < ELF_MAX_SEGMENTS) &&
+		(sizeof(entry) == umovebytes(proc, pvAddr, &entry, sizeof(entry))) &&
+		(entry.d_tag != DT_NULL)) {
+
+		if (entry.d_tag == d_tag) {
+			done = 1;
+			*addr = (void *)entry.d_un.d_val;
+		}
+		pvAddr += sizeof(entry);
+		i++;
+	}
+
+	if (done) {
+		debug(2, "found address: 0x%p in dtag %d\n", *addr, d_tag);
+		return 0;
+	}
+	else {
+		debug(2, "Couldn't address for dtag!\n");
+		return -1;
+	}
+}
+
 static void
 crawl_linkmap(Process *proc, struct ltelf *lte, struct link_map *lm) {
 	struct link_map rlm;

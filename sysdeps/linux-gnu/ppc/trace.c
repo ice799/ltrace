@@ -153,6 +153,3 @@ arch_umovelong (Process *proc, void *addr, long *result, arg_type_info *info) {
 	*result = pointed_to;
 	return 0;
 }
-
-int find_dynamic_entry_addr(Process *, void *, int, void **){
-}
