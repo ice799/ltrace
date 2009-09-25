@@ -607,7 +607,10 @@ handle_breakpoint(Event *event) {
 	}
 
 	if ((sbp = address2bpstruct(event->proc, event->e_un.brk_addr))) {
-		if (event->proc->state != STATE_IGNORED) {
+		if (strcmp(sbp->libsym->name, "") == 0) {
+			debug(2, "Hit _dl_debug_state breakpoint!\n");
+			arch_check_dbg(event->proc);
+		} else if (event->proc->state != STATE_IGNORED) {
 			event->proc->stack_pointer = get_stack_pointer(event->proc);
 			event->proc->return_addr =
 				get_return_addr(event->proc, event->proc->stack_pointer);

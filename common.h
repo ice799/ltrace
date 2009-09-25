@@ -172,6 +172,8 @@ struct Process {
 	struct library_symbol * list_of_symbols;
 
 	/* Arch-dependent: */
+	void * debug;	/* arch-dep process debug struct */
+	long debug_state; /* arch-dep debug state */
 	void * instruction_pointer;
 	void * stack_pointer;      /* To get return addr, args... */
 	void * return_addr;
@@ -217,12 +219,18 @@ extern void enable_all_breakpoints(Process * proc);
 extern void disable_all_breakpoints(Process * proc);
 extern void reinitialize_breakpoints(Process *);
 
-extern void linkmap_init(Process * proc, struct ltelf *lte);
-
 extern Process * open_program(char * filename, pid_t pid);
 extern void open_pid(pid_t pid);
 extern void show_summary(void);
 extern arg_type_info * lookup_prototype(enum arg_type at);
+
+extern void do_init_elf(struct ltelf *lte, const char *filename);
+extern void do_close_elf(struct ltelf *lte);
+extern int in_load_libraries(const char *name, struct ltelf *lte, size_t count, GElf_Sym *sym);
+extern struct library_symbol *library_symbols;
+extern void add_library_symbol(GElf_Addr addr, const char *name,
+		struct library_symbol **library_symbolspp,
+		enum toplt type_of_plt, int is_weak);
 
 /* Arch-dependent stuff: */
 extern char * pid2name(pid_t pid);
@@ -250,4 +258,8 @@ extern int umovelong (Process * proc, void * addr, long * result, arg_type_info 
 extern size_t umovebytes (Process *proc, void * src, void * dest, size_t count);
 extern int ffcheck(void * maddr);
 extern void * sym2addr(Process *, struct library_symbol *);
-extern void linkmap_init(Process *, struct ltelf *);
+extern int linkmap_init(Process *, struct ltelf *);
+extern void arch_check_dbg(Process *proc);
+
+extern int libdl_hooked;
+extern struct ltelf main_lte;

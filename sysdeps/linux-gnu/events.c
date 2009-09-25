@@ -19,7 +19,7 @@ next_event(void) {
 	int status;
 	int tmp;
 	int stop_signal;
-
+	struct ltelf lte;
 	debug(DEBUG_FUNCTION, "next_event()");
 	if (!list_of_processes) {
 		debug(DEBUG_EVENT, "event: No more traced programs: exiting");
@@ -49,13 +49,20 @@ next_event(void) {
 	event.proc->instruction_pointer = NULL;
 	debug(3, "event from pid %u", pid);
 	if (event.proc->breakpoints_enabled == -1) {
-		enable_all_breakpoints(event.proc);
 		event.type = EVENT_NONE;
 		trace_set_options(event.proc, event.proc->pid);
+		enable_all_breakpoints(event.proc);
 		continue_process(event.proc->pid);
 		debug(DEBUG_EVENT, "event: NONE: pid=%d (enabling breakpoints)", pid);
 		return &event;
-	}
+	} else if (!libdl_hooked) {
+
+			/* debug struct may not have been written yet.. */
+			if (linkmap_init(event.proc, &main_lte) == 0) {
+				libdl_hooked = 1;
+			}
+		}
+
 	if (opt_i) {
 		event.proc->instruction_pointer =
 			get_instruction_pointer(event.proc);

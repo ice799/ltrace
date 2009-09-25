@@ -1,4 +1,4 @@
-# include "config.h"
+#include "config.h"
 
 #include <endian.h>
 #include <errno.h>
@@ -12,21 +12,24 @@
 
 #include "common.h"
 
-static void do_init_elf(struct ltelf *lte, const char *filename);
-static void do_close_elf(struct ltelf *lte);
-static void add_library_symbol(GElf_Addr addr, const char *name,
+void do_init_elf(struct ltelf *lte, const char *filename);
+void do_close_elf(struct ltelf *lte);
+void add_library_symbol(GElf_Addr addr, const char *name,
 			       struct library_symbol **library_symbolspp,
 			       enum toplt type_of_plt, int is_weak);
-static int in_load_libraries(const char *name, struct ltelf *lte, GElf_Sym *sym);
+int in_load_libraries(const char *name, struct ltelf *lte, size_t count, GElf_Sym *sym);
 static GElf_Addr opd2addr(struct ltelf *ltc, GElf_Addr addr);
 
-static struct library_symbol *library_symbols = NULL;
+struct library_symbol *library_symbols;
+struct ltelf main_lte;
 
 #ifdef PLT_REINITALISATION_BP
 extern char *PLTs_initialized_by_here;
 #endif
 
-static void
+int libdl_hooked = 0;
+
+void
 do_init_elf(struct ltelf *lte, const char *filename) {
 	int i;
 	GElf_Addr relplt_addr = 0;
@@ -318,7 +321,7 @@ do_init_elf(struct ltelf *lte, const char *filename) {
 	}
 }
 
-static void
+void
 do_close_elf(struct ltelf *lte) {
 	debug(DEBUG_FUNCTION, "do_close_elf()");
 	if (lte->lte_flags & LTE_HASH_MALLOCED)
@@ -327,7 +330,7 @@ do_close_elf(struct ltelf *lte) {
 	close(lte->fd);
 }
 
-static void
+void
 add_library_symbol(GElf_Addr addr, const char *name,
 		   struct library_symbol **library_symbolspp,
 		   enum toplt type_of_plt, int is_weak) {
@@ -362,18 +365,18 @@ private_elf_gnu_hash(const char *name) {
 	return h & 0xffffffff;
 }
 
-static int
-in_load_libraries(const char *name, struct ltelf *lte, GElf_Sym *sym) {
+int
+in_load_libraries(const char *name, struct ltelf *lte, size_t count, GElf_Sym *sym) {
 	size_t i;
 	unsigned long hash;
 	unsigned long gnu_hash;
 
-	if (!library_num)
+	if (!count)
 		return 1;
 
 	hash = elf_hash((const unsigned char *)name);
 	gnu_hash = private_elf_gnu_hash(name);
-	for (i = 0; i <= library_num; ++i) {
+	for (i = 0; i < count; ++i) {
 		if (lte[i].hash == NULL)
 			continue;
 
@@ -477,11 +480,18 @@ read_elf(Process *proc) {
 
 	debug(DEBUG_FUNCTION, "read_elf(file=%s)", proc->filename);
 
+	memset(lte, 0, sizeof(lte));
+
 	elf_version(EV_CURRENT);
 
-	do_init_elf(lte, proc->filename);
+	do_init_elf(&main_lte, proc->filename);
 
-	linkmap_init(proc, lte);
+	memcpy(lte, &main_lte, sizeof(struct ltelf));
+
+	if (opt_p && opt_p->pid > 0) {
+		linkmap_init(proc, lte);
+		libdl_hooked = 2;
+	}
 
 	proc->e_machine = lte->ehdr.e_machine;
 
@@ -544,7 +554,7 @@ read_elf(Process *proc) {
 #endif
 
 			name = lte->dynstr + sym.st_name;
-			if (in_load_libraries(name, lte, NULL)) {
+			if (in_load_libraries(name, lte, library_num+1, NULL)) {
 				addr = arch_plt_sym_val(lte, i, &rela);
 				add_library_symbol(addr, name, &library_symbols,
 						(PLTS_ARE_EXECUTABLE(lte)
@@ -617,7 +627,7 @@ read_elf(Process *proc) {
 
 		GElf_Sym sym;
 		GElf_Addr addr;
-		if (in_load_libraries(xptr->name, lte, &sym)) {
+		if (in_load_libraries(xptr->name, lte, library_num+1, &sym)) {
 			debug(2, "found symbol %s @ %lx, adding it.", xptr->name, sym.st_value);
 			addr = sym.st_value;
 			add_library_symbol(addr, xptr->name, lib_tail, LS_TOPLT_NONE, 0);
@@ -652,8 +662,8 @@ read_elf(Process *proc) {
 			}
 #endif
 			fprintf (stderr,
-				 "%s: Couldn't find symbol \"%s\" in file \"%s"
-			         "\"\n", badthing, xptr->name, proc->filename);
+				 "%s: Couldn't find symbol \"%s\" in file \"%s\" assuming it will be loaded by libdl!"
+				 "\n", badthing, xptr->name, proc->filename);
 		}
 	if (exit_out) {
 		exit (1);

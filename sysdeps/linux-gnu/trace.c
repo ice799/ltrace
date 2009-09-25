@@ -174,7 +174,7 @@ umovebytes(Process *proc, void *src, void *dest, size_t count) {
 
   while (bytes_read < count) {
     word = ptrace(PTRACE_PEEKDATA, proc->pid, src_iter, NULL);
-    if (errno != 0) {
+    if (word == -1) {
       return bytes_read; 
     }
 
