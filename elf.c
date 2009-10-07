@@ -425,7 +425,6 @@ in_load_libraries(const char *name, struct ltelf *lte, size_t count, GElf_Sym *s
 			nbuckets = lte[i].hash[0];
 			buckets = &lte[i].hash[2];
 			chain = &lte[i].hash[2 + nbuckets];
-
 			for (symndx = buckets[hash % nbuckets];
 			     symndx != STN_UNDEF; symndx = chain[symndx]) {
 				GElf_Sym tmp_sym;
@@ -477,6 +476,7 @@ read_elf(Process *proc) {
 	struct opt_x_t *xptr;
 	struct library_symbol **lib_tail = NULL;
 	int exit_out = 0;
+	int count  = 0;
 
 	debug(DEBUG_FUNCTION, "read_elf(file=%s)", proc->filename);
 
@@ -484,13 +484,13 @@ read_elf(Process *proc) {
 
 	elf_version(EV_CURRENT);
 
-	do_init_elf(&main_lte, proc->filename);
+	do_init_elf(lte, proc->filename);
 
-	memcpy(lte, &main_lte, sizeof(struct ltelf));
+	memcpy(&main_lte, lte, sizeof(struct ltelf));
 
 	if (opt_p && opt_p->pid > 0) {
 		linkmap_init(proc, lte);
-		libdl_hooked = 2;
+		libdl_hooked = 1;
 	}
 
 	proc->e_machine = lte->ehdr.e_machine;
@@ -554,7 +554,8 @@ read_elf(Process *proc) {
 #endif
 
 			name = lte->dynstr + sym.st_name;
-			if (in_load_libraries(name, lte, library_num+1, NULL)) {
+			count = library_num ? library_num+1 : 0;
+			if (in_load_libraries(name, lte, count, NULL)) {
 				addr = arch_plt_sym_val(lte, i, &rela);
 				add_library_symbol(addr, name, &library_symbols,
 						(PLTS_ARE_EXECUTABLE(lte)

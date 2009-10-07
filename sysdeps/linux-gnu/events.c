@@ -56,12 +56,11 @@ next_event(void) {
 		debug(DEBUG_EVENT, "event: NONE: pid=%d (enabling breakpoints)", pid);
 		return &event;
 	} else if (!libdl_hooked) {
-
-			/* debug struct may not have been written yet.. */
-			if (linkmap_init(event.proc, &main_lte) == 0) {
-				libdl_hooked = 1;
-			}
+		/* debug struct may not have been written yet.. */
+		if (linkmap_init(event.proc, &main_lte) == 0) {
+			libdl_hooked = 1;
 		}
+	}
 
 	if (opt_i) {
 		event.proc->instruction_pointer =
