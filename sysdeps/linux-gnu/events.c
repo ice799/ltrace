@@ -19,7 +19,7 @@ next_event(void) {
 	int status;
 	int tmp;
 	int stop_signal;
-	struct ltelf lte;
+
 	debug(DEBUG_FUNCTION, "next_event()");
 	if (!list_of_processes) {
 		debug(DEBUG_EVENT, "event: No more traced programs: exiting");

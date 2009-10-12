@@ -145,9 +145,9 @@ do_init_elf(struct ltelf *lte, const char *filename) {
 		} else if (shdr.sh_type == SHT_DYNAMIC) {
 			Elf_Data *data;
 			size_t j;
-      
-      lte->dyn_addr = shdr.sh_addr;
-      lte->dyn_sz = shdr.sh_size;
+
+			lte->dyn_addr = shdr.sh_addr;
+			lte->dyn_sz = shdr.sh_size;
 
 			data = elf_getdata(scn, NULL);
 			if (data == NULL || elf_getdata(scn, data) != NULL)
@@ -287,7 +287,7 @@ do_init_elf(struct ltelf *lte, const char *filename) {
 	if (!relplt_addr || !lte->plt_addr) {
 		debug(1, "%s has no PLT relocations", filename);
 		lte->relplt = NULL;
-    lte->relplt_count = 0;
+		lte->relplt_count = 0;
 	} else {
 		for (i = 1; i < lte->ehdr.e_shnum; ++i) {
 			Elf_Scn *scn;
@@ -309,7 +309,7 @@ do_init_elf(struct ltelf *lte, const char *filename) {
 					      "Couldn't get .rel*.plt data from \"%s\"",
 					      filename);
 				break;
-      }
+			}
 		}
 
 		if (i == lte->ehdr.e_shnum)
@@ -425,6 +425,7 @@ in_load_libraries(const char *name, struct ltelf *lte, size_t count, GElf_Sym *s
 			nbuckets = lte[i].hash[0];
 			buckets = &lte[i].hash[2];
 			chain = &lte[i].hash[2 + nbuckets];
+
 			for (symndx = buckets[hash % nbuckets];
 			     symndx != STN_UNDEF; symndx = chain[symndx]) {
 				GElf_Sym tmp_sym;

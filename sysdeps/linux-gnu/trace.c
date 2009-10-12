@@ -84,8 +84,6 @@ trace_pid(pid_t pid) {
 		exit (1);
 	}
 
-  
-
 	return 0;
 }
 
@@ -167,26 +165,26 @@ continue_after_breakpoint(Process *proc, Breakpoint *sbp) {
 
 size_t
 umovebytes(Process *proc, void *src, void *dest, size_t count) {
-  size_t bytes_read = 0;
-  long word = 0;
-  void *src_iter = src, *dest_iter = dest;
-  int min = 0, max = 0;
+	size_t bytes_read = 0;
+	long word = 0;
+	void *src_iter = src, *dest_iter = dest;
+	int min = 0, max = 0;
 
-  while (bytes_read < count) {
-    word = ptrace(PTRACE_PEEKDATA, proc->pid, src_iter, NULL);
-    if (word == -1) {
-      return bytes_read; 
-    }
+	while (bytes_read < count) {
+		word = ptrace(PTRACE_PEEKDATA, proc->pid, src_iter, NULL);
+		if (word == -1) {
+			return bytes_read;
+		}
 
-    min = ((src_iter < src) ? (src - src_iter) : 0);
-    max = ((count - bytes_read) > sizeof(word) ? sizeof(word) : (count - bytes_read));
-    memcpy(dest_iter, (void *) ((unsigned long) &word + min), max - min);
-    bytes_read += max - min;
-    src_iter += sizeof(word);
-    dest_iter += max - min;
+		min = ((src_iter < src) ? (src - src_iter) : 0);
+		max = ((count - bytes_read) > sizeof(word) ? sizeof(word) : (count - bytes_read));
+		memcpy(dest_iter, (void *) ((unsigned long) &word + min), max - min);
+		bytes_read += max - min;
+		src_iter += sizeof(word);
+		dest_iter += max - min;
 
-  }
-  return bytes_read;
+	}
+	return bytes_read;
 }
 
 /* Read a series of bytes starting at the process's memory address

@@ -176,7 +176,6 @@ linkmap_add_cb(void *data) { //const char *lib_name, ElfW(Addr) addr) {
 
 			GElf_Sym sym;
 			GElf_Addr addr;
-			struct library_symbol *lsym;
 
 			if (in_load_libraries(xptr->name, &lte, 1, &sym)) {
 				debug(2, "found symbol %s @ %lx, adding it.", xptr->name, sym.st_value);
@@ -314,5 +313,5 @@ linkmap_init(Process *proc, struct ltelf *lte) {
 	crawl_linkmap(proc, rdbg, hook_libdl_cb, &data);
 
 	free(rdbg);
-	return;
+	return 0;
 }
