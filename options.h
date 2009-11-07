@@ -2,19 +2,20 @@
 #include <sys/types.h>
 
 struct options_t {
-	int align;    /* -a: default alignment column for results */
-	char * user;  /* -u: username to run command as */
-	int syscalls; /* -S: display system calls */
-	int libcalls; /* -L: display library calls */
-	int demangle; /* -C: demangle low-level names into user-level names */
-	int indent;   /* -n: indent trace output according to program flow */
-	FILE *output; /* output to a specific file */
-	int summary;  /* count time, calls, and report a summary on program exit */
-	int debug;    /* debug */
-	int arraylen; /* default maximum # of array elements printed */
-	int strlen;   /* default maximum # of bytes printed in strings */
-	int follow;   /* trace child processes */
-	int no_plt;   /* set bps on PLT entries */
+	int align;      /* -a: default alignment column for results */
+	char * user;    /* -u: username to run command as */
+	int syscalls;   /* -S: display system calls */
+	int libcalls;   /* -L: display library calls */
+	int demangle;   /* -C: demangle low-level names into user-level names */
+	int indent;     /* -n: indent trace output according to program flow */
+	FILE *output;   /* output to a specific file */
+	int summary;    /* count time, calls, and report a summary on program exit */
+	int debug;      /* debug */
+	int arraylen;   /* default maximum # of array elements printed */
+	int strlen;     /* default maximum # of bytes printed in strings */
+	int follow;     /* trace child processes */
+	int no_plt;     /* set bps on PLT entries */
+	int no_signals; /* don't print signals */
 };
 extern struct options_t options;
 
