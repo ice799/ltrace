@@ -101,6 +101,7 @@ usage(void) {
 		"  -V, --version       output version information and exit.\n"
 		"  -g, --no-plt        disable breakpoints on PLT entries.\n"
 		"  -x NAME             treat the global NAME like a library subroutine.\n"
+		"  -b, --no-signals    don't print signals.\n"
 #ifdef PLT_REINITALISATION_BP
 		"  -X NAME             same as -x; and PLT's will be initialized by here.\n"
 #endif
@@ -182,6 +183,7 @@ process_options(int argc, char **argv) {
 	progname = argv[0];
 	options.output = stderr;
 	options.no_plt = 0;
+	options.no_signals = 0;
 
 	guess_cols();
 
@@ -202,9 +204,10 @@ process_options(int argc, char **argv) {
 			{"output", 1, 0, 'o'},
 			{"version", 0, 0, 'V'},
 			{"no-plt", 0, 0, 'g'},
+			{"no-signals", 0, 0, 'b'},
 			{0, 0, 0, 0}
 		};
-		c = getopt_long(argc, argv, "+cfhiLrStTVg"
+		c = getopt_long(argc, argv, "+cfhiLrStTVgb"
 # ifdef USE_DEMANGLE
 				"C"
 # endif
@@ -357,6 +360,9 @@ process_options(int argc, char **argv) {
 			exit(0);
 		case 'g':
 			options.no_plt = 1;
+			break;
+		case 'b':
+			options.no_signals = 1;
 			break;
 		case 'X':
 #ifdef PLT_REINITALISATION_BP
