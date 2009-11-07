@@ -628,7 +628,8 @@ handle_breakpoint(Event *event) {
 		return;
 	}
 
-	if (event->proc->state != STATE_IGNORED) {
+	/* XXX this check is probably wrong, but I'll debug more when time allows */
+	if (event->proc->state != STATE_IGNORED && !options.no_plt) {
 		output_line(event->proc, "unexpected breakpoint at %p",
 				(void *)event->e_un.brk_addr);
 	}
