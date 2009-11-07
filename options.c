@@ -75,6 +75,7 @@ usage(void) {
 		"Trace library calls of a given program.\n\n"
 		"  -a, --align=COLUMN  align return values in a secific column.\n"
 		"  -A ARRAYLEN         maximum number of array elements to print.\n"
+		"  -b, --no-signals    don't print signals.\n"
 		"  -c                  count time and calls, and report a summary on exit.\n"
 # ifdef USE_DEMANGLE
 		"  -C, --demangle      decode low-level symbol names into user-level names.\n"
@@ -181,6 +182,7 @@ process_options(int argc, char **argv) {
 	progname = argv[0];
 	options.output = stderr;
 	options.no_plt = 0;
+	options.no_signals = 0;
 
 	guess_cols();
 
@@ -201,9 +203,10 @@ process_options(int argc, char **argv) {
 			{"output", 1, 0, 'o'},
 			{"version", 0, 0, 'V'},
 			{"no-plt", 0, 0, 'g'},
+			{"no-signals", 0, 0, 'b'},
 			{0, 0, 0, 0}
 		};
-		c = getopt_long(argc, argv, "+cfhiLrStTVg"
+		c = getopt_long(argc, argv, "+cfhiLrStTVgb"
 # ifdef USE_DEMANGLE
 				"C"
 # endif
@@ -357,6 +360,9 @@ process_options(int argc, char **argv) {
 					"This is free software; see the GNU General Public Licence\n"
 					"version 2 or later for copying conditions.  There is NO warranty.\n");
 			exit(0);
+			break;
+		case 'b':
+			options.no_signals = 1;
 			break;
 		case 'X':
 #ifdef PLT_REINITALISATION_BP

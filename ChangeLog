@@ -49,9 +49,11 @@
 	* debug.h: Add macro guard.
 	* breakpoints.c: Fix MIPS breakpoints.
 
-2010-09-30  Zach Welch <zwelch@codesourcery.com>
+2009-10-06  Joe Damato <ice799@gmail.com>
 
-	* Improve ARM syscall_p to handle Thumb-2 syscalls.
+    * handle_event.c: Do not print signals when -b is used.
+    * options.h, options.c: A new option (-b) was added.
+    * ltrace.1: Documentation for -b was added.
 
 2009-09-07  Joe Damato <ice799@gmail.com>
 
