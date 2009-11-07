@@ -330,7 +330,7 @@ handle_signal(Event *event) {
 		remove_proc(event->proc);
 		return;
 	}
-	if (event->proc->state != STATE_IGNORED) {
+	if (event->proc->state != STATE_IGNORED && !options.no_signals) {
 		output_line(event->proc, "--- %s (%s) ---",
 				shortsignal(event->proc, event->e_un.signum),
 				strsignal(event->e_un.signum));
