@@ -14,6 +14,22 @@ echo -n "checking $PACKAGE_NAME version... "
 PACKAGE_VERSION=$( cat VERSION )
 echo $PACKAGE_VERSION
 
+echo -n "checking CPU architecture..."
+HOST_ARCH=$(uname -m)
+if [ "$HOST_ARCH" = "i686" ]
+then
+	HOST_ARCH="x86"
+elif [ "$HOST_ARCH" = "i386" ]
+then
+	HOST_ARCH="x86"
+elif [ "$HOST_ARCH" = "x86_64" ]
+then
+	HOST_ARCH="x86_64"
+else
+	HOST_ARCH="(unknown)"
+fi
+echo $HOST_ARCH
+
 echo -n "checking HOST_OS... "
 HOST_OS=$( uname -s )
 if [ "$HOST_OS" = "Linux" ]
@@ -80,7 +96,7 @@ rm -f conftest.c a.out
 CC=gcc
 CPPFLAGS=' -I /usr/include/libelf'
 CFLAGS='-g -O2'
-LIBS='-lelf -lsupc++ -liberty '
+LIBS="-lelf -lsupc++ -liberty -lunwind -lunwind-ptrace -lunwind-${HOST_ARCH}"
 INSTALL='/usr/bin/install -c'
 iquote='-iquote '
 iquoteend=''
