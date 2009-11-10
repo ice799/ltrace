@@ -102,6 +102,7 @@ usage(void) {
 		"  -g, --no-plt        disable breakpoints on PLT entries.\n"
 		"  -x NAME             treat the global NAME like a library subroutine.\n"
 		"  -b, --no-signals    don't print signals.\n"
+		"  -w=NR, --where=NR	 print backtrace showing NR stack frames at most.\n"
 #ifdef PLT_REINITALISATION_BP
 		"  -X NAME             same as -x; and PLT's will be initialized by here.\n"
 #endif
@@ -184,6 +185,7 @@ process_options(int argc, char **argv) {
 	options.output = stderr;
 	options.no_plt = 0;
 	options.no_signals = 0;
+	options.bt_depth = -1;
 
 	guess_cols();
 
@@ -205,13 +207,14 @@ process_options(int argc, char **argv) {
 			{"version", 0, 0, 'V'},
 			{"no-plt", 0, 0, 'g'},
 			{"no-signals", 0, 0, 'b'},
+			{"where", 1, 0, 'w'},
 			{0, 0, 0, 0}
 		};
 		c = getopt_long(argc, argv, "+cfhiLrStTVgb"
 # ifdef USE_DEMANGLE
 				"C"
 # endif
-				"a:A:D:e:F:l:n:o:p:s:u:x:X:", long_options,
+				"a:A:D:e:F:l:n:o:p:s:u:x:X:w:", long_options,
 				&option_index);
 		if (c == -1) {
 			break;
@@ -310,6 +313,9 @@ process_options(int argc, char **argv) {
 			break;
 		case 'n':
 			options.indent = atoi(optarg);
+			break;
+		case 'w':
+			options.bt_depth = atoi(optarg);
 			break;
 		case 'o':
 			options.output = fopen(optarg, "w");

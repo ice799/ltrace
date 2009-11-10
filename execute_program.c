@@ -1,5 +1,6 @@
 #include "config.h"
 
+#include <libunwind-ptrace.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
@@ -86,6 +87,7 @@ execute_program(Process *sp, char **argv) {
 	debug(1, "PID=%d", pid);
 
 	sp->pid = pid;
+	sp->unwind_priv = _UPT_create(pid);
 
 	return;
 }

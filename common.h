@@ -1,3 +1,4 @@
+#include <libunwind.h>
 #include <sys/types.h>
 #include <sys/time.h>
 #include <stdio.h>
@@ -187,6 +188,10 @@ struct Process {
 
 	/* output: */
 	enum tof type_being_displayed;
+
+	/* libunwind address space */
+	unw_addr_space_t unwind_as;
+	void *unwind_priv;
 
 	Process * next;
 };
