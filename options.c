@@ -76,6 +76,7 @@ usage(void) {
 		"Trace library calls of a given program.\n\n"
 		"  -a, --align=COLUMN  align return values in a secific column.\n"
 		"  -A ARRAYLEN         maximum number of array elements to print.\n"
+		"  -b, --no-signals    don't print signals.\n"
 		"  -c                  count time and calls, and report a summary on exit.\n"
 # ifdef USE_DEMANGLE
 		"  -C, --demangle      decode low-level symbol names into user-level names.\n"
@@ -85,6 +86,7 @@ usage(void) {
 		"  -e expr             modify which events to trace.\n"
 		"  -f                  trace children (fork() and clone()).\n"
 		"  -F, --config=FILE   load alternate configuration file (may be repeated).\n"
+		"  -g, --no-plt        disable breakpoints on PLT entries.\n"
 		"  -h, --help          display this help and exit.\n"
 		"  -i                  print instruction pointer at time of library call.\n"
 		"  -l, --library=FILE  print library calls from this library only.\n"
@@ -99,10 +101,8 @@ usage(void) {
 		"  -T                  show the time spent inside each call.\n"
 		"  -u USERNAME         run command with the userid, groupid of username.\n"
 		"  -V, --version       output version information and exit.\n"
-		"  -g, --no-plt        disable breakpoints on PLT entries.\n"
-		"  -x NAME             treat the global NAME like a library subroutine.\n"
-		"  -b, --no-signals    don't print signals.\n"
 		"  -w=NR, --where=NR	 print backtrace showing NR stack frames at most.\n"
+		"  -x NAME             treat the global NAME like a library subroutine.\n"
 #ifdef PLT_REINITALISATION_BP
 		"  -X NAME             same as -x; and PLT's will be initialized by here.\n"
 #endif
@@ -226,6 +226,9 @@ process_options(int argc, char **argv) {
 		case 'A':
 			options.arraylen = atoi(optarg);
 			break;
+		case 'b':
+			options.no_signals = 1;
+			break;
 		case 'c':
 			options.summary++;
 			break;
@@ -293,6 +296,9 @@ process_options(int argc, char **argv) {
 				opt_F = tmp;
 				break;
 			}
+		case 'g':
+			options.no_plt = 1;
+			break;
 		case 'h':
 			usage();
 			exit(0);
@@ -313,9 +319,6 @@ process_options(int argc, char **argv) {
 			break;
 		case 'n':
 			options.indent = atoi(optarg);
-			break;
-		case 'w':
-			options.bt_depth = atoi(optarg);
 			break;
 		case 'o':
 			options.output = fopen(optarg, "w");
@@ -364,11 +367,8 @@ process_options(int argc, char **argv) {
 					"This is free software; see the GNU General Public Licence\n"
 					"version 2 or later for copying conditions.  There is NO warranty.\n");
 			exit(0);
-		case 'g':
-			options.no_plt = 1;
-			break;
-		case 'b':
-			options.no_signals = 1;
+		case 'w':
+			options.bt_depth = atoi(optarg);
 			break;
 		case 'X':
 #ifdef PLT_REINITALISATION_BP

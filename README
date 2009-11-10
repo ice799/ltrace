@@ -37,7 +37,7 @@ people have contributed significantly to this project:
 * Ian Wienand <ianw@gelato.unsw.edu.au> (IA64 port)
 * Eric Vaitl <evaitl@cisco.com> (mipsel port)
 * Petr Machata <pmachata@redhat.com> (misc fixes)
-* Joe Damato <ice799@gmail.com> (libdl support)
+* Joe Damato <ice799@gmail.com> (libdl support, libunwind support)
 
 1. Introduction
 ---------------
