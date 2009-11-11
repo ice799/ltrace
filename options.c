@@ -101,7 +101,7 @@ usage(void) {
 		"  -T                  show the time spent inside each call.\n"
 		"  -u USERNAME         run command with the userid, groupid of username.\n"
 		"  -V, --version       output version information and exit.\n"
-		"  -w=NR, --where=NR	 print backtrace showing NR stack frames at most.\n"
+		"  -w=NR, --where=NR   print backtrace showing NR stack frames at most.\n"
 		"  -x NAME             treat the global NAME like a library subroutine.\n"
 #ifdef PLT_REINITALISATION_BP
 		"  -X NAME             same as -x; and PLT's will be initialized by here.\n"
