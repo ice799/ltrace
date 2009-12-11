@@ -632,9 +632,11 @@ read_elf(Process *proc) {
 		if (in_load_libraries(xptr->name, lte, library_num+1, &sym)) {
 			debug(2, "found symbol %s @ %lx, adding it.", xptr->name, sym.st_value);
 			addr = sym.st_value;
-			add_library_symbol(addr, xptr->name, lib_tail, LS_TOPLT_NONE, 0);
-			xptr->found = 1;
-			found_count++;
+			if (ELF32_ST_TYPE (sym.st_info) == STT_FUNC) {
+				add_library_symbol(addr, xptr->name, lib_tail, LS_TOPLT_NONE, 0);
+				xptr->found = 1;
+				found_count++;
+			}
 		}
 		if (found_count == opt_x_cnt){
 			debug(2, "done, found everything: %d\n", found_count);
