@@ -55,6 +55,14 @@ umovelong (Process *proc, void *addr, long *result, arg_type_info *info) {
 		return -errno;
 
 	*result = pointed_to;
+	if (info) {
+		switch(info->type) {
+			case ARGTYPE_INT:
+				*result &= 0x00000000ffffffffUL;
+			default:
+				break;
+		};
+	}
 	return 0;
 }
 #endif
