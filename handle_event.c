@@ -657,7 +657,7 @@ callstack_push_syscall(Process *proc, int sysnum) {
 
 static void
 callstack_push_symfunc(Process *proc, struct library_symbol *sym) {
-	struct callstack_element *elem;
+	struct callstack_element *elem, *prev;
 
 	debug(DEBUG_FUNCTION, "callstack_push_symfunc(pid=%d, symbol=%s)", proc->pid, sym->name);
 	/* FIXME: not good -- should use dynamic allocation. 19990703 mortene. */
@@ -666,6 +666,7 @@ callstack_push_symfunc(Process *proc, struct library_symbol *sym) {
 		return;
 	}
 
+	prev = &proc->callstack[proc->callstack_depth-1];
 	elem = &proc->callstack[proc->callstack_depth];
 	elem->is_syscall = 0;
 	elem->c_un.libfunc = sym;
@@ -675,7 +676,9 @@ callstack_push_symfunc(Process *proc, struct library_symbol *sym) {
 		insert_breakpoint(proc, elem->return_addr, 0);
 	}
 
-	proc->callstack_depth++;
+	/* handle functions like atexit() on mips which have no return */
+	if (elem->return_addr != prev->return_addr)
+		proc->callstack_depth++;
 	if (opt_T || options.summary) {
 		struct timezone tz;
 		gettimeofday(&elem->time_spent, &tz);
