@@ -569,17 +569,19 @@ handle_breakpoint(Event *event) {
 				}
 			}
 #elif defined(__mips__)
-			void *addr;
-			void *old_addr;
+			void *addr = NULL;
 			struct library_symbol *sym= event->proc->callstack[i].c_un.libfunc;
+			struct library_symbol *new_sym;
 			assert(sym);
-			old_addr = dict_find_entry(event->proc->breakpoints, sym2addr(event->proc, sym))->addr;
 			addr=sym2addr(event->proc,sym);
-			assert(old_addr !=0 && addr !=0);
-			if(addr != old_addr){
-				struct library_symbol *new_sym;
-				new_sym=malloc(sizeof(*new_sym));
-				memcpy(new_sym,sym,sizeof(*new_sym));
+			sbp = dict_find_entry(event->proc->breakpoints, addr);
+			if (sbp) {
+				if (addr != sbp->addr) {
+					insert_breakpoint(event->proc, addr, sym);
+				}
+			} else {
+				new_sym=malloc(sizeof(*new_sym) + strlen(sym->name) + 1);
+				memcpy(new_sym,sym,sizeof(*new_sym) + strlen(sym->name) + 1);
 				new_sym->next=event->proc->list_of_symbols;
 				event->proc->list_of_symbols=new_sym;
 				insert_breakpoint(event->proc, addr, new_sym);
