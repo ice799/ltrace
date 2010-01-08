@@ -123,8 +123,8 @@ enable_all_breakpoints(Process *proc) {
 					continue;
 				}
 				debug(2,"inserting bp %p %s",addr,sym->name);
-				new_sym=malloc(sizeof(*new_sym));
-				memcpy(new_sym,sym,sizeof(*new_sym));
+				new_sym=malloc(sizeof(*new_sym) + strlen(sym->name) + 1);
+				memcpy(new_sym,sym,sizeof(*new_sym) + strlen(sym->name) + 1);
 				new_sym->next=proc->list_of_symbols;
 				proc->list_of_symbols=new_sym;
 				insert_breakpoint(proc, addr, new_sym);
