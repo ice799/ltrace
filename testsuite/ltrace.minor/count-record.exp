@@ -26,9 +26,6 @@ if [regexp {ELF from incompatible architecture} $exec_output] {
 	return
 }
 
-
-ltrace_saveoutput $exec_output $srcdir/$subdir/$binfile.ltrace
-
 #
 #  This is a sample output and Verify the forth and fifth column.
 #
