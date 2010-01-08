@@ -23,7 +23,7 @@ main ()
   pid_t pid;
   
   mysigval.sival_int=0;
-  sig = 10;
+  sig = SIGUSR1;
   pid=getpid();
   
   sigemptyset(&act.sa_mask);
