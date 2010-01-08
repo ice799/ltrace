@@ -639,7 +639,8 @@ callstack_push_syscall(Process *proc, int sysnum) {
 	debug(DEBUG_FUNCTION, "callstack_push_syscall(pid=%d, sysnum=%d)", proc->pid, sysnum);
 	/* FIXME: not good -- should use dynamic allocation. 19990703 mortene. */
 	if (proc->callstack_depth == MAX_CALLDEPTH - 1) {
-		fprintf(stderr, "Error: call nesting too deep!\n");
+		fprintf(stderr, "%s: Error: call nesting too deep!\n", __func__);
+		abort();
 		return;
 	}
 
@@ -662,7 +663,8 @@ callstack_push_symfunc(Process *proc, struct library_symbol *sym) {
 	debug(DEBUG_FUNCTION, "callstack_push_symfunc(pid=%d, symbol=%s)", proc->pid, sym->name);
 	/* FIXME: not good -- should use dynamic allocation. 19990703 mortene. */
 	if (proc->callstack_depth == MAX_CALLDEPTH - 1) {
-		fprintf(stderr, "Error: call nesting too deep!\n");
+		fprintf(stderr, "%s: Error: call nesting too deep!\n", __func__);
+		abort();
 		return;
 	}
 
