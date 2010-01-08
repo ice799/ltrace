@@ -62,7 +62,7 @@ syscall_p(Process *proc, int status, int *sysnum) {
 			 * PC does not point to the instruction just after the
 			 * "swi" one. */
 			output_line(proc, "unexpected instruction 0x%x at %p", insn, pc - 4);
-			return -1;
+			return 0;
 		}
 		if ((*sysnum & 0xf0000) == 0xf0000) {
 			/* arch-specific syscall */
