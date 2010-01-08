@@ -482,14 +482,16 @@ read_elf(Process *proc) {
 					proc->filename);
 		}
 		name=lte->dynstr+sym.st_name;
-		if(ELF64_ST_TYPE(sym.st_info) != STT_FUNC){
-			debug(2,"sym %s not a function",name);
-			continue;
+		if (in_load_libraries(name, lte)) {
+			if(ELF64_ST_TYPE(sym.st_info) != STT_FUNC){
+				debug(2,"sym %s not a function",name);
+				continue;
+			}
+			add_library_symbol(addr, name, &library_symbols, 0,
+					ELF64_ST_BIND(sym.st_info) != 0);
+			if (!lib_tail)
+				lib_tail = &(library_symbols->next);
 		}
-		add_library_symbol(addr, name, &library_symbols, 0,
-				ELF64_ST_BIND(sym.st_info) != 0);
-		if (!lib_tail)
-			lib_tail = &(library_symbols->next);
 	}
 #else
 	for (i = 0; i < lte->relplt_count; ++i) {
