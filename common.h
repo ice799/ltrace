@@ -7,7 +7,7 @@
 #include "dict.h"
 #include "sysdep.h"
 #include "debug.h"
-#include "elf.h"
+#include "ltrace-elf.h"
 #include "read_config_file.h"
 
 #if defined HAVE_LIBIBERTY || defined HAVE_LIBSUPC__
