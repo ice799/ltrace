@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 #
 # usage:
 #
@@ -17,6 +19,7 @@ banner() {
 
 banner "autoreconf"
 
+mkdir -p config/autoconf config/m4
 autoreconf --force --install --symlink -Wall || exit $?
 
 banner "Finished"
