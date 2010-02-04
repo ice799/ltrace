@@ -35,7 +35,7 @@ AM_INIT_AUTOMAKE([foreign no-exeext dist-bzip2])
 # Checks for libraries.
 
 # libelf
-REQUIRES_LIBELF="libelf >= 0.8.10"
+REQUIRES_LIBELF="libelf >= 0.8.6"
 AC_SUBST(REQUIRES_LIBELF)
 PKG_CHECK_MODULES([libelf],
 	[${REQUIRES_LIBELF}],
