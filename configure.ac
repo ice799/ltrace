@@ -1,6 +1,6 @@
 # -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
-AC_PREREQ(2.65)
+AC_PREREQ(2.59)
 
 AC_INIT([ltrace],[0.5.3],[ltrace-devel <ltrace-devel@lists.alioth.debian.org>])
 AC_CONFIG_HEADERS([config.h])
