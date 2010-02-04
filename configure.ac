@@ -28,7 +28,8 @@ AC_SUBST(HOST_CPU)
 
 # Checks for programs.
 AC_PROG_CC
-LT_INIT()
+AC_PROG_LIBTOOL
+# libtool-2:  LT_INIT()
 AM_INIT_AUTOMAKE([foreign no-exeext dist-bzip2])
 
 # Checks for libraries.
