@@ -47,5 +47,6 @@ get_return_addr(Process *proc, void *stack_pointer) {
 
 void
 set_return_addr(Process *proc, void *addr) {
-	ptrace(PTRACE_POKEUSER, proc->pid, off_lr, addr);
+	long iaddr = (int)addr | proc->thumb_mode;
+	ptrace(PTRACE_POKEUSER, proc->pid, off_lr, (void *)iaddr);
 }
