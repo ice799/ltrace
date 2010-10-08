@@ -13,6 +13,10 @@
 
 	* Ensure Thumb mode gets set correct when updating ARM PC.
 
+2010-10-08  Zach Welch <zwelch@codesourcery.com>
+
+	* Allow ARM PLT lookups to work when containing Thumb stubs.
+
 2010-10-07  Zach Welch <zwelch@codesourcery.com>
 
 	* Improve breakpoint insertion to work with Thumb procedures.
