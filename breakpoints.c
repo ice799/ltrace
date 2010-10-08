@@ -23,6 +23,12 @@ insert_breakpoint(Process *proc, void *addr,
 		  struct library_symbol *libsym) {
 	Breakpoint *sbp;
 
+#ifdef __arm__
+	int thumb_mode = (int)addr & 1;
+	if (thumb_mode)
+		addr = (void *)((int)addr & ~1);
+#endif
+
 	debug(DEBUG_FUNCTION, "insert_breakpoint(pid=%d, addr=%p, symbol=%s)", proc->pid, addr, libsym ? libsym->name : "NULL");
 	debug(1, "symbol=%s, addr=%p", libsym?libsym->name:"(nil)", addr);
 
@@ -43,7 +49,7 @@ insert_breakpoint(Process *proc, void *addr,
 		sbp->libsym = libsym;
 	}
 #ifdef __arm__
-	sbp->thumb_mode = proc->thumb_mode;
+	sbp->thumb_mode = thumb_mode | proc->thumb_mode;
 	proc->thumb_mode = 0;
 #endif
 	sbp->enabled++;

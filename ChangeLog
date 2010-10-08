@@ -9,6 +9,10 @@
 	* sysdeps/linux-gnu/cris/syscallent.h: Ditto.
 	* sysdeps/linux-gnu/cris/trace.c: Ditto.
 
+2010-10-07  Zach Welch <zwelch@codesourcery.com>
+
+	* Improve breakpoint insertion to work with Thumb procedures.
+
 2010-09-30  Zach Welch <zwelch@codesourcery.com>
 
 	* Improve ARM syscall_p to handle Thumb-2 syscalls.
