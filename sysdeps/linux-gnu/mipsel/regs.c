@@ -4,7 +4,6 @@
 #include <sys/types.h>
 #include <sys/ptrace.h>
 #include <asm/ptrace.h>
-#include <linux/user.h>
 
 #include "common.h"
 #include "mipsel.h"

@@ -119,31 +119,55 @@ I'm not doing any floating point support here.
 long
 gimme_arg(enum tof type, Process *proc, int arg_num, arg_type_info *info) {
 	long ret;
+	long addr;
 	debug(2,"type %d arg %d",type,arg_num);
-	if (type == LT_TOF_FUNCTION || type == LT_TOF_SYSCALL){
+	if (arg_num == -1) {
+		if(type == LT_TOF_FUNCTIONR) {
+			return  ptrace(PTRACE_PEEKUSER,proc->pid,off_v0,0);
+		}
+		if (type == LT_TOF_SYSCALLR) {
+			unsigned a3=ptrace(PTRACE_PEEKUSER, proc->pid,off_a3,0);
+			unsigned v0=ptrace(PTRACE_PEEKUSER, proc->pid,off_v0,0);
+			if(!a3){
+				return v0;
+			}
+			return -1;
+		}
+	}
+	if (type == LT_TOF_FUNCTION || type == LT_TOF_SYSCALL) {
+		/* o32: float args are in f12 and f14 */
+		if ((info->type == ARGTYPE_FLOAT) && (arg_num < 2)) {
+			ret=ptrace(PTRACE_PEEKUSER,proc->pid,off_fpr0+12+arg_num*2,0);
+			debug(2,"ret = %#lx",ret);
+			return ret;
+		}
 		if(arg_num <4){
 			ret=ptrace(PTRACE_PEEKUSER,proc->pid,off_a0+arg_num,0);
 			debug(2,"ret = %#lx",ret);
 			return ret;
 		} else {
-			// If we need this, I think we can look at [sp+16] for arg_num==4.
-			CP;
-			return 0;
+			/* not sure it's going to work for something else than syscall */
+			addr=ptrace(PTRACE_PEEKUSER,proc->pid,off_sp,0);
+			if (addr == -1) {
+				debug(2,"ret = %#lx",addr);
+				return addr;
+			}
+			ret = addr + 4*arg_num;
+			ret=ptrace(PTRACE_PEEKTEXT,proc->pid,addr,0);
+			debug(2,"ret = %#lx",ret);
+			return ret;
 		}
 	}
-	if(arg_num>=0){
-		fprintf(stderr,"args on return?");
-	}
-	if(type == LT_TOF_FUNCTIONR) {
-		return  ptrace(PTRACE_PEEKUSER,proc->pid,off_v0,0);
-	}
-	if (type == LT_TOF_SYSCALLR) {
-		unsigned a3=ptrace(PTRACE_PEEKUSER, proc->pid,off_a3,0);
-		unsigned v0=ptrace(PTRACE_PEEKUSER, proc->pid,off_v0,0);
-		if(!a3){
-			return v0;
+	if (type == LT_TOF_FUNCTIONR || type == LT_TOF_SYSCALLR){
+		addr=ptrace(PTRACE_PEEKUSER,proc->pid,off_sp,0);
+		if (addr == -1) {
+			debug(2,"ret = %#lx",addr);
+			return addr;
 		}
-		return -1;
+		ret = addr + 4*arg_num;
+		ret=ptrace(PTRACE_PEEKTEXT,proc->pid,addr,0);
+		debug(2,"ret = %#lx",ret);
+		return ret;
 	}
 	fprintf(stderr, "gimme_arg called with wrong arguments\n");
 	return 0;

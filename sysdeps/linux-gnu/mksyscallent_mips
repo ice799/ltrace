@@ -1,0 +1,43 @@
+#!/usr/bin/awk -f
+
+# hack expression to generate arch/syscallent.h from <asm/unistd.h>
+# It reads from stdin and writes to stdout
+# It should work OK on i386,m68k,arm,ia64
+# It does NOT work in mips, s390
+# It is untested in other architectures
+
+BEGIN {
+	max=0;
+	FS="[ \t\n()+]+";
+}
+
+{
+	#debug
+	#printf("/%s/%s/%s/%s/\n", $1, $2, $3, $4);
+	if ($2 ~ /__NR_Linux/ && $3 ~ /4000/) {
+		syscall=1;
+	}
+	if ($2 ~ /__NR_Linux_syscalls/) {
+		syscall=0;
+	}
+	if (syscall && ($1 ~ /^#define$/) && ($2 ~ /^__NR_/)) {
+			SYSCALL[$4]=substr($2,6);
+			if ($4 > max) {
+				max=$4;
+			}
+	}
+}
+
+END {
+	for(i=0; i<=max; i++) {
+		if (!SYSCALL[i]) {
+			SYSCALL[i] = i;
+		}
+		pad = 32 - length(SYSCALL[i]);
+		if (pad<1) {
+			pad=1;
+		}
+		printf("\t\"%s\",%*s/* %d */\n", SYSCALL[i], pad, "", i);
+	}
+}
+

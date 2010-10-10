@@ -569,17 +569,19 @@ handle_breakpoint(Event *event) {
 				}
 			}
 #elif defined(__mips__)
-			void *addr;
-			void *old_addr;
+			void *addr = NULL;
 			struct library_symbol *sym= event->proc->callstack[i].c_un.libfunc;
+			struct library_symbol *new_sym;
 			assert(sym);
-			old_addr = dict_find_entry(event->proc->breakpoints, sym2addr(event->proc, sym))->addr;
 			addr=sym2addr(event->proc,sym);
-			assert(old_addr !=0 && addr !=0);
-			if(addr != old_addr){
-				struct library_symbol *new_sym;
-				new_sym=malloc(sizeof(*new_sym));
-				memcpy(new_sym,sym,sizeof(*new_sym));
+			sbp = dict_find_entry(event->proc->breakpoints, addr);
+			if (sbp) {
+				if (addr != sbp->addr) {
+					insert_breakpoint(event->proc, addr, sym);
+				}
+			} else {
+				new_sym=malloc(sizeof(*new_sym) + strlen(sym->name) + 1);
+				memcpy(new_sym,sym,sizeof(*new_sym) + strlen(sym->name) + 1);
 				new_sym->next=event->proc->list_of_symbols;
 				event->proc->list_of_symbols=new_sym;
 				insert_breakpoint(event->proc, addr, new_sym);
@@ -639,7 +641,8 @@ callstack_push_syscall(Process *proc, int sysnum) {
 	debug(DEBUG_FUNCTION, "callstack_push_syscall(pid=%d, sysnum=%d)", proc->pid, sysnum);
 	/* FIXME: not good -- should use dynamic allocation. 19990703 mortene. */
 	if (proc->callstack_depth == MAX_CALLDEPTH - 1) {
-		fprintf(stderr, "Error: call nesting too deep!\n");
+		fprintf(stderr, "%s: Error: call nesting too deep!\n", __func__);
+		abort();
 		return;
 	}
 
@@ -657,15 +660,17 @@ callstack_push_syscall(Process *proc, int sysnum) {
 
 static void
 callstack_push_symfunc(Process *proc, struct library_symbol *sym) {
-	struct callstack_element *elem;
+	struct callstack_element *elem, *prev;
 
 	debug(DEBUG_FUNCTION, "callstack_push_symfunc(pid=%d, symbol=%s)", proc->pid, sym->name);
 	/* FIXME: not good -- should use dynamic allocation. 19990703 mortene. */
 	if (proc->callstack_depth == MAX_CALLDEPTH - 1) {
-		fprintf(stderr, "Error: call nesting too deep!\n");
+		fprintf(stderr, "%s: Error: call nesting too deep!\n", __func__);
+		abort();
 		return;
 	}
 
+	prev = &proc->callstack[proc->callstack_depth-1];
 	elem = &proc->callstack[proc->callstack_depth];
 	elem->is_syscall = 0;
 	elem->c_un.libfunc = sym;
@@ -675,7 +680,9 @@ callstack_push_symfunc(Process *proc, struct library_symbol *sym) {
 		insert_breakpoint(proc, elem->return_addr, 0);
 	}
 
-	proc->callstack_depth++;
+	/* handle functions like atexit() on mips which have no return */
+	if (elem->return_addr != prev->return_addr)
+		proc->callstack_depth++;
 	if (opt_T || options.summary) {
 		struct timezone tz;
 		gettimeofday(&elem->time_spent, &tz);

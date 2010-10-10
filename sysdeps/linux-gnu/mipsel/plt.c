@@ -1,4 +1,4 @@
-#include <debug.h>
+#include "debug.h"
 #include <gelf.h>
 #include <sys/ptrace.h>
 #include "common.h"
