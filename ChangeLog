@@ -1,3 +1,14 @@
+2010-10-08  Edgar E. Iglesias  <edgar@axis.com>
+
+	* sysdeps/linux-gnu/cris/Makefile: New.
+	* sysdeps/linux-gnu/cris/arch.h: Ditto.
+	* sysdeps/linux-gnu/cris/plt.c: Ditto.
+	* sysdeps/linux-gnu/cris/ptrace.h: Ditto.
+	* sysdeps/linux-gnu/cris/regs.c: Ditto.
+	* sysdeps/linux-gnu/cris/signalent.h: Ditto.
+	* sysdeps/linux-gnu/cris/syscallent.h: Ditto.
+	* sysdeps/linux-gnu/cris/trace.c: Ditto.
+
 2010-09-30  Zach Welch <zwelch@codesourcery.com>
 
 	* Improve ARM syscall_p to handle Thumb-2 syscalls.
