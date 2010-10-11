@@ -1,3 +1,7 @@
+2010-09-30  Zach Welch <zwelch@codesourcery.com>
+
+	* Improve ARM syscall_p to handle Thumb-2 syscalls.
+
 2010-01-08  Arnaud Patard <apatard@mandriva.com>
 
 	* sysdeps/linux-gnu/mipsel/mipsel.h: Add floating point register offset.
