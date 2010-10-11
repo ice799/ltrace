@@ -1,3 +1,27 @@
+2010-01-08  Arnaud Patard <apatard@mandriva.com>
+
+	* sysdeps/linux-gnu/mipsel/mipsel.h: Add floating point register offset.
+	* sysdeps/linux-gnu/x86_64/{ptrace.h, trace.c}: Save a copy of register vlaues and handle floats.
+	* sysdeps/linux-gnu/mips: Symlink created.
+	* sysdeps/linux-gnu/mipsel/trace.c: Handle more argument types.
+	* sysdeps/linux-gnu/trace.c: Don't use PTRACE_SINGLESTEP for MIPS.
+	* sysdeps/linux-gnu/arm/trace.c: Fix return value.
+	* handle_event.c: Fix for MIPS.
+	* sysdeps/linux-gnu/mipsel/{plt.c, regs.c}: Fix includes.
+	* sysdeps/linux-gnu/mipsetl/syscallent.h: Cleanup.
+	* sysdeps/linux-gnu/mipsel/signalent.h: Cleanup.
+	* sysdeps/linux-gnu/trace.c: Fix umovelong.
+	* .gitignore: New file.
+	* handle_event.c: abort() when call nesting too deep.
+	* testsuite/ltrace.minor/count-record.exp: Fix tests.
+	* handle_event.c: Handle functions which do not increase stack depth.
+	* testsuite/ltrace.torture/signals.c: Don't use magic numbers.
+	* testsuite/ltrace.minor/demangle-lib.cpp: Fix build failure.
+	* sysdeps/linux-gnu/mksyscallent_mips: New file.
+	* elf.c: Fix '-l' on MIPS.
+	* debug.h: Add macro guard.
+	* breakpoints.c: Fix MIPS breakpoints.
+
 2009-07-25  Juan Cespedes <cespedes@debian.org>
 
 	* New release 0.5.3
