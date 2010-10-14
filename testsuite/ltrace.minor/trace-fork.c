@@ -21,7 +21,7 @@ main ()
   pid = fork ();
   
   if (pid == -1)
-    printf("fork failed!\n");
+    puts("fork failed!");
   else if (pid == 0)
     child();
   else

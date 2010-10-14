@@ -35,6 +35,22 @@ if [regexp {ELF from incompatible architecture} $exec_output] {
 
 ltrace_saveoutput "${exec_output}" ${srcdir}/${subdir}/${testfile}.ltrace
 
-set pattern "fork"
+if [ regexp {Cannot attach} $exec_output ] {
+	fail "Couldn't attach to forked process!"
+	return
+}
+
+set pattern {^\[pid [0-9]*\] fork}
 ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern 1
 
+set pattern {^\[pid [0-9]*\] printf}
+ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern 1
+
+set pattern {^\[pid [0-9]*\] puts}
+ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern 1
+
+set pattern {^\[pid [0-9]*\] wait}
+ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern 1
+
+set pattern {^\[pid [0-9]*\] sleep}
+ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern 1
