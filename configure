@@ -111,7 +111,7 @@ int main () {
   return 0;
 }
 EOF
-if gcc conftest.c 2>/dev/null
+if gcc conftest.c -lelf 2>/dev/null
 then
   HAVE_ELF_C_READ_MMAP=1
   echo "yes"
