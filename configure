@@ -58,6 +58,50 @@ else
 fi
 rm -f conftest.c a.out
 
+# Check for availability of ELF headers
+echo -n "checking for libelf header files... "
+cat > conftest.c << EOF
+#include <elf.h>
+#include <gelf.h>
+int main () {
+  return 0;
+}
+EOF
+gcc conftest.c 2>/dev/null
+OK=$?
+rm -f conftest.c a.out
+if [ $OK == 0 ];
+then
+  echo "yes"
+else
+  echo "no"
+  echo "gelf.h and elf.h are necessary to build ltrace."
+  echo "Please install the elfutils development package."
+  exit 1
+fi
+
+# Check for availability of libelf
+echo -n "checking for libelf library... "
+cat > conftest.c << EOF
+#include <gelf.h>
+int main () {
+  elf_begin (0, 0, 0);
+  return 0;
+}
+EOF
+gcc conftest.c -lelf 2>/dev/null
+OK=$?
+rm -f conftest.c a.out
+if [ $OK == 0 ];
+then
+  echo "yes"
+else
+  echo "no"
+  echo "libelf is necessary to build ltrace."
+  echo "Please install the elfutils development package."
+  exit 1
+fi
+
 # HAVE_ELF_C_READ_MMAP
 echo -n "checking whether elf_begin accepts ELF_C_READ_MMAP... "
 cat > conftest.c << EOF
