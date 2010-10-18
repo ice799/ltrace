@@ -77,10 +77,19 @@ else
 fi
 rm -f conftest.c a.out
 
+LIBS='-lelf '
+if [ "$HAVE_LIBIBERTY" ];
+then
+    LIBS="$LIBS-liberty "
+fi
+if [ "$HAVE_LIBSUPC__" ];
+then
+    LIBS="$LIBS-lsupc++ "
+fi
+
 CC=gcc
 CPPFLAGS=' -I /usr/include/libelf'
 CFLAGS='-g -O2'
-LIBS='-lelf -lsupc++ -liberty '
 INSTALL='/usr/bin/install -c'
 iquote='-iquote '
 iquoteend=''
