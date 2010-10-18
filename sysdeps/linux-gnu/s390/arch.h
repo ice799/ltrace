@@ -12,6 +12,11 @@
 #define LT_ELF_MACHINE	EM_S390
 #define LT_ELFCLASS2	ELFCLASS32
 #define LT_ELF_MACHINE2	EM_S390
+
+/* __NR_fork, __NR_clone, __NR_clone2, __NR_vfork and __NR_execve
+   from asm-s390/unistd.h.  */
+#define FORK_EXEC_SYSCALLS , { 2, 120, -1, 190, 11 }
+
 #else
 #define LT_ELFCLASS	ELFCLASS32
 #define LT_ELF_MACHINE	EM_S390
