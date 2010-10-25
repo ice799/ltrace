@@ -495,6 +495,10 @@ handle_arch_sysret(Event *event) {
 	continue_process(event->proc->pid);
 }
 
+#ifdef __powerpc__
+void *get_count_register (Process *proc);
+#endif
+
 static void
 handle_breakpoint(Event *event) {
 	int i, j;
@@ -561,9 +565,13 @@ handle_breakpoint(Event *event) {
 							  libsym);
 				}
 			} else {
-				sbp = dict_find_entry(event->proc->breakpoints, sym2addr(event->proc, libsym));
-				assert(sbp);
-				if (addr != sbp->addr) {
+				sbp = dict_find_entry(event->proc->breakpoints, addr);
+				/* On powerpc, the breakpoint address
+				   may end up being actual entry point
+				   of the library symbol, not the PLT
+				   address we computed.  In that case,
+				   sbp is NULL.  */
+				if (sbp == NULL || addr != sbp->addr) {
 					insert_breakpoint(event->proc, addr,
 							  libsym);
 				}
