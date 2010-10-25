@@ -7,8 +7,10 @@
 #include <asm/ptrace.h>
 #include <elf.h>
 #include <errno.h>
+#include <string.h>
 
 #include "common.h"
+#include "ptrace.h"
 
 #if (!defined(PTRACE_PEEKUSER) && defined(PTRACE_PEEKUSR))
 # define PTRACE_PEEKUSER PTRACE_PEEKUSR
@@ -20,21 +22,24 @@
 
 void
 get_arch_dep(Process *proc) {
+	if (proc->arch_ptr == NULL) {
+		proc->arch_ptr = malloc(sizeof(proc_archdep));
 #ifdef __powerpc64__
-	if (proc->arch_ptr)
-		return;
-	proc->mask_32bit = (proc->e_machine == EM_PPC);
-	proc->arch_ptr = (void *)1;
+		proc->mask_32bit = (proc->e_machine == EM_PPC);
 #endif
+	}
+
+	proc_archdep *a = (proc_archdep *) (proc->arch_ptr);
+	a->valid = (ptrace(PTRACE_GETREGS, proc->pid, 0, &a->regs) >= 0)
+		&& (ptrace(PTRACE_GETFPREGS, proc->pid, 0, &a->fpregs) >= 0);
 }
 
-/* Returns 1 if syscall, 2 if sysret, 0 otherwise. */
 #define SYSCALL_INSN   0x44000002
 
 unsigned int greg = 3;
 unsigned int freg = 1;
-unsigned int vreg = 2;
 
+/* Returns 1 if syscall, 2 if sysret, 0 otherwise. */
 int
 syscall_p(Process *proc, int status, int *sysnum) {
 	if (WIFSTOPPED(status)
@@ -59,58 +64,29 @@ syscall_p(Process *proc, int status, int *sysnum) {
 	return 0;
 }
 
-/* Grab functions arguments based on the PPC64 ABI.  */
-long
-gimme_arg(enum tof type, Process *proc, int arg_num, arg_type_info *info) {
-	long data;
-
-	if (type == LT_TOF_FUNCTIONR) {
-		if (info->type == ARGTYPE_FLOAT || info->type == ARGTYPE_DOUBLE)
-			return ptrace (PTRACE_PEEKUSER, proc->pid,
-					sizeof (long) * (PT_FPR0 + 1), 0);
-		else
-			return ptrace (PTRACE_PEEKUSER, proc->pid,
-					sizeof (long) * PT_R3, 0);
-	}
-
-	/* Check if we're entering a new function call to list parameters.  If
-	   so, initialize the register control variables to keep track of where
-	   the parameters were stored.  */
-	if (type == LT_TOF_FUNCTION && arg_num == 0) {
-	  /* Initialize the set of registrers for parameter passing.  */
-		greg = 3;
-		freg = 1;
-		vreg = 2;
-	}
+static long
+gimme_arg_regset(enum tof type, Process *proc, int arg_num, arg_type_info *info,
+		 gregset_t *regs, fpregset_t *fpregs)
+{
+	union { long val; float fval; double dval; } cvt;
 
 	if (info->type == ARGTYPE_FLOAT || info->type == ARGTYPE_DOUBLE) {
 		if (freg <= 13 || (proc->mask_32bit && freg <= 8)) {
-			data = ptrace (PTRACE_PEEKUSER, proc->pid,
-					sizeof (long) * (PT_FPR0 + freg), 0);
+			double val = (*fpregs)[freg];
 
-			if (info->type == ARGTYPE_FLOAT) {
-			/* float values passed in FP registers are automatically
-			promoted to double. We need to convert it back to float
-			before printing.  */
-				union { long val; float fval; double dval; } cvt;
-				cvt.val = data;
-				cvt.fval = (float) cvt.dval;
-				data = cvt.val;
-			}
+			if (info->type == ARGTYPE_FLOAT)
+				cvt.fval = val;
+			else
+				cvt.dval = val;
 
 			freg++;
 			greg++;
 
-			return data;
+			return cvt.val;
 		}
 	}
-	else if (greg <= 10) {
-		data = ptrace (PTRACE_PEEKUSER, proc->pid,
-				sizeof (long) * greg, 0);
-		greg++;
-
-		return data;
-	}
+	else if (greg <= 10)
+		return (*regs)[greg++];
 	else
 		return ptrace (PTRACE_PEEKDATA, proc->pid,
 				proc->stack_pointer + sizeof (long) *
@@ -119,8 +95,66 @@ gimme_arg(enum tof type, Process *proc, int arg_num, arg_type_info *info) {
 	return 0;
 }
 
+static long
+gimme_retval(Process *proc, int arg_num, arg_type_info *info,
+	     gregset_t *regs, fpregset_t *fpregs)
+{
+	union { long val; float fval; double dval; } cvt;
+	if (info->type == ARGTYPE_FLOAT || info->type == ARGTYPE_DOUBLE) {
+		double val = (*fpregs)[1];
+
+		if (info->type == ARGTYPE_FLOAT)
+			cvt.fval = val;
+		else
+			cvt.dval = val;
+
+		return cvt.val;
+	}
+	else 
+		return (*regs)[3];
+}
+
+/* Grab functions arguments based on the PPC64 ABI.  */
+long
+gimme_arg(enum tof type, Process *proc, int arg_num, arg_type_info *info)
+{
+	proc_archdep *arch = (proc_archdep *)proc->arch_ptr;
+	if (arch == NULL || !arch->valid)
+		return -1;
+
+	/* Check if we're entering a new function call to list parameters.  If
+	   so, initialize the register control variables to keep track of where
+	   the parameters were stored.  */
+	if ((type == LT_TOF_FUNCTION || type == LT_TOF_FUNCTIONR)
+	    && arg_num == 0) {
+		/* Initialize the set of registrers for parameter passing.  */
+		greg = 3;
+		freg = 1;
+	}
+
+
+	if (type == LT_TOF_FUNCTIONR) {
+		if (arg_num == -1)
+			return gimme_retval(proc, arg_num, info,
+					    &arch->regs, &arch->fpregs);
+		else
+			return gimme_arg_regset(type, proc, arg_num, info,
+						&arch->regs_copy,
+						&arch->fpregs_copy);
+	}
+	else
+		return gimme_arg_regset(type, proc, arg_num, info,
+					&arch->regs, &arch->fpregs);
+}
+
 void
 save_register_args(enum tof type, Process *proc) {
+	proc_archdep *arch = (proc_archdep *)proc->arch_ptr;
+	if (arch == NULL || !arch->valid)
+		return;
+
+	memcpy(&arch->regs_copy, &arch->regs, sizeof(arch->regs));
+	memcpy(&arch->fpregs_copy, &arch->fpregs, sizeof(arch->fpregs));
 }
 
 /* Read a single long from the process's memory address 'addr'.  */
