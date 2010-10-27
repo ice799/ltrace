@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <assert.h>
 
 #include "common.h"
 
@@ -23,6 +24,113 @@ static GElf_Addr opd2addr(struct ltelf *ltc, GElf_Addr addr);
 #ifdef PLT_REINITALISATION_BP
 extern char *PLTs_initialized_by_here;
 #endif
+
+#ifndef DT_PPC_GOT
+# define DT_PPC_GOT		(DT_LOPROC + 0)
+#endif
+
+#define PPC_PLT_STUB_SIZE 16
+
+static Elf_Data *loaddata(Elf_Scn *scn, GElf_Shdr *shdr)
+{
+	Elf_Data *data = elf_getdata(scn, NULL);
+	if (data == NULL || elf_getdata(scn, data) != NULL
+	    || data->d_off || data->d_size != shdr->sh_size)
+		return NULL;
+	return data;
+}
+
+static int inside(GElf_Addr addr, GElf_Shdr *shdr)
+{
+	return addr >= shdr->sh_addr
+		&& addr < shdr->sh_addr + shdr->sh_size;
+}
+
+static int maybe_pick_section(GElf_Addr addr,
+			      Elf_Scn *in_sec, GElf_Shdr *in_shdr,
+			      Elf_Scn **tgt_sec, GElf_Shdr *tgt_shdr)
+{
+	if (inside (addr, in_shdr)) {
+		*tgt_sec = in_sec;
+		*tgt_shdr = *in_shdr;
+		return 1;
+	}
+	return 0;
+}
+
+static int get_section_covering(struct ltelf *lte, GElf_Addr addr,
+				Elf_Scn **tgt_sec, GElf_Shdr *tgt_shdr)
+{
+	int i;
+	for (i = 1; i < lte->ehdr.e_shnum; ++i) {
+		Elf_Scn *scn;
+		GElf_Shdr shdr;
+
+		scn = elf_getscn(lte->elf, i);
+		if (scn == NULL || gelf_getshdr(scn, &shdr) == NULL) {
+			debug(1, "Couldn't read section or header.");
+			return 0;
+		}
+
+		if (maybe_pick_section(addr, scn, &shdr, tgt_sec, tgt_shdr))
+			return 1;
+	}
+
+	return 0;
+}
+
+static GElf_Addr read32be(Elf_Data *data, size_t offset)
+{
+	if (data->d_size < offset + 4) {
+		debug(1, "Not enough data to read 32bit value at offset %zd.",
+		      offset);
+		return 0;
+	}
+
+	unsigned char const *buf = data->d_buf + offset;
+	return ((Elf32_Word)buf[0] << 24)
+		| ((Elf32_Word)buf[1] << 16)
+		| ((Elf32_Word)buf[2] << 8)
+		| ((Elf32_Word)buf[3]);
+}
+
+static GElf_Addr get_glink_vma(struct ltelf *lte, GElf_Addr ppcgot,
+			       Elf_Data *plt_data)
+{
+	Elf_Scn *ppcgot_sec = NULL;
+	GElf_Shdr ppcgot_shdr;
+	if (ppcgot != 0
+	    && !get_section_covering(lte, ppcgot, &ppcgot_sec, &ppcgot_shdr))
+		// xxx should be the log out
+		fprintf(stderr,
+			"DT_PPC_GOT=%#lx, but no such section found.\n",
+			ppcgot);
+
+	if (ppcgot_sec != NULL) {
+		Elf_Data *data = loaddata(ppcgot_sec, &ppcgot_shdr);
+		if (data == NULL
+		    || data->d_size < 8 )
+			debug(1, "Couldn't read GOT data.");
+		else {
+			// where PPCGOT begins in .got
+			size_t offset = ppcgot - ppcgot_shdr.sh_addr;
+			GElf_Addr glink_vma = read32be(data, offset + 4);
+			if (glink_vma != 0) {
+				debug(1, "PPC GOT glink_vma address: %#lx",
+				      glink_vma);
+				return glink_vma;
+			}
+		}
+	}
+
+	if (plt_data != NULL) {
+		GElf_Addr glink_vma = read32be(plt_data, 0);
+		debug(1, ".plt glink_vma address: %#lx", glink_vma);
+		return glink_vma;
+	}
+
+	return 0;
+}
 
 static void
 do_init_elf(struct ltelf *lte, const char *filename) {
@@ -69,6 +177,9 @@ do_init_elf(struct ltelf *lte, const char *filename) {
 	    )
 		error(EXIT_FAILURE, 0,
 		      "\"%s\" is ELF from incompatible architecture", filename);
+
+	Elf_Data *plt_data = NULL;
+	GElf_Addr ppcgot = 0;
 
 	for (i = 1; i < lte->ehdr.e_shnum; ++i) {
 		Elf_Scn *scn;
@@ -186,6 +297,10 @@ do_init_elf(struct ltelf *lte, const char *filename) {
 					relplt_addr = dyn.d_un.d_ptr;
 				else if (dyn.d_tag == DT_PLTRELSZ)
 					relplt_size = dyn.d_un.d_val;
+				else if (dyn.d_tag == DT_PPC_GOT) {
+					ppcgot = dyn.d_un.d_val;
+					debug(1, "ppcgot %#lx", ppcgot);
+				}
 			}
 		} else if (shdr.sh_type == SHT_HASH) {
 			Elf_Data *data;
@@ -246,9 +361,8 @@ do_init_elf(struct ltelf *lte, const char *filename) {
 				      filename, shdr.sh_entsize);
 			}
 
-			data = elf_getdata(scn, NULL);
-			if (data == NULL || elf_getdata(scn, data) != NULL
-			    || data->d_off || data->d_size != shdr.sh_size)
+			data = loaddata(scn, &shdr);
+			if (data == NULL)
 				error(EXIT_FAILURE, 0,
 				      "Couldn't get .gnu.hash data from \"%s\"",
 				      filename);
@@ -261,6 +375,12 @@ do_init_elf(struct ltelf *lte, const char *filename) {
 				lte->plt_size = shdr.sh_size;
 				if (shdr.sh_flags & SHF_EXECINSTR) {
 					lte->lte_flags |= LTE_PLT_EXECUTABLE;
+				}
+				if (lte->ehdr.e_machine == EM_PPC) {
+					plt_data = loaddata(scn, &shdr);
+					if (plt_data == NULL)
+						fprintf(stderr,
+							"Can't load .plt data\n");
 				}
 			}
 #ifdef ARCH_SUPPORTS_OPD
@@ -281,7 +401,22 @@ do_init_elf(struct ltelf *lte, const char *filename) {
 		debug(1, "%s has no PLT relocations", filename);
 		lte->relplt = NULL;
 		lte->relplt_count = 0;
+	} else if (relplt_size == 0) {
+		debug(1, "%s has unknown PLT size", filename);
+		lte->relplt = NULL;
+		lte->relplt_count = 0;
 	} else {
+		if (lte->ehdr.e_machine == EM_PPC) {
+			GElf_Addr glink_vma
+				= get_glink_vma(lte, ppcgot, plt_data);
+
+			assert (relplt_size % 12 == 0);
+			size_t count = relplt_size / 12; // size of RELA entry
+			lte->plt_stub_vma = glink_vma
+				- (GElf_Addr)count * PPC_PLT_STUB_SIZE;
+			debug(1, "stub_vma is %#lx", lte->plt_stub_vma);
+		}
+
 		for (i = 1; i < lte->ehdr.e_shnum; ++i) {
 			Elf_Scn *scn;
 			GElf_Shdr shdr;
@@ -525,10 +660,19 @@ read_elf(Process *proc) {
 
 		name = lte->dynstr + sym.st_name;
 		if (in_load_libraries(name, lte)) {
-			addr = arch_plt_sym_val(lte, i, &rela);
-			add_library_symbol(addr, name, &library_symbols,
-					   (PLTS_ARE_EXECUTABLE(lte)
-					   ?  LS_TOPLT_EXEC : LS_TOPLT_POINT),
+			enum toplt pltt;
+			if (sym.st_value == 0 && lte->plt_stub_vma != 0) {
+				pltt = LS_TOPLT_EXEC;
+				addr = lte->plt_stub_vma + PPC_PLT_STUB_SIZE * i;
+				printf ("%s %#lx\n", name, addr);
+			}
+			else {
+				pltt = PLTS_ARE_EXECUTABLE(lte)
+					?  LS_TOPLT_EXEC : LS_TOPLT_POINT;
+				addr = arch_plt_sym_val(lte, i, &rela);
+			}
+
+			add_library_symbol(addr, name, &library_symbols, pltt,
 					   ELF64_ST_BIND(sym.st_info) == STB_WEAK);
 			if (!lib_tail)
 				lib_tail = &(library_symbols->next);
