@@ -49,6 +49,13 @@
 	* debug.h: Add macro guard.
 	* breakpoints.c: Fix MIPS breakpoints.
 
+2009-09-07  Joe Damato <ice799@gmail.com>
+
+    * options.c, options.h: A new option (-g) was added.
+    * ltrace.1: Documentation for -g was added.
+    * handle_event.c: Do not print when -g is used.
+    * elf.c: Ditto.
+
 2009-07-25  Juan Cespedes <cespedes@debian.org>
 
 	* New release 0.5.3
