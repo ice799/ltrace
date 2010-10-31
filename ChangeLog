@@ -1,3 +1,8 @@
+2010-10-14  Petr Machata <pmachata@redhat.com>
+
+    * ltrace.1: Remove claim that only 32-bit binaries are supported.
+    * testsuite/ltrace.minor/trace-fork.exp: Make fork test suite more accurate
+
 2010-10-08  Edgar E. Iglesias  <edgar@axis.com>
 
 	* sysdeps/linux-gnu/cris/Makefile: New.
