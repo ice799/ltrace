@@ -84,6 +84,7 @@ usage(void) {
 		"  -e expr             modify which events to trace.\n"
 		"  -f                  trace children (fork() and clone()).\n"
 		"  -F, --config=FILE   load alternate configuration file (may be repeated).\n"
+		"  -g, --no-plt        disable breakpoints on PLT entries.\n"
 		"  -h, --help          display this help and exit.\n"
 		"  -i                  print instruction pointer at time of library call.\n"
 		"  -l, --library=FILE  print library calls from this library only.\n"
@@ -179,6 +180,7 @@ char **
 process_options(int argc, char **argv) {
 	progname = argv[0];
 	options.output = stderr;
+	options.no_plt = 0;
 
 	guess_cols();
 
@@ -198,9 +200,10 @@ process_options(int argc, char **argv) {
 			{"library", 1, 0, 'l'},
 			{"output", 1, 0, 'o'},
 			{"version", 0, 0, 'V'},
+			{"no-plt", 0, 0, 'g'},
 			{0, 0, 0, 0}
 		};
-		c = getopt_long(argc, argv, "+cfhiLrStTV"
+		c = getopt_long(argc, argv, "+cfhiLrStTVg"
 # ifdef USE_DEMANGLE
 				"C"
 # endif
@@ -283,6 +286,9 @@ process_options(int argc, char **argv) {
 				opt_F = tmp;
 				break;
 			}
+		case 'g':
+			options.no_plt = 1;
+			break;
 		case 'h':
 			usage();
 			exit(0);
@@ -351,6 +357,7 @@ process_options(int argc, char **argv) {
 					"This is free software; see the GNU General Public Licence\n"
 					"version 2 or later for copying conditions.  There is NO warranty.\n");
 			exit(0);
+			break;
 		case 'X':
 #ifdef PLT_REINITALISATION_BP
 			PLTs_initialized_by_here = optarg;
