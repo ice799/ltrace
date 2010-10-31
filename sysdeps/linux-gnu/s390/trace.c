@@ -183,8 +183,15 @@ gimme_arg(enum tof type, Process *proc, int arg_num, arg_type_info *info) {
 		ret = ptrace(PTRACE_PEEKUSER, proc->pid, PT_GPR6, 0);
 		break;
 	default:
-		fprintf(stderr, "gimme_arg called with wrong arguments\n");
-		exit(2);
+		/*Rest of the params saved in stack */
+		if (arg_num >= 5) {
+			ret = ptrace(PTRACE_PEEKUSER, proc->pid,
+				     proc->stack_pointer + 96 +
+				     4 * (arg_num - 5), 0);
+		} else {
+			fprintf(stderr, "gimme_arg called with wrong arguments\n");
+			exit(2);
+		}
 	}
 #ifdef __s390x__
 	if (proc->mask_32bit)
