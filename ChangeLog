@@ -1,3 +1,10 @@
+2010-10-18  Petr Machata <pmachata@redhat.com>
+
+    * sysdeps/linux-gnu/s390/trace.c: Support 5th argument fetching on s390.
+      Contributed by Supriya Kannery.
+    * sysdeps/linux-gnu/s390/arch.h: Add support for fork/exec on 390.
+    * output.c: Cleanup.
+
 2010-10-14  Petr Machata <pmachata@redhat.com>
 
     * ltrace.1: Remove claim that only 32-bit binaries are supported.

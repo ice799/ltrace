@@ -164,7 +164,6 @@ output_left(enum tof type, Process *proc, char *function_name) {
 	}
 	if (current_proc) {
 		fprintf(options.output, " <unfinished ...>\n");
-		current_proc = 0;
 		current_column = 0;
 	}
 	current_proc = proc;
