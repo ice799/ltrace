@@ -297,6 +297,28 @@ output_right(enum tof type, Process *proc, char *function_name) {
 			(int)current_time_spent.tv_usec);
 	}
 	fprintf(options.output, "\n");
+
+#if defined(HAVE_LIBUNWIND)
+	if (options.bt_depth > 0) {
+		unw_cursor_t cursor;
+		unw_word_t ip, sp;
+		int unwind_depth = options.bt_depth;
+		char fn_name[100];
+
+		unw_init_remote(&cursor, proc->unwind_as, proc->unwind_priv);
+		while (unwind_depth) {
+			unw_get_reg(&cursor, UNW_REG_IP, &ip);
+			unw_get_reg(&cursor, UNW_REG_SP, &sp);
+			unw_get_proc_name(&cursor, fn_name, 100, NULL);
+			fprintf(options.output, "\t\t\t%s (ip = 0x%lx)\n", fn_name, (long) ip);
+			if (unw_step(&cursor) <= 0)
+				break;
+			unwind_depth--;
+		}
+		fprintf(options.output, "\n");
+	}
+#endif /* defined(HAVE_LIBUNWIND) */
+
 	current_proc = 0;
 	current_column = 0;
 }

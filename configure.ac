@@ -62,6 +62,32 @@ AC_CHECK_LIB([supc++], [__cxa_demangle], [
 AC_SUBST(libsupcxx_LIBS)
 
 
+# HAVE_LIBUNWIND
+AC_ARG_WITH(libunwind,
+[  --with-libunwind            Use libunwind frame unwinding support],
+[case "${withval}" in
+  yes)  enable_libunwind=yes ;;
+  no)   enable_libunwind=no ;;
+  *)    AC_MSG_ERROR(bad value ${withval} for GDB with-libunwind option) ;;
+esac],[
+  AC_CHECK_HEADERS(libunwind.h)
+  AC_CHECK_HEADERS(libunwind-ptrace.h)
+  if test x"$ac_cv_header_libunwind_h" = xyes; then
+    enable_libunwind=yes;
+  fi
+])
+
+if test x"$enable_libunwind" = xyes; then
+  AC_CHECK_LIB(unwind, backtrace, libunwind_LIBS=-lunwind, libunwind_LIBS=)
+  AC_SUBST(libunwind_LIBS)
+  AC_CHECK_LIB(unwind-ptrace, _UPT_create, libunwind_ptrace_LIBS=-lunwind-ptrace, libunwind_ptrace_LIBS=)
+  AC_SUBST(libunwind_ptrace_LIBS)
+  AC_CHECK_LIB(unwind-${HOST_CPU}, _U${HOST_CPU}_init_remote, libunwind_arch_LIBS=-lunwind-${HOST_CPU}, libunwind_arch_LIBS=)
+  AC_SUBST(libunwind_arch_LIBS)
+  AC_DEFINE([HAVE_LIBUNWIND], [1], [we have libunwind])
+fi
+
+
 # HAVE_ELF_C_READ_MMAP
 AC_MSG_CHECKING([whether elf_begin accepts ELF_C_READ_MMAP])
 AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <gelf.h>]], [[

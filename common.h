@@ -1,3 +1,7 @@
+#if defined(HAVE_LIBUNWIND)
+#include <libunwind.h>
+#endif /* defined(HAVE_LIBUNWIND) */
+
 #include <sys/types.h>
 #include <sys/time.h>
 #include <stdio.h>
@@ -185,6 +189,12 @@ struct Process {
 
 	/* output: */
 	enum tof type_being_displayed;
+
+#if defined(HAVE_LIBUNWIND)
+	/* libunwind address space */
+	unw_addr_space_t unwind_as;
+	void *unwind_priv;
+#endif /* defined(HAVE_LIBUNWIND) */
 
 	Process * next;
 };
