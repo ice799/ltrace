@@ -1,3 +1,14 @@
+2010-10-31  Joe Damato <ice799@gmail.com>
+
+    * Makefile.am: Add autotool support for libunwind.
+    * configure.ac: Ditto.
+    * common.h: New structure fields for libunwind.
+    * execute_program.c: Initialize libunwind.
+    * proc.c: Ditto.
+    * options.c: New command line option (-w).
+    * options.h: New options parameter for libunwind.
+    * output.c: Use libunwind to do backtraces.
+
 2010-10-18  Petr Machata <pmachata@redhat.com>
 
     * sysdeps/linux-gnu/s390/trace.c: Support 5th argument fetching on s390.

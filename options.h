@@ -16,6 +16,9 @@ struct options_t {
 	int follow;     /* trace child processes */
 	int no_plt;     /* set bps on PLT entries */
 	int no_signals; /* don't print signals */
+#if defined(HAVE_LIBUNWIND)
+	int bt_depth;	 /* how may levels of stack frames to show */
+#endif /* defined(HAVE_LIBUNWIND) */
 };
 extern struct options_t options;
 

@@ -100,6 +100,9 @@ usage(void) {
 		"  -T                  show the time spent inside each call.\n"
 		"  -u USERNAME         run command with the userid, groupid of username.\n"
 		"  -V, --version       output version information and exit.\n"
+#if defined(HAVE_LIBUNWIND)
+		"  -w=NR, --where=NR   print backtrace showing NR stack frames at most.\n"
+#endif /* defined(HAVE_LIBUNWIND) */
 		"  -x NAME             treat the global NAME like a library subroutine.\n"
 #ifdef PLT_REINITALISATION_BP
 		"  -X NAME             same as -x; and PLT's will be initialized by here.\n"
@@ -183,6 +186,9 @@ process_options(int argc, char **argv) {
 	options.output = stderr;
 	options.no_plt = 0;
 	options.no_signals = 0;
+#if defined(HAVE_LIBUNWIND)
+	options.bt_depth = -1;
+#endif /* defined(HAVE_LIBUNWIND) */
 
 	guess_cols();
 
@@ -204,13 +210,20 @@ process_options(int argc, char **argv) {
 			{"version", 0, 0, 'V'},
 			{"no-plt", 0, 0, 'g'},
 			{"no-signals", 0, 0, 'b'},
+#if defined(HAVE_LIBUNWIND)
+			{"where", 1, 0, 'w'},
+#endif /* defined(HAVE_LIBUNWIND) */
 			{0, 0, 0, 0}
 		};
 		c = getopt_long(argc, argv, "+cfhiLrStTVgb"
 # ifdef USE_DEMANGLE
 				"C"
 # endif
+#if defined(HAVE_LIBUNWIND)
+				"a:A:D:e:F:l:n:o:p:s:u:x:X:w:", long_options,
+#else /* !defined(HAVE_LIBUNWIND) */
 				"a:A:D:e:F:l:n:o:p:s:u:x:X:", long_options,
+#endif
 				&option_index);
 		if (c == -1) {
 			break;
@@ -313,6 +326,11 @@ process_options(int argc, char **argv) {
 		case 'n':
 			options.indent = atoi(optarg);
 			break;
+#if defined(HAVE_LIBUNWIND)
+		case 'w':
+			options.bt_depth = atoi(optarg);
+			break;
+#endif /* defined(HAVE_LIBUNWIND) */
 		case 'o':
 			options.output = fopen(optarg, "w");
 			if (!options.output) {

@@ -28,6 +28,9 @@ libltrace_la_LIBADD = \
 	$(libelf_LIBS) \
 	$(liberty_LIBS) \
 	$(libsupcxx_LIBS) \
+	$(libunwind_LIBS) \
+	$(libunwind_ptrace_LIBS) \
+	$(libunwind_arch_LIBS) \
 	sysdeps/libos.la
 
 

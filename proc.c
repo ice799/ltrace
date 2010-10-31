@@ -1,3 +1,10 @@
+#include "config.h"
+
+#if defined(HAVE_LIBUNWIND)
+#include <libunwind.h>
+#include <libunwind-ptrace.h>
+#endif /* defined(HAVE_LIBUNWIND) */
+
 #include <sys/types.h>
 #include <string.h>
 #include <stdio.h>
@@ -18,11 +25,21 @@ open_program(char *filename, pid_t pid) {
 	proc->breakpoints_enabled = -1;
 	if (pid) {
 		proc->pid = pid;
+#if defined(HAVE_LIBUNWIND)
+		proc->unwind_priv = _UPT_create(pid);
+	} else {
+		proc->unwind_priv = NULL;
+#endif /* defined(HAVE_LIBUNWIND) */
 	}
+
 	breakpoints_init(proc);
 
 	proc->next = list_of_processes;
 	list_of_processes = proc;
+
+#if defined(HAVE_LIBUNWIND)
+	proc->unwind_as = unw_create_addr_space(&_UPT_accessors, 0);
+#endif /* defined(HAVE_LIBUNWIND) */
 	return proc;
 }
 

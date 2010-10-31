@@ -1,5 +1,9 @@
 #include "config.h"
 
+#if defined(HAVE_LIBUNWIND)
+#include <libunwind-ptrace.h>
+#endif /* defined(HAVE_LIBUNWIND) */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
@@ -86,6 +90,10 @@ execute_program(Process *sp, char **argv) {
 	debug(1, "PID=%d", pid);
 
 	sp->pid = pid;
+
+#if defined(HAVE_LIBUNWIND)
+	sp->unwind_priv = _UPT_create(pid);
+#endif /* defined(HAVE_LIBUNWIND) */
 
 	return;
 }
