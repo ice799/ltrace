@@ -61,7 +61,7 @@ AC_SUBST(libsupcxx_LIBS)
 
 # HAVE_LIBUNWIND
 AC_ARG_WITH(libunwind,
-[  --with-libunwind            Use libunwind frame unwinding support],
+      AS_HELP_STRING([--with-libunwind], [Use libunwind frame unwinding support]),
 [case "${withval}" in
   yes)  enable_libunwind=yes ;;
   no)   enable_libunwind=no ;;
