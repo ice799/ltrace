@@ -19,7 +19,7 @@ AC_SUBST(HOST_OS)
 case "${host_cpu}" in
     arm*|sa110)		HOST_CPU="arm" ;;
     i?86)		HOST_CPU="i386" ;;
-    powerpc|ppc64)	HOST_CPU="ppc" ;;
+    powerpc|powerpc64)	HOST_CPU="ppc" ;;
     sun4u|sparc64)	HOST_CPU="sparc" ;;
     s390x)		HOST_CPU="s390" ;;
     *)			HOST_CPU="${host_cpu}" ;;
