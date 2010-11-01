@@ -664,7 +664,6 @@ read_elf(Process *proc) {
 			if (sym.st_value == 0 && lte->plt_stub_vma != 0) {
 				pltt = LS_TOPLT_EXEC;
 				addr = lte->plt_stub_vma + PPC_PLT_STUB_SIZE * i;
-				printf ("%s %#lx\n", name, addr);
 			}
 			else {
 				pltt = PLTS_ARE_EXECUTABLE(lte)
