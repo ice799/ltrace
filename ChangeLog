@@ -11,6 +11,11 @@
 
 2010-11-03  Petr Machata  <pmachata@redhat.com>
 
+	* testsuite/ltrace.main/parameters.* (func_work, func_call): new
+	functions for testing nested library calls
+
+2010-11-03  Petr Machata  <pmachata@redhat.com>
+
 	* sysdeps/linux-gnu/x86_64/trace.c: Fix passing and returning
 	float and double values.
 	* sysdeps/linux-gnu/x86_64/ptrace.h: Likewise.
