@@ -52,9 +52,16 @@ void func_ushort(unsigned short x1, unsigned short x2)
 	printf("ushort: %hu %hu\n", x1, x2);
 }
 
-void func_float(float f1, float f2)
+float func_float(float f1, float f2)
 {
 	printf("%f %f\n", f1, f2);
+	return f1;
+}
+
+double func_double(double f1, double f2)
+{
+	printf("%f %f\n", f1, f2);
+	return f2;
 }
 
 void func_typedef(int x)
