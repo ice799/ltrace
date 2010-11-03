@@ -7,6 +7,7 @@
 #include <sys/ptrace.h>
 #include <sys/reg.h>
 #include <string.h>
+#include <assert.h>
 
 #include "common.h"
 #include "ptrace.h"
@@ -145,6 +146,7 @@ gimme_arg(enum tof type, Process *proc, int arg_num, arg_type_info *info) {
 		return (unsigned int)gimme_arg32(type, proc, arg_num);
 
 	proc_archdep *arch = (proc_archdep *)proc->arch_ptr;
+
 	if (arch == NULL || !arch->valid)
 		return -1;
 
@@ -152,10 +154,15 @@ gimme_arg(enum tof type, Process *proc, int arg_num, arg_type_info *info) {
 		if (arg_num == -1)
 			return gimme_retval(proc, arg_num, info,
 					    &arch->regs, &arch->fpregs);
-		else
+		else {
+			struct callstack_element *elem
+				= proc->callstack + proc->callstack_depth - 1;
+			callstack_achdep *csad = elem->arch_ptr;
+			assert(csad != NULL);
 			return gimme_arg_regset(proc, arg_num, info,
-						&arch->regs_copy,
-						&arch->fpregs_copy);
+						&csad->regs_copy,
+						&csad->fpregs_copy);
+		}
 	}
 	else
 		return gimme_arg_regset(proc, arg_num, info,
@@ -168,6 +175,10 @@ save_register_args(enum tof type, Process *proc) {
         if (arch == NULL || !arch->valid)
                 return;
 
-        memcpy(&arch->regs_copy, &arch->regs, sizeof(arch->regs));
-        memcpy(&arch->fpregs_copy, &arch->fpregs, sizeof(arch->fpregs));
+	callstack_achdep *csad = malloc(sizeof(*csad));
+	memset(csad, 0, sizeof(*csad));
+	memcpy(&csad->regs_copy, &arch->regs, sizeof(arch->regs));
+	memcpy(&csad->fpregs_copy, &arch->fpregs, sizeof(arch->fpregs));
+
+	proc->callstack[proc->callstack_depth - 1].arch_ptr = csad;
 }
