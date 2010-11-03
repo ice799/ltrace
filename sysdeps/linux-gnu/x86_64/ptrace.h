@@ -6,7 +6,9 @@ typedef struct {
 	int valid;
 	struct user_regs_struct regs;
 	struct user_fpregs_struct fpregs;
-	struct user_regs_struct regs_copy;
-	struct user_fpregs_struct fpregs_copy;
 } proc_archdep;
 
+typedef struct {
+	struct user_regs_struct regs_copy;
+	struct user_fpregs_struct fpregs_copy;
+} callstack_achdep;

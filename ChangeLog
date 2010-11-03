@@ -11,6 +11,18 @@
 
 2010-11-03  Petr Machata  <pmachata@redhat.com>
 
+	* common.h: Add arch_ptr to callstack_element
+	* handle_event.c: Move callstack manipulation so that it's around
+	the output calls--push before output_left, pop after output_right.
+	(callstack_pop): Free the arch_ptr if it was set.
+	* sysdeps/linux-gnu/x86_64/ptrace.h: Split the archdep struct to
+	the proc part and the callstack_element part.
+	* sysdeps/linux-gnu/x86_64/trace.c (save_register_args): Init
+	callstack_element.arch_ptr.
+	(gimme_arg): Use it.
+
+2010-11-03  Petr Machata  <pmachata@redhat.com>
+
 	* testsuite/ltrace.main/parameters.* (func_work, func_call): new
 	functions for testing nested library calls
 

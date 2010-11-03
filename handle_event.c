@@ -386,6 +386,7 @@ static void
 handle_syscall(Event *event) {
 	debug(DEBUG_FUNCTION, "handle_syscall(pid=%d, sysnum=%d)", event->proc->pid, event->e_un.sysnum);
 	if (event->proc->state != STATE_IGNORED) {
+		callstack_push_syscall(event->proc, event->e_un.sysnum);
 		if (options.syscalls) {
 			output_left(LT_TOF_SYSCALL, event->proc,
 					sysname(event->proc, event->e_un.sysnum));
@@ -393,7 +394,6 @@ handle_syscall(Event *event) {
 		if (event->proc->breakpoints_enabled == 0) {
 			enable_all_breakpoints(event->proc);
 		}
-		callstack_push_syscall(event->proc, event->e_un.sysnum);
 	}
 	continue_process(event->proc->pid);
 }
@@ -427,6 +427,7 @@ static void
 handle_arch_syscall(Event *event) {
 	debug(DEBUG_FUNCTION, "handle_arch_syscall(pid=%d, sysnum=%d)", event->proc->pid, event->e_un.sysnum);
 	if (event->proc->state != STATE_IGNORED) {
+		callstack_push_syscall(event->proc, 0xf0000 + event->e_un.sysnum);
 		if (options.syscalls) {
 			output_left(LT_TOF_SYSCALL, event->proc,
 					arch_sysname(event->proc, event->e_un.sysnum));
@@ -434,7 +435,6 @@ handle_arch_syscall(Event *event) {
 		if (event->proc->breakpoints_enabled == 0) {
 			enable_all_breakpoints(event->proc);
 		}
-		callstack_push_syscall(event->proc, 0xf0000 + event->e_un.sysnum);
 	}
 	continue_process(event->proc->pid);
 }
@@ -470,11 +470,11 @@ handle_sysret(Event *event) {
 		if (opt_T || options.summary) {
 			calc_time_spent(event->proc);
 		}
-		callstack_pop(event->proc);
 		if (options.syscalls) {
 			output_right(LT_TOF_SYSCALLR, event->proc,
 					sysname(event->proc, event->e_un.sysnum));
 		}
+		callstack_pop(event->proc);
 	}
 	continue_process(event->proc->pid);
 }
@@ -486,11 +486,11 @@ handle_arch_sysret(Event *event) {
 		if (opt_T || options.summary) {
 			calc_time_spent(event->proc);
 		}
-		callstack_pop(event->proc);
 		if (options.syscalls) {
 			output_right(LT_TOF_SYSCALLR, event->proc,
 					arch_sysname(event->proc, event->e_un.sysnum));
 		}
+		callstack_pop(event->proc);
 	}
 	continue_process(event->proc->pid);
 }
@@ -595,12 +595,12 @@ handle_breakpoint(Event *event) {
 					calc_time_spent(event->proc);
 				}
 			}
-			callstack_pop(event->proc);
 			event->proc->return_addr = event->e_un.brk_addr;
 			if (event->proc->state != STATE_IGNORED) {
 				output_right(LT_TOF_FUNCTIONR, event->proc,
 						event->proc->callstack[i].c_un.libfunc->name);
 			}
+			callstack_pop(event->proc);
 			continue_after_breakpoint(event->proc,
 					address2bpstruct(event->proc,
 						event->e_un.brk_addr));
@@ -613,8 +613,8 @@ handle_breakpoint(Event *event) {
 			event->proc->stack_pointer = get_stack_pointer(event->proc);
 			event->proc->return_addr =
 				get_return_addr(event->proc, event->proc->stack_pointer);
-			output_left(LT_TOF_FUNCTION, event->proc, sbp->libsym->name);
 			callstack_push_symfunc(event->proc, sbp->libsym);
+			output_left(LT_TOF_FUNCTION, event->proc, sbp->libsym->name);
 		}
 #ifdef PLT_REINITALISATION_BP
 		if (event->proc->need_to_reinitialize_breakpoints
@@ -698,6 +698,10 @@ callstack_pop(Process *proc) {
 	elem = &proc->callstack[proc->callstack_depth - 1];
 	if (!elem->is_syscall && elem->return_addr) {
 		delete_breakpoint(proc, elem->return_addr);
+	}
+	if (elem->arch_ptr != NULL) {
+		free(elem->arch_ptr);
+		elem->arch_ptr = NULL;
 	}
 	proc->callstack_depth--;
 }
