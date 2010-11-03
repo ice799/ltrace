@@ -35,15 +35,12 @@ AM_INIT_AUTOMAKE([foreign no-exeext dist-bzip2])
 # Checks for libraries.
 
 # libelf
-REQUIRES_LIBELF="libelf >= 0.8.6"
-AC_SUBST(REQUIRES_LIBELF)
-PKG_CHECK_MODULES([libelf],
-	[${REQUIRES_LIBELF}],
-	[],
-	[AC_MSG_ERROR([*** ${REQUIRES_LIBELF} not found by pkg-config on your system])]
+AC_CHECK_HEADERS([elf.h gelf.h],,
+	[AC_MSG_ERROR([*** libelf.h or gelf.h not found on your system])]
 )
-AC_SUBST(libelf_CFLAGS)
-AC_SUBST(libelf_LIBS)
+AC_CHECK_LIB([elf], [elf_begin],,
+	[AC_MSG_ERROR([*** libelf not found on your system])]
+)
 
 
 # HAVE_LIBIBERTY

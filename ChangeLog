@@ -1,3 +1,7 @@
+2010-11-03  Petr Machata  <pmachata@redhat.com>
+
+	* configure.ac: Don't assume that libelf comes with a .pc file.
+
 2010-10-31  Joe Damato <ice799@gmail.com>
 
     * Makefile.am: Add autotool support for libunwind.
