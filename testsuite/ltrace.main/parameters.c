@@ -20,7 +20,8 @@ void func_ppp(int***);
 void func_stringp(char**);
 void func_short(short, short);
 void func_ushort(unsigned short, unsigned short);
-void func_float(float, float);
+float func_float(float, float);
+double func_double(double, double);
 void func_arrayi(int*, int);
 void func_arrayf(float*, int);
 void func_struct(void*);
@@ -68,7 +69,8 @@ main ()
 
   func_short(-8, -9);
   func_ushort(33, 34);
-  func_float(3.4, -3.4);
+  float f = func_float(3.4, -3.4);
+  double d = func_double(3.4, -3.4);
 
   func_typedef(BLUE);
 
