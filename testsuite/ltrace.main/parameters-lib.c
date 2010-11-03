@@ -122,3 +122,14 @@ void func_struct(struct test_struct* x)
     buf[x->slen] = '\0';
     printf("%s\n", buf);
 }
+
+void func_work (char *x)
+{
+  *x = 'x';
+}
+
+void func_call (char *x, char* y, void (*cb) (char *))
+{
+  cb (y);
+  *x = (*y)++;
+}

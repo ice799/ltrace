@@ -36,6 +36,9 @@ typedef enum {
 void func_enum(color_t);
 void func_typedef(color_t);
 
+void func_work (char *x);
+void func_call (char *x, char* y, void (*cb) (char *));
+
 int 
 main ()
 {
@@ -116,6 +119,12 @@ main ()
     x.str = "123junk";
 
     func_struct(&x);
+  }
+
+  {
+    char x[10] = {};
+    char y[10] = {};
+    func_call (x, y, func_work);
   }
 
   return 0;

@@ -72,3 +72,9 @@ set pattern "exited (status 0)"
 ltrace_verify_output ${objdir}/${subdir}/${testfile}.ltrace $pattern 1
 set pattern "func_struct({ 89, 2, 3, . { 1, 10 }, { 3, 30 } ., . { 4, 40 }, { 5, 50 }, { 6, 60 } ., \\\"123\\\" })"
 ltrace_verify_output ${objdir}/${subdir}/${testfile}.ltrace $pattern 1
+set pattern "func_call( <unfinished ...>"
+ltrace_verify_output ${objdir}/${subdir}/${testfile}.ltrace $pattern 1
+set pattern "func_work(\\\"x\\\")"
+ltrace_verify_output ${objdir}/${subdir}/${testfile}.ltrace $pattern 1
+set pattern "<... func_call resumed> \\\"x\\\", \\\"y\\\")"
+ltrace_verify_output ${objdir}/${subdir}/${testfile}.ltrace $pattern 1
