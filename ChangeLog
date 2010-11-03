@@ -11,6 +11,12 @@
 
 2010-11-03  Petr Machata  <pmachata@redhat.com>
 
+	* sysdeps/linux-gnu/x86_64/trace.c: Fix passing and returning
+	float and double values.
+	* sysdeps/linux-gnu/x86_64/ptrace.h: Likewise.
+
+2010-11-03  Petr Machata  <pmachata@redhat.com>
+
 	* testsuite/ltrace.main/parameters.* (func_float): now returns
 	float to test proper decoding of float return values.
 	(func_double): new function similar to func_float.
