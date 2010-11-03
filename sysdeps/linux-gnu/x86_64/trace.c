@@ -93,101 +93,81 @@ gimme_arg32(enum tof type, Process *proc, int arg_num) {
 	exit(1);
 }
 
+static long
+gimme_arg_regset(Process *proc, int arg_num, arg_type_info *info,
+                 struct user_regs_struct *regs,
+		 struct user_fpregs_struct *fpregs)
+{
+        union {
+		uint32_t sse[4];
+		long lval;
+		float fval;
+		double dval;
+	} cvt;
+
+        if (info->type == ARGTYPE_FLOAT || info->type == ARGTYPE_DOUBLE) {
+		memcpy(cvt.sse, fpregs->xmm_space + 4*arg_num,
+		       sizeof(cvt.sse));
+		return cvt.lval;
+	}
+
+	switch (arg_num) {
+	case 0:
+		return regs->rdi;
+	case 1:
+		return regs->rsi;
+	case 2:
+		return regs->rdx;
+	case 3:
+		return regs->rcx;
+	case 4:
+		return regs->r8;
+	case 5:
+		return regs->r9;
+	default:
+		return ptrace(PTRACE_PEEKTEXT, proc->pid,
+			      proc->stack_pointer + 8 * (arg_num - 6 + 1), 0);
+	}
+}
+static long
+gimme_retval(Process *proc, int arg_num, arg_type_info *info,
+             struct user_regs_struct *regs, struct user_fpregs_struct *fpregs)
+{
+        if (info->type == ARGTYPE_FLOAT || info->type == ARGTYPE_DOUBLE)
+		return gimme_arg_regset(proc, 0, info, regs, fpregs);
+	else
+		return regs->rax;
+}
+
 long
 gimme_arg(enum tof type, Process *proc, int arg_num, arg_type_info *info) {
-	proc_archdep *a = (proc_archdep *) proc->arch_ptr;
-
-	if (!a || !a->valid)
-		return -1;
-
 	if (proc->mask_32bit)
 		return (unsigned int)gimme_arg32(type, proc, arg_num);
 
-	if (arg_num == -1) {	/* return value */
-		return a->regs.rax;
+	proc_archdep *arch = (proc_archdep *)proc->arch_ptr;
+	if (arch == NULL || !arch->valid)
+		return -1;
+
+	if (type == LT_TOF_FUNCTIONR) {
+		if (arg_num == -1)
+			return gimme_retval(proc, arg_num, info,
+					    &arch->regs, &arch->fpregs);
+		else
+			return gimme_arg_regset(proc, arg_num, info,
+						&arch->regs_copy,
+						&arch->fpregs_copy);
 	}
-
-	if (type == LT_TOF_FUNCTION) {
-		if (info->type == ARGTYPE_FLOAT)
-			return a->fpregs.xmm_space[4*arg_num];
-
-		switch (arg_num) {
-		case 0:
-			return a->regs.rdi;
-		case 1:
-			return a->regs.rsi;
-		case 2:
-			return a->regs.rdx;
-		case 3:
-			return a->regs.rcx;
-		case 4:
-			return a->regs.r8;
-		case 5:
-			return a->regs.r9;
-		default:
-			return ptrace(PTRACE_PEEKTEXT, proc->pid,
-				      proc->stack_pointer + 8 * (arg_num - 6 +
-								 1), 0);
-		}
-	} else if (type == LT_TOF_FUNCTIONR) {
-		if (info->type == ARGTYPE_FLOAT)
-			return a->func_fpr_args[4*arg_num];
-		switch (arg_num) {
-			case 0 ... 5:
-				return a->func_args[arg_num];
-			default:
-				return ptrace(PTRACE_PEEKTEXT, proc->pid,
-				      proc->stack_pointer + 8 * (arg_num - 6 +
-								 1), 0);
-		}
-	} else if (type == LT_TOF_SYSCALL || LT_TOF_SYSCALLR) {
-		switch (arg_num) {
-		case 0:
-			return a->regs.rdi;
-		case 1:
-			return a->regs.rsi;
-		case 2:
-			return a->regs.rdx;
-		case 3:
-			return a->regs.rcx;
-		case 4:
-			return a->regs.r8;
-		case 5:
-			return a->regs.r9;
-		default:
-			fprintf(stderr,
-				"gimme_arg called with wrong arguments\n");
-			exit(2);
-		}
-	} else {
-		fprintf(stderr, "gimme_arg called with wrong arguments\n");
-		exit(1);
-	}
-
-	return 0;
+	else
+		return gimme_arg_regset(proc, arg_num, info,
+					&arch->regs, &arch->fpregs);
 }
 
 void
 save_register_args(enum tof type, Process *proc) {
-	proc_archdep *a = (proc_archdep *) proc->arch_ptr;
+        proc_archdep *arch = (proc_archdep *)proc->arch_ptr;
+        if (arch == NULL || !arch->valid)
+                return;
 
-	if (a && a->valid) {
-		if(type == LT_TOF_FUNCTION) {
-			a->func_args[0] = a->regs.rdi;
-			a->func_args[1] = a->regs.rsi;
-			a->func_args[2] = a->regs.rdx;
-			a->func_args[3] = a->regs.rcx;
-			a->func_args[4] = a->regs.r8;
-			a->func_args[5] = a->regs.r9;
-			memcpy(a->func_fpr_args, &a->fpregs.xmm_space, sizeof(a->func_fpr_args));
-
-		} else {
-			a->sysc_args[0] = a->regs.rdi;
-			a->sysc_args[1] = a->regs.rsi;
-			a->sysc_args[2] = a->regs.rdx;
-			a->sysc_args[3] = a->regs.rcx;
-			a->sysc_args[4] = a->regs.r8;
-			a->sysc_args[5] = a->regs.r9;
-		}
-	}
+        memcpy(&arch->regs_copy, &arch->regs, sizeof(arch->regs));
+        memcpy(&arch->fpregs_copy, &arch->fpregs, sizeof(arch->fpregs));
 }

@@ -4,10 +4,9 @@
 
 typedef struct {
 	int valid;
-	unsigned long func_args[6];
-	uint32_t func_fpr_args[64];
-	unsigned long sysc_args[6];
-	struct user_fpregs_struct fpregs;
 	struct user_regs_struct regs;
+	struct user_fpregs_struct fpregs;
+	struct user_regs_struct regs_copy;
+	struct user_fpregs_struct fpregs_copy;
 } proc_archdep;
 
