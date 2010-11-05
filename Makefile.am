@@ -70,10 +70,7 @@ dist_sysconf_DATA = \
 	etc/ltrace.conf
 
 EXTRA_DIST = \
-	.gitignore \
-	autogen.sh \
 	ltrace.spec \
-	\
 	debian/changelog \
 	debian/compat \
 	debian/control.in \
