@@ -15,6 +15,29 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 #
 
+EXTRA_DIST = \
+	attach-process.c \
+	attach-process.exp \
+	count-record.c \
+	count-record.exp \
+	demangle-lib.cpp \
+	demangle.cpp \
+	demangle.exp \
+	demangle.h \
+	print-instruction-pointer.c \
+	print-instruction-pointer.exp \
+	time-record.c \
+	time-record-T.exp \
+	time-record-tt.exp \
+	time-record-ttt.exp \
+	trace-clone.c \
+	trace-clone.exp \
+	trace-exec.c \
+	trace-exec.exp \
+	trace-exec1.c \
+	trace-fork.c \
+	trace-fork.exp
+
 CLEANFILES = *.o *.so *.log *.sum *.ltrace setval.tmp \
 	attach-process count-record demangle print-instruction-pointer \
 	time-record-T time-record-tt time-record-ttt trace-clone \

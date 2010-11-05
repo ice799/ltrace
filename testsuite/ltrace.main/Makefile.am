@@ -15,6 +15,22 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 #
 
+EXTRA_DIST = \
+	main-lib.c \
+	main.c \
+	main.exp \
+	main-internal.c \
+	main-internal-1.c \
+	main-internal.exp \
+	parameters-lib.c \
+	parameters.c \
+	parameters.conf \
+	parameters.exp \
+	signals.c \
+	signals.exp \
+	system_calls.c \
+	system_calls.exp
+
 CLEANFILES = *.o *.so *.log *.sum *.ltrace setval.tmp \
 	main main-internal parameters signals system_calls
 

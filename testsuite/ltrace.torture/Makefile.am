@@ -15,6 +15,10 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 #
 
+EXTRA_DIST = \
+	signals.c \
+	signals.exp
+
 CLEANFILES = *.o *.so *.log *.sum *.ltrace setval.tmp \
 	signals
 

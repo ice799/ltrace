@@ -21,6 +21,14 @@ RUNTESTDEFAULTFLAGS = --srcdir $(srcdir)
 
 SUBDIRS = ltrace.main ltrace.minor ltrace.torture
 
+EXTRA_DIST = \
+	README \
+	config/unix.exp \
+	lib/compiler.c \
+	lib/compiler.cc \
+	lib/ltrace.exp \
+	run-my-tests.sh
+
 CLEANFILES = *.o *.so *.log *.sum *.ltrace site.bak setval.tmp site.exp
 
 MAINTAINERCLEANFILES = Makefile.in
