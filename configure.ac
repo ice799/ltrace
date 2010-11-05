@@ -62,18 +62,33 @@ AC_SUBST(libsupcxx_LIBS)
 
 # HAVE_LIBUNWIND
 AC_ARG_WITH(libunwind,
-      AS_HELP_STRING([--with-libunwind], [Use libunwind frame unwinding support]),
-[case "${withval}" in
-  yes)  enable_libunwind=yes ;;
-  no)   enable_libunwind=no ;;
-  *)    AC_MSG_ERROR(bad value ${withval} for GDB with-libunwind option) ;;
-esac],[
-  AC_CHECK_HEADERS(libunwind.h)
-  AC_CHECK_HEADERS(libunwind-ptrace.h)
-  if test x"$ac_cv_header_libunwind_h" = xyes; then
-    enable_libunwind=yes;
+  AS_HELP_STRING([--with-libunwind], [Use libunwind frame unwinding support]),
+  [case "${withval}" in
+  (yes|no) enable_libunwind=$withval;;
+  (*) enable_libunwind=yes
+    CPPFLAGS="${CPPFLAGS} -I${withval}/include"
+    LDFLAGS="${LDFLAGS} -L${withval}/lib"
+    ;;
+esac],[enable_libunwind=maybe])
+
+AC_CHECK_HEADERS([libunwind.h], [have_libunwind_h=yes])
+AC_CHECK_HEADERS([libunwind-ptrace.h], [have_libunwind_ptrace_h=yes])
+
+AC_MSG_CHECKING([whether to use libunwind support])
+case "${enable_libunwind}" in
+(yes|maybe)
+  if test x$have_libunwind_h = xyes -o x$have_libunwind_ptrace_h = xyes; then
+    enable_libunwind=yes
+  elif test $enable_libunwind = maybe; then
+    enable_libunwind=no
+  else
+    AC_MSG_RESULT([$enable_libunwind])
+    AC_MSG_ERROR([libunwind.h or libunwind-ptrace.h cannot be found])	
   fi
-])
+  ;;
+(*) ;;
+esac
+AC_MSG_RESULT([$enable_libunwind])
 
 if test x"$enable_libunwind" = xyes; then
   AC_CHECK_LIB(unwind, backtrace, libunwind_LIBS=-lunwind, libunwind_LIBS=)
