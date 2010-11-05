@@ -31,6 +31,7 @@ AC_PROG_CC
 AC_PROG_LIBTOOL
 # libtool-2:  LT_INIT()
 AM_INIT_AUTOMAKE([foreign no-exeext dist-bzip2])
+AM_MAINTAINER_MODE
 
 # Checks for libraries.
 
