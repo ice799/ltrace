@@ -7,7 +7,7 @@ set binfile ${testfile}
 
 verbose "compiling source file now....."
 # Build the shared libraries this test case needs.
-if  { [ ltrace_compile "${srcdir}/${subdir}/${testfile}.c" "${srcdir}/${subdir}/${binfile}" executable {debug} ] != "" } {
+if  { [ ltrace_compile "${srcdir}/${subdir}/${testfile}.c" "${objdir}/${subdir}/${binfile}" executable {debug} ] != "" } {
      send_user "Testcase compile failed, so all tests in this file will automatically fail.\n"
 }
 
@@ -15,7 +15,7 @@ if  { [ ltrace_compile "${srcdir}/${subdir}/${testfile}.c" "${srcdir}/${subdir}/
 ltrace_options "-S"
 
 #Run PUT for ltarce.
-set exec_output [ltrace_runtest $srcdir/$subdir $srcdir/$subdir/$binfile]
+set exec_output [ltrace_runtest $objdir/$subdir $objdir/$subdir/$binfile]
 
 #check the output of this program.
 verbose "ltrace runtest output: $exec_output\n"
@@ -30,38 +30,38 @@ if [regexp {ELF from incompatible architecture} $exec_output] {
 
 
 set pattern "SYS_munmap"
-ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern 2
+ltrace_verify_output ${objdir}/${subdir}/${testfile}.ltrace $pattern 2
 set pattern "SYS_write"
-ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern 1
+ltrace_verify_output ${objdir}/${subdir}/${testfile}.ltrace $pattern 1
 set pattern "SYS_unlink"
-ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern 1
+ltrace_verify_output ${objdir}/${subdir}/${testfile}.ltrace $pattern 1
 
 set pattern "SYS_brk"
-ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern 1
+ltrace_verify_output ${objdir}/${subdir}/${testfile}.ltrace $pattern 1
 set pattern "SYS_open"
-ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern 1
+ltrace_verify_output ${objdir}/${subdir}/${testfile}.ltrace $pattern 1
 set pattern "SYS_fstat"
-ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern 1
+ltrace_verify_output ${objdir}/${subdir}/${testfile}.ltrace $pattern 1
 set pattern "SYS_mmap"
-ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern 1
+ltrace_verify_output ${objdir}/${subdir}/${testfile}.ltrace $pattern 1
 set pattern "SYS_close"
-ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern 1
+ltrace_verify_output ${objdir}/${subdir}/${testfile}.ltrace $pattern 1
 
 set pattern "SYS_getcwd"
-ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern 1
+ltrace_verify_output ${objdir}/${subdir}/${testfile}.ltrace $pattern 1
 set pattern "SYS_chdir"
-ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern 1
+ltrace_verify_output ${objdir}/${subdir}/${testfile}.ltrace $pattern 1
 set pattern "SYS_symlink"
-ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern 1
+ltrace_verify_output ${objdir}/${subdir}/${testfile}.ltrace $pattern 1
 set pattern "SYS_unlink"
-ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern 1
+ltrace_verify_output ${objdir}/${subdir}/${testfile}.ltrace $pattern 1
 set pattern "SYS_stat"
-ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern 1
+ltrace_verify_output ${objdir}/${subdir}/${testfile}.ltrace $pattern 1
 set pattern "SYS_access"
-ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern 1
+ltrace_verify_output ${objdir}/${subdir}/${testfile}.ltrace $pattern 1
 set pattern "SYS_rename"
-ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern 1
+ltrace_verify_output ${objdir}/${subdir}/${testfile}.ltrace $pattern 1
 set pattern "SYS_mkdir"
-ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern 1
+ltrace_verify_output ${objdir}/${subdir}/${testfile}.ltrace $pattern 1
 set pattern "SYS_rmdir"
-ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern 1
+ltrace_verify_output ${objdir}/${subdir}/${testfile}.ltrace $pattern 1

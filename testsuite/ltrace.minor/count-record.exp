@@ -6,7 +6,7 @@ set binfile ${testfile}
 
 verbose "compiling source file now....."
 # Build the shared libraries this test case needs.
-if  { [ ltrace_compile "${srcdir}/${subdir}/${testfile}.c" "${srcdir}/${subdir}/${binfile}" executable {debug} ] != "" } {
+if  { [ ltrace_compile "${srcdir}/${subdir}/${testfile}.c" "${objdir}/${subdir}/${binfile}" executable {debug} ] != "" } {
      send_user "Testcase compile failed, so all tests in this file will automatically fail.\n"
 }
 
@@ -14,7 +14,7 @@ if  { [ ltrace_compile "${srcdir}/${subdir}/${testfile}.c" "${srcdir}/${subdir}/
 ltrace_options "-c"
 
 # Run PUT for ltrace.
-set exec_output [ltrace_runtest $srcdir/$subdir $srcdir/$subdir/$binfile]
+set exec_output [ltrace_runtest $objdir/$subdir $objdir/$subdir/$binfile]
 
 # Check the output of this program.
 verbose "ltrace runtest output: $exec_output\n"
@@ -46,29 +46,29 @@ if [regexp {ELF from incompatible architecture} $exec_output] {
 #
 
 set pattern " 1 rmdir"
-ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern
+ltrace_verify_output ${objdir}/${subdir}/${testfile}.ltrace $pattern
 set pattern " 1 fopen"
-ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern
+ltrace_verify_output ${objdir}/${subdir}/${testfile}.ltrace $pattern
 set pattern " 2 remove"
-ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern
+ltrace_verify_output ${objdir}/${subdir}/${testfile}.ltrace $pattern
 set pattern " 1 mkdir"
-ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern
+ltrace_verify_output ${objdir}/${subdir}/${testfile}.ltrace $pattern
 set pattern " 1 fseek"
-ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern
+ltrace_verify_output ${objdir}/${subdir}/${testfile}.ltrace $pattern
 set pattern " 1 fwrite"
-ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern
+ltrace_verify_output ${objdir}/${subdir}/${testfile}.ltrace $pattern
 set pattern " 1 fclose"
-ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern
+ltrace_verify_output ${objdir}/${subdir}/${testfile}.ltrace $pattern
 set pattern " 1 rename"
-ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern
+ltrace_verify_output ${objdir}/${subdir}/${testfile}.ltrace $pattern
 set pattern " 1 symlink"
-ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern
+ltrace_verify_output ${objdir}/${subdir}/${testfile}.ltrace $pattern
 set pattern " 1 chdir"
-ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern
+ltrace_verify_output ${objdir}/${subdir}/${testfile}.ltrace $pattern
 set pattern " 1 access"
-ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern
+ltrace_verify_output ${objdir}/${subdir}/${testfile}.ltrace $pattern
 set pattern " 1 getcwd"
-ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern
+ltrace_verify_output ${objdir}/${subdir}/${testfile}.ltrace $pattern
 set pattern " 1 fread"
-ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern
+ltrace_verify_output ${objdir}/${subdir}/${testfile}.ltrace $pattern
 

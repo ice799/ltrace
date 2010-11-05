@@ -7,7 +7,7 @@ set binfile ${testfile}
 
 verbose "compiling source file now....."
 # Build the shared libraries this test case needs.
-if  { [ ltrace_compile "${srcdir}/${subdir}/${testfile}.c" "${srcdir}/${subdir}/${binfile}" executable {debug} ] != "" } {
+if  { [ ltrace_compile "${srcdir}/${subdir}/${testfile}.c" "${objdir}/${subdir}/${binfile}" executable {debug} ] != "" } {
      send_user "Testcase compile failed, so all tests in this file will automatically fail\n."
 }
 
@@ -15,7 +15,7 @@ if  { [ ltrace_compile "${srcdir}/${subdir}/${testfile}.c" "${srcdir}/${subdir}/
 ltrace_options "-L"
 
 # Run PUT for ltarce.
-set exec_output [ltrace_runtest $srcdir/$subdir $srcdir/$subdir/$binfile]
+set exec_output [ltrace_runtest $objdir/$subdir $objdir/$subdir/$binfile]
 
 # Check the output of this program.
 verbose "ltrace runtest output: $exec_output\n"
@@ -36,4 +36,4 @@ close $fd
 
 # Verify the output of ltrace by checking the number of SIGUSR1 in signal.ltrace
 set pattern "SIGUSR1"
-ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern $count
+ltrace_verify_output ${objdir}/${subdir}/${testfile}.ltrace $pattern $count

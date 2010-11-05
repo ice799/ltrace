@@ -6,12 +6,12 @@ set binfile ${testfile}
 
 verbose "compiling source file now....."
 # Build the shared libraries this test case needs.
-if  { [ ltrace_compile "${srcdir}/${subdir}/${testfile}.c" "${srcdir}/${subdir}/${binfile}" executable {debug} ] != "" } {
+if  { [ ltrace_compile "${srcdir}/${subdir}/${testfile}.c" "${objdir}/${subdir}/${binfile}" executable {debug} ] != "" } {
      send_user "Testcase compile failed, so all tests in this file will automatically fail.\n"
 }
 
 # Run the program and get PID of it.
-catch "exec $srcdir/$subdir/$binfile &" output
+catch "exec $objdir/$subdir/$binfile &" output
 
 # get PID from ps output.
 regexp {([0-9]+)} $output match PID
@@ -19,7 +19,7 @@ verbose "PID = $PID"
 
 # Run PUT for ltrace.
 global LTRACE
-catch "exec $LTRACE -S -p $PID -o ${srcdir}/${subdir}/${testfile}.ltrace" exec_output
+catch "exec $LTRACE -S -p $PID -o ${objdir}/${subdir}/${testfile}.ltrace" exec_output
 
 # Check the output of this program.
 verbose "ltrace runtest output: $exec_output\n"
@@ -34,5 +34,5 @@ if [regexp {ELF from incompatible architecture} $exec_output] {
 # Verify the output in attach-process.ltrace by checking the number 
 # of sleep.
 set pattern "sleep"
-ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern 1
+ltrace_verify_output ${objdir}/${subdir}/${testfile}.ltrace $pattern 1
 

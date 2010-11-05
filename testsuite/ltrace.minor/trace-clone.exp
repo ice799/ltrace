@@ -7,22 +7,22 @@ set binfile ${testfile}
 
 verbose "compiling source file now....."
 # Build the shared libraries this test case needs.
-if  { [ ltrace_compile "${srcdir}/${subdir}/${testfile}.c" "${srcdir}/${subdir}/${binfile}" executable {debug} ] != "" } {
+if  { [ ltrace_compile "${srcdir}/${subdir}/${testfile}.c" "${objdir}/${subdir}/${binfile}" executable {debug} ] != "" } {
      send_user "Testcase compile failed, so all tests in this file will automatically fail.\n"
 }
 global LTRACE
 
 #Run PUT for ltrace.
-spawn $LTRACE -f $srcdir/$subdir/$binfile
+spawn $LTRACE -f $objdir/$subdir/$binfile
 set timeout 4
 expect timeout  {
         fail "Time out! Maybe caused by ltrace segment fault or improper timeout value here!"
         return
 }
 
-catch "exec $LTRACE -f $srcdir/$subdir/$binfile" exec_output
+catch "exec $LTRACE -f $objdir/$subdir/$binfile" exec_output
 # Save the output
-ltrace_saveoutput "${exec_output}" ${srcdir}/${subdir}/${testfile}.ltrace
+ltrace_saveoutput "${exec_output}" ${objdir}/${subdir}/${testfile}.ltrace
 
 #check the output of this program.
 verbose "ltrace runtest output: $exec_output\n"
@@ -40,5 +40,5 @@ if [regexp {ELF from incompatible architecture} $exec_output] {
 
 
 set pattern "clone"
-ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern 1
+ltrace_verify_output ${objdir}/${subdir}/${testfile}.ltrace $pattern 1
 
