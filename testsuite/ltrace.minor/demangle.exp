@@ -5,7 +5,7 @@ set srcfile ${testfile}.cpp
 set binfile ${testfile}
 set libfile "demangle-lib"
 set libsrc $srcdir/$subdir/$libfile.cpp
-set lib_sl $srcdir/$subdir/lib$testfile.so
+set lib_sl $objdir/$subdir/lib$testfile.so
 
 verbose "compiling source file now....."
 if [get_compiler_info $binfile "c++"] {
@@ -14,7 +14,7 @@ if [get_compiler_info $binfile "c++"] {
 
 verbose "compiling source file now....."
 if { [ltrace_compile_shlib $libsrc $lib_sl [list debug c++]] != ""
-  || [ltrace_compile $srcdir/$subdir/$srcfile $srcdir/$subdir/$binfile executable [list debug shlib=$lib_sl c++] ] != ""} {
+  || [ltrace_compile $srcdir/$subdir/$srcfile $objdir/$subdir/$binfile executable [list debug shlib=$lib_sl c++] ] != ""} {
   send_user "Testcase compile failed, so all tests in this file will automatically fail.\n"
 }
 
@@ -22,7 +22,7 @@ if { [ltrace_compile_shlib $libsrc $lib_sl [list debug c++]] != ""
 ltrace_options "-C"
 
 # Run PUT for ltrace.
-set exec_output [ltrace_runtest $srcdir/$subdir $srcdir/$subdir/$binfile]
+set exec_output [ltrace_runtest $objdir/$subdir $objdir/$subdir/$binfile]
 
 # Check the output of this program.
 verbose "ltrace runtest output: $exec_output\n"
@@ -38,7 +38,7 @@ if [regexp {ELF from incompatible architecture} $exec_output] {
 set fd [ open $srcdir/$subdir/$srcfile r]
 while { [gets $fd line] >= 0 } {
     if [regexp {extern (double|float|void|char|int|short|long|void \*|void \*\*) ([^ ])\(} $line match type fun] {
-	ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $fun
+	ltrace_verify_output ${objdir}/${subdir}/${testfile}.ltrace $fun
     }
 }
 close $fd
@@ -53,10 +53,10 @@ while { [gets $fd line] >= 0 } {
 	# $fun = "myclass::operator delete" will confuse ltrace_verify_output if it
 	# was an argument to it.
 	if [regexp {(new|delete)} $fun match sub_fun] {
-	    ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $sub_fun
+	    ltrace_verify_output ${objdir}/${subdir}/${testfile}.ltrace $sub_fun
 	} else {
 	    # Verify class member functions without SPACE.
-	    ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $fun
+	    ltrace_verify_output ${objdir}/${subdir}/${testfile}.ltrace $fun
 	}
     }
 }

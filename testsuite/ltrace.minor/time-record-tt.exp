@@ -6,7 +6,7 @@ set binfile ${testfile}-tt
 
 verbose "compiling source file now....."
 # Build the shared libraries this test case needs.
-if  { [ ltrace_compile "${srcdir}/${subdir}/${testfile}.c" "${srcdir}/${subdir}/${binfile}" executable {debug} ] != "" } {
+if  { [ ltrace_compile "${srcdir}/${subdir}/${testfile}.c" "${objdir}/${subdir}/${binfile}" executable {debug} ] != "" } {
      send_user "Testcase compile failed, so all tests in this file will automatically fail.\n"
 }
 
@@ -14,7 +14,7 @@ if  { [ ltrace_compile "${srcdir}/${subdir}/${testfile}.c" "${srcdir}/${subdir}/
 ltrace_options "-tt"
 
 # Run PUT for ltrace.
-set exec_output [ltrace_runtest $srcdir/$subdir $srcdir/$subdir/$binfile]
+set exec_output [ltrace_runtest $objdir/$subdir $objdir/$subdir/$binfile]
 
 # Check the output of this program.
 verbose "ltrace runtest output: $exec_output\n"
@@ -27,7 +27,7 @@ if [regexp {ELF from incompatible architecture} $exec_output] {
 }
 
 # Verify the time for calling sleep.
-set fd [ open $srcdir/$subdir/$binfile.ltrace r]
+set fd [ open $objdir/$subdir/$binfile.ltrace r]
 set FOUND 0
 while { [gets $fd line] >= 0 } {
 	# match the line with sleep and extract the strat time and sleep argument.
@@ -72,7 +72,7 @@ close $fd
 
 #  Verify the time for calling nanosleep.
 set FOUND 0
-set fd [ open $srcdir/$subdir/$binfile.ltrace r]
+set fd [ open $objdir/$subdir/$binfile.ltrace r]
 while { [gets $fd line] >= 0 } {
         # match the line with sleep and extract the strat time and sleep argument.
         if [ regexp {[0-9]+:[0-9]+:([0-9]+)\.([0-9][0-9][0-9]).* nanosleep} $line match start_sec start_usec ] then {

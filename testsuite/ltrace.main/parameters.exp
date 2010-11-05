@@ -6,7 +6,7 @@ set srcfile ${testfile}.c
 set binfile ${testfile}
 set libfile "parameters-lib"
 set libsrc $srcdir/$subdir/$libfile.c
-set lib_sl $srcdir/$subdir/lib$testfile.so
+set lib_sl $objdir/$subdir/lib$testfile.so
 
 
 if [get_compiler_info $binfile] {
@@ -15,15 +15,15 @@ if [get_compiler_info $binfile] {
 
 verbose "compiling source file now....."
 if { [ltrace_compile_shlib $libsrc $lib_sl debug ] != "" 
-  || [ltrace_compile $srcdir/$subdir/$srcfile $srcdir/$subdir/$binfile executable [list debug shlib=$lib_sl] ] != ""} {
+  || [ltrace_compile $srcdir/$subdir/$srcfile $objdir/$subdir/$binfile executable [list debug shlib=$lib_sl] ] != ""} {
   send_user "Testcase compile failed, so all tests in this file will automatically fail.\n"
 }
 
 # set options for ltrace.
-ltrace_options "-l" "$srcdir/$subdir/libparameters.so" "-F" "$srcdir/$subdir/parameters.conf"
+ltrace_options "-l" "$objdir/$subdir/libparameters.so" "-F" "$srcdir/$subdir/parameters.conf"
 
 # Run PUT for ltarce.
-set exec_output [ltrace_runtest $srcdir/$subdir $srcdir/$subdir/$binfile]
+set exec_output [ltrace_runtest $objdir/$subdir $objdir/$subdir/$binfile]
 
 # Check the output of this program.
 verbose "ltrace runtest output: $exec_output\n"
@@ -37,36 +37,36 @@ if [regexp {ELF from incompatible architecture} $exec_output] {
 
 # Verify the output
 set pattern "func_intptr(17)"
-ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern 1
+ltrace_verify_output ${objdir}/${subdir}/${testfile}.ltrace $pattern 1
 set pattern "func_intptr_ret(42)"
-ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern 1
+ltrace_verify_output ${objdir}/${subdir}/${testfile}.ltrace $pattern 1
 set pattern "func_strlen(\\\"Hello world\\\") *= *11"
-ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern 1
+ltrace_verify_output ${objdir}/${subdir}/${testfile}.ltrace $pattern 1
 set pattern "func_strfixed(\\\"Hell\\\")"
-ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern 1
+ltrace_verify_output ${objdir}/${subdir}/${testfile}.ltrace $pattern 1
 set pattern "func_ppp(80)"
-ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern 1
+ltrace_verify_output ${objdir}/${subdir}/${testfile}.ltrace $pattern 1
 set pattern "func_stringp(\\\"Dude\\\")"
-ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern 1
+ltrace_verify_output ${objdir}/${subdir}/${testfile}.ltrace $pattern 1
 set pattern "func_enum(BLUE)"
-ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern 1
+ltrace_verify_output ${objdir}/${subdir}/${testfile}.ltrace $pattern 1
 set pattern "func_short(-8, -9)"
-ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern 1
+ltrace_verify_output ${objdir}/${subdir}/${testfile}.ltrace $pattern 1
 set pattern "func_ushort(33, 34)"
-ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern 1
+ltrace_verify_output ${objdir}/${subdir}/${testfile}.ltrace $pattern 1
 set pattern "func_float(3.40*, -3.40*)"
-ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern 1
+ltrace_verify_output ${objdir}/${subdir}/${testfile}.ltrace $pattern 1
 set pattern "func_typedef(BLUE)"
-ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern 1
+ltrace_verify_output ${objdir}/${subdir}/${testfile}.ltrace $pattern 1
 set pattern "func_arrayi(. 10, 11, 12, 13\\.\\.\\. ., )"
-ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern 1
+ltrace_verify_output ${objdir}/${subdir}/${testfile}.ltrace $pattern 1
 set pattern "func_arrayi(. 10, 11 ., )"
-ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern 1
+ltrace_verify_output ${objdir}/${subdir}/${testfile}.ltrace $pattern 1
 set pattern "func_arrayf(. 10.10*, 11.10*, 12.10*, 13.10*\\.\\.\\. ., )"
-ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern 1
+ltrace_verify_output ${objdir}/${subdir}/${testfile}.ltrace $pattern 1
 set pattern "func_arrayf(. 10.10*, 11.10* ., )"
-ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern 1
+ltrace_verify_output ${objdir}/${subdir}/${testfile}.ltrace $pattern 1
 set pattern "exited (status 0)"
-ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern 1
+ltrace_verify_output ${objdir}/${subdir}/${testfile}.ltrace $pattern 1
 set pattern "func_struct({ 89, 2, 3, . { 1, 10 }, { 3, 30 } ., . { 4, 40 }, { 5, 50 }, { 6, 60 } ., \\\"123\\\" })"
-ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern 1
+ltrace_verify_output ${objdir}/${subdir}/${testfile}.ltrace $pattern 1

@@ -5,7 +5,7 @@ set srcfile ${testfile}.c
 set binfile ${testfile}
 set libfile "main-lib"
 set libsrc $srcdir/$subdir/$libfile.c
-set lib_sl $srcdir/$subdir/lib$testfile.so
+set lib_sl $objdir/$subdir/lib$testfile.so
 
 
 if [get_compiler_info $binfile] {
@@ -14,15 +14,15 @@ if [get_compiler_info $binfile] {
 
 verbose "compiling source file now....."
 if { [ltrace_compile_shlib $libsrc $lib_sl debug ] != "" 
-  || [ltrace_compile $srcdir/$subdir/$srcfile $srcdir/$subdir/$binfile executable [list debug shlib=$lib_sl] ] != ""} {
+  || [ltrace_compile $srcdir/$subdir/$srcfile $objdir/$subdir/$binfile executable [list debug shlib=$lib_sl] ] != ""} {
   send_user "Testcase compile failed, so all tests in this file will automatically fail.\n"
 }
 
 # set options for ltrace.
-ltrace_options "-l" "$srcdir/$subdir/libmain.so"
+ltrace_options "-l" "$objdir/$subdir/libmain.so"
 
 # Run PUT for ltarce.
-set exec_output [ltrace_runtest $srcdir/$subdir $srcdir/$subdir/$binfile]
+set exec_output [ltrace_runtest $objdir/$subdir $objdir/$subdir/$binfile]
 
 # Check the output of this program.
 verbose "ltrace runtest output: $exec_output\n"
@@ -36,4 +36,4 @@ if [regexp {ELF from incompatible architecture} $exec_output] {
 
 # Verify the output by checking numbers of print in main.ltrace.
 set pattern "print"
-ltrace_verify_output ${srcdir}/${subdir}/${testfile}.ltrace $pattern 10
+ltrace_verify_output ${objdir}/${subdir}/${testfile}.ltrace $pattern 10
