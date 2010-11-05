@@ -1,5 +1,7 @@
 SUBDIRS = \
-	sysdeps
+	sysdeps \
+	. \
+	testsuite
 
 AM_CPPFLAGS = \
 	$(libelf_CFLAGS) \

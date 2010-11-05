@@ -15,19 +15,12 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 #
 
-CLEANFILES = *.log *.sum site.bak setval.tmp site.exp
+AUTOMAKE_OPTIONS = dejagnu
 
-.SUFFIXES:	
-clean:
-	-rm -f signals 
-	-rm -f *.o *.so 
-	-rm -f *.ltrace
-	-rm -f $(CLEANFILES)
-distclean: clean
+RUNTESTDEFAULTFLAGS = --srcdir $(srcdir)
 
+SUBDIRS = ltrace.main ltrace.minor ltrace.torture
 
-.PHONY: $(RECURSIVE_TARGETS) check  clean distclean realclean
+CLEANFILES = *.o *.so *.log *.sum *.ltrace site.bak setval.tmp site.exp
 
-# Tell versions [3.59,3.63) of GNU make to not export all variables.
-# Otherwise a system limit (for SysV at least) may be exceeded.
-.NOEXPORT:
+MAINTAINERCLEANFILES = Makefile.in

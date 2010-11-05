@@ -188,5 +188,9 @@ AC_CONFIG_FILES([
 	sysdeps/linux-gnu/s390/Makefile
 	sysdeps/linux-gnu/sparc/Makefile
 	sysdeps/linux-gnu/x86_64/Makefile
+	testsuite/Makefile
+	testsuite/ltrace.main/Makefile
+	testsuite/ltrace.minor/Makefile
+	testsuite/ltrace.torture/Makefile
 ])
 AC_OUTPUT

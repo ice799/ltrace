@@ -15,19 +15,9 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 #
 
-CLEANFILES = *.log *.sum site.bak setval.tmp site.exp
+CLEANFILES = *.o *.so *.log *.sum *.ltrace setval.tmp \
+	attach-process count-record demangle print-instruction-pointer \
+	time-record-T time-record-tt time-record-ttt trace-clone \
+	trace-exec trace-exec1 trace-fork
 
-.SUFFIXES:	
-clean:
-	-rm -f main main-internal system_calls signals parameters
-	-rm -f *.o *.so 
-	-rm -f *.ltrace
-	-rm -f $(CLEANFILES)
-distclean: clean
-
-
-.PHONY: $(RECURSIVE_TARGETS) check  clean distclean realclean
-
-# Tell versions [3.59,3.63) of GNU make to not export all variables.
-# Otherwise a system limit (for SysV at least) may be exceeded.
-.NOEXPORT:
+MAINTAINERCLEANFILES = Makefile.in
