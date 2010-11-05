@@ -81,6 +81,8 @@ MAINTAINERCLEANFILES = \
 	configure \
 	Makefile.in \
 	aclocal.m4 \
+	config.h.in \
+	config.h.in~ \
 	config/autoconf/compile \
 	config/autoconf/config.guess \
 	config/autoconf/config.sub \
