@@ -1,3 +1,14 @@
+2010-11-05  Zachary T Welch <zwelch@codesourcery,com>
+
+	* testsuite/: Convert to autotools and add to distribution.
+	  Update test files to allow out-of-tree builds.
+	* configure.ac: Add maintainer mode, create Makefiles in
+	  testsuite/ tree, improve --with-libunwind configuration
+	  to accept non-standard install path.
+	* Makefile.am: Don't distribute autogen.sh and .gitignore.
+	  Remove config.h.in during 'make maintainer-clean'
+	* .gitignore: Exclude test suite build/run artifacts.
+
 2010-11-03  Petr Machata  <pmachata@redhat.com>
 
 	* configure.ac: Don't assume that libelf comes with a .pc file.
