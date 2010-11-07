@@ -95,7 +95,17 @@ if test x"$enable_libunwind" = xyes; then
   AC_SUBST(libunwind_LIBS)
   AC_CHECK_LIB(unwind-ptrace, _UPT_create, libunwind_ptrace_LIBS=-lunwind-ptrace, libunwind_ptrace_LIBS=)
   AC_SUBST(libunwind_ptrace_LIBS)
-  AC_CHECK_LIB(unwind-${HOST_CPU}, _U${HOST_CPU}_init_remote, libunwind_arch_LIBS=-lunwind-${HOST_CPU}, libunwind_arch_LIBS=)
+
+  case "${host_cpu}" in
+      arm*|sa110)         UNWIND_ARCH="arm" ;;
+      i?86)               UNWIND_ARCH="x86" ;;
+      powerpc)            UNWIND_ARCH="ppc32" ;;
+      ppc64)              UNWIND_ARCH="ppc64" ;;
+      mips*)              UNWIND_ARCH="mips" ;;
+      *)                  UNWIND_ARCH="${host_cpu}" ;;
+  esac
+
+  AC_CHECK_LIB(unwind-${UNWIND_ARCH}, _U${UNWIND_ARCH}_init_remote, libunwind_arch_LIBS=-lunwind-${UNWIND_ARCH}, libunwind_arch_LIBS=)
   AC_SUBST(libunwind_arch_LIBS)
   AC_DEFINE([HAVE_LIBUNWIND], [1], [we have libunwind])
 fi
