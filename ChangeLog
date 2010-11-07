@@ -52,6 +52,10 @@
 
 	* configure.ac: ${host_cpu} for PPC64 is "powerpc64".
 
+2010-11-01  Petr Machata  <pmachata@redhat.com>
+
+	* configure.ac: ${host_cpu} for PPC64 is "powerpc64".
+
 2010-10-31  Joe Damato <ice799@gmail.com>
 
 	* Makefile.am: Add autotool support for libunwind.
