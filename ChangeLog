@@ -48,14 +48,14 @@
 
 2010-10-31  Joe Damato <ice799@gmail.com>
 
-    * Makefile.am: Add autotool support for libunwind.
-    * configure.ac: Ditto.
-    * common.h: New structure fields for libunwind.
-    * execute_program.c: Initialize libunwind.
-    * proc.c: Ditto.
-    * options.c: New command line option (-w).
-    * options.h: New options parameter for libunwind.
-    * output.c: Use libunwind to do backtraces.
+	* Makefile.am: Add autotool support for libunwind.
+	* configure.ac: Ditto.
+	* common.h: New structure fields for libunwind.
+	* execute_program.c: Initialize libunwind.
+	* proc.c: Ditto.
+	* options.c: New command line option (-w).
+	* options.h: New options parameter for libunwind.
+	* output.c: Use libunwind to do backtraces.
 
 2010-10-27  Petr Machata  <pmachata@redhat.com>
 
@@ -83,15 +83,15 @@
 
 2010-10-18  Petr Machata <pmachata@redhat.com>
 
-    * sysdeps/linux-gnu/s390/trace.c: Support 5th argument fetching on s390.
-      Contributed by Supriya Kannery.
-    * sysdeps/linux-gnu/s390/arch.h: Add support for fork/exec on 390.
-    * output.c: Cleanup.
+	* sysdeps/linux-gnu/s390/trace.c: Support 5th argument fetching on s390.
+	  Contributed by Supriya Kannery.
+	* sysdeps/linux-gnu/s390/arch.h: Add support for fork/exec on 390.
+	* output.c: Cleanup.
 
 2010-10-14  Petr Machata <pmachata@redhat.com>
 
-    * ltrace.1: Remove claim that only 32-bit binaries are supported.
-    * testsuite/ltrace.minor/trace-fork.exp: Make fork test suite more accurate
+	* ltrace.1: Remove claim that only 32-bit binaries are supported.
+	* testsuite/ltrace.minor/trace-fork.exp: Make fork test suite more accurate
 
 2010-10-08  Edgar E. Iglesias  <edgar@axis.com>
 
@@ -146,16 +146,16 @@
 
 2009-10-06  Joe Damato <ice799@gmail.com>
 
-    * handle_event.c: Do not print signals when -b is used.
-    * options.h, options.c: A new option (-b) was added.
-    * ltrace.1: Documentation for -b was added.
+	* handle_event.c: Do not print signals when -b is used.
+	* options.h, options.c: A new option (-b) was added.
+	* ltrace.1: Documentation for -b was added.
 
 2009-09-07  Joe Damato <ice799@gmail.com>
 
-    * options.c, options.h: A new option (-g) was added.
-    * ltrace.1: Documentation for -g was added.
-    * handle_event.c: Do not print when -g is used.
-    * elf.c: Ditto.
+	* options.c, options.h: A new option (-g) was added.
+	* ltrace.1: Documentation for -g was added.
+	* handle_event.c: Do not print when -g is used.
+	* elf.c: Ditto.
 
 2010-02-03  Marc Kleine-Budde <mkl@pengutronix.de>
 
