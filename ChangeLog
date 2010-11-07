@@ -42,6 +42,10 @@
 
 	* configure.ac: Don't assume that libelf comes with a .pc file.
 
+2010-11-01  Petr Machata  <pmachata@redhat.com>
+
+	* configure.ac: ${host_cpu} for PPC64 is "powerpc64".
+
 2010-10-31  Joe Damato <ice799@gmail.com>
 
     * Makefile.am: Add autotool support for libunwind.
@@ -52,6 +56,30 @@
     * options.c: New command line option (-w).
     * options.h: New options parameter for libunwind.
     * output.c: Use libunwind to do backtraces.
+
+2010-10-27  Petr Machata  <pmachata@redhat.com>
+
+	* ltrace-elf.c (loaddata): Refactored code for loading Elf_Data.
+	(inside, maybe_pick_section, get_section_covering, read32be): New
+	functions.
+	(get_glink_vma): New function, computes .plt glink_vma address on
+	PPCs.
+	(do_init_elf): Load DT_PPC_GOT, .plt on PPC.
+	Use loaddata to load section data.
+
+2010-10-25  Petr Machata  <pmachata@redhat.com>
+
+	* handle_event.c (handle_breakpoint): Do not assume that we can
+	find the breakpoint by address.
+
+2010-10-25  Petr Machata  <pmachata@redhat.com>
+
+	* sysdeps/linux-gnu/ppc/ptrace.h (proc_archdep): New structure.
+	* sysdeps/linux-gnu/ppc/trace.c
+	(get_arch_dep): Initialize proc->arch_ptr.
+	(gimme_arg_regset, gimme_retval): New functions.
+	(gimme_arg): Dispatch to gimme_retval or gimme_arg_regset.
+	(save_register_args): Fill in the stub.
 
 2010-10-18  Petr Machata <pmachata@redhat.com>
 
