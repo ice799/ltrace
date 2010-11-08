@@ -750,6 +750,30 @@ read_elf(Process *proc) {
 				break;
 			}
 	}
+
+	int found_count = 0;
+
+	for (xptr = opt_x; xptr; xptr = xptr->next) {
+		if (xptr->found)
+			continue;
+
+		GElf_Sym sym;
+		GElf_Addr addr;
+		if (in_load_libraries(xptr->name, lte, library_num+1, &sym)) {
+			debug(2, "found symbol %s @ %lx, adding it.", xptr->name, sym.st_value);
+			addr = sym.st_value;
+			if (ELF32_ST_TYPE (sym.st_info) == STT_FUNC) {
+				add_library_symbol(addr, xptr->name, lib_tail, LS_TOPLT_NONE, 0);
+				xptr->found = 1;
+				found_count++;
+			}
+		}
+		if (found_count == opt_x_cnt){
+			debug(2, "done, found everything: %d\n", found_count);
+			break;
+		}
+	}
+
 	for (xptr = opt_x; xptr; xptr = xptr->next)
 		if ( ! xptr->found) {
 			char *badthing = "WARNING";
