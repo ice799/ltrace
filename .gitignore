@@ -40,6 +40,7 @@ testsuite/ltrace.main/system_calls
 testsuite/ltrace.minor/attach-process
 testsuite/ltrace.minor/count-record
 testsuite/ltrace.minor/demangle
+testsuite/ltrace.minor/libdl-simple
 testsuite/ltrace.minor/print-instruction-pointer
 testsuite/ltrace.minor/time-record-T
 testsuite/ltrace.minor/time-record-tt

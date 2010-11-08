@@ -1,0 +1,52 @@
+set testfile "libdl-simple"
+set srcfile ${testfile}.c
+set binfile ${testfile}
+set libfile "libdl-simple-lib"
+set libsrc $srcdir/$subdir/$libfile.c
+set lib_sl $objdir/$subdir/lib$testfile.so
+
+verbose "compiling source file now....."
+# Build the shared libraries this test case needs.
+if  { [ltrace_compile_shlib $libsrc $lib_sl [debug]] != ""
+      || [ ltrace_compile "${srcdir}/${subdir}/${testfile}.c" "${objdir}/${subdir}/${binfile}" executable {debug shlib=/usr/lib/libdl.so} ] != "" } {
+     send_user "Testcase compile failed, so all tests in this file will automatically fail.\n"
+}
+
+# set options for ltrace.
+ltrace_options "-x" "test_libdl"
+
+# Run PUT for ltrace.
+set exec_output [ltrace_runtest $objdir/$subdir $objdir/$subdir/$binfile]
+verbose "ltrace runtest output: $exec_output\n"
+
+# Check the output of this program.
+if [regexp {ELF from incompatible architecture} $exec_output] {
+	fail "32-bit ltrace can not perform on 64-bit PUTs and rebuild ltrace in 64 bit mode!"
+	return
+} elseif [ regexp {Couldn't get .hash data} $exec_output ] {
+	fail "Couldn't get .hash data!"
+	return
+}
+
+# Verify the time for calling sleep.
+set fd [ open $objdir/$subdir/$binfile.ltrace r]
+set FOUND 0
+while { [gets $fd line] >= 0 } {
+	# match the line with sleep and extract the spent time in sleep and sleep argument.
+	if [ regexp {(test_libdl)\(} $line match tester ] then {
+		verbose "test_libdl = $tester"
+
+		if { $tester == "test_libdl" } then {
+			pass "Successfully traced libdl loaded function."
+		} else {
+			fail "Failed to trace libdl loaded function."
+		}
+	set FOUND 1
+	break
+        }
+}
+close $fd
+
+if {$FOUND != 1} then {
+	fail "Fail to trace libdl loaded function!"
+}
