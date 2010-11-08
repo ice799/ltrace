@@ -253,6 +253,9 @@ do_init_elf(struct ltelf *lte, const char *filename) {
 			Elf_Data *data;
 			size_t j;
 
+			lte->dyn_addr = shdr.sh_addr;
+			lte->dyn_sz = shdr.sh_size;
+
 			data = elf_getdata(scn, NULL);
 			if (data == NULL || elf_getdata(scn, data) != NULL)
 				error(EXIT_FAILURE, 0,
