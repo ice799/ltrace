@@ -26,6 +26,7 @@ struct ltelf {
 	int lte_flags;
 	GElf_Addr dyn_addr;
 	size_t dyn_sz;
+	GElf_Addr base_addr;
 #ifdef __mips__
 	size_t pltgot_addr;
 	size_t mips_local_gotno;
