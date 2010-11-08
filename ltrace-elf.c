@@ -13,14 +13,15 @@
 
 #include "common.h"
 
-static void do_init_elf(struct ltelf *lte, const char *filename);
-static void do_close_elf(struct ltelf *lte);
-static void add_library_symbol(GElf_Addr addr, const char *name,
-			       struct library_symbol **library_symbolspp,
-			       enum toplt type_of_plt, int is_weak);
-static int in_load_libraries(const char *name, struct ltelf *lte, size_t count, GElf_Sym *sym);
+void do_init_elf(struct ltelf *lte, const char *filename);
+void do_close_elf(struct ltelf *lte);
+void add_library_symbol(GElf_Addr addr, const char *name,
+		struct library_symbol **library_symbolspp,
+		enum toplt type_of_plt, int is_weak);
+int in_load_libraries(const char *name, struct ltelf *lte, size_t count, GElf_Sym *sym);
 static GElf_Addr opd2addr(struct ltelf *ltc, GElf_Addr addr);
 
+struct library_symbol *library_symbols = NULL;
 #ifdef PLT_REINITALISATION_BP
 extern char *PLTs_initialized_by_here;
 #endif
@@ -132,7 +133,7 @@ static GElf_Addr get_glink_vma(struct ltelf *lte, GElf_Addr ppcgot,
 	return 0;
 }
 
-static void
+void
 do_init_elf(struct ltelf *lte, const char *filename) {
 	int i;
 	GElf_Addr relplt_addr = 0;
@@ -452,7 +453,7 @@ do_init_elf(struct ltelf *lte, const char *filename) {
 	}
 }
 
-static void
+void
 do_close_elf(struct ltelf *lte) {
 	debug(DEBUG_FUNCTION, "do_close_elf()");
 	if (lte->lte_flags & LTE_HASH_MALLOCED)
@@ -461,7 +462,7 @@ do_close_elf(struct ltelf *lte) {
 	close(lte->fd);
 }
 
-static void
+void
 add_library_symbol(GElf_Addr addr, const char *name,
 		   struct library_symbol **library_symbolspp,
 		   enum toplt type_of_plt, int is_weak) {
@@ -496,7 +497,7 @@ private_elf_gnu_hash(const char *name) {
 	return h & 0xffffffff;
 }
 
-static int
+int
 in_load_libraries(const char *name, struct ltelf *lte, size_t count, GElf_Sym *sym) {
 	size_t i;
 	unsigned long hash;
@@ -604,7 +605,6 @@ opd2addr(struct ltelf *lte, GElf_Addr addr) {
 
 struct library_symbol *
 read_elf(Process *proc) {
-	struct library_symbol *library_symbols = NULL;
 	struct ltelf lte[MAX_LIBRARIES + 1];
 	size_t i;
 	struct opt_x_t *xptr;
@@ -614,6 +614,8 @@ read_elf(Process *proc) {
 
 	debug(DEBUG_FUNCTION, "read_elf(file=%s)", proc->filename);
 
+	library_symbols = NULL;
+	library_num = 0;
 	elf_version(EV_CURRENT);
 
 	do_init_elf(lte, proc->filename);

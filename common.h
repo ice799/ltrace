@@ -233,6 +233,14 @@ extern void open_pid(pid_t pid);
 extern void show_summary(void);
 extern arg_type_info * lookup_prototype(enum arg_type at);
 
+extern void do_init_elf(struct ltelf *lte, const char *filename);
+extern void do_close_elf(struct ltelf *lte);
+extern int in_load_libraries(const char *name, struct ltelf *lte, size_t count, GElf_Sym *sym);
+extern struct library_symbol *library_symbols;
+extern void add_library_symbol(GElf_Addr addr, const char *name,
+		struct library_symbol **library_symbolspp,
+		enum toplt type_of_plt, int is_weak);
+
 /* Arch-dependent stuff: */
 extern char * pid2name(pid_t pid);
 extern void trace_set_options(Process * proc, pid_t pid);
