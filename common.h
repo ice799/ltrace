@@ -256,9 +256,7 @@ extern long gimme_arg(enum tof type, Process * proc, int arg_num, arg_type_info 
 extern void save_register_args(enum tof type, Process * proc);
 extern int umovestr(Process * proc, void * addr, int len, void * laddr);
 extern int umovelong (Process * proc, void * addr, long * result, arg_type_info * info);
+extern size_t umovebytes (Process *proc, void * addr, void * laddr, size_t count);
 extern int ffcheck(void * maddr);
 extern void * sym2addr(Process *, struct library_symbol *);
 
-#if 0				/* not yet */
-extern int umoven(Process * proc, void * addr, int len, void * laddr);
-#endif

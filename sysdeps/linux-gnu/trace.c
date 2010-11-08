@@ -171,6 +171,41 @@ continue_after_breakpoint(Process *proc, Breakpoint *sbp) {
 	}
 }
 
+size_t
+umovebytes(Process *proc, void *addr, void *laddr, size_t len) {
+
+	union {
+		long a;
+		char c[sizeof(long)];
+	} a;
+	int i;
+	int offset = 0, started = 0;
+	size_t bytes_read = 0;
+
+	while (offset < len) {
+		a.a = ptrace(PTRACE_PEEKTEXT, proc->pid, addr + offset, 0);
+		if (a.a == -1 && errno) {
+			if (started && errno == EIO)
+				return bytes_read;
+			else
+				return -1;
+		}
+		started = 1;
+
+		if (len - offset >= sizeof(long)) {
+			memcpy(laddr + offset, &a.c[0], sizeof(long));
+			bytes_read += sizeof(long);
+		}
+		else {
+			memcpy(laddr + offset, &a.c[0], len - offset);
+			bytes_read += (len - offset);
+		}
+		offset += sizeof(long);
+	}
+
+	return bytes_read;
+}
+
 /* Read a series of bytes starting at the process's memory address
    'addr' and continuing until a NUL ('\0') is seen or 'len' bytes
    have been read.
