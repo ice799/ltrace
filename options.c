@@ -236,6 +236,9 @@ process_options(int argc, char **argv) {
 		case 'A':
 			options.arraylen = atoi(optarg);
 			break;
+		case 'b':
+			options.no_signals = 1;
+			break;
 		case 'c':
 			options.summary++;
 			break;
@@ -327,11 +330,6 @@ process_options(int argc, char **argv) {
 		case 'n':
 			options.indent = atoi(optarg);
 			break;
-#if defined(HAVE_LIBUNWIND)
-		case 'w':
-			options.bt_depth = atoi(optarg);
-			break;
-#endif /* defined(HAVE_LIBUNWIND) */
 		case 'o':
 			options.output = fopen(optarg, "w");
 			if (!options.output) {
@@ -380,9 +378,11 @@ process_options(int argc, char **argv) {
 					"version 2 or later for copying conditions.  There is NO warranty.\n");
 			exit(0);
 			break;
-		case 'b':
-			options.no_signals = 1;
+#if defined(HAVE_LIBUNWIND)
+		case 'w':
+			options.bt_depth = atoi(optarg);
 			break;
+#endif /* defined(HAVE_LIBUNWIND) */
 		case 'X':
 #ifdef PLT_REINITALISATION_BP
 			PLTs_initialized_by_here = optarg;
