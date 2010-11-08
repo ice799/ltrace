@@ -6,7 +6,7 @@ ltrace \- A library call tracer
 
 .SH SYNOPSIS
 .B ltrace
-.I "[-bCfghiLrStttV] [-a column] [-A maxelts] [-D level] [-e expr] [-l filename] [-n nr] [-o filename] [-p pid] ... [-s strsize] [-u username] [-X extern] [-x extern] ... [--align=column] [--debug=level] [--demangle] [--help] [--indent=nr] [--library=filename] [--output=filename] [--version] [command [arg ...]]"
+.I "[-bCfghiLrStttV] [-a column] [-A maxelts] [-D level] [-e expr] [-l filename] [-n nr] [-o filename] [-p pid] ... [-s strsize] [-u username] [-w count] [-X extern] [-x extern] ... [--align=column] [--debug=level] [--demangle] [--help] [--indent=nr] [--library=filename] [--no-signals] [--output=filename] [--version] [--where=NR] [command [arg ...]]"
 
 .SH DESCRIPTION
 .B ltrace
@@ -163,6 +163,10 @@ Run command with the userid, groupid and supplementary groups of
 This option is only useful when running as root and enables the
 correct execution of setuid and/or setgid binaries.
 .TP
+.I \-w, --where NR
+Show backtrace of NR stack frames for each traced function. This option enabled
+only if libunwind support was enabled at compile time.
+.TP
 .I \-X extern
 Some architectures need to know where to set a breakpoint that will be hit
 after the dynamic linker has run.  If this flag is used, then the breakpoint
@@ -174,6 +178,8 @@ NOTE: this flag is only available on the architectures that need it.
 .I \-x extern
 Trace the external function
 .IR extern .
+This option will search the symbol table and lib-dl loaded libraries when
+attempting to match the given symbol name.
 This option may be repeated.
 .TP
 .I \-V, \-\-version
@@ -189,7 +195,6 @@ Option -f sometimes fails to trace some children.
 .LP
 It only works on Linux and in a small subset of architectures.
 .LP
-Calls to dlopen()ed libraries will not be traced.
 .PP
 If you would like to report a bug, send a message to the mailing list
 (ltrace-devel@lists.alioth.debian.org), or use the
