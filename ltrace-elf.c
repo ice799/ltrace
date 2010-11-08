@@ -1,4 +1,4 @@
-# include "config.h"
+#include "config.h"
 
 #include <endian.h>
 #include <errno.h>
@@ -22,6 +22,8 @@ int in_load_libraries(const char *name, struct ltelf *lte, size_t count, GElf_Sy
 static GElf_Addr opd2addr(struct ltelf *ltc, GElf_Addr addr);
 
 struct library_symbol *library_symbols = NULL;
+struct ltelf main_lte;
+
 #ifdef PLT_REINITALISATION_BP
 extern char *PLTs_initialized_by_here;
 #endif
@@ -142,7 +144,6 @@ do_init_elf(struct ltelf *lte, const char *filename) {
 	debug(DEBUG_FUNCTION, "do_init_elf(filename=%s)", filename);
 	debug(1, "Reading ELF from %s...", filename);
 
-	memset(lte, 0, sizeof(*lte));
 	lte->fd = open(filename, O_RDONLY);
 	if (lte->fd == -1)
 		error(EXIT_FAILURE, errno, "Can't open \"%s\"", filename);
@@ -608,14 +609,27 @@ read_elf(Process *proc) {
 
 	debug(DEBUG_FUNCTION, "read_elf(file=%s)", proc->filename);
 
+	memset(lte, 0, sizeof(*lte));
 	library_symbols = NULL;
 	library_num = 0;
+	proc->libdl_hooked = 0;
+
 	elf_version(EV_CURRENT);
 
 	do_init_elf(lte, proc->filename);
+
+	memcpy(&main_lte, lte, sizeof(struct ltelf));
+
+	if (opt_p && opt_p->pid > 0) {
+		linkmap_init(proc, lte);
+		proc->libdl_hooked = 1;
+	}
+
 	proc->e_machine = lte->ehdr.e_machine;
-	for (i = 0; i < library_num; ++i)
+
+	for (i = 0; i < library_num; ++i) {
 		do_init_elf(&lte[i + 1], library[i]);
+	}
 
 	if (!options.no_plt) {
 #ifdef __mips__
@@ -792,8 +806,8 @@ read_elf(Process *proc) {
 			}
 #endif
 			fprintf (stderr,
-				 "%s: Couldn't find symbol \"%s\" in file \"%s"
-			         "\"\n", badthing, xptr->name, proc->filename);
+				 "%s: Couldn't find symbol \"%s\" in file \"%s\" assuming it will be loaded by libdl!"
+				 "\n", badthing, xptr->name, proc->filename);
 		}
 	if (exit_out) {
 		exit (1);
