@@ -18,7 +18,7 @@ static void do_close_elf(struct ltelf *lte);
 static void add_library_symbol(GElf_Addr addr, const char *name,
 			       struct library_symbol **library_symbolspp,
 			       enum toplt type_of_plt, int is_weak);
-static int in_load_libraries(const char *name, struct ltelf *lte);
+static int in_load_libraries(const char *name, struct ltelf *lte, size_t count, GElf_Sym *sym);
 static GElf_Addr opd2addr(struct ltelf *ltc, GElf_Addr addr);
 
 #ifdef PLT_REINITALISATION_BP
@@ -497,17 +497,18 @@ private_elf_gnu_hash(const char *name) {
 }
 
 static int
-in_load_libraries(const char *name, struct ltelf *lte) {
+in_load_libraries(const char *name, struct ltelf *lte, size_t count, GElf_Sym *sym) {
 	size_t i;
 	unsigned long hash;
 	unsigned long gnu_hash;
 
-	if (!library_num)
+	if (!count)
 		return 1;
 
 	hash = elf_hash((const unsigned char *)name);
 	gnu_hash = private_elf_gnu_hash(name);
-	for (i = 1; i <= library_num; ++i) {
+
+	for (i = 0; i < count; ++i) {
 		if (lte[i].hash == NULL)
 			continue;
 
@@ -532,15 +533,20 @@ in_load_libraries(const char *name, struct ltelf *lte) {
 				do
 					if ((*hasharr & ~1u) == (gnu_hash & ~1u)) {
 						int symidx = hasharr - chain_zero;
-						GElf_Sym sym;
+						GElf_Sym tmp_sym;
+						GElf_Sym *tmp;
 
-						if (gelf_getsym(lte[i].dynsym, symidx, &sym) == NULL)
-							error(EXIT_FAILURE, 0,
-							      "Couldn't get symbol from .dynsym");
+						tmp = (sym) ? (sym) : (&tmp_sym);
 
-						if (sym.st_value != 0
-						    && sym.st_shndx != SHN_UNDEF
-						    && strcmp(name, lte[i].dynstr + sym.st_name) == 0)
+						if (gelf_getsym(lte[i].dynsym, symidx, tmp) == NULL)
+							error(EXIT_FAILURE, 0, "Couldn't get symbol from .dynsym");
+						else {
+							tmp->st_value += lte[i].base_addr;
+							debug(2, "symbol found: %s, %zd, %lx", name, i, tmp->st_value);
+						}
+						if (tmp->st_value != 0
+						    && tmp->st_shndx != SHN_UNDEF
+						    && strcmp(name, lte[i].dynstr + tmp->st_name) == 0)
 							return 1;
 					}
 				while ((*hasharr++ & 1u) == 0);
@@ -554,15 +560,22 @@ in_load_libraries(const char *name, struct ltelf *lte) {
 
 			for (symndx = buckets[hash % nbuckets];
 			     symndx != STN_UNDEF; symndx = chain[symndx]) {
-				GElf_Sym sym;
+				GElf_Sym tmp_sym;
+				GElf_Sym *tmp;
 
-				if (gelf_getsym(lte[i].dynsym, symndx, &sym) == NULL)
+				tmp = (sym) ? (sym) : (&tmp_sym);
+
+				if (gelf_getsym(lte[i].dynsym, symndx, tmp) == NULL)
 					error(EXIT_FAILURE, 0,
 					      "Couldn't get symbol from .dynsym");
+				else {
+					tmp->st_value += lte[i].base_addr;
+					debug(2, "symbol found: %s, %zd, %lx", name, i, tmp->st_value);
+				}
 
-				if (sym.st_value != 0
-				    && sym.st_shndx != SHN_UNDEF
-				    && strcmp(name, lte[i].dynstr + sym.st_name) == 0)
+				if (tmp->st_value != 0
+				    && tmp->st_shndx != SHN_UNDEF
+				    && strcmp(name, lte[i].dynstr + tmp->st_name) == 0)
 					return 1;
 			}
 		}
@@ -597,6 +610,7 @@ read_elf(Process *proc) {
 	struct opt_x_t *xptr;
 	struct library_symbol **lib_tail = NULL;
 	int exit_out = 0;
+	int count = 0;
 
 	debug(DEBUG_FUNCTION, "read_elf(file=%s)", proc->filename);
 
@@ -661,23 +675,25 @@ read_elf(Process *proc) {
 				proc->need_to_reinitialize_breakpoints = 1;
 #endif
 
-		name = lte->dynstr + sym.st_name;
-		if (in_load_libraries(name, lte)) {
-			enum toplt pltt;
-			if (sym.st_value == 0 && lte->plt_stub_vma != 0) {
-				pltt = LS_TOPLT_EXEC;
-				addr = lte->plt_stub_vma + PPC_PLT_STUB_SIZE * i;
-			}
-			else {
-				pltt = PLTS_ARE_EXECUTABLE(lte)
-					?  LS_TOPLT_EXEC : LS_TOPLT_POINT;
-				addr = arch_plt_sym_val(lte, i, &rela);
-			}
+			name = lte->dynstr + sym.st_name;
+			count = library_num ? library_num+1 : 0;
 
-			add_library_symbol(addr, name, &library_symbols, pltt,
-					   ELF64_ST_BIND(sym.st_info) == STB_WEAK);
-			if (!lib_tail)
-				lib_tail = &(library_symbols->next);
+			if (in_load_libraries(name, lte, count, NULL)) {
+				enum toplt pltt;
+				if (sym.st_value == 0 && lte->plt_stub_vma != 0) {
+					pltt = LS_TOPLT_EXEC;
+					addr = lte->plt_stub_vma + PPC_PLT_STUB_SIZE * i;
+				}
+				else {
+					pltt = PLTS_ARE_EXECUTABLE(lte)
+						?  LS_TOPLT_EXEC : LS_TOPLT_POINT;
+					addr = arch_plt_sym_val(lte, i, &rela);
+				}
+
+				add_library_symbol(addr, name, &library_symbols, pltt,
+						ELF64_ST_BIND(sym.st_info) == STB_WEAK);
+				if (!lib_tail)
+					lib_tail = &(library_symbols->next);
 			}
 		}
 #endif // !__mips__
