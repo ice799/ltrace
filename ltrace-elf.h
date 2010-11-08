@@ -35,6 +35,7 @@ struct ltelf {
 	GElf_Addr plt_stub_vma;
 };
 
+#define ELF_MAX_SEGMENTS  50
 #define LTE_HASH_MALLOCED 1
 #define LTE_PLT_EXECUTABLE 2
 
