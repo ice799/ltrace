@@ -177,6 +177,8 @@ struct Process {
 	struct library_symbol * list_of_symbols;
 
 	/* Arch-dependent: */
+	void * debug;	/* arch-dep process debug struct */
+	long debug_state; /* arch-dep debug state */
 	void * instruction_pointer;
 	void * stack_pointer;      /* To get return addr, args... */
 	void * return_addr;
@@ -267,4 +269,8 @@ extern int umovelong (Process * proc, void * addr, long * result, arg_type_info 
 extern size_t umovebytes (Process *proc, void * addr, void * laddr, size_t count);
 extern int ffcheck(void * maddr);
 extern void * sym2addr(Process *, struct library_symbol *);
+extern int linkmap_init(Process *, struct ltelf *);
+extern void arch_check_dbg(Process *proc);
 
+extern int libdl_hooked;
+extern struct ltelf main_lte;

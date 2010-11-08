@@ -15,4 +15,4 @@
 #define DEFAULT_ARRAYLEN  4	/* default maximum # array elements */
 #endif				/* (-A switch) */
 
-#define MAX_LIBRARIES 30
+#define MAX_LIBRARIES 200
