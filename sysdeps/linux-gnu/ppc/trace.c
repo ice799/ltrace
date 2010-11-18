@@ -72,7 +72,7 @@ gimme_arg_regset(enum tof type, Process *proc, int arg_num, arg_type_info *info,
 
 	if (info->type == ARGTYPE_FLOAT || info->type == ARGTYPE_DOUBLE) {
 		if (freg <= 13 || (proc->mask_32bit && freg <= 8)) {
-			double val = (*fpregs)[freg];
+			double val = GET_FPREG(*fpregs, freg);
 
 			if (info->type == ARGTYPE_FLOAT)
 				cvt.fval = val;
@@ -101,7 +101,7 @@ gimme_retval(Process *proc, int arg_num, arg_type_info *info,
 {
 	union { long val; float fval; double dval; } cvt;
 	if (info->type == ARGTYPE_FLOAT || info->type == ARGTYPE_DOUBLE) {
-		double val = (*fpregs)[1];
+		double val = GET_FPREG(*fpregs, 1);
 
 		if (info->type == ARGTYPE_FLOAT)
 			cvt.fval = val;
