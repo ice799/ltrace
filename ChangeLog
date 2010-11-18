@@ -1,3 +1,9 @@
+2010-11-18  Petr Machata  <pmachata@redhat.com>
+
+	* sysdeps/linux-gnu/ppc/ptrace.h (GET_FPREG): New macro.
+	(proc_archdep): Drop func_args, sysc_args.
+	* sysdeps/linux-gnu/ppc/trace.c: Use GET_FPREG.
+
 2010-11-05  Zachary T Welch <zwelch@codesourcery,com>
 
 	* testsuite/: Convert to autotools and add to distribution.
