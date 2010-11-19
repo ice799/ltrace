@@ -1,3 +1,8 @@
+2010-11-19  Petr Machata  <pmachata@redhat.com>
+
+	* testsuite/ltrace.minor/libdl-simple.exp: Use -ldl instead of
+	/usr/lib/libdl.so.
+
 2010-11-05  Zachary T Welch <zwelch@codesourcery,com>
 
 	* testsuite/: Convert to autotools and add to distribution.
