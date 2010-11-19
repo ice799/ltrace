@@ -257,10 +257,10 @@ proc ltrace_saveoutput { args } {
 #      0 = number of PATTERN in FILE_TO_SEARCH inqual to INSTANCE_NO.
 #      1 = number of PATTERN in FILE_TO_SEARCH qual to INSTANCE_NO.
 #
-proc ltrace_verify_output { file_to_search pattern {instance_no 0}} {
+proc ltrace_verify_output { file_to_search pattern {instance_no 0} {grep_command "grep"}} {
 
 	# compute the number of PATTERN in FILE_TO_SEARCH by grep and wc.
-	catch "exec sh -c {grep \"$pattern\" $file_to_search | wc -l ;exit}" output
+	catch "exec sh -c {$grep_command \"$pattern\" $file_to_search | wc -l ;exit}" output
 	verbose "output = $output"
 
 	if [ regexp "syntax error" $output ] then {
