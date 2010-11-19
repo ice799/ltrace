@@ -40,10 +40,10 @@ set pattern "SYS_brk"
 ltrace_verify_output ${objdir}/${subdir}/${testfile}.ltrace $pattern 1
 set pattern "SYS_open"
 ltrace_verify_output ${objdir}/${subdir}/${testfile}.ltrace $pattern 1
-set pattern "SYS_fstat"
-ltrace_verify_output ${objdir}/${subdir}/${testfile}.ltrace $pattern 1
-set pattern "SYS_mmap"
-ltrace_verify_output ${objdir}/${subdir}/${testfile}.ltrace $pattern 1
+set pattern "SYS_(new)?fstat"
+ltrace_verify_output ${objdir}/${subdir}/${testfile}.ltrace $pattern 1 egrep
+set pattern "SYS_(old_)?mmap"
+ltrace_verify_output ${objdir}/${subdir}/${testfile}.ltrace $pattern 1 egrep
 set pattern "SYS_close"
 ltrace_verify_output ${objdir}/${subdir}/${testfile}.ltrace $pattern 1
 
@@ -55,8 +55,8 @@ set pattern "SYS_symlink"
 ltrace_verify_output ${objdir}/${subdir}/${testfile}.ltrace $pattern 1
 set pattern "SYS_unlink"
 ltrace_verify_output ${objdir}/${subdir}/${testfile}.ltrace $pattern 1
-set pattern "SYS_stat"
-ltrace_verify_output ${objdir}/${subdir}/${testfile}.ltrace $pattern 1
+set pattern "SYS_(new)?stat"
+ltrace_verify_output ${objdir}/${subdir}/${testfile}.ltrace $pattern 1 egrep
 set pattern "SYS_access"
 ltrace_verify_output ${objdir}/${subdir}/${testfile}.ltrace $pattern 1
 set pattern "SYS_rename"
