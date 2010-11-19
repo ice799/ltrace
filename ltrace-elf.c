@@ -500,6 +500,27 @@ private_elf_gnu_hash(const char *name) {
 	return h & 0xffffffff;
 }
 
+static int
+symbol_matches(struct ltelf *lte, size_t lte_i, GElf_Sym *sym,
+	       size_t symidx, const char *name)
+{
+	GElf_Sym tmp_sym;
+	GElf_Sym *tmp;
+
+	tmp = (sym) ? (sym) : (&tmp_sym);
+
+	if (gelf_getsym(lte[lte_i].dynsym, symidx, tmp) == NULL)
+		error(EXIT_FAILURE, 0, "Couldn't get symbol from .dynsym");
+	else {
+		tmp->st_value += lte[lte_i].base_addr;
+		debug(2, "symbol found: %s, %zd, %lx",
+		      name, lte_i, tmp->st_value);
+	}
+	return tmp->st_value != 0
+		&& tmp->st_shndx != SHN_UNDEF
+		&& strcmp(name, lte[lte_i].dynstr + tmp->st_name) == 0;
+}
+
 int
 in_load_libraries(const char *name, struct ltelf *lte, size_t count, GElf_Sym *sym) {
 	size_t i;
@@ -537,20 +558,9 @@ in_load_libraries(const char *name, struct ltelf *lte, size_t count, GElf_Sym *s
 				do
 					if ((*hasharr & ~1u) == (gnu_hash & ~1u)) {
 						int symidx = hasharr - chain_zero;
-						GElf_Sym tmp_sym;
-						GElf_Sym *tmp;
-
-						tmp = (sym) ? (sym) : (&tmp_sym);
-
-						if (gelf_getsym(lte[i].dynsym, symidx, tmp) == NULL)
-							error(EXIT_FAILURE, 0, "Couldn't get symbol from .dynsym");
-						else {
-							tmp->st_value += lte[i].base_addr;
-							debug(2, "symbol found: %s, %zd, %lx", name, i, tmp->st_value);
-						}
-						if (tmp->st_value != 0
-						    && tmp->st_shndx != SHN_UNDEF
-						    && strcmp(name, lte[i].dynstr + tmp->st_name) == 0)
+						if (symbol_matches(lte, i,
+								   sym, symidx,
+								   name))
 							return 1;
 					}
 				while ((*hasharr++ & 1u) == 0);
@@ -563,25 +573,9 @@ in_load_libraries(const char *name, struct ltelf *lte, size_t count, GElf_Sym *s
 			chain = &lte[i].hash[2 + nbuckets];
 
 			for (symndx = buckets[hash % nbuckets];
-			     symndx != STN_UNDEF; symndx = chain[symndx]) {
-				GElf_Sym tmp_sym;
-				GElf_Sym *tmp;
-
-				tmp = (sym) ? (sym) : (&tmp_sym);
-
-				if (gelf_getsym(lte[i].dynsym, symndx, tmp) == NULL)
-					error(EXIT_FAILURE, 0,
-					      "Couldn't get symbol from .dynsym");
-				else {
-					tmp->st_value += lte[i].base_addr;
-					debug(2, "symbol found: %s, %zd, %lx", name, i, tmp->st_value);
-				}
-
-				if (tmp->st_value != 0
-				    && tmp->st_shndx != SHN_UNDEF
-				    && strcmp(name, lte[i].dynstr + tmp->st_name) == 0)
+			     symndx != STN_UNDEF; symndx = chain[symndx])
+				if (symbol_matches(lte, i, sym, symndx, name))
 					return 1;
-			}
 		}
 	}
 	return 0;

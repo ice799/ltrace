@@ -1,5 +1,12 @@
 2010-11-19  Petr Machata  <pmachata@redhat.com>
 
+	* ltrace-elf.c (symbol_matches): New function with code extracted
+	from in_load_libraries.
+	(in_load_libraries): Call symbol_matches from two places instead
+	of inlining it all.
+
+2010-11-19  Petr Machata  <pmachata@redhat.com>
+
 	* testsuite/ltrace.minor/libdl-simple.exp: Use -ldl instead of
 	/usr/lib/libdl.so.
 
