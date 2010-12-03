@@ -1,3 +1,9 @@
+2010-12-04  Joe Damato  <ice799@gmail.com>
+
+	* debian/control.in: Renamed to debian/control.
+	* debian/control: Added new build dependencies.
+	* debian/rules: Added support for autotools.
+
 2010-11-19  Petr Machata  <pmachata@redhat.com>
 
 	* testsuite/ltrace.main/system_calls.exp: On s390x, names of mmap,

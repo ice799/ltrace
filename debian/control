@@ -3,7 +3,7 @@ Section: utils
 Priority: optional
 Maintainer: Juan Cespedes <cespedes@debian.org>
 Standards-Version: 3.8.2
-Build-Depends: @cdbs@, binutils-dev, libelfg0-dev
+Build-Depends: cdbs, debhelper (>= 7), dh-autoreconf, binutils-dev, libelfg0-dev, libunwind7-dev [i386 amd64 ia64]
 
 Package: ltrace
 Architecture: i386 arm armeb armel s390 powerpc sparc alpha amd64 ia64 ppc64
