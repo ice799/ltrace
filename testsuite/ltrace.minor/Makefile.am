@@ -24,6 +24,9 @@ EXTRA_DIST = \
 	demangle.cpp \
 	demangle.exp \
 	demangle.h \
+	libdl-simple-lib.c \
+	libdl-simple.c \
+	libdl-simple.exp \
 	print-instruction-pointer.c \
 	print-instruction-pointer.exp \
 	time-record.c \
@@ -41,6 +44,6 @@ EXTRA_DIST = \
 CLEANFILES = *.o *.so *.log *.sum *.ltrace setval.tmp \
 	attach-process count-record demangle print-instruction-pointer \
 	time-record-T time-record-tt time-record-ttt trace-clone \
-	trace-exec trace-exec1 trace-fork
+	trace-exec trace-exec1 trace-fork libdl-simple
 
 MAINTAINERCLEANFILES = Makefile.in
