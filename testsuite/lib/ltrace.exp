@@ -274,6 +274,6 @@ proc ltrace_verify_output { file_to_search pattern {instance_no 0} {grep_command
 	} elseif { $output >= $instance_no } then {
 		pass "$pattern in $file_to_search for $output times"
 	} else {
-		fail "$pattern in $file_to_search for $output times ,should be $instance_no"
+		fail "$pattern in $file_to_search for $output times, should be $instance_no"
 	}
 }
