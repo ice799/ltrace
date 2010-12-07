@@ -178,7 +178,6 @@ umovebytes(Process *proc, void *addr, void *laddr, size_t len) {
 		long a;
 		char c[sizeof(long)];
 	} a;
-	int i;
 	int offset = 0, started = 0;
 	size_t bytes_read = 0;
 
