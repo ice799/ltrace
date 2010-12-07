@@ -5,6 +5,7 @@
 #include <error.h>
 #include <fcntl.h>
 #include <gelf.h>
+#include <inttypes.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
@@ -106,7 +107,7 @@ static GElf_Addr get_glink_vma(struct ltelf *lte, GElf_Addr ppcgot,
 	    && !get_section_covering(lte, ppcgot, &ppcgot_sec, &ppcgot_shdr))
 		// xxx should be the log out
 		fprintf(stderr,
-			"DT_PPC_GOT=%#lx, but no such section found.\n",
+			"DT_PPC_GOT=%#" PRIx64 ", but no such section found.\n",
 			ppcgot);
 
 	if (ppcgot_sec != NULL) {
@@ -119,7 +120,7 @@ static GElf_Addr get_glink_vma(struct ltelf *lte, GElf_Addr ppcgot,
 			size_t offset = ppcgot - ppcgot_shdr.sh_addr;
 			GElf_Addr glink_vma = read32be(data, offset + 4);
 			if (glink_vma != 0) {
-				debug(1, "PPC GOT glink_vma address: %#lx",
+				debug(1, "PPC GOT glink_vma address: %#" PRIx64,
 				      glink_vma);
 				return glink_vma;
 			}
@@ -128,7 +129,7 @@ static GElf_Addr get_glink_vma(struct ltelf *lte, GElf_Addr ppcgot,
 
 	if (plt_data != NULL) {
 		GElf_Addr glink_vma = read32be(plt_data, 0);
-		debug(1, ".plt glink_vma address: %#lx", glink_vma);
+		debug(1, ".plt glink_vma address: %#" PRIx64, glink_vma);
 		return glink_vma;
 	}
 
@@ -304,7 +305,7 @@ do_init_elf(struct ltelf *lte, const char *filename) {
 					relplt_size = dyn.d_un.d_val;
 				else if (dyn.d_tag == DT_PPC_GOT) {
 					ppcgot = dyn.d_un.d_val;
-					debug(1, "ppcgot %#lx", ppcgot);
+					debug(1, "ppcgot %#" PRIx64, ppcgot);
 				}
 			}
 		} else if (shdr.sh_type == SHT_HASH) {
@@ -419,7 +420,7 @@ do_init_elf(struct ltelf *lte, const char *filename) {
 			size_t count = relplt_size / 12; // size of RELA entry
 			lte->plt_stub_vma = glink_vma
 				- (GElf_Addr)count * PPC_PLT_STUB_SIZE;
-			debug(1, "stub_vma is %#lx", lte->plt_stub_vma);
+			debug(1, "stub_vma is %#" PRIx64, lte->plt_stub_vma);
 		}
 
 		for (i = 1; i < lte->ehdr.e_shnum; ++i) {
@@ -511,7 +512,7 @@ symbol_matches(struct ltelf *lte, size_t lte_i, GElf_Sym *sym,
 		error(EXIT_FAILURE, 0, "Couldn't get symbol from .dynsym");
 	else {
 		tmp->st_value += lte[lte_i].base_addr;
-		debug(2, "symbol found: %s, %zd, %lx",
+		debug(2, "symbol found: %s, %zd, %#" PRIx64,
 		      name, lte_i, tmp->st_value);
 	}
 	return tmp->st_value != 0
@@ -770,7 +771,8 @@ read_elf(Process *proc) {
 		GElf_Sym sym;
 		GElf_Addr addr;
 		if (in_load_libraries(xptr->name, lte, library_num+1, &sym)) {
-			debug(2, "found symbol %s @ %lx, adding it.", xptr->name, sym.st_value);
+			debug(2, "found symbol %s @ %#" PRIx64 ", adding it.",
+					xptr->name, sym.st_value);
 			addr = sym.st_value;
 			if (ELF32_ST_TYPE (sym.st_info) == STT_FUNC) {
 				add_library_symbol(addr, xptr->name, lib_tail, LS_TOPLT_NONE, 0);

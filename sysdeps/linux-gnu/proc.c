@@ -2,6 +2,7 @@
 #include "common.h"
 
 #include <sys/types.h>
+#include <inttypes.h>
 #include <link.h>
 #include <stdio.h>
 #include <string.h>
@@ -178,7 +179,9 @@ linkmap_add_cb(void *data) { //const char *lib_name, ElfW(Addr) addr) {
 			GElf_Addr addr;
 
 			if (in_load_libraries(xptr->name, &lte, 1, &sym)) {
-				debug(2, "found symbol %s @ %lx, adding it.", xptr->name, sym.st_value);
+				debug(2, "found symbol %s @ %#" PRIx64
+						", adding it.",
+						xptr->name, sym.st_value);
 				addr = sym.st_value;
 				add_library_symbol(addr, xptr->name, &library_symbols, LS_TOPLT_NONE, 0);
 				xptr->found = 1;
