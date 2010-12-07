@@ -75,7 +75,7 @@ EXTRA_DIST = \
 	ltrace.spec \
 	debian/changelog \
 	debian/compat \
-	debian/control.in \
+	debian/control \
 	debian/copyright \
 	debian/rules
 
