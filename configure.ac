@@ -66,13 +66,16 @@ AC_ARG_WITH(libunwind,
   [case "${withval}" in
   (yes|no) enable_libunwind=$withval;;
   (*) enable_libunwind=yes
-    CPPFLAGS="${CPPFLAGS} -I${withval}/include"
-    LDFLAGS="${LDFLAGS} -L${withval}/lib"
+    AM_CPPFLAGS="${AM_CPPFLAGS} -I${withval}/include"
+    AM_LDFLAGS="${AM_LDFLAGS} -L${withval}/lib"
     ;;
 esac],[enable_libunwind=maybe])
 
+saved_CPPFLAGS="${CPPFLAGS}"
+CPPFLAGS="${CPPFLAGS} ${AM_CPPFLAGS}"
 AC_CHECK_HEADERS([libunwind.h], [have_libunwind_h=yes])
 AC_CHECK_HEADERS([libunwind-ptrace.h], [have_libunwind_ptrace_h=yes])
+CPPFLAGS="${saved_CPPFLAGS}"
 
 AC_MSG_CHECKING([whether to use libunwind support])
 case "${enable_libunwind}" in
@@ -91,6 +94,8 @@ esac
 AC_MSG_RESULT([$enable_libunwind])
 
 if test x"$enable_libunwind" = xyes; then
+  saved_LDFLAGS="${LDFLAGS}"
+  LDFLAGS="${LDFLAGS} ${AM_LDFLAGS}"
   AC_CHECK_LIB(unwind, backtrace, libunwind_LIBS=-lunwind, libunwind_LIBS=)
   AC_SUBST(libunwind_LIBS)
   AC_CHECK_LIB(unwind-ptrace, _UPT_create, libunwind_ptrace_LIBS=-lunwind-ptrace, libunwind_ptrace_LIBS=)
@@ -108,6 +113,7 @@ if test x"$enable_libunwind" = xyes; then
   AC_CHECK_LIB(unwind-${UNWIND_ARCH}, _U${UNWIND_ARCH}_init_remote, libunwind_arch_LIBS=-lunwind-${UNWIND_ARCH}, libunwind_arch_LIBS=)
   AC_SUBST(libunwind_arch_LIBS)
   AC_DEFINE([HAVE_LIBUNWIND], [1], [we have libunwind])
+  LDFLAGS="${saved_LDFLAGS}"
 fi
 
 
@@ -135,8 +141,8 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <libelf.h>]], [[
 	[AC_MSG_RESULT([no])])
 CFLAGS="${saved_CFLAGS}"
 
-CPPFLAGS=" \
-	${CPPFLAGS} \
+AM_CPPFLAGS=" \
+	${AM_CPPFLAGS} \
 	-I\$(top_srcdir)/sysdeps/${HOST_OS}/${HOST_CPU} \
 	-I\$(top_srcdir)/sysdeps/${HOST_OS} \
 	-I\$(top_srcdir)/sysdeps \
@@ -209,7 +215,9 @@ if test x$enable_werror = xyes; then
     AM_CFLAGS="${AM_CFLAGS} -Werror"
 fi
 
+AC_SUBST(AM_CPPFLAGS)
 AC_SUBST(AM_CFLAGS)
+AC_SUBST(AM_LDFLAGS)
 
 AC_CONFIG_FILES([
 	Makefile

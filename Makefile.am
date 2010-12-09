@@ -3,7 +3,7 @@ SUBDIRS = \
 	. \
 	testsuite
 
-AM_CPPFLAGS = \
+AM_CPPFLAGS += \
 	$(libelf_CFLAGS) \
 	-DSYSCONFDIR=\"$(sysconfdir)\"
 
