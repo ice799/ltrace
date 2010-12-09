@@ -1,3 +1,33 @@
+2010-12-08  Zachary T Welch <zwelch@codesourcery.com>
+
+	* configure.ac: Make warning output independent of debug option.
+	  Add option to allow -Werror to be disabled. Switch CFLAGS,
+	  CPPFLAGS, and LDFLAGS to their AM_ variants to allow users to
+	  provide alternate settings during 'make'.  Remove -g/-O1/-O2
+	  options from configure script; autoconf sets them appropriately
+	  and the user should be in control of the desired optimizations.
+	  Check elf_hash parameter to see if it is signed/unsigned char,
+	  setting ELF_HASH_TAKES_SIGNED_CHAR as appropriate.
+	* handle_event.c (handle_breakpoint): Fix regression in
+	  system_calls.exp test on ARMv7a.  Also fixes libdl-simple.exp
+	  test on same platform.
+	* display_args.c, ltrace-elf.[ch], options.[ch],
+	  sysdeps/linux-gnu/{arm/trace,proc,trace}.c: Eliminate warnings
+	  that will cause build to fail with -Werror; these mostly were
+	  changes to avoid signed/unsigned comparisions.
+	* ltrace-elf.c (in_load_libraries): Use ELF_HASH_TAKES_SIGNED_CHAR
+
+2010-12-06  Zachary T Welch <zwelch@codesourcery.com>
+
+	* configure.ac: Fix e-mail address.
+	* testsuite/lib/ltrace.exp: Fix failure reporting string
+	* ltrace-elf.c, sysdeps/linux-gnu/proc.c: Use portable
+	  format specifiers from inttypes.h
+	* sysdeps/linux-gnu/trace.c (umovebytes): Remove unused variable
+	* Makefile.am: Fix distribution of renamed debian/control file.
+	* testsuite/ltrace.minor/Makefile.am: Include libdl-simple test
+	  in the distribution tarballs.
+
 2010-12-04  Joe Damato  <ice799@gmail.com>
 
 	* debian/control.in: Renamed to debian/control.
