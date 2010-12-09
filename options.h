@@ -11,8 +11,8 @@ struct options_t {
 	FILE *output;   /* output to a specific file */
 	int summary;    /* count time, calls, and report a summary on program exit */
 	int debug;      /* debug */
-	int arraylen;   /* default maximum # of array elements printed */
-	int strlen;     /* default maximum # of bytes printed in strings */
+	size_t arraylen;   /* default maximum # of array elements printed */
+	size_t strlen;     /* default maximum # of bytes printed in strings */
 	int follow;     /* trace child processes */
 	int no_plt;     /* set bps on PLT entries */
 	int no_signals; /* don't print signals */

@@ -143,7 +143,7 @@ load_debug_struct(Process *proc) {
 
 static void
 linkmap_add_cb(void *data) { //const char *lib_name, ElfW(Addr) addr) {
-	int i = 0;
+	size_t i = 0;
 	struct cb_data *lm_add = data;
 	struct ltelf lte;
 	struct opt_x_t *xptr;
@@ -252,13 +252,13 @@ hook_libdl_cb(void *data) {
 
 int
 linkmap_init(Process *proc, struct ltelf *lte) {
-	void *dbg_addr = NULL;
+	void *dbg_addr = NULL, *dyn_addr = (void *)(unsigned)lte->dyn_addr;
 	struct r_debug *rdbg = NULL;
 	struct cb_data data;
 
 	debug(DEBUG_FUNCTION, "linkmap_init()");
 
-	if (find_dynamic_entry_addr(proc, (void *)lte->dyn_addr, DT_DEBUG, &dbg_addr) == -1) {
+	if (find_dynamic_entry_addr(proc, dyn_addr, DT_DEBUG, &dbg_addr) == -1) {
 		debug(2, "Couldn't find debug structure!");
 		return -1;
 	}

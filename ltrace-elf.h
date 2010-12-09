@@ -41,7 +41,7 @@ struct ltelf {
 
 #define PLTS_ARE_EXECUTABLE(lte) ((lte->lte_flags & LTE_PLT_EXECUTABLE) != 0)
 
-extern int library_num;
+extern size_t library_num;
 extern char *library[MAX_LIBRARIES];
 
 extern struct library_symbol *read_elf(Process *);

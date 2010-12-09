@@ -37,7 +37,7 @@ struct options_t options = {
 };
 
 char *library[MAX_LIBRARIES];
-int library_num = 0;
+size_t library_num = 0;
 static char *progname;		/* Program name (`ltrace') */
 int opt_i = 0;			/* instruction pointer */
 int opt_r = 0;			/* print relative timestamp */

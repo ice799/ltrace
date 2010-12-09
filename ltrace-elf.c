@@ -762,7 +762,7 @@ read_elf(Process *proc) {
 			}
 	}
 
-	int found_count = 0;
+	unsigned found_count = 0;
 
 	for (xptr = opt_x; xptr; xptr = xptr->next) {
 		if (xptr->found)

@@ -15,8 +15,8 @@ static int display_value(enum tof type, Process *proc,
 static int display_unknown(enum tof type, Process *proc, long value);
 static int display_format(enum tof type, Process *proc, int arg_num);
 
-static int string_maxlength = INT_MAX;
-static int array_maxlength = INT_MAX;
+static size_t string_maxlength = INT_MAX;
+static size_t array_maxlength = INT_MAX;
 
 static long
 get_length(enum tof type, Process *proc, int len_spec,
@@ -59,8 +59,8 @@ display_arrayptr(enum tof type, Process *proc,
 			    void *addr, arg_type_info * info,
 			    void *st, arg_type_info* st_info) {
 	int len = 0;
-	int i;
-	int array_len;
+	size_t i;
+	size_t array_len;
 
 	if (addr == NULL)
 		return fprintf(options.output, "NULL");
@@ -143,7 +143,7 @@ display_pointer(enum tof type, Process *proc, long value,
 static int
 display_enum(enum tof type, Process *proc,
 		arg_type_info* info, long value) {
-	int ii;
+	size_t ii;
 	for (ii = 0; ii < info->u.enum_info.entries; ++ii) {
 		if (info->u.enum_info.values[ii] == value)
 			return fprintf(options.output, "%s", info->u.enum_info.keys[ii]);
@@ -281,7 +281,7 @@ static int
 display_string(enum tof type, Process *proc, void *addr,
 			  size_t maxlength) {
 	unsigned char *str1;
-	int i;
+	size_t i;
 	int len = 0;
 
 	if (!addr) {
@@ -328,7 +328,7 @@ display_format(enum tof type, Process *proc, int arg_num) {
 	void *addr;
 	unsigned char *str1;
 	int i;
-	int len = 0;
+	size_t len = 0;
 	arg_type_info info;
 
 	info.type = ARGTYPE_POINTER;

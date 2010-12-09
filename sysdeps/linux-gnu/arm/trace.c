@@ -46,7 +46,7 @@ syscall_p(Process *proc, int status, int *sysnum) {
 		/* get the user's pc (plus 8) */
 		int pc = ptrace(PTRACE_PEEKUSER, proc->pid, off_pc, 0);
 		/* fetch the SWI instruction */
-		int insn = ptrace(PTRACE_PEEKTEXT, proc->pid, pc - 4, 0);
+		unsigned insn = ptrace(PTRACE_PEEKTEXT, proc->pid, pc - 4, 0);
 		int ip = ptrace(PTRACE_PEEKUSER, proc->pid, off_ip, 0);
 
 		if (insn == 0xef000000 || insn == 0x0f000000

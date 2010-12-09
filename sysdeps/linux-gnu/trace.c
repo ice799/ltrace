@@ -178,8 +178,8 @@ umovebytes(Process *proc, void *addr, void *laddr, size_t len) {
 		long a;
 		char c[sizeof(long)];
 	} a;
-	int offset = 0, started = 0;
-	size_t bytes_read = 0;
+	int started = 0;
+	size_t offset = 0, bytes_read = 0;
 
 	while (offset < len) {
 		a.a = ptrace(PTRACE_PEEKTEXT, proc->pid, addr + offset, 0);
@@ -215,7 +215,7 @@ umovestr(Process *proc, void *addr, int len, void *laddr) {
 		long a;
 		char c[sizeof(long)];
 	} a;
-	int i;
+	unsigned i;
 	int offset = 0;
 
 	while (offset < len) {
