@@ -143,8 +143,6 @@ CPPFLAGS=" \
 	-I\$(top_srcdir) \
 "
 
-CFLAGS="${CFLAGS} -Wall"
-
 # Checks for header files.
 AC_CHECK_HEADERS([ \
 	fcntl.h \
@@ -199,16 +197,22 @@ AC_ARG_ENABLE(debug,
     [CONFIG_DEBUG=no])
 AC_MSG_RESULT([${CONFIG_DEBUG}])
 if test "${CONFIG_DEBUG}" = "yes"; then
-    CFLAGS="${CFLAGS} -Werror -Wsign-compare -Wfloat-equal -Wformat-security -g -O1"
+    CFLAGS="${CFLAGS} -g -O1"
     AC_DEFINE(DEBUG, 1, [debugging])
 else
     CFLAGS="${CFLAGS} -O2"
 fi
 
-dnl 	testsuite/Makefile
-dnl 	testsuite/ltrace.main/Makefile
-dnl 	testsuite/ltrace.minor/Makefile
-dnl 	testsuite/ltrace.torture/Makefile
+# Ignore the compiler's warnings at your own risk.
+AM_CFLAGS="${AM_CFLAGS} -Wall -Wsign-compare -Wfloat-equal -Wformat-security"
+AC_ARG_ENABLE([werror],
+    AS_HELP_STRING([--disable-werror], [disable use of -Werror]),
+    [enable_werror=$enableval], [enable_werror=yes])
+if test x$enable_werror = xyes; then
+    AM_CFLAGS="${AM_CFLAGS} -Werror"
+fi
+
+AC_SUBST(AM_CFLAGS)
 
 AC_CONFIG_FILES([
 	Makefile
