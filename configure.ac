@@ -197,10 +197,7 @@ AC_ARG_ENABLE(debug,
     [CONFIG_DEBUG=no])
 AC_MSG_RESULT([${CONFIG_DEBUG}])
 if test "${CONFIG_DEBUG}" = "yes"; then
-    CFLAGS="${CFLAGS} -g -O1"
     AC_DEFINE(DEBUG, 1, [debugging])
-else
-    CFLAGS="${CFLAGS} -O2"
 fi
 
 # Ignore the compiler's warnings at your own risk.
