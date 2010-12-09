@@ -529,7 +529,11 @@ in_load_libraries(const char *name, struct ltelf *lte, size_t count, GElf_Sym *s
 	if (!count)
 		return 1;
 
+#ifdef ELF_HASH_TAKES_SIGNED_CHAR
+	hash = elf_hash(name);
+#else
 	hash = elf_hash((const unsigned char *)name);
+#endif
 	gnu_hash = private_elf_gnu_hash(name);
 
 	for (i = 0; i < count; ++i) {
