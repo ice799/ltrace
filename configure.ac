@@ -33,8 +33,27 @@ AC_PROG_LIBTOOL
 AM_INIT_AUTOMAKE([foreign no-exeext dist-bzip2])
 AM_MAINTAINER_MODE
 
+AC_ARG_WITH([libelf],
+  AS_HELP_STRING([--with-libelf], [Prefix of libelf headers/library]),
+  [case "${withval}" in
+  (no)
+    AC_MSG_ERROR([*** libelf is a required dependency])
+    ;;
+  (yes)
+    AC_MSG_ERROR([*** --with-libelf requires you to specify a path])
+    ;;
+  (*)
+    AM_CPPFLAGS="${AM_CPPFLAGS} -I${withval}/include"
+    AM_LDFLAGS="${AM_LDFLAGS} -L${withval}/lib"
+    ;;
+esac],[])
+
 # Checks for libraries.
 
+saved_CPPFLAGS="${CPPFLAGS}"
+saved_LDFLAGS="${LDFLAGS}"
+CPPFLAGS="${CPPFLAGS} ${AM_CPPFLAGS}"
+LDFLAGS="${LDFLAGS} ${AM_LDFLAGS}"
 # libelf
 AC_CHECK_HEADERS([elf.h gelf.h],,
 	[AC_MSG_ERROR([*** libelf.h or gelf.h not found on your system])]
@@ -42,6 +61,8 @@ AC_CHECK_HEADERS([elf.h gelf.h],,
 AC_CHECK_LIB([elf], [elf_begin],,
 	[AC_MSG_ERROR([*** libelf not found on your system])]
 )
+CPPFLAGS="${saved_CPPFLAGS}"
+LDFLAGS="${saved_LDFLAGS}"
 
 
 # HAVE_LIBIBERTY
@@ -117,6 +138,10 @@ if test x"$enable_libunwind" = xyes; then
 fi
 
 
+saved_CPPFLAGS="${CPPFLAGS}"
+saved_LDFLAGS="${LDFLAGS}"
+CPPFLAGS="${CPPFLAGS} ${AM_CPPFLAGS}"
+LDFLAGS="${LDFLAGS} ${AM_LDFLAGS}"
 # HAVE_ELF_C_READ_MMAP
 AC_MSG_CHECKING([whether elf_begin accepts ELF_C_READ_MMAP])
 AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <gelf.h>]], [[
@@ -140,6 +165,8 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <libelf.h>]], [[
 	 AC_MSG_RESULT([yes])],
 	[AC_MSG_RESULT([no])])
 CFLAGS="${saved_CFLAGS}"
+CPPFLAGS="${saved_CPPFLAGS}"
+LDFLAGS="${saved_LDFLAGS}"
 
 AM_CPPFLAGS=" \
 	${AM_CPPFLAGS} \
