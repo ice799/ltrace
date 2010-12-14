@@ -112,7 +112,9 @@ crawl_linkmap(Process *proc, struct r_debug *dbg, void (*callback)(void *), stru
 		}
 
 		if (callback) {
-			debug(2, "Dispatching callback for: %s, Loaded at 0x%x\n", lib_name, rlm.l_addr);
+			debug(2, "Dispatching callback for: %s, "
+					"Loaded at 0x%" PRI_ELF_ADDR "\n",
+					lib_name, rlm.l_addr);
 			data->addr = rlm.l_addr;
 			data->lib_name = lib_name;
 			callback(data);
@@ -252,7 +254,7 @@ hook_libdl_cb(void *data) {
 
 int
 linkmap_init(Process *proc, struct ltelf *lte) {
-	void *dbg_addr = NULL, *dyn_addr = (void *)(unsigned)lte->dyn_addr;
+	void *dbg_addr = NULL, *dyn_addr = GELF_ADDR_CAST(lte->dyn_addr);
 	struct r_debug *rdbg = NULL;
 	struct cb_data data;
 

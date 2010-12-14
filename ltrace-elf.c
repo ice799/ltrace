@@ -363,8 +363,9 @@ do_init_elf(struct ltelf *lte, const char *filename) {
 			if (shdr.sh_entsize != 0
 			    && shdr.sh_entsize != 4) {
 				error(EXIT_FAILURE, 0,
-				      ".gnu.hash sh_entsize in \"%s\" should be 4, but is %llu",
-				      filename, shdr.sh_entsize);
+				      ".gnu.hash sh_entsize in \"%s\" "
+					"should be 4, but is %#" PRIx64,
+					filename, shdr.sh_entsize);
 			}
 
 			data = loaddata(scn, &shdr);

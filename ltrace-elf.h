@@ -51,4 +51,13 @@ extern GElf_Addr arch_plt_sym_val(struct ltelf *, size_t, GElf_Rela *);
 #ifndef SHT_GNU_HASH
 #define SHT_GNU_HASH	0x6ffffff6	/* GNU-style hash table. */
 #endif
+
+#if __WORDSIZE == 32
+#define PRI_ELF_ADDR		PRIx32
+#define GELF_ADDR_CAST(x)	(void *)(uint32_t)(x)
+#else
+#define PRI_ELF_ADDR		PRIx64
+#define GELF_ADDR_CAST(x)	(void *)(x)
+#endif
+
 #endif
