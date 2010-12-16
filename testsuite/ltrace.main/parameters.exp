@@ -35,6 +35,8 @@ if [regexp {ELF from incompatible architecture} $exec_output] {
 	return
 }
 
+set xfail_spec {"arm*-*" "i*86-*"}
+
 # Verify the output
 set pattern "func_intptr(17)"
 ltrace_verify_output ${objdir}/${subdir}/${testfile}.ltrace $pattern 1
@@ -56,6 +58,7 @@ set pattern "func_ushort(33, 34)"
 ltrace_verify_output ${objdir}/${subdir}/${testfile}.ltrace $pattern 1
 set pattern "func_float(3.40*, -3.40*).*= 3.40*"
 ltrace_verify_output ${objdir}/${subdir}/${testfile}.ltrace $pattern 1
+eval "setup_xfail $xfail_spec"
 set pattern "func_double(3.40*, -3.40*).*= -3.40*"
 ltrace_verify_output ${objdir}/${subdir}/${testfile}.ltrace $pattern 1
 set pattern "func_typedef(BLUE)"
@@ -76,5 +79,6 @@ set pattern "func_call( <unfinished ...>"
 ltrace_verify_output ${objdir}/${subdir}/${testfile}.ltrace $pattern 1
 set pattern "func_work(\\\"x\\\")"
 ltrace_verify_output ${objdir}/${subdir}/${testfile}.ltrace $pattern 1
+eval "setup_xfail $xfail_spec"
 set pattern "<... func_call resumed> \\\"x\\\", \\\"y\\\")"
 ltrace_verify_output ${objdir}/${subdir}/${testfile}.ltrace $pattern 1
