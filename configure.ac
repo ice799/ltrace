@@ -45,6 +45,7 @@ AC_ARG_WITH([libelf],
   (*)
     AM_CPPFLAGS="${AM_CPPFLAGS} -I${withval}/include"
     AM_LDFLAGS="${AM_LDFLAGS} -L${withval}/lib"
+    libelf_LD_LIBRARY_PATH="${withval}/lib"
     ;;
 esac],[])
 
@@ -89,6 +90,7 @@ AC_ARG_WITH(libunwind,
   (*) enable_libunwind=yes
     AM_CPPFLAGS="${AM_CPPFLAGS} -I${withval}/include"
     AM_LDFLAGS="${AM_LDFLAGS} -L${withval}/lib"
+    libunwind_LD_LIBRARY_PATH="${withval}/lib"
     ;;
 esac],[enable_libunwind=maybe])
 
@@ -245,6 +247,8 @@ fi
 AC_SUBST(AM_CPPFLAGS)
 AC_SUBST(AM_CFLAGS)
 AC_SUBST(AM_LDFLAGS)
+AC_SUBST(libelf_LD_LIBRARY_PATH)
+AC_SUBST(libunwind_LD_LIBRARY_PATH)
 
 AC_CONFIG_FILES([
 	Makefile

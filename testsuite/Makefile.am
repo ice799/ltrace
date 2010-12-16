@@ -29,6 +29,13 @@ EXTRA_DIST = \
 	lib/ltrace.exp \
 	run-my-tests.sh
 
-CLEANFILES = *.o *.so *.log *.sum *.ltrace site.bak setval.tmp site.exp
+BUILT_SOURCES = env.exp
+
+env.exp: Makefile
+	rm -f env.exp
+	echo set libelf_LD_LIBRARY_PATH '"$(libelf_LD_LIBRARY_PATH)"' >> $@
+	echo set libunwind_LD_LIBRARY_PATH '"$(libunwind_LD_LIBRARY_PATH)"' >> $@
+
+CLEANFILES = *.o *.so *.log *.sum *.ltrace site.bak setval.tmp site.exp env.exp
 
 MAINTAINERCLEANFILES = Makefile.in

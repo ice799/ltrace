@@ -4,6 +4,7 @@
 # need to be modified for any target, it can be done with a variable
 # or by passing arguments.
 
+source $objdir/env.exp
 
 global LTRACE
 if [info exists TOOL_EXECUTABLE] {
@@ -14,6 +15,8 @@ if [info exists TOOL_EXECUTABLE] {
 
 global LTRACE_OPTIONS
 set LTRACE_OPTIONS "";
+global LTRACE_ARGS
+set LTRACE_ARGS "";
 
 # ltrace_compile SOURCE DEST TYPE OPTIONS 
 #
@@ -196,6 +199,37 @@ proc ltrace_options { args } {
 }
 
 #
+# ltrace_args ARGS_LIST
+# Pass ltrace'd program its own commandline options.
+#
+proc ltrace_args { args } {
+
+	global LTRACE_ARGS
+	set LTRACE_ARGS $args
+}
+
+#
+# handle run-time library paths
+#
+proc ld_library_path { args } {
+
+	set ALL_LIBRARY_PATHS { }
+	if [info exists LD_LIBRARY_PATH] {
+		lappend ALL_LIBRARY_PATHS $LD_LIBRARY_PATH
+	}
+	global libelf_LD_LIBRARY_PATH
+	if {[string length $libelf_LD_LIBRARY_PATH] > 0} {
+		lappend ALL_LIBRARY_PATHS $libelf_LD_LIBRARY_PATH
+	}
+	global libunwind_LD_LIBRARY_PATH
+	if {[string length $libunwind_LD_LIBRARY_PATH] > 0} {
+		lappend ALL_LIBRARY_PATHS $libunwind_LD_LIBRARY_PATH
+	}
+	lappend ALL_LIBRARY_PATHS $args
+	join $ALL_LIBRARY_PATHS ":"
+}
+
+#
 # ltrace_runtest LD_LIBRARY_PATH BIN FILE
 # Trace the execution of BIN and return result.
 #
@@ -208,10 +242,11 @@ proc ltrace_runtest { args } {
 
 	global LTRACE
 	global LTRACE_OPTIONS
+	global LTRACE_ARGS
 
 	verbose "LTRACE = $LTRACE"
 	
-	set LD_LIBRARY_PATH_ [lindex $args 0]
+	set LD_LIBRARY_PATH_ [ld_library_path [lindex $args 0]]
 	set BIN [lindex $args 1]
 
 	# specify the output file, the default one is $BIN.ltrace
@@ -225,7 +260,7 @@ proc ltrace_runtest { args } {
 	lappend LTRACE_OPTIONS "$file"
 	verbose "LTRACE_OPTIONS = $LTRACE_OPTIONS"
 	#ltrace the PUT.
-	catch "exec sh -c {export LD_LIBRARY_PATH=$LD_LIBRARY_PATH_; $LTRACE $LTRACE_OPTIONS $BIN;exit}" output
+	catch "exec sh -c {export LD_LIBRARY_PATH=$LD_LIBRARY_PATH_; $LTRACE $LTRACE_OPTIONS $BIN $LTRACE_ARGS;exit}" output
 	
 	# return output from ltrace.
 	return $output
