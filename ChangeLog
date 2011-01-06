@@ -1,3 +1,7 @@
+2011-01-06  Joe Damato  <ice799@gmail.com>
+
+	* New release 0.6.0
+
 2010-12-08  Zachary T Welch <zwelch@codesourcery.com>
 
 	* configure.ac: Make warning output independent of debug option.
