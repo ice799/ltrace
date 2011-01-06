@@ -1,3 +1,12 @@
+ltrace (0.6-1) unstable; urgency=low
+
+  * New upstream release
+  * Support for cris added
+  * Numerous bugfixes for MIPS, ARM, and PPC
+  * Support for libunwind and libdl
+
+ -- Joe Damato <ice799@gmail.com>  Fri, 10 Dec 2010 00:41:20 -0800
+
 ltrace (0.5.3-2) unstable; urgency=low
 
   * Fixed compilation problems in armel, ia64 and powerpc (closes: Bug#538441)
