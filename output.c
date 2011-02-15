@@ -202,7 +202,9 @@ output_left(enum tof type, Process *proc, char *function_name) {
 				current_column += fprintf(options.output, ", ");
 			}
 		}
-		if (func->params_right) {
+		if (func->params_right
+		    || func->return_info->type == ARGTYPE_STRING_N
+		    || func->return_info->type == ARGTYPE_ARRAY) {
 			save_register_args(type, proc);
 		}
 	}

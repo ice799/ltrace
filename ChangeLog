@@ -1,3 +1,8 @@
+2011-02-15  Petr Machata  <pmachata@redhat.com>
+
+	* output.c (output_left): Save register args also for
+	ARGTYPE_ARRAY and ARGTYPE_STRING_N arguments.
+
 2011-01-06  Joe Damato  <ice799@gmail.com>
 
 	* New release 0.6.0
@@ -42,11 +47,6 @@
 
 	* testsuite/ltrace.main/system_calls.exp: On s390x, names of mmap,
 	fstat and stat system calls are different.
-
-2010-11-19  Petr Machata  <pmachata@redhat.com>
-
-	* testsuite/lib/ltrace.exp (ltrace_verify_output): Add function
-	argument with grep flavor to use.
 
 2010-11-19  Petr Machata  <pmachata@redhat.com>
 
